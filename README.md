@@ -42,6 +42,7 @@ TBBD HR Portal is continuously evolving to provide secure, intelligent, and scal
 - Ownership
 - Contributing
 - License
+- Acknowledgements
 
 ---
 
@@ -99,8 +100,8 @@ TBBD HR Portal is continuously evolving to provide secure, intelligent, and scal
 - Microsoft Entra ID
 - Azure App Service
 - Azure Container Apps
-- Azure Storage
 - Azure SQL Database
+- Azure Storage
 - Azure Monitor
 - Azure AI Foundry
 - Azure OpenAI
@@ -167,7 +168,7 @@ TBBD-HR-Portal/
 ├── infrastructure/      Infrastructure as Code (Bicep, ARM)
 ├── scripts/             Automation and maintenance scripts
 ├── tests/               Unit and integration tests
-├── assets/              Images, icons, and branding resources
+├── assets/              Images, icons, diagrams, and branding resources
 ├── LICENSE              MIT License
 └── README.md            Project documentation
 ```
@@ -176,9 +177,7 @@ TBBD-HR-Portal/
 
 # Security
 
-This repository follows enterprise security best practices.
-
-Security principles include:
+TBBD HR Portal follows enterprise security best practices, including:
 
 - Least Privilege Access
 - Multi-Factor Authentication (MFA)
@@ -269,6 +268,8 @@ Designated automation account responsible for:
 - Repository automation
 
 > These accounts are used exclusively for platform administration and automation and are not part of the application runtime.
+
+All administrative activities follow the organization's governance, security, and compliance standards.
 
 ---
 
