@@ -13,7 +13,7 @@
 
 TBBD HR Portal is the enterprise Human Resources Management Platform developed for **Talent Bridge BD (TBBD)** under **Loyal Trade Management Ltd. (LTBD)**.
 
-The platform digitizes the complete employee lifecycle by integrating recruitment, onboarding, employee self-service, document management, workflow automation, and AI-powered HR services into a unified cloud-native solution.
+The platform streamlines the complete employee lifecycle by integrating recruitment, onboarding, employee self-service, workforce management, document management, workflow automation, and AI-powered HR services into a secure cloud-native solution.
 
 ---
 
@@ -21,7 +21,7 @@ The platform digitizes the complete employee lifecycle by integrating recruitmen
 
 **Status:** Active Development
 
-TBBD HR Portal is continuously evolving to provide secure, intelligent, and scalable HR solutions for modern organizations.
+TBBD HR Portal is continuously evolving to deliver secure, intelligent, scalable, and enterprise-ready HR solutions.
 
 ---
 
@@ -67,9 +67,9 @@ TBBD HR Portal is continuously evolving to provide secure, intelligent, and scal
 ## Recruitment & Onboarding
 
 - Candidate onboarding
-- Digital employee registration
+- Employee registration
 - Approval workflows
-- Automated onboarding
+- Digital onboarding
 
 ## Leave & Attendance
 
@@ -151,7 +151,7 @@ AI Services
    ├── Azure OpenAI
    ├── Azure AI Search
    ├── TBBD TalentAI
-   └── MCP Services
+   └── Model Context Protocol (MCP)
 ```
 
 ---
@@ -198,12 +198,12 @@ Repository documentation includes:
 
 - Solution Architecture
 - Deployment Guide
-- Operations Guide
 - Administrator Guide
+- Operations Guide
 - User Guide
 - Security Standards
 - Configuration Guide
-- Troubleshooting
+- Troubleshooting Guide
 - Best Practices
 
 ---
@@ -254,7 +254,8 @@ Designated administrative account responsible for:
 - Enterprise security
 - Policy and compliance management
 - Platform operations
-- Repository configuration and access management
+- Repository configuration
+- Access management
 
 ### MoazzemHossain-bot
 
@@ -266,6 +267,7 @@ Designated automation account responsible for:
 - Scheduled workflows
 - Deployment automation
 - Repository automation
+- Operational automation
 
 > These accounts are used exclusively for platform administration and automation and are not part of the application runtime.
 
@@ -287,9 +289,9 @@ All administrative activities follow the organization's governance, security, an
 
 # Contributing
 
-Contributions that improve platform reliability, automation, documentation, security, and developer productivity are welcome.
+Contributions that improve platform reliability, documentation, security, automation, and developer productivity are welcome.
 
-Please use GitHub Issues and Pull Requests to report issues, request enhancements, or contribute improvements.
+Please use GitHub Issues and Pull Requests to report bugs, request enhancements, or contribute improvements.
 
 ---
 
@@ -301,7 +303,7 @@ This project is licensed under the MIT License.
 
 # Acknowledgements
 
-TBBD HR Portal is part of the Talent Bridge BD enterprise technology ecosystem and provides secure, scalable, and AI-powered Human Resources management through Microsoft Azure, Azure AI Foundry, Azure OpenAI, Microsoft Entra ID, and enterprise cloud services.
+TBBD HR Portal is part of the Talent Bridge BD enterprise technology ecosystem and supports secure, scalable, AI-powered Human Resources management through Microsoft Azure, Azure AI Foundry, Azure OpenAI, Microsoft Entra ID, and enterprise cloud services.
 
 ---
 
