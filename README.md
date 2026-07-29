@@ -161,7 +161,7 @@ AI Services
 ```text
 TBBD-HR-Portal/
 ├── .github/             GitHub workflows and repository configuration
-├── docs/                Architecture and technical documentation
+├── documentation/       Architecture and technical documentation
 ├── src/                 Application source code
 ├── components/          Reusable application components
 ├── services/            Business services and integrations
@@ -239,39 +239,37 @@ Planned enhancements include:
 
 ---
 
+---
+
 # Governance
 
-This repository is maintained under the **Talent-Bridge-BD** GitHub Organization and follows enterprise governance, security, and DevOps standards.
+This repository is maintained under the **Talent-Bridge-BD GitHub Organization** and follows enterprise governance, security, and DevOps standards.
 
 ## Administrative Accounts
 
 ### LTBD-Admin
 
-Designated administrative account responsible for:
+Primary administrative identity responsible for:
 
-- Organization governance
+- GitHub Organization ownership
 - Repository administration
-- Enterprise security
-- Policy and compliance management
-- Platform operations
-- Repository configuration
+- Security governance
 - Access management
+- Policy management
+- Platform configuration
 
 ### MoazzemHossain-bot
 
-Designated automation account responsible for:
+Automation identity responsible for:
 
 - GitHub Actions
-- CI/CD execution
-- Azure DevOps automation
-- Scheduled workflows
-- Deployment automation
-- Repository automation
-- Operational automation
+- CI/CD workflows
+- Azure automation
+- Deployment pipelines
+- Scheduled automation
+- Repository operations
 
-> These accounts are used exclusively for platform administration and automation and are not part of the application runtime.
-
-All administrative activities follow the organization's governance, security, and compliance standards.
+> Administrative identities are used only for governance and automation purposes and are not part of application runtime operations.
 
 ---
 
@@ -280,18 +278,25 @@ All administrative activities follow the organization's governance, security, an
 | Item | Value |
 |------|-------|
 | Organization | Talent-Bridge-BD |
-| Company | Loyal Trade Management Ltd (LTBD) |
-| Repository | TBBD HR Portal |
-| Repository Type | Enterprise HR Platform |
-| Visibility | Private |
+| Company | Loyal Trade Management Ltd. (LTBD) |
+| Repository | TBBD-HR-Portal |
+| Platform Type | Enterprise HR Management Platform |
+| Cloud Provider | Microsoft Azure |
+| AI Platform | Azure AI Foundry |
+| Visibility | Public |
 
 ---
 
 # Contributing
 
-Contributions that improve platform reliability, documentation, security, automation, and developer productivity are welcome.
+Contributions are welcome for:
 
-Please use GitHub Issues and Pull Requests to report bugs, request enhancements, or contribute improvements.
+- Platform improvements
+- Documentation updates
+- Security improvements
+- Automation enhancements
+
+Please use GitHub Issues and Pull Requests for all changes.
 
 ---
 
@@ -299,12 +304,22 @@ Please use GitHub Issues and Pull Requests to report bugs, request enhancements,
 
 This project is licensed under the MIT License.
 
+Copyright (c) 2026 Loyal Trade Management Ltd. (LTBD)
+
 ---
 
 # Acknowledgements
 
-TBBD HR Portal is part of the Talent Bridge BD enterprise technology ecosystem and supports secure, scalable, AI-powered Human Resources management through Microsoft Azure, Azure AI Foundry, Azure OpenAI, Microsoft Entra ID, and enterprise cloud services.
+TBBD HR Portal is part of the Talent Bridge BD enterprise technology ecosystem.
 
----
+Powered by:
 
-© 2026 Loyal Trade Management Ltd (LTBD). All rights reserved.
+- Microsoft Azure
+- Azure AI Foundry
+- Azure OpenAI
+- Microsoft Entra ID
+- Microsoft 365
+- GitHub Platform
+- Enterprise DevOps Practices
+
+© 2026 Loyal Trade Management Ltd. (LTBD). All rights reserved.
