@@ -217,7 +217,7 @@ If you're new to the project, we recommend reviewing the documentation in the fo
 
 ## Documentation
 
-The repository follows a modular documentation approach. Detailed technical content is organized into dedicated documentation areas to keep the repository easy to navigate, maintain, and expand.
+The repository follows a modular enterprise documentation approach. Technical, operational, governance, and strategic content is organized into dedicated documentation areas to ensure maintainability, scalability, and clear navigation.
 
 ---
 
@@ -225,11 +225,11 @@ The repository follows a modular documentation approach. Detailed technical cont
 
 | Category | Description |
 |----------|-------------|
-| 📐 **[Architecture](documentation/architecture/README.md)** | Enterprise solution architecture, Azure deployment architecture, and security architecture |
-| 🛡️ **[Governance](documentation/governance/README.md)** | Governance framework, Responsible AI, compliance, and enterprise standards |
-| ⚙️ **[Operations](documentation/operations/README.md)** | Monitoring, backup, disaster recovery, and operational guidance |
-| 💻 **[Development](documentation/development/README.md)** | Development lifecycle, deployment pipeline, repository standards, and engineering practices |
-| 🚀 **[Roadmap](documentation/roadmap/README.md)** | Product vision, planned enhancements, and future initiatives |
+| 📐 **[Architecture](documentation/architecture/README.md)** | Enterprise architecture, Azure design, identity, security, AI, data, integration, DevOps, and monitoring architecture |
+| 🛡️ **[Governance](documentation/governance/README.md)** | Governance framework, Responsible AI, compliance, risk management, data governance, and enterprise standards |
+| ⚙️ **[Operations](documentation/operations/README.md)** | Operational procedures, monitoring, backup, disaster recovery, incident response, business continuity, and maintenance |
+| 💻 **[Development](documentation/development/README.md)** | Development lifecycle, repository standards, CI/CD, branching strategy, coding standards, and release management |
+| 🚀 **[Roadmap](documentation/roadmap/README.md)** | Product vision, future capabilities, strategic roadmap, and release planning |
 
 ---
 
