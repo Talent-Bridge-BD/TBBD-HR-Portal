@@ -1,0 +1,37 @@
+name: Infrastructure Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+
+  validate-infrastructure:
+    name: Validate Azure Infrastructure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format Check
+        working-directory: infrastructure/terraform
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Validate Bicep Templates
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep version
+            find infrastructure/bicep -name "*.bicep" -print

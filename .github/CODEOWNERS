@@ -1,0 +1,13 @@
+# TBBD HR Portal Code Ownership
+
+# Default owner for all repository changes
+* @Talent-Bridge-BD
+
+# Documentation ownership
+/documentation/ @Talent-Bridge-BD
+
+# Infrastructure ownership
+/infrastructure/ @Talent-Bridge-BD
+
+# Security ownership
+SECURITY.md @Talent-Bridge-BD
