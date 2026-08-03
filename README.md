@@ -1,325 +1,614 @@
-# 🚀 TBBD HR Portal
+# TBBD HR Portal
 
-> Enterprise Human Resources Management Platform for Talent Bridge BD (TBBD), delivering secure, scalable, and AI-powered workforce management on Microsoft Azure.
+> Enterprise Human Resources platform providing employee self-service, recruitment management, HR operations, Microsoft 365 integration, Microsoft Teams collaboration, SharePoint Online services, Microsoft Entra ID identity management, Power Platform automation, Azure AI-powered workplace solutions, governance frameworks, deployment guidance, operational documentation, reference architectures, and reusable enterprise resources for **Talent Bridge BD (TBBD)**.
 
-![Platform](https://img.shields.io/badge/Platform-Microsoft%20Azure-0078D4)
-![AI](https://img.shields.io/badge/AI-Azure%20AI%20Foundry-412991)
-![Security](https://img.shields.io/badge/Security-Enterprise-success)
-![License](https://img.shields.io/badge/License-MIT-blue)
+**Document Version:** v1.0.0
+**Last Updated:** August 2026
+**Owner:** Talent Bridge BD Technology Team
+**Classification:** Internal Enterprise Documentation
+
+![Platform](https://img.shields.io/badge/Platform-Microsoft%20365-D83B01)
+![Cloud](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4)
+![Identity](https://img.shields.io/badge/Identity-Microsoft%20Entra%20ID-5C2D91)
+![Collaboration](https://img.shields.io/badge/Collaboration-Microsoft%20Teams-6264A7)
+![Power Platform](https://img.shields.io/badge/Power%20Platform-Enabled-742774)
+![AI](https://img.shields.io/badge/AI-Azure%20AI%20Foundry-00A4EF)
+![Status](https://img.shields.io/badge/Status-Active%20Development-green)
+![Framework](https://img.shields.io/badge/Framework-v1.0.0-blue)
+![License](https://img.shields.io/badge/License-Proprietary-red)
 
 ---
 
 # Overview
 
-TBBD HR Portal is the enterprise Human Resources Management Platform developed for **Talent Bridge BD (TBBD)** under **Loyal Trade Management Ltd. (LTBD)**.
+TBBD HR Portal is the official digital Human Resources platform for **Talent Bridge BD (TBBD)**, providing a centralized workplace experience for employees, Human Resources professionals, recruiters, managers, administrators, and approved external collaborators.
 
-The platform streamlines the complete employee lifecycle by integrating recruitment, onboarding, employee self-service, workforce management, document management, workflow automation, and AI-powered HR services into a secure cloud-native solution.
+The platform modernizes HR operations through Microsoft cloud technologies, enterprise security controls, intelligent automation, and AI-powered workplace capabilities.
+
+TBBD HR Portal enables:
+
+* Employee self-service
+* Recruitment management
+* Workforce collaboration
+* HR document management
+* Workflow automation
+* Knowledge management
+* AI-assisted workplace experiences
+
+The platform follows Microsoft security, governance, and cloud adoption best practices.
+
+This repository contains the source code, deployment resources, infrastructure definitions, architecture documentation, operational procedures, governance guidance, security standards, and reusable enterprise assets required to build, deploy, and maintain the TBBD HR Portal.
 
 ---
 
-# Project Status
+# Supported Microsoft Services
 
-**Status:** Active Development
+The TBBD HR Portal integrates with Microsoft technologies including:
 
-TBBD HR Portal is continuously evolving to deliver secure, intelligent, scalable, and enterprise-ready HR solutions.
+* Microsoft 365
+* Microsoft Entra ID
+* Microsoft Teams
+* SharePoint Online
+* Exchange Online
+* OneDrive for Business
+* Microsoft Graph API
+* Power Apps
+* Power Automate
+* Power BI
+* Microsoft Copilot Studio
+* Azure App Service
+* Azure Functions
+* Azure AI Foundry
+* Azure OpenAI Service
+* Azure AI Search
+* Azure AI Services
+* Azure Storage
+* Azure Key Vault
+* Azure Monitor
+* Azure Application Insights
+* Azure Logic Apps
+* Microsoft Defender
+* Microsoft Sentinel
+* Microsoft Purview
+* Microsoft Intune
+* GitHub
+* GitHub Actions
+* Azure DevOps
 
 ---
 
-# Table of Contents
+# Supported TBBD Services
 
-- Overview
-- Project Status
-- Core Features
-- Platform Components
-- Technology Stack
-- Architecture
-- Repository Structure
-- Security
-- Documentation
-- Roadmap
-- Related Repositories
-- Governance
-- Ownership
-- Contributing
-- License
-- Acknowledgements
+This repository supports documentation and development for:
+
+* TBBD HR Portal
+* TBBD Employee Self-Service
+* TBBD Recruitment Management
+* TBBD Workplace Assistant
+* TBBD TalentAI
+* TBBD HR Copilot
+* TBBD Knowledge Hub
+* Microsoft Teams Applications
+* Azure AI-powered HR Solutions
+* Enterprise Automation Services
+* Future TBBD Workplace Platforms
+
+---
+
+# Purpose
+
+The TBBD HR Portal provides enterprise capabilities covering:
+
+* Human Resources Management
+* Employee Self-Service
+* Recruitment Management
+* Candidate Management
+* Employee Onboarding
+* Leave Management
+* Attendance Management
+* Organization Directory
+* HR Policy Management
+* Enterprise Collaboration
+* Workflow Automation
+* AI-powered HR Assistance
+* Knowledge Management
+* Reporting and Analytics
+* Identity and Access Management
+* Enterprise Governance
+
+The purpose of this repository is to provide enterprise-ready guidance, deployment resources, operational documentation, governance frameworks, security standards, architecture references, and reusable components supporting modern Human Resources services across Microsoft cloud technologies.
 
 ---
 
 # Core Features
 
-## Employee Management
+## Human Resources
 
-- Employee profiles
-- Department management
-- Position management
-- Workforce records
-- Employee lifecycle management
+* Employee Directory
+* Employee Profiles
+* Organization Structure
+* Department Management
+* Employee Lifecycle Management
+* HR Document Library
+* HR Policy Management
+* Internal Announcements
+
+## Recruitment
+
+* Vacancy Management
+* Candidate Tracking
+* Interview Scheduling
+* Recruitment Workflow
+* Hiring Approvals
+* Offer Management
 
 ## Employee Self-Service
 
-- Personal profile management
-- Leave requests
-- HR requests
-- Document access
-- Workflow tracking
+* Leave Requests
+* Attendance Information
+* Personal Profile Updates
+* HR Forms
+* Employee Documents
+* Service Requests
 
-## Recruitment & Onboarding
+## AI Services
 
-- Candidate onboarding
-- Employee registration
-- Approval workflows
-- Digital onboarding
+* TBBD Workplace Assistant
+* TBBD TalentAI
+* HR Copilot
+* AI Knowledge Search
+* Intelligent HR Assistance
+* HR Policy Assistant
+* AI Recruitment Support
 
-## Leave & Attendance
+## Administration
 
-- Leave management
-- Attendance tracking
-- Approval workflows
-- HR reporting
-
-## Document Management
-
-- HR document repository
-- Secure document storage
-- Version management
-- Policy distribution
-
-## Reporting & Analytics
-
-- HR dashboards
-- Workforce reporting
-- Operational insights
-- Performance analytics
+* User Management
+* Role Management
+* Permission Management
+* Audit Logs
+* Activity Monitoring
+* System Configuration
 
 ---
 
-# Platform Components
+# Responsible AI
 
-- Microsoft Azure
-- Microsoft Entra ID
-- Azure App Service
-- Azure Container Apps
-- Azure SQL Database
-- Azure Storage
-- Azure Monitor
-- Azure AI Foundry
-- Azure OpenAI
-- Azure AI Search
-- Microsoft Copilot
-- Model Context Protocol (MCP)
-- TBBD TalentAI
+TBBD HR Portal AI capabilities are designed following responsible AI practices.
 
----
+AI governance principles include:
 
-# Technology Stack
+* Human oversight
+* Transparency
+* Privacy protection
+* Secure AI usage
+* Responsible automation
+* Data protection
+* Access control
+* Appropriate AI decision support
 
-- Microsoft Azure
-- Microsoft Entra ID
-- Azure AI Foundry
-- Azure OpenAI
-- Azure AI Search
-- GitHub
-- GitHub Actions
-- Azure DevOps
-- Python
-- Docker
-- Kubernetes
-
----
-
-# Architecture
-
-The platform follows a cloud-native enterprise architecture.
-
-```text
-Users
-   │
-   ▼
-TBBD HR Portal
-   │
-   ├── Microsoft Entra ID
-   ├── Azure App Service
-   ├── Azure Container Apps
-   ├── Azure SQL Database
-   ├── Azure Storage
-   ├── Azure Monitor
-   │
-   ▼
-AI Services
-   ├── Azure AI Foundry
-   ├── Azure OpenAI
-   ├── Azure AI Search
-   ├── TBBD TalentAI
-   └── Model Context Protocol (MCP)
-```
+AI services assist HR professionals and employees while maintaining appropriate human review and accountability.
 
 ---
 
 # Repository Structure
 
 ```text
-TBBD-HR-Portal/
-├── .github/             GitHub workflows and repository configuration
-├── documentation/       Architecture and technical documentation
-├── src/                 Application source code
-├── components/          Reusable application components
-├── services/            Business services and integrations
-├── infrastructure/      Infrastructure as Code (Bicep, ARM)
-├── scripts/             Automation and maintenance scripts
-├── tests/               Unit and integration tests
-├── assets/              Images, icons, diagrams, and branding resources
-├── LICENSE              MIT License
-└── README.md            Project documentation
+TBBD-HR-Portal
+│
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│
+├── documentation/
+│   ├── architecture/
+│   ├── deployment/
+│   ├── administration/
+│   ├── operations/
+│   ├── security/
+│   ├── governance/
+│   ├── troubleshooting/
+│   ├── user-guide/
+│   ├── developer-guide/
+│   └── roadmap/
+│
+├── infrastructure/
+│   ├── bicep/
+│   └── terraform/
+│
+├── database/
+│   ├── schema/
+│   ├── migrations/
+│   └── seed/
+│
+├── src/
+├── api/
+├── services/
+├── components/
+├── scripts/
+├── tests/
+│
+├── assets/
+│   ├── branding/
+│   ├── diagrams/
+│   ├── icons/
+│   └── images/
+│
+├── README.md
+├── CHANGELOG.md
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── LICENSE
+└── .gitignore
 ```
+
+---
+
+# Documentation Library
+
+The repository contains documentation covering:
+
+* Solution Architecture
+* Infrastructure Design
+* Deployment Guides
+* Administration Guide
+* Operations Manual
+* Security Standards
+* Governance Framework
+* Troubleshooting Guide
+* User Guide
+* Developer Guide
+* API Documentation
+* Product Roadmap
+* Standard Operating Procedures
+* Best Practices
+* Enterprise Reference Architectures
+
+---
+
+# Architecture
+
+```text
+Employees / Candidates / HR Teams
+
+             │
+
+             ▼
+
+      Microsoft Entra ID
+      Identity + Access
+
+             │
+
+             ▼
+
+        TBBD HR Portal
+
+      ┌───────────────┐
+      │               │
+      ▼               ▼
+
+ Microsoft 365     Azure Platform
+
+ Teams             Azure AI Foundry
+ SharePoint        Azure OpenAI
+ Exchange          Azure AI Search
+ OneDrive          Azure Functions
+
+      │               │
+
+      └───────┬───────┘
+
+              ▼
+
+       Governance & Security
+
+ Microsoft Defender
+ Microsoft Sentinel
+ Microsoft Purview
+ Azure Monitor
+ Azure Key Vault
+```
+
+---
+
+# Azure Deployment Configuration
+
+| Component              | Configuration                           |
+| ---------------------- | --------------------------------------- |
+| Subscription           | TBBD Core Subscription                  |
+| Resource Group         | TBBD-HR-Portal-RG                       |
+| Cloud Platform         | Microsoft Azure                         |
+| Identity Platform      | Microsoft Entra ID                      |
+| Repository             | TBBD-HR-Portal                          |
+| Source Control         | GitHub                                  |
+| Deployment             | GitHub Actions                          |
+| Infrastructure as Code | Azure Bicep, Terraform                  |
+| Monitoring             | Azure Monitor                           |
+| Security               | Microsoft Defender & Microsoft Sentinel |
+
+---
+
+# Microsoft 365 Integration
+
+The TBBD HR Portal integrates with Microsoft 365 services including:
+
+* Microsoft Entra ID
+* Microsoft Teams
+* SharePoint Online
+* Exchange Online
+* OneDrive for Business
+* Microsoft Lists
+* Microsoft Forms
+* Microsoft Graph API
+
+These services provide:
+
+* Identity management
+* Collaboration
+* Communication
+* Document management
+* Secure HR resource access
+
+---
+
+# Power Platform Integration
+
+The platform leverages Microsoft Power Platform for business automation.
+
+Supported services:
+
+* Power Apps
+* Power Automate
+* Power BI
+* Microsoft Copilot Studio
+
+Capabilities include:
+
+* Low-code applications
+* Workflow automation
+* Reporting dashboards
+* AI-powered copilots
+* Business process automation
+
+---
+
+# Azure AI Services
+
+TBBD HR Portal incorporates Azure AI capabilities including:
+
+* Azure AI Foundry
+* Azure OpenAI Service
+* Azure AI Search
+* Azure Functions
+* Azure Storage
+* Azure Key Vault
+
+AI capabilities include:
+
+* Intelligent HR Assistant
+* HR Policy Search
+* Employee Knowledge Search
+* AI Recruitment Assistance
+* Document Intelligence
+* Enterprise Knowledge Hub
 
 ---
 
 # Security
 
-TBBD HR Portal follows enterprise security best practices, including:
+The TBBD HR Portal follows Microsoft enterprise security practices including:
 
-- Least Privilege Access
-- Multi-Factor Authentication (MFA)
-- Microsoft Entra ID Integration
-- Role-Based Access Control (RBAC)
-- Azure Key Vault
-- Secure Secret Management
-- Secure CI/CD Pipelines
-- Audit Logging
-- Continuous Compliance
-- DevSecOps Practices
-
----
-
-# Documentation
-
-Repository documentation includes:
-
-- Solution Architecture
-- Deployment Guide
-- Administrator Guide
-- Operations Guide
-- User Guide
-- Security Standards
-- Configuration Guide
-- Troubleshooting Guide
-- Best Practices
+* Zero Trust Architecture
+* Multi-Factor Authentication
+* Conditional Access
+* Role-Based Access Control
+* Microsoft Entra Identity Governance
+* Privileged Identity Management
+* Microsoft Defender Protection
+* Microsoft Sentinel Monitoring
+* Microsoft Purview Information Protection
+* Data Loss Prevention
+* Azure Key Vault
+* Encryption at Rest
+* Encryption in Transit
+* Secure Secret Management
+* Audit Logging
+* Compliance Monitoring
 
 ---
 
-# Roadmap
+# Compliance
 
-Planned enhancements include:
+TBBD HR Portal supports enterprise compliance practices including:
 
-- AI HR Assistant
-- Intelligent Knowledge Search
-- HR Copilot Integration
-- Automated Document Processing
-- Employee Mobile Experience
-- Advanced Analytics
-- AI-powered Reporting
-- Enterprise Monitoring
-- Workflow Automation
-- Continuous Security Improvements
+* Data privacy protection
+* Identity governance
+* Access reviews
+* Security monitoring
+* Audit logging
+* Data retention management
+* Information protection
+* Responsible AI governance
 
----
-
-# Related Repositories
-
-- TBBD-TalentAI
-- TBBD-HR-MCP-Agent
-- TalentBot-AI
-- TBBD-DevOps-Integration
-- TBBD-Platform-Automation
-- TBBD-Enterprise-Governance
-- TBBD-Cloud-Security
-- TBBD-Legal-Portal
-- TBBD-Community
-
----
+Compliance controls are continuously reviewed based on Microsoft security and governance frameworks.
 
 ---
 
 # Governance
 
-This repository is maintained under the **Talent-Bridge-BD GitHub Organization** and follows enterprise governance, security, and DevOps standards.
+The platform follows Microsoft Cloud Adoption Framework and enterprise governance principles supporting:
 
-## Administrative Accounts
+* Identity Governance
+* Least Privilege Access
+* Information Protection
+* Secure Development Lifecycle
+* AI Governance
+* Operational Excellence
+* Risk Management
+* Compliance Management
+* Enterprise Documentation Standards
 
-### LTBD-Admin
+---
 
-Primary administrative identity responsible for:
+# Deployment Flow
 
-- GitHub Organization ownership
-- Repository administration
-- Security governance
-- Access management
-- Policy management
-- Platform configuration
+```text
+Developer
 
-### MoazzemHossain-bot
+      │
+      ▼
 
-Automation identity responsible for:
+GitHub Repository
 
-- GitHub Actions
-- CI/CD workflows
-- Azure automation
-- Deployment pipelines
-- Scheduled automation
-- Repository operations
+TBBD-HR-Portal
 
-> Administrative identities are used only for governance and automation purposes and are not part of application runtime operations.
+      │
+      ▼
+
+GitHub Actions
+
+      │
+      ▼
+
+Microsoft Azure
+
+      │
+      ├───────────────┐
+      │               │
+      ▼               ▼
+
+Microsoft 365     Azure AI Services
+
+      │               │
+      ▼               ▼
+
+Teams          Azure AI Foundry
+
+SharePoint     Azure OpenAI
+
+Entra ID       Azure AI Search
+
+Power Platform Azure Functions
+
+      │
+      ▼
+
+Employees
+
+HR Administrators
+
+Managers
+
+Recruiters
+```
+
+---
+
+# Future Roadmap
+
+Future enhancements may include:
+
+```text
+TBBD-HR-Portal
+
+├── Employee Onboarding
+├── Performance Management
+├── Learning Management
+├── Payroll Integration
+├── Employee Mobile Application
+├── Microsoft Viva Integration
+├── AI Recruitment Assistant
+├── AI Document Intelligence
+├── Advanced HR Analytics
+├── Workforce Planning
+├── Identity Lifecycle Automation
+├── Workforce Intelligence
+└── Copilot Extensions
+```
 
 ---
 
 # Ownership
 
-| Item | Value |
-|------|-------|
-| Organization | Talent-Bridge-BD |
-| Company | Loyal Trade Management Ltd. (LTBD) |
-| Repository | TBBD-HR-Portal |
-| Platform Type | Enterprise HR Management Platform |
-| Cloud Provider | Microsoft Azure |
-| AI Platform | Azure AI Foundry |
-| Visibility | Public |
+**Organization**
+
+Talent Bridge BD (TBBD)
+
+**Project**
+
+TBBD HR Portal
+
+**Repository**
+
+TBBD-HR-Portal
+
+**Maintained By**
+
+Talent Bridge BD Technology Team
 
 ---
 
-# Contributing
+# Maintenance
 
-Contributions are welcome for:
+The TBBD HR Portal should be reviewed whenever:
 
-- Platform improvements
-- Documentation updates
-- Security improvements
-- Automation enhancements
+* New Microsoft services are adopted
+* HR processes evolve
+* Security controls are enhanced
+* AI capabilities expand
+* Microsoft Graph APIs change
+* Power Platform solutions are updated
+* Infrastructure architecture changes
+* Compliance requirements evolve
 
-Please use GitHub Issues and Pull Requests for all changes.
+All updates are managed through GitHub version control following enterprise documentation standards, change management processes, and DevOps best practices.
 
 ---
 
 # License
 
-This project is licensed under the MIT License.
+This repository and its contents are proprietary to **Talent Bridge BD (TBBD)**.
 
-Copyright (c) 2026 Loyal Trade Management Ltd. (LTBD)
+Unauthorized copying, modification, redistribution, or commercial use is prohibited without prior written authorization.
+
+© Talent Bridge BD (TBBD). All rights reserved.
 
 ---
 
-# Acknowledgements
+# Deployment History
 
-TBBD HR Portal is part of the Talent Bridge BD enterprise technology ecosystem.
+| Activity                  | Status      |
+| ------------------------- | ----------- |
+| Repository Created        | Completed   |
+| Documentation Framework   | Completed   |
+| GitHub Repository         | Active      |
+| CI/CD Configuration       | In Progress |
+| Azure Deployment          | Planned     |
+| Microsoft 365 Integration | In Progress |
+| AI Services Integration   | In Progress |
+| Production Release        | Planned     |
 
-Powered by:
+---
 
-- Microsoft Azure
-- Azure AI Foundry
-- Azure OpenAI
-- Microsoft Entra ID
-- Microsoft 365
-- GitHub Platform
-- Enterprise DevOps Practices
+# Contributing
 
-© 2026 Loyal Trade Management Ltd. (LTBD). All rights reserved.
+This repository is maintained by the Talent Bridge BD Technology Team.
+
+All changes should follow established documentation standards, coding guidelines, security best practices, and enterprise governance processes.
+
+Pull requests should be reviewed before merging into the default branch.
+
+---
+
+# Support
+
+For technical assistance, feature requests, documentation updates, or project inquiries, contact the Talent Bridge BD Technology Team through approved internal communication channels.
+
+---
+
+**Talent Bridge BD (TBBD)**
+
+**Building Intelligent, Secure, and Modern Human Resources Solutions with Microsoft Cloud Technologies.**
