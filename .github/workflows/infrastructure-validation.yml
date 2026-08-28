@@ -30,7 +30,7 @@ jobs:
         continue-on-error: true
 
       - name: Validate Bicep Templates
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         with:
           inlineScript: |
             az bicep version
