@@ -4,6 +4,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173
-  }
+    proxy: {
+      '/mcp': {
+        target: 'https://tbbd-hr-copilot.loyaltrademanagement.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })
