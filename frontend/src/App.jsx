@@ -7,6 +7,7 @@ import Leave from './pages/Leave'
 import Attendance from './pages/Attendance'
 import Applications from './pages/Applications'
 import Schedule from './pages/Schedule'
+import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 
 export default function App() {
   const [activePage, setActivePage] = useState('Dashboard')
@@ -17,7 +18,8 @@ export default function App() {
     Leave: <Leave />,
     Attendance: <Attendance />,
     Applications: <Applications />,
-    Schedule: <Schedule />
+    Schedule: <Schedule />,
+    'Workplace Assistant': <WorkplaceAssistantPage />
   }
 
   return (
