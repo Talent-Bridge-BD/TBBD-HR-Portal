@@ -929,3 +929,372 @@ button {
   color: #8a5050;
   font-size: 12px;
 }
+
+.profile-hero {
+  background: #ffffff;
+  border: 1px solid #e2e8ef;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.035);
+  padding: 26px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.profile-avatar-large {
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: #eaf0f6;
+  color: #20324d;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.profile-hero-content {
+  min-width: 0;
+}
+
+.profile-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #8a96a6;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.profile-hero-content h2 {
+  margin: 0 0 4px;
+  font-size: 27px;
+  letter-spacing: -0.5px;
+  color: #172033;
+}
+
+.profile-hero-content p {
+  margin: 0 0 11px;
+  color: #697689;
+  font-size: 14px;
+}
+
+.profile-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.profile-hero-meta span {
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: #f4f7fa;
+  color: #526071;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.profile-status {
+  background: #edf7f0 !important;
+  color: #287346 !important;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.profile-card,
+.profile-directory-card {
+  background: #ffffff;
+  border: 1px solid #e2e8ef;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.035);
+}
+
+.profile-card {
+  padding: 20px;
+}
+
+.profile-section-heading {
+  margin-bottom: 14px;
+}
+
+.profile-section-heading h2,
+.profile-directory-card h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.2px;
+  color: #172033;
+}
+
+.profile-info-list {
+  border-top: 1px solid #edf0f4;
+}
+
+.profile-info-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.4fr);
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.profile-info-row:last-child {
+  border-bottom: 0;
+}
+
+.profile-info-label {
+  color: #778396;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.profile-info-value {
+  min-width: 0;
+  color: #26364d;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.profile-info-value a {
+  color: #315979;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.profile-info-value a:hover {
+  text-decoration: underline;
+}
+
+.profile-info-value small {
+  display: block;
+  margin-top: 3px;
+  color: #9aa5b4;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+}
+
+.profile-private-notice {
+  display: flex;
+  gap: 11px;
+  padding: 13px;
+  margin-bottom: 10px;
+  border: 1px solid #edf0f4;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.profile-private-icon {
+  flex-shrink: 0;
+}
+
+.profile-private-notice strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #26364d;
+  font-size: 12px;
+}
+
+.profile-private-notice p {
+  margin: 0;
+  color: #778396;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.profile-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-action {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px;
+  border: 1px solid #e2e7ed;
+  border-radius: 10px;
+  background: #fafbfd;
+  color: #27364b;
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.profile-action:hover {
+  background: #f2f6f9;
+  border-color: #d4dce5;
+  transform: translateY(-1px);
+}
+
+.profile-action > span {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #eaf0f6;
+  color: #31506f;
+}
+
+.profile-action strong,
+.profile-action small {
+  display: block;
+}
+
+.profile-action strong {
+  font-size: 12px;
+}
+
+.profile-action small {
+  margin-top: 3px;
+  color: #8994a3;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.profile-directory-card {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+}
+
+.profile-directory-card p {
+  margin: 5px 0 0;
+  color: #778396;
+  font-size: 12px;
+}
+
+.directory-profile {
+  min-width: 280px;
+  padding: 14px 16px;
+  border: 1px solid #edf0f4;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.directory-profile strong,
+.directory-profile span,
+.directory-profile a {
+  display: block;
+}
+
+.directory-profile strong {
+  margin-bottom: 3px;
+  color: #26364d;
+  font-size: 13px;
+}
+
+.directory-profile span {
+  margin-bottom: 3px;
+  color: #778396;
+  font-size: 11px;
+}
+
+.directory-profile a {
+  margin-bottom: 8px;
+  color: #315979;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.directory-profile a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-directory-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .directory-profile {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .profile-hero {
+    padding: 20px;
+    align-items: flex-start;
+  }
+
+  .profile-avatar-large {
+    width: 62px;
+    height: 62px;
+    border-radius: 15px;
+    font-size: 20px;
+  }
+
+  .profile-hero-content h2 {
+    font-size: 22px;
+  }
+
+  .profile-info-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .profile-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* My Profile — readability refinement */
+.profile-info-label {
+  font-size: 12px;
+}
+
+.profile-info-value {
+  font-size: 14px;
+}
+
+.profile-info-value small {
+  font-size: 11px;
+}
+
+.profile-private-notice strong {
+  font-size: 13px;
+}
+
+.profile-private-notice p {
+  font-size: 12px;
+}
+
+.profile-action strong {
+  font-size: 13px;
+}
+
+.profile-action small {
+  font-size: 11px;
+}
+
+.profile-directory-card p {
+  font-size: 13px;
+}
+
+.directory-profile strong {
+  font-size: 14px;
+}
+
+.directory-profile span,
+.directory-profile a {
+  font-size: 12px;
+}

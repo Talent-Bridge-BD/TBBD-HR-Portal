@@ -4,10 +4,9 @@ import DashboardCard from '../components/DashboardCard'
 import QuickAction from '../components/QuickAction'
 import WorkplaceAssistant from '../components/WorkplaceAssistant'
 import banner from '../assets/images/tbbd-workplace-hub.jpg'
-import { getEmployeeDisplayName } from '../utils/employee'
 
-export default function Dashboard({ onNavigate }) {
-  const employeeName = getEmployeeDisplayName()
+export default function Dashboard({ onNavigate, employee }) {
+  const employeeName = employee?.displayName || 'Employee'
 
   return (
     <>

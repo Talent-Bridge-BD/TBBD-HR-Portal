@@ -1,6 +1,6 @@
 import logo from '../assets/branding/talent-bridge-bd-logo.png'
 
-export default function Header() {
+export default function Header({ employee }) {
   return (
     <header className="top-header">
       <div className="brand">
@@ -14,7 +14,10 @@ export default function Header() {
       </div>
 
       <div className="header-actions">
-        <button className="header-button" aria-label="Notifications">
+        <button
+          className="header-button"
+          aria-label="Notifications"
+        >
           🔔
         </button>
 
@@ -23,8 +26,13 @@ export default function Header() {
         </button>
 
         <div className="user-menu">
-          <span className="avatar">E</span>
-          <span>Employee</span>
+          <span className="avatar">
+            {employee?.initials || 'E'}
+          </span>
+
+          <span>
+            {employee?.displayName || 'Employee'}
+          </span>
         </div>
       </div>
     </header>
