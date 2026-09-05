@@ -53,6 +53,9 @@ async def get_current_user(request: Request):
         if group_id in group_ids:
             roles.add(role)
 
+    if not roles:
+        roles.add("Employee")
+
     return {
         "authenticated": True,
         "user": {
