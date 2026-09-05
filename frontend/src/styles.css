@@ -311,8 +311,8 @@ button {
 .stat-card,
 .dashboard-card,
 .placeholder-card,
-.overview-section,
-.assistant-card {
+.assistant-card,
+.announcements-card {
   background: #ffffff;
   border: 1px solid #e2e8ef;
   border-radius: 14px;
@@ -330,8 +330,8 @@ button {
 
 .stat-card:hover,
 .dashboard-card:hover,
-.overview-section:hover,
-.assistant-card:hover {
+.assistant-card:hover,
+.announcements-card:hover {
   box-shadow: 0 6px 20px rgba(24, 39, 75, 0.06);
 }
 
@@ -928,4 +928,200 @@ button {
   background: #fdf8f8;
   color: #8a5050;
   font-size: 12px;
+}
+
+/* =========================================================
+   Workplace Hub — Dashboard Layout
+   ========================================================= */
+
+.dashboard-two-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.dashboard-two-column .dashboard-card {
+  min-width: 0;
+}
+
+/* Today's Overview */
+
+.dashboard-two-column .overview-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-two-column .overview-item {
+  gap: 12px;
+  padding: 14px;
+}
+
+/* Notifications */
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid #edf0f4;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notification-item:first-child {
+  padding-top: 0;
+}
+
+.notification-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.notification-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #31506f;
+}
+
+.notification-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.notification-content strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #26364d;
+}
+
+.notification-content small {
+  color: #778396;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.notification-arrow {
+  flex: 0 0 auto;
+  color: #8a96a6;
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.notification-item:hover .notification-arrow {
+  transform: translateX(3px);
+}
+
+/* Company Announcements */
+
+.announcements-card {
+  margin-bottom: 24px;
+}
+
+.announcements-card .card-heading {
+  margin-bottom: 18px;
+}
+
+.announcement-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.announcement-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.announcement-item:first-child {
+  padding-top: 0;
+}
+
+.announcement-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.announcement-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #edf3f8;
+  color: #31506f;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.announcement-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.announcement-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #26364d;
+}
+
+.announcement-item p {
+  margin: 0;
+  color: #778396;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.announcement-arrow {
+  flex: 0 0 auto;
+  color: #8a96a6;
+  font-size: 17px;
+}
+
+/* Responsive Workplace Hub */
+
+@media (max-width: 900px) {
+  .dashboard-two-column {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard-two-column {
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-two-column .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .announcement-item {
+    align-items: flex-start;
+  }
+
+  .announcement-arrow {
+    margin-top: 8px;
+  }
 }

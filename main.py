@@ -8,6 +8,10 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
 
 BASE_DIR = Path(__file__).resolve().parent
 DIST_DIR = BASE_DIR / "dist"

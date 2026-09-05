@@ -15,7 +15,9 @@ export default function Dashboard({ onNavigate }) {
         <img src={banner} alt="TBBD Workplace Hub" />
         <div className="workplace-banner-overlay">
           <div className="workplace-banner-content">
-            <span className="banner-eyebrow">WELCOME TO YOUR WORKPLACE HUB</span>
+            <span className="banner-eyebrow">
+              WELCOME TO YOUR WORKPLACE HUB
+            </span>
             <h1>TBBD Workplace Hub</h1>
             <p>
               One connected platform for employees, HR services, workplace
@@ -26,94 +28,120 @@ export default function Dashboard({ onNavigate }) {
       </section>
 
       <PageHeader
-        title={`Good morning, ${employeeName} \u{1F44B}`}
+        title={`Good morning, ${employeeName} 👋`}
         subtitle="Welcome back to your Workplace Hub."
       />
 
       <div className="stats-grid">
         <StatCard
-          icon="&#9675;"
+          icon="○"
           label="Attendance"
           value="95%"
-          detail="This month &middot; On track"
+          detail="This month · On track"
         />
         <StatCard
-          icon="&#9633;"
+          icon="□"
           label="Leave balance"
           value="12 days"
           detail="Annual leave remaining"
         />
         <StatCard
-          icon="&#9632;"
+          icon="■"
           label="Today's schedule"
-          value="09:00 &mdash; 17:30"
-          detail="Office &middot; Dhaka"
+          value="09:00 — 17:30"
+          detail="Office · Dhaka"
         />
       </div>
 
-      <section className="overview-section">
-        <div className="section-heading">
-          <div>
-            <span className="section-eyebrow">TODAY</span>
-            <h2>Today's Overview</h2>
-          </div>
-        </div>
+      <section className="dashboard-two-column">
+        <DashboardCard title="Today's Overview">
+          <div className="overview-grid">
+            <div className="overview-item">
+              <span className="overview-icon success">✓</span>
+              <div>
+                <strong>Attendance</strong>
+                <span>Checked in · 09:02 AM</span>
+              </div>
+            </div>
 
-        <div className="overview-grid">
-          <div className="overview-item">
-            <span className="overview-icon success">&#10003;</span>
-            <div>
-              <strong>Attendance</strong>
-              <span>Checked in &middot; 09:02 AM</span>
+            <div className="overview-item">
+              <span className="overview-icon">■</span>
+              <div>
+                <strong>Schedule</strong>
+                <span>Office · 09:00–17:30</span>
+              </div>
+            </div>
+
+            <div className="overview-item">
+              <span className="overview-icon">□</span>
+              <div>
+                <strong>Leave</strong>
+                <span>No leave scheduled</span>
+              </div>
+            </div>
+
+            <div className="overview-item">
+              <span className="overview-icon">!</span>
+              <div>
+                <strong>Tasks</strong>
+                <span>2 pending actions</span>
+              </div>
             </div>
           </div>
+        </DashboardCard>
 
-          <div className="overview-item">
-            <span className="overview-icon">&#9632;</span>
-            <div>
-              <strong>Schedule</strong>
-              <span>Office &middot; 09:00&ndash;17:30</span>
-            </div>
-          </div>
+        <DashboardCard title="Notifications">
+          <div className="notification-list">
+            <button className="notification-item" type="button">
+              <span className="notification-dot" />
+              <span className="notification-content">
+                <strong>Leave approved</strong>
+                <small>Your recent leave request has been approved.</small>
+              </span>
+              <span className="notification-arrow">→</span>
+            </button>
 
-          <div className="overview-item">
-            <span className="overview-icon">&#9633;</span>
-            <div>
-              <strong>Leave</strong>
-              <span>No leave scheduled</span>
-            </div>
-          </div>
+            <button className="notification-item" type="button">
+              <span className="notification-dot" />
+              <span className="notification-content">
+                <strong>New HR policy</strong>
+                <small>A new workplace policy is available to review.</small>
+              </span>
+              <span className="notification-arrow">→</span>
+            </button>
 
-          <div className="overview-item">
-            <span className="overview-icon">!</span>
-            <div>
-              <strong>Tasks</strong>
-              <span>2 pending actions</span>
-            </div>
+            <button className="notification-item" type="button">
+              <span className="notification-dot" />
+              <span className="notification-content">
+                <strong>Team announcement</strong>
+                <small>There is a new announcement from your team.</small>
+              </span>
+              <span className="notification-arrow">→</span>
+            </button>
           </div>
-        </div>
+        </DashboardCard>
       </section>
 
-      <div className="dashboard-grid">
+      <section className="dashboard-two-column">
         <DashboardCard title="Quick Actions">
           <div className="quick-actions">
             <QuickAction
-              icon="&#43;"
+              icon="+"
               label="Apply Leave"
               onClick={() => onNavigate('Leave')}
             />
             <QuickAction
-              icon="&#9675;"
+              icon="○"
               label="View Attendance"
               onClick={() => onNavigate('Attendance')}
             />
             <QuickAction
-              icon="&#9632;"
+              icon="■"
               label="My Schedule"
               onClick={() => onNavigate('Schedule')}
             />
             <QuickAction
-              icon="&#9673;"
+              icon="◎"
               label="My Profile"
               onClick={() => onNavigate('My Profile')}
             />
@@ -127,11 +155,13 @@ export default function Dashboard({ onNavigate }) {
               <span>Pending</span>
               <small>Needs your attention</small>
             </div>
+
             <div>
               <strong>5</strong>
               <span>Approved</span>
               <small>Recently approved</small>
             </div>
+
             <div>
               <strong>12</strong>
               <span>Completed</span>
@@ -141,12 +171,58 @@ export default function Dashboard({ onNavigate }) {
 
           <button
             className="card-link"
+            type="button"
             onClick={() => onNavigate('Applications')}
           >
-            View all applications &rarr;
+            View all applications →
           </button>
         </DashboardCard>
-      </div>
+      </section>
+
+      <section className="dashboard-card announcements-card">
+        <div className="card-heading">
+          <div>
+            <span className="section-eyebrow">COMPANY NEWS</span>
+            <h2>Company Announcements</h2>
+          </div>
+        </div>
+
+        <div className="announcement-list">
+          <article className="announcement-item">
+            <span className="announcement-icon">!</span>
+            <div>
+              <strong>Important workplace updates</strong>
+              <p>
+                Stay informed about the latest workplace updates and HR
+                information.
+              </p>
+            </div>
+            <span className="announcement-arrow">→</span>
+          </article>
+
+          <article className="announcement-item">
+            <span className="announcement-icon">◆</span>
+            <div>
+              <strong>Upcoming events</strong>
+              <p>
+                Check upcoming company events, meetings, and important dates.
+              </p>
+            </div>
+            <span className="announcement-arrow">→</span>
+          </article>
+
+          <article className="announcement-item">
+            <span className="announcement-icon">▣</span>
+            <div>
+              <strong>HR announcements</strong>
+              <p>
+                Review the latest HR announcements and employee information.
+              </p>
+            </div>
+            <span className="announcement-arrow">→</span>
+          </article>
+        </div>
+      </section>
 
       <WorkplaceAssistant />
     </>
