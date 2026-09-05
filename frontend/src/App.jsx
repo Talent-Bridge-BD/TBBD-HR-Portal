@@ -51,11 +51,6 @@ const placeholderPages = {
     description: 'Prepare successful candidates for onboarding and deployment.',
   },
 
-  'Employer Dashboard': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Employer Dashboard',
-    description: 'Employer workspace for workforce requirements and hiring activity.',
-  },
   'Employer Job Requests': {
     area: 'EMPLOYER PORTAL',
     title: 'Job Requests',
