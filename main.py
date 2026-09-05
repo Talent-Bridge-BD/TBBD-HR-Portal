@@ -8,6 +8,18 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
+@app.get("/api/me")
+async def get_current_user(request: Request):
+    return {
+        "authenticated": True,
+        "principal_name": request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME"),
+        "principal_id": request.headers.get("X-MS-CLIENT-PRINCIPAL-ID"),
+        "has_client_principal": bool(
+            request.headers.get("X-MS-CLIENT-PRINCIPAL")
+        ),
+    }
+
+
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
