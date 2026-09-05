@@ -10,14 +10,59 @@ app = FastAPI()
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
+    import base64
+    import json
+
+    principal_name = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+    principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
+    encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
+
+    if not encoded_principal:
+        return {
+            "authenticated": False,
+            "user": None,
+            "roles": [],
+        }
+
+    padding = "=" * (-len(encoded_principal) % 4)
+    principal = json.loads(
+        base64.b64decode(encoded_principal + padding).decode("utf-8")
+    )
+
+    claims = principal.get("claims", [])
+
+    def claim_values(claim_type):
+        return [
+            claim.get("val")
+            for claim in claims
+            if claim.get("typ") == claim_type
+        ]
+
+    group_ids = set(claim_values("groups"))
+    token_roles = set(claim_values("roles"))
+
+    authorization_groups = {
+        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
+        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
+    }
+
+    roles = set(token_roles)
+
+    for role, group_id in authorization_groups.items():
+        if group_id in group_ids:
+            roles.add(role)
+
     return {
         "authenticated": True,
-        "principal_name": request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME"),
-        "principal_id": request.headers.get("X-MS-CLIENT-PRINCIPAL-ID"),
-        "has_client_principal": bool(
-            request.headers.get("X-MS-CLIENT-PRINCIPAL")
-        ),
+        "user": {
+            "id": principal_id,
+            "email": principal_name,
+            "name": next(iter(claim_values("name")), principal_name),
+        },
+        "roles": sorted(roles),
     }
+
 
 
 @app.get("/healthz")
