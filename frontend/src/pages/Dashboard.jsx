@@ -28,7 +28,7 @@ export default function Dashboard({ onNavigate }) {
         <div className="workplace-banner-overlay">
           <div className="workplace-banner-content">
             <span className="banner-eyebrow">
-              WELCOME TO YOUR WORKPLACE HUB
+              WELCOME TO
             </span>
             <h1>TBBD Workplace Hub</h1>
             <p>

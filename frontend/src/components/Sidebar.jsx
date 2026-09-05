@@ -3,19 +3,31 @@ const workplaceNavigation = [
   ['My Profile', '◉'],
   ['Attendance', '◷'],
   ['Leave', '▣'],
-  ['Schedule', '□']
+  ['Schedule', '□'],
+  ['Applications', '▤'],
 ]
 
-const serviceNavigation = [
-  ['Applications', '▤', true],
-  ['Documents', '▤', false],
-  ['Payroll', '▥', false],
-  ['Learning', '◇', false]
+const recruitmentNavigation = [
+  ['Recruitment Jobs', '▤'],
+  ['Recruitment Candidates', '♙'],
+  ['Recruitment Applications', '▤'],
+  ['Recruitment Screening', '◌'],
+  ['Recruitment Interviews', '◷'],
+  ['Recruitment Offers', '◇'],
+  ['Recruitment Onboarding', '✓'],
+]
+
+const employerNavigation = [
+  ['Employer Dashboard', '⌂'],
+  ['Employer Job Requests', '＋'],
+  ['Employer Job Openings', '▤'],
+  ['Employer Applications', '♙'],
+  ['Employer Hiring', '✓'],
 ]
 
 const toolNavigation = [
-  ['Workplace Assistant', '✦', true],
-  ['Microsoft 365', '▦', false]
+  ['Workplace Assistant', '✦'],
+  ['Microsoft 365', '▦', false],
 ]
 
 export default function Sidebar({ activePage, onNavigate }) {
@@ -28,7 +40,11 @@ export default function Sidebar({ activePage, onNavigate }) {
       title={!enabled ? `${label} — Coming Soon` : label}
     >
       <span className="nav-icon">{icon}</span>
-      <span className="nav-label">{label}</span>
+      <span className="nav-label">
+        {label
+          .replace('Recruitment ', '')
+          .replace('Employer ', '')}
+      </span>
       {!enabled && <span className="nav-coming-soon">Soon</span>}
     </button>
   )
@@ -37,15 +53,20 @@ export default function Sidebar({ activePage, onNavigate }) {
     <aside className="sidebar">
       <nav>
         <div className="nav-section">
-          <span className="nav-section-title">WORKPLACE</span>
+          <span className="nav-section-title">WORKPLACE HUB</span>
           {workplaceNavigation.map(([label, icon]) =>
             renderItem([label, icon, true])
           )}
         </div>
 
-        <div className="nav-section">
-          <span className="nav-section-title">SERVICES</span>
-          {serviceNavigation.map(renderItem)}
+        <div className="nav-section platform-nav-section">
+          <span className="nav-section-title">RECRUITMENT</span>
+          {recruitmentNavigation.map(renderItem)}
+        </div>
+
+        <div className="nav-section platform-nav-section">
+          <span className="nav-section-title">EMPLOYER PORTAL</span>
+          {employerNavigation.map(renderItem)}
         </div>
 
         <div className="nav-section">

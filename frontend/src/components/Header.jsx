@@ -8,9 +8,6 @@ export default function Header() {
           src={logo}
           alt="Talent Bridge BD"
         />
-        <div className="brand-title">
-          <strong>Workplace Hub</strong>
-        </div>
       </div>
 
       <div className="header-actions">
