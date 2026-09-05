@@ -5,9 +5,21 @@ import QuickAction from '../components/QuickAction'
 import WorkplaceAssistant from '../components/WorkplaceAssistant'
 import banner from '../assets/images/tbbd-workplace-hub.jpg'
 import { getEmployeeDisplayName } from '../utils/employee'
+import { employeeDashboard } from '../data/employeeDashboard'
 
 export default function Dashboard({ onNavigate }) {
-  const employeeName = getEmployeeDisplayName()
+  const employeeName =
+    employeeDashboard.employee.name || getEmployeeDisplayName()
+
+  const {
+    attendance,
+    leave,
+    schedule,
+    tasks,
+    notifications,
+    applications,
+    announcements,
+  } = employeeDashboard
 
   return (
     <>
@@ -36,20 +48,22 @@ export default function Dashboard({ onNavigate }) {
         <StatCard
           icon="○"
           label="Attendance"
-          value="95%"
-          detail="This month · On track"
+          value={`${attendance.percentage}%`}
+          detail={`This month · ${attendance.status}`}
         />
+
         <StatCard
           icon="□"
           label="Leave balance"
-          value="12 days"
-          detail="Annual leave remaining"
+          value={`${leave.balance} ${leave.unit}`}
+          detail={leave.detail}
         />
+
         <StatCard
           icon="■"
           label="Today's schedule"
-          value="09:00 — 17:30"
-          detail="Office · Dhaka"
+          value={`${schedule.start} — ${schedule.end}`}
+          detail={schedule.location}
         />
       </div>
 
@@ -60,7 +74,11 @@ export default function Dashboard({ onNavigate }) {
               <span className="overview-icon success">✓</span>
               <div>
                 <strong>Attendance</strong>
-                <span>Checked in · 09:02 AM</span>
+                <span>
+                  {attendance.checkedIn
+                    ? `Checked in · ${attendance.checkInTime}`
+                    : 'Not checked in'}
+                </span>
               </div>
             </div>
 
@@ -68,7 +86,9 @@ export default function Dashboard({ onNavigate }) {
               <span className="overview-icon">■</span>
               <div>
                 <strong>Schedule</strong>
-                <span>Office · 09:00–17:30</span>
+                <span>
+                  {schedule.location} · {schedule.start}–{schedule.end}
+                </span>
               </div>
             </div>
 
@@ -76,7 +96,11 @@ export default function Dashboard({ onNavigate }) {
               <span className="overview-icon">□</span>
               <div>
                 <strong>Leave</strong>
-                <span>No leave scheduled</span>
+                <span>
+                  {leave.scheduled
+                    ? 'Leave scheduled'
+                    : 'No leave scheduled'}
+                </span>
               </div>
             </div>
 
@@ -84,7 +108,7 @@ export default function Dashboard({ onNavigate }) {
               <span className="overview-icon">!</span>
               <div>
                 <strong>Tasks</strong>
-                <span>2 pending actions</span>
+                <span>{tasks.pending} pending actions</span>
               </div>
             </div>
           </div>
@@ -92,32 +116,20 @@ export default function Dashboard({ onNavigate }) {
 
         <DashboardCard title="Notifications">
           <div className="notification-list">
-            <button className="notification-item" type="button">
-              <span className="notification-dot" />
-              <span className="notification-content">
-                <strong>Leave approved</strong>
-                <small>Your recent leave request has been approved.</small>
-              </span>
-              <span className="notification-arrow">→</span>
-            </button>
-
-            <button className="notification-item" type="button">
-              <span className="notification-dot" />
-              <span className="notification-content">
-                <strong>New HR policy</strong>
-                <small>A new workplace policy is available to review.</small>
-              </span>
-              <span className="notification-arrow">→</span>
-            </button>
-
-            <button className="notification-item" type="button">
-              <span className="notification-dot" />
-              <span className="notification-content">
-                <strong>Team announcement</strong>
-                <small>There is a new announcement from your team.</small>
-              </span>
-              <span className="notification-arrow">→</span>
-            </button>
+            {notifications.map((notification) => (
+              <button
+                className="notification-item"
+                type="button"
+                key={notification.id}
+              >
+                <span className="notification-dot" />
+                <span className="notification-content">
+                  <strong>{notification.title}</strong>
+                  <small>{notification.message}</small>
+                </span>
+                <span className="notification-arrow">→</span>
+              </button>
+            ))}
           </div>
         </DashboardCard>
       </section>
@@ -130,16 +142,19 @@ export default function Dashboard({ onNavigate }) {
               label="Apply Leave"
               onClick={() => onNavigate('Leave')}
             />
+
             <QuickAction
               icon="○"
               label="View Attendance"
               onClick={() => onNavigate('Attendance')}
             />
+
             <QuickAction
               icon="■"
               label="My Schedule"
               onClick={() => onNavigate('Schedule')}
             />
+
             <QuickAction
               icon="◎"
               label="My Profile"
@@ -151,19 +166,19 @@ export default function Dashboard({ onNavigate }) {
         <DashboardCard title="My Applications">
           <div className="application-summary">
             <div>
-              <strong>2</strong>
+              <strong>{applications.pending}</strong>
               <span>Pending</span>
               <small>Needs your attention</small>
             </div>
 
             <div>
-              <strong>5</strong>
+              <strong>{applications.approved}</strong>
               <span>Approved</span>
               <small>Recently approved</small>
             </div>
 
             <div>
-              <strong>12</strong>
+              <strong>{applications.completed}</strong>
               <span>Completed</span>
               <small>All time</small>
             </div>
@@ -188,39 +203,20 @@ export default function Dashboard({ onNavigate }) {
         </div>
 
         <div className="announcement-list">
-          <article className="announcement-item">
-            <span className="announcement-icon">!</span>
-            <div>
-              <strong>Important workplace updates</strong>
-              <p>
-                Stay informed about the latest workplace updates and HR
-                information.
-              </p>
-            </div>
-            <span className="announcement-arrow">→</span>
-          </article>
+          {announcements.map((announcement, index) => (
+            <article className="announcement-item" key={announcement.id}>
+              <span className="announcement-icon">
+                {['!', '◆', '▣'][index % 3]}
+              </span>
 
-          <article className="announcement-item">
-            <span className="announcement-icon">◆</span>
-            <div>
-              <strong>Upcoming events</strong>
-              <p>
-                Check upcoming company events, meetings, and important dates.
-              </p>
-            </div>
-            <span className="announcement-arrow">→</span>
-          </article>
+              <div>
+                <strong>{announcement.title}</strong>
+                <p>{announcement.message}</p>
+              </div>
 
-          <article className="announcement-item">
-            <span className="announcement-icon">▣</span>
-            <div>
-              <strong>HR announcements</strong>
-              <p>
-                Review the latest HR announcements and employee information.
-              </p>
-            </div>
-            <span className="announcement-arrow">→</span>
-          </article>
+              <span className="announcement-arrow">→</span>
+            </article>
+          ))}
         </div>
       </section>
 
