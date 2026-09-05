@@ -30,7 +30,23 @@ const toolNavigation = [
   ['Microsoft 365', '▦', false],
 ]
 
-export default function Sidebar({ activePage, onNavigate }) {
+function hasAnyRole(auth, roles) {
+  return roles.some((role) => auth?.roles?.includes(role))
+}
+
+export default function Sidebar({ activePage, onNavigate, auth }) {
+  const canAccessRecruitment = hasAnyRole(auth, [
+    'Employer Manager',
+    'HR Manager',
+    'Administrator',
+  ])
+
+  const canAccessEmployerPortal = hasAnyRole(auth, [
+    'Employer Manager',
+    'HR Manager',
+    'Administrator',
+  ])
+
   const renderItem = ([label, icon, enabled = true]) => (
     <button
       key={label}
@@ -59,15 +75,19 @@ export default function Sidebar({ activePage, onNavigate }) {
           )}
         </div>
 
-        <div className="nav-section platform-nav-section">
-          <span className="nav-section-title">RECRUITMENT</span>
-          {recruitmentNavigation.map(renderItem)}
-        </div>
+        {canAccessRecruitment && (
+          <div className="nav-section platform-nav-section">
+            <span className="nav-section-title">RECRUITMENT</span>
+            {recruitmentNavigation.map(renderItem)}
+          </div>
+        )}
 
-        <div className="nav-section platform-nav-section">
-          <span className="nav-section-title">EMPLOYER PORTAL</span>
-          {employerNavigation.map(renderItem)}
-        </div>
+        {canAccessEmployerPortal && (
+          <div className="nav-section platform-nav-section">
+            <span className="nav-section-title">EMPLOYER PORTAL</span>
+            {employerNavigation.map(renderItem)}
+          </div>
+        )}
 
         <div className="nav-section">
           <span className="nav-section-title">TOOLS</span>

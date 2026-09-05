@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
@@ -11,6 +11,7 @@ import Applications from './pages/Applications'
 import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
+import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
   'Recruitment Jobs': {
@@ -78,6 +79,41 @@ const placeholderPages = {
 
 export default function App() {
   const [activePage, setActivePage] = useState('Dashboard')
+  const [auth, setAuth] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+
+    getCurrentUser()
+      .then((data) => {
+        if (mounted) {
+          setAuth(data)
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load current user:', error)
+      })
+      .finally(() => {
+        if (mounted) {
+          setAuthLoading(false)
+        }
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  if (authLoading) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <p>Loading Workplace Hub...</p>
+        </main>
+      </div>
+    )
+  }
 
   const pages = {
     Dashboard: <Dashboard onNavigate={setActivePage} />,
@@ -101,6 +137,7 @@ export default function App() {
         <Sidebar
           activePage={activePage}
           onNavigate={setActivePage}
+          auth={auth}
         />
 
         <main className="main-content">
