@@ -6,6 +6,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from services.authorization import build_authorization_context
+
 app = FastAPI()
 
 @app.get("/api/me")
@@ -56,6 +58,12 @@ async def get_current_user(request: Request):
     if not roles:
         roles.add("Employee")
 
+    authorization_context = build_authorization_context(
+        user_id=principal_id or "",
+        roles=roles,
+        memberships=[],
+    )
+
     return {
         "authenticated": True,
         "user": {
@@ -63,7 +71,8 @@ async def get_current_user(request: Request):
             "email": principal_name,
             "name": next(iter(claim_values("name")), principal_name),
         },
-        "roles": sorted(roles),
+        "roles": sorted(authorization_context.roles),
+        "organization_ids": sorted(authorization_context.organization_ids),
     }
 
 
