@@ -11,6 +11,7 @@ import Applications from './pages/Applications'
 import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
+import EmployerDashboard from './pages/EmployerDashboard'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
@@ -123,6 +124,7 @@ export default function App() {
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
+    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
   }
 
   Object.entries(placeholderPages).forEach(([page, config]) => {

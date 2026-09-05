@@ -1215,3 +1215,28 @@ button {
     padding: 18px;
   }
 }
+
+.empty-state {
+  min-height: 112px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px dashed #dfe5eb;
+  border-radius: 10px;
+}
+
+.empty-state strong {
+  color: #26364d;
+  font-size: 13px;
+}
+
+.empty-state span {
+  margin-top: 5px;
+  color: #7a8797;
+  font-size: 11px;
+  line-height: 1.4;
+}
