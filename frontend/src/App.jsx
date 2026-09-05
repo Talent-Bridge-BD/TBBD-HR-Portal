@@ -12,6 +12,13 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
+import CandidateDashboard from './pages/CandidateDashboard'
+import CandidateMyProfile from './pages/CandidateMyProfile'
+import CandidateMyApplications from './pages/CandidateMyApplications'
+import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
+import CandidateInterviews from './pages/CandidateInterviews'
+import CandidateDocuments from './pages/CandidateDocuments'
+import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
@@ -120,6 +127,13 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
+    'Candidate My Profile': <CandidateMyProfile />,
+    'Candidate My Applications': <CandidateMyApplications />,
+    'Candidate Available Jobs': <CandidateAvailableJobs />,
+  'Candidate Interviews': <CandidateInterviews />,
+  'Candidate Documents': <CandidateDocuments />,
+  'Candidate Notifications': <CandidateNotifications />,
   }
 
   Object.entries(placeholderPages).forEach(([page, config]) => {

@@ -25,6 +25,16 @@ const employerNavigation = [
   ['Employer Hiring', '✓'],
 ]
 
+const candidateNavigation = [
+  ['Candidate Dashboard', '⌂'],
+  ['Candidate My Profile', '◉'],
+  ['Candidate My Applications', '▤'],
+  ['Candidate Available Jobs', '▤'],
+  ['Candidate Interviews', '◷'],
+  ['Candidate Documents', '□'],
+  ['Candidate Notifications', '🔔'],
+]
+
 const toolNavigation = [
   ['Workplace Assistant', '✦'],
   ['Microsoft 365', '▦', false],
@@ -45,6 +55,9 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'Employer Manager',
     'HR Manager',
     'Administrator',
+  ])
+  const canAccessCandidatePortal = hasAnyRole(auth, [
+    'Candidate',
   ])
 
   const renderItem = ([label, icon, enabled = true]) => (
@@ -86,6 +99,12 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
           <div className="nav-section platform-nav-section">
             <span className="nav-section-title">EMPLOYER PORTAL</span>
             {employerNavigation.map(renderItem)}
+          </div>
+        )}
+        {canAccessCandidatePortal && (
+          <div className="nav-section platform-nav-section">
+            <span className="nav-section-title">CANDIDATE PORTAL</span>
+            {candidateNavigation.map(renderItem)}
           </div>
         )}
 
