@@ -120,7 +120,7 @@ export default function App() {
 
   const pages = {
     Dashboard: <Dashboard onNavigate={setActivePage} />,
-    'My Profile': <MyProfile />,
+    'My Profile': <MyProfile auth={auth} />,
     Leave: <Leave />,
     Attendance: <Attendance />,
     Applications: <Applications />,
