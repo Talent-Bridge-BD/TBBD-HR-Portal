@@ -7,8 +7,11 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from services.authorization import build_authorization_context
+from api.candidate import router as candidate_router
 
 app = FastAPI()
+
+app.include_router(candidate_router)
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
