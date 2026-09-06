@@ -72,7 +72,8 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
       <span className="nav-label">
         {label
           .replace('Recruitment ', '')
-          .replace('Employer ', '')}
+          .replace('Employer ', '')
+          .replace('Candidate ', '')}
       </span>
       {!enabled && <span className="nav-coming-soon">Soon</span>}
     </button>
