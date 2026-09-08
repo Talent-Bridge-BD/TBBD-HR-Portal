@@ -12,6 +12,7 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
+import EmployerJobRequests from './pages/EmployerJobRequests'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
 import CandidateMyApplications from './pages/CandidateMyApplications'
@@ -133,6 +134,7 @@ export default function App() {
         onNavigate={setActivePage}
       />
     ),
+    'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
