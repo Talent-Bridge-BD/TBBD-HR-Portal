@@ -22,17 +22,13 @@ import CandidateMyApplications from './pages/CandidateMyApplications'
 import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
 import Jobs from './pages/Jobs'
 import RecruitmentCandidates from './pages/RecruitmentCandidates'
+import RecruitmentApplications from './pages/RecruitmentApplications'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
-  'Recruitment Applications': {
-    area: 'RECRUITMENT',
-    title: 'Applications',
-    description: 'Review candidate applications and application activity.',
-  },
   'Recruitment Screening': {
     area: 'RECRUITMENT',
     title: 'Screening',
@@ -135,6 +131,7 @@ export default function App() {
     'Candidate My Applications': <CandidateMyApplications />,
     'Recruitment Jobs': <Jobs />,
   'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
+    'Recruitment Applications': <RecruitmentApplications auth={auth} />,
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
