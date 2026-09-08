@@ -1,6 +1,16 @@
 import logo from '../assets/branding/talent-bridge-bd-logo.png'
 
-export default function Header() {
+export default function Header({ auth }) {
+  const roles = auth?.roles || []
+  const displayRole = roles.includes('Administrator')
+    ? 'Administrator'
+    : roles.includes('Employer Manager')
+      ? 'Employer'
+      : roles.includes('Candidate')
+        ? 'Candidate'
+        : 'Employee'
+
+  const avatar = displayRole.charAt(0)
   return (
     <header className="top-header">
       <div className="brand">
@@ -20,8 +30,8 @@ export default function Header() {
         </button>
 
         <div className="user-menu">
-          <span className="avatar">E</span>
-          <span>Employee</span>
+          <span className="avatar">{avatar}</span>
+          <span>{displayRole}</span>
         </div>
       </div>
     </header>

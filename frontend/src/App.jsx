@@ -162,7 +162,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Header />
+      <Header auth={auth} />
 
       <div className="app-body">
         <Sidebar
