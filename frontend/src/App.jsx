@@ -21,17 +21,13 @@ import CandidateMyProfile from './pages/CandidateMyProfile'
 import CandidateMyApplications from './pages/CandidateMyApplications'
 import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
 import Jobs from './pages/Jobs'
+import RecruitmentCandidates from './pages/RecruitmentCandidates'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
-  'Recruitment Candidates': {
-    area: 'RECRUITMENT',
-    title: 'Candidates',
-    description: 'Manage and review candidates across the recruitment pipeline.',
-  },
   'Recruitment Applications': {
     area: 'RECRUITMENT',
     title: 'Applications',
@@ -138,6 +134,7 @@ export default function App() {
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
     'Recruitment Jobs': <Jobs />,
+  'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
