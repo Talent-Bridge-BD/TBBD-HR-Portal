@@ -13,6 +13,7 @@ import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerJobRequests from './pages/EmployerJobRequests'
+import EmployerJobOpenings from './pages/EmployerJobOpenings'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
 import CandidateMyApplications from './pages/CandidateMyApplications'
@@ -135,6 +136,7 @@ export default function App() {
       />
     ),
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
+    'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
