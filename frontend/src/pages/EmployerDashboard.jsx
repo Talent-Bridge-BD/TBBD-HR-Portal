@@ -4,7 +4,7 @@ import DashboardCard from '../components/DashboardCard'
 import QuickAction from '../components/QuickAction'
 import { employerDashboard } from '../data/employerDashboard'
 
-export default function EmployerDashboard({ onNavigate }) {
+export default function EmployerDashboard({ auth, onNavigate }) {
   const {
     employer,
     stats,
@@ -12,11 +12,16 @@ export default function EmployerDashboard({ onNavigate }) {
     recentRequests,
   } = employerDashboard
 
+  const organizationId = auth?.organization_ids?.[0] || ""
+  const organizationName = organizationId
+    ? "Talent Bridge BD"
+    : "Organization access required"
+
   return (
     <>
       <PageHeader
         title={`Welcome, ${employer.name}`}
-        subtitle={`${employer.organization} · Employer Portal`}
+        subtitle={`${organizationName} · Employer Portal`}
       />
 
       <div className="stats-grid">

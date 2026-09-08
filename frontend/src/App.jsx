@@ -127,7 +127,12 @@ export default function App() {
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
-    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Employer Dashboard': (
+      <EmployerDashboard
+        auth={auth}
+        onNavigate={setActivePage}
+      />
+    ),
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
