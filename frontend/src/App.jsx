@@ -27,11 +27,6 @@ import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
-  'Recruitment Jobs': {
-    area: 'RECRUITMENT',
-    title: 'Jobs',
-    description: 'Manage recruitment job openings and workforce requirements.',
-  },
   'Recruitment Candidates': {
     area: 'RECRUITMENT',
     title: 'Candidates',
