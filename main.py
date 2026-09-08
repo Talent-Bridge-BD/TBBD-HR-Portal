@@ -11,12 +11,16 @@ from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.job import router as job_router
 from api.job_request import router as job_request_router
+from api.application import router as application_router
+from api.hiring import router as hiring_router
 
 app = FastAPI()
 
 app.include_router(candidate_router)
 app.include_router(job_router)
 app.include_router(job_request_router)
+app.include_router(application_router)
+app.include_router(hiring_router)
 
 _organization_repository = SqlOrganizationRepository()
 

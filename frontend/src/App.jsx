@@ -14,6 +14,8 @@ import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
+import EmployerApplications from './pages/EmployerApplications'
+import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
 import CandidateMyApplications from './pages/CandidateMyApplications'
@@ -150,6 +152,13 @@ export default function App() {
   Object.entries(placeholderPages).forEach(([page, config]) => {
     pages[page] = <PlatformPlaceholder {...config} />
   })
+  pages['Employer Applications'] = (
+    <EmployerApplications auth={auth} />
+  )
+
+  pages['Employer Hiring'] = (
+    <Hiring auth={auth} />
+  )
 
   return (
     <div className="app-shell">
