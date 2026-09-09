@@ -6,13 +6,17 @@ from pydantic import BaseModel
 
 from models.candidate import CandidateProfile
 from repositories.candidate import SqlCandidateRepository
+from repositories.job import SqlJobRepository
 from services.candidate import CandidateService
+from services.job import JobService
 
 
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 
 _repository = SqlCandidateRepository()
 _service = CandidateService(_repository)
+_job_repository = SqlJobRepository()
+_job_service = JobService(_job_repository)
 
 CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
 
@@ -106,3 +110,14 @@ async def update_candidate_profile(
         "profile": saved.__dict__,
         "message": "Candidate profile saved",
     }
+
+@router.get("/jobs")
+async def get_candidate_jobs(request: Request):
+    get_candidate_identity(request)
+
+    jobs = _job_service.list_published_jobs()
+
+    return {
+        "jobs": [job.__dict__ for job in jobs],
+    }
+
