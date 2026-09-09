@@ -240,7 +240,7 @@ export default function Jobs() {
             employment_type: job.employment_type || "",
             location: job.location || "",
             country: job.country || "",
-            status: "published",
+            status: "open",
             number_of_positions: job.number_of_positions ?? null,
             published_at: new Date().toISOString(),
             closing_at: job.closing_at || null,
