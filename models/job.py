@@ -16,5 +16,16 @@ class Job:
     number_of_positions: Optional[int] = None
     published_at: Optional[datetime] = None
     closing_at: Optional[datetime] = None
+    job_reference: Optional[str] = None
+    department: Optional[str] = None
+    job_category: Optional[str] = None
+    workplace_type: Optional[str] = None
+    experience: Optional[str] = None
+    education: Optional[str] = None
+    skills: Optional[str] = None
+    salary_compensation: Optional[str] = None
+    application_instructions: Optional[str] = None
+    responsibilities: Optional[str] = None
+    requirements: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

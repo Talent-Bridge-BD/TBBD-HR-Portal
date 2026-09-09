@@ -12,6 +12,16 @@ const emptyForm = {
   number_of_positions: "",
   published_at: "",
   closing_at: "",
+  department: "",
+  job_category: "",
+  workplace_type: "",
+  experience: "",
+  education: "",
+  skills: "",
+  salary_compensation: "",
+  application_instructions: "",
+  responsibilities: "",
+  requirements: "",
 };
 
 function toDateTimeLocal(value) {
@@ -136,6 +146,16 @@ export default function Jobs() {
           : "",
       published_at: toDateTimeLocal(job.published_at),
       closing_at: toDateTimeLocal(job.closing_at),
+      department: job.department || "",
+      job_category: job.job_category || "",
+      workplace_type: job.workplace_type || "",
+      experience: job.experience || "",
+      education: job.education || "",
+      skills: job.skills || "",
+      salary_compensation: job.salary_compensation || "",
+      application_instructions: job.application_instructions || "",
+      responsibilities: job.responsibilities || "",
+      requirements: job.requirements || "",
     });
 
     setShowForm(true);
@@ -154,12 +174,22 @@ export default function Jobs() {
       employment_type: form.employment_type,
       location: form.location,
       country: form.country,
-      status: statusOverride || form.status,
+      status: statusOverride || form.status || "draft",
       number_of_positions: form.number_of_positions
         ? Number(form.number_of_positions)
         : null,
       published_at: form.published_at || null,
       closing_at: form.closing_at || null,
+      department: form.department,
+      job_category: form.job_category,
+      workplace_type: form.workplace_type,
+      experience: form.experience,
+      education: form.education,
+      skills: form.skills,
+      salary_compensation: form.salary_compensation,
+      application_instructions: form.application_instructions,
+      responsibilities: form.responsibilities,
+      requirements: form.requirements,
     };
   }
 
@@ -244,6 +274,16 @@ export default function Jobs() {
             number_of_positions: job.number_of_positions ?? null,
             published_at: new Date().toISOString(),
             closing_at: job.closing_at || null,
+            department: job.department || "",
+            job_category: job.job_category || "",
+            workplace_type: job.workplace_type || "",
+            experience: job.experience || "",
+            education: job.education || "",
+            skills: job.skills || "",
+            salary_compensation: job.salary_compensation || "",
+            application_instructions: job.application_instructions || "",
+            responsibilities: job.responsibilities || "",
+            requirements: job.requirements || "",
           }),
         }
       );
@@ -298,6 +338,16 @@ export default function Jobs() {
             number_of_positions: job.number_of_positions ?? null,
             published_at: null,
             closing_at: job.closing_at || null,
+            department: job.department || "",
+            job_category: job.job_category || "",
+            workplace_type: job.workplace_type || "",
+            experience: job.experience || "",
+            education: job.education || "",
+            skills: job.skills || "",
+            salary_compensation: job.salary_compensation || "",
+            application_instructions: job.application_instructions || "",
+            responsibilities: job.responsibilities || "",
+            requirements: job.requirements || "",
           }),
         }
       );
@@ -336,122 +386,303 @@ export default function Jobs() {
       </div>
 
       {showForm && (
-        <div className="card">
-          <div className="card-header">
-            <h2>{editingJobId ? "Edit Job" : "Create Job"}</h2>
+        <div className="job-opening-form">
+          <div className="page-header">
+            <div>
+              <h1>{editingJobId ? "EDIT JOB OPENING" : "CREATE JOB OPENING"}</h1>
+              <p>
+                {editingJobId
+                  ? "Update the job opening details before reviewing or publishing."
+                  : "Create and publish a new job opening to attract qualified candidates."}
+              </p>
+            </div>
           </div>
 
           <form onSubmit={saveJob}>
-            <div className="form-grid">
-              <label>
-                Job Title
-                <input
-                  required
-                  value={form.title}
-                  onChange={(event) =>
-                    updateForm("title", event.target.value)
-                  }
-                />
-              </label>
+            <div className="job-opening-grid">
+              <section className="job-form-card">
+                <div className="job-form-card-header">
+                  <h2>Job Information</h2>
+                  <p>Define the role and where it fits within your organization.</p>
+                </div>
 
-              <label>
-                Employment Type
-                <input
-                  value={form.employment_type}
-                  onChange={(event) =>
-                    updateForm("employment_type", event.target.value)
-                  }
-                  placeholder="Full-time"
-                />
-              </label>
+                <div className="job-form-fields">
+                  <div className="job-form-field full-width">
+                    <label>
+                      Job Title <span className="required">*</span>
+                    </label>
+                    <input
+                      required
+                      value={form.title}
+                      onChange={(event) =>
+                        updateForm("title", event.target.value)
+                      }
+                      placeholder="e.g. Senior Recruitment Consultant"
+                    />
+                  </div>
 
-              <label>
-                Location
-                <input
-                  value={form.location}
-                  onChange={(event) =>
-                    updateForm("location", event.target.value)
-                  }
-                  placeholder="Dhaka"
-                />
-              </label>
+                  <div className="job-form-field">
+                    <label>Department</label>
+                    <input
+                      value={form.department}
+                      onChange={(event) =>
+                        updateForm("department", event.target.value)
+                      }
+                      placeholder="e.g. Recruitment"
+                    />
+                  </div>
 
-              <label>
-                Country
-                <input
-                  value={form.country}
-                  onChange={(event) =>
-                    updateForm("country", event.target.value)
-                  }
-                  placeholder="Bangladesh"
-                />
-              </label>
+                  <div className="job-form-field">
+                    <label>Job Category</label>
+                    <input
+                      value={form.job_category}
+                      onChange={(event) =>
+                        updateForm("job_category", event.target.value)
+                      }
+                      placeholder="e.g. Recruitment & HR"
+                    />
+                  </div>
+                </div>
+              </section>
 
-              <label>
-                Status
-                <select
-                  value={form.status}
-                  onChange={(event) =>
-                    updateForm("status", event.target.value)
-                  }
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="open">Open</option>
-                  <option value="paused">Paused</option>
-                </select>
-              </label>
+              <section className="job-form-card">
+                <div className="job-form-card-header">
+                  <h2>Workplace &amp; Vacancy</h2>
+                  <p>Set the employment arrangement and available positions.</p>
+                </div>
 
-              <label>
-                Number of Positions
-                <input
-                  type="number"
-                  min="1"
-                  value={form.number_of_positions}
-                  onChange={(event) =>
-                    updateForm("number_of_positions", event.target.value)
-                  }
-                />
-              </label>
+                <div className="job-form-fields">
+                  <div className="job-form-field">
+                    <label>
+                      Employment Type <span className="required">*</span>
+                    </label>
+                    <select
+                      required
+                      value={form.employment_type}
+                      onChange={(event) =>
+                        updateForm("employment_type", event.target.value)
+                      }
+                    >
+                      <option value="">Select employment type</option>
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Temporary">Temporary</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
 
-              <label>
-                Published At
-                <input
-                  type="datetime-local"
-                  value={form.published_at}
-                  onChange={(event) =>
-                    updateForm("published_at", event.target.value)
-                  }
-                />
-              </label>
+                  <div className="job-form-field">
+                    <label>
+                      Work Arrangement <span className="required">*</span>
+                    </label>
+                    <select
+                      required
+                      value={form.workplace_type}
+                      onChange={(event) =>
+                        updateForm("workplace_type", event.target.value)
+                      }
+                    >
+                      <option value="">Select arrangement</option>
+                      <option value="On-site">On-site</option>
+                      <option value="Hybrid">Hybrid</option>
+                      <option value="Remote">Remote</option>
+                    </select>
+                  </div>
 
-              <label>
-                Closing At
-                <input
-                  type="datetime-local"
-                  value={form.closing_at}
-                  onChange={(event) =>
-                    updateForm("closing_at", event.target.value)
-                  }
-                />
-              </label>
+                  <div className="job-form-field">
+                    <label>Location</label>
+                    <input
+                      value={form.location}
+                      onChange={(event) =>
+                        updateForm("location", event.target.value)
+                      }
+                      placeholder="e.g. Dhaka"
+                    />
+                  </div>
 
-              <label className="form-full-width">
-                Description
-                <textarea
-                  rows="6"
-                  value={form.description}
-                  onChange={(event) =>
-                    updateForm("description", event.target.value)
-                  }
-                />
-              </label>
+                  <div className="job-form-field">
+                    <label>
+                      Number of Vacancies <span className="required">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      required
+                      value={form.number_of_positions}
+                      onChange={(event) =>
+                        updateForm("number_of_positions", event.target.value)
+                      }
+                      placeholder="1"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="job-form-card">
+                <div className="job-form-card-header">
+                  <h2>Candidate Requirements</h2>
+                  <p>Describe the experience, education and skills expected.</p>
+                </div>
+
+                <div className="job-form-fields">
+                  <div className="job-form-field">
+                    <label>Experience</label>
+                    <input
+                      value={form.experience}
+                      onChange={(event) =>
+                        updateForm("experience", event.target.value)
+                      }
+                      placeholder="e.g. 3–5 years"
+                    />
+                  </div>
+
+                  <div className="job-form-field">
+                    <label>Education</label>
+                    <input
+                      value={form.education}
+                      onChange={(event) =>
+                        updateForm("education", event.target.value)
+                      }
+                      placeholder="e.g. Bachelor's degree"
+                    />
+                  </div>
+
+                  <div className="job-form-field full-width">
+                    <label>Skills</label>
+                    <textarea
+                      rows="4"
+                      value={form.skills}
+                      onChange={(event) =>
+                        updateForm("skills", event.target.value)
+                      }
+                      placeholder="List the key skills, qualifications or certifications."
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="job-form-card">
+                <div className="job-form-card-header">
+                  <h2>Compensation &amp; Application</h2>
+                  <p>Provide compensation information and application guidance.</p>
+                </div>
+
+                <div className="job-form-fields">
+                  <div className="job-form-field full-width">
+                    <label>Salary / Compensation</label>
+                    <input
+                      value={form.salary_compensation}
+                      onChange={(event) =>
+                        updateForm("salary_compensation", event.target.value)
+                      }
+                      placeholder="e.g. BDT 50,000–70,000 per month"
+                    />
+                  </div>
+
+                  <div className="job-form-field">
+                    <label>
+                      Application Deadline <span className="required">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={form.closing_at}
+                      onChange={(event) =>
+                        updateForm("closing_at", event.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div className="job-form-field">
+                    <label>Application Instructions</label>
+                    <textarea
+                      rows="4"
+                      value={form.application_instructions}
+                      onChange={(event) =>
+                        updateForm(
+                          "application_instructions",
+                          event.target.value
+                        )
+                      }
+                      placeholder="Tell candidates how to apply."
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="job-form-card full-width">
+                <div className="job-form-card-header">
+                  <h2>Job Description</h2>
+                  <p>
+                    Give candidates a clear understanding of the role,
+                    responsibilities and requirements.
+                  </p>
+                </div>
+
+                <div className="job-form-fields">
+                  <div className="job-form-field full-width">
+                    <label>
+                      Description <span className="required">*</span>
+                    </label>
+                    <textarea
+                      rows="6"
+                      required
+                      value={form.description}
+                      onChange={(event) =>
+                        updateForm("description", event.target.value)
+                      }
+                      placeholder="Provide an overview of the position and its purpose."
+                    />
+                  </div>
+
+                  <div className="job-form-field">
+                    <label>
+                      Responsibilities <span className="required">*</span>
+                    </label>
+                    <textarea
+                      rows="7"
+                      required
+                      value={form.responsibilities}
+                      onChange={(event) =>
+                        updateForm("responsibilities", event.target.value)
+                      }
+                      placeholder="List the main responsibilities of the role."
+                    />
+                  </div>
+
+                  <div className="job-form-field">
+                    <label>
+                      Requirements <span className="required">*</span>
+                    </label>
+                    <textarea
+                      rows="7"
+                      required
+                      value={form.requirements}
+                      onChange={(event) =>
+                        updateForm("requirements", event.target.value)
+                      }
+                      placeholder="List the essential candidate requirements."
+                    />
+                  </div>
+                </div>
+              </section>
             </div>
 
-            <div className="form-actions">
+            <div className="job-form-status">
+              <div className="job-form-status-label">
+                <span className="job-form-status-dot"></span>
+                Draft
+              </div>
+              <span className="job-form-help">
+                New job openings are saved as Draft and can be published after review.
+              </span>
+            </div>
+
+            <div className="job-form-actions">
               <button
                 type="button"
-                className="secondary-button"
+                className="job-form-secondary"
                 onClick={resetForm}
                 disabled={saving}
               >
@@ -460,21 +691,34 @@ export default function Jobs() {
 
               <button
                 type="submit"
-                className="primary-button"
+                className="job-form-secondary"
                 disabled={saving}
               >
                 {saving
                   ? editingJobId
                     ? "Saving..."
-                    : "Creating..."
+                    : "Saving..."
+                  : "Save as Draft"}
+              </button>
+
+              <button
+                type="submit"
+                className="job-form-primary"
+                disabled={saving}
+              >
+                {saving
+                  ? editingJobId
+                    ? "Saving..."
+                    : "Saving..."
                   : editingJobId
-                  ? "Save Changes"
-                  : "Create Job"}
+                    ? "Save Changes"
+                    : "Create Job Opening"}
               </button>
             </div>
           </form>
         </div>
       )}
+
 
       <div className="card">
         <div className="card-header">
@@ -551,7 +795,7 @@ export default function Jobs() {
                       Edit
                     </button>
 
-                    {job.status === "published" ? (
+                    {job.status === "open" ? (
                       <button
                         type="button"
                         className="secondary-button"

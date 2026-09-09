@@ -120,6 +120,17 @@ class SqlJobRepository(JobRepository):
             number_of_positions=row.number_of_positions,
             published_at=row.published_at,
             closing_at=row.closing_at,
+            job_reference=row.job_reference,
+            department=row.department,
+            job_category=row.job_category,
+            workplace_type=row.workplace_type,
+            experience=row.experience,
+            education=row.education,
+            skills=row.skills,
+            salary_compensation=row.salary_compensation,
+            application_instructions=row.application_instructions,
+            responsibilities=row.responsibilities,
+            requirements=row.requirements,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -141,6 +152,17 @@ class SqlJobRepository(JobRepository):
                     number_of_positions,
                     published_at,
                     closing_at,
+                    job_reference,
+                    department,
+                    job_category,
+                    workplace_type,
+                    experience,
+                    education,
+                    skills,
+                    salary_compensation,
+                    application_instructions,
+                    responsibilities,
+                    requirements,
                     created_at,
                     updated_at
                 FROM dbo.jobs
@@ -168,10 +190,21 @@ class SqlJobRepository(JobRepository):
                 number_of_positions,
                 published_at,
                 closing_at,
+                job_reference,
+                department,
+                job_category,
+                workplace_type,
+                experience,
+                education,
+                skills,
+                salary_compensation,
+                application_instructions,
+                responsibilities,
+                requirements,
                 created_at,
                 updated_at
             FROM dbo.jobs
-            WHERE status = 'published'
+            WHERE status = 'open'
               AND published_at IS NOT NULL
               AND published_at <= SYSUTCDATETIME()
               AND (
@@ -212,6 +245,17 @@ class SqlJobRepository(JobRepository):
                     number_of_positions,
                     published_at,
                     closing_at,
+                    job_reference,
+                    department,
+                    job_category,
+                    workplace_type,
+                    experience,
+                    education,
+                    skills,
+                    salary_compensation,
+                    application_instructions,
+                    responsibilities,
+                    requirements,
                     created_at,
                     updated_at
                 FROM dbo.jobs
@@ -258,7 +302,18 @@ class SqlJobRepository(JobRepository):
                         status,
                         number_of_positions,
                         published_at,
-                        closing_at
+                        closing_at,
+                        job_reference,
+                        department,
+                        job_category,
+                        workplace_type,
+                        experience,
+                        education,
+                        skills,
+                        salary_compensation,
+                        application_instructions,
+                        responsibilities,
+                        requirements
                     )
                     OUTPUT
                         INSERTED.id,
@@ -272,10 +327,22 @@ class SqlJobRepository(JobRepository):
                         INSERTED.number_of_positions,
                         INSERTED.published_at,
                         INSERTED.closing_at,
+                        INSERTED.job_reference,
+                        INSERTED.department,
+                        INSERTED.job_category,
+                        INSERTED.workplace_type,
+                        INSERTED.experience,
+                        INSERTED.education,
+                        INSERTED.skills,
+                        INSERTED.salary_compensation,
+                        INSERTED.application_instructions,
+                        INSERTED.responsibilities,
+                        INSERTED.requirements,
                         INSERTED.created_at,
                         INSERTED.updated_at
                     VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                     """,
                     job.organization_id,
@@ -288,6 +355,17 @@ class SqlJobRepository(JobRepository):
                     job.number_of_positions,
                     job.published_at,
                     job.closing_at,
+                    job.job_reference,
+                    job.department,
+                    job.job_category,
+                    job.workplace_type,
+                    job.experience,
+                    job.education,
+                    job.skills,
+                    job.salary_compensation,
+                    job.application_instructions,
+                    job.responsibilities,
+                    job.requirements,
                 )
             else:
                 cursor.execute(
@@ -303,6 +381,17 @@ class SqlJobRepository(JobRepository):
                         number_of_positions = ?,
                         published_at = ?,
                         closing_at = ?,
+                        job_reference = ?,
+                        department = ?,
+                        job_category = ?,
+                        workplace_type = ?,
+                        experience = ?,
+                        education = ?,
+                        skills = ?,
+                        salary_compensation = ?,
+                        application_instructions = ?,
+                        responsibilities = ?,
+                        requirements = ?,
                         updated_at = SYSUTCDATETIME()
                     OUTPUT
                         INSERTED.id,
@@ -316,6 +405,17 @@ class SqlJobRepository(JobRepository):
                         INSERTED.number_of_positions,
                         INSERTED.published_at,
                         INSERTED.closing_at,
+                        INSERTED.job_reference,
+                        INSERTED.department,
+                        INSERTED.job_category,
+                        INSERTED.workplace_type,
+                        INSERTED.experience,
+                        INSERTED.education,
+                        INSERTED.skills,
+                        INSERTED.salary_compensation,
+                        INSERTED.application_instructions,
+                        INSERTED.responsibilities,
+                        INSERTED.requirements,
                         INSERTED.created_at,
                         INSERTED.updated_at
                     WHERE id = ?
@@ -330,6 +430,17 @@ class SqlJobRepository(JobRepository):
                     job.number_of_positions,
                     job.published_at,
                     job.closing_at,
+                    job.job_reference,
+                    job.department,
+                    job.job_category,
+                    job.workplace_type,
+                    job.experience,
+                    job.education,
+                    job.skills,
+                    job.salary_compensation,
+                    job.application_instructions,
+                    job.responsibilities,
+                    job.requirements,
                     job.id,
                     job.organization_id,
                 )

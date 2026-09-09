@@ -34,6 +34,17 @@ class JobRequest(BaseModel):
     number_of_positions: int | None = None
     published_at: datetime | None = None
     closing_at: datetime | None = None
+    job_reference: str = ""
+    department: str = ""
+    job_category: str = ""
+    workplace_type: str = ""
+    experience: str = ""
+    education: str = ""
+    skills: str = ""
+    salary_compensation: str = ""
+    application_instructions: str = ""
+    responsibilities: str = ""
+    requirements: str = ""
 
 
 def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
@@ -189,6 +200,17 @@ async def create_job(
         number_of_positions=payload.number_of_positions,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
+        job_reference=payload.job_reference or None,
+        department=payload.department or None,
+        job_category=payload.job_category or None,
+        workplace_type=payload.workplace_type or None,
+        experience=payload.experience or None,
+        education=payload.education or None,
+        skills=payload.skills or None,
+        salary_compensation=payload.salary_compensation or None,
+        application_instructions=payload.application_instructions or None,
+        responsibilities=payload.responsibilities or None,
+        requirements=payload.requirements or None,
     )
 
     saved = _job_service.save_job(job)
@@ -233,6 +255,17 @@ async def update_job(
         number_of_positions=payload.number_of_positions,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
+        job_reference=payload.job_reference or None,
+        department=payload.department or None,
+        job_category=payload.job_category or None,
+        workplace_type=payload.workplace_type or None,
+        experience=payload.experience or None,
+        education=payload.education or None,
+        skills=payload.skills or None,
+        salary_compensation=payload.salary_compensation or None,
+        application_instructions=payload.application_instructions or None,
+        responsibilities=payload.responsibilities or None,
+        requirements=payload.requirements or None,
         created_at=existing.created_at,
         updated_at=existing.updated_at,
     )
