@@ -22,7 +22,11 @@ export default function MyProfile({ auth }) {
 
   const [profile, setProfile] = useState({
     full_name: name,
+    primary_email: email !== 'Not available'
+      ? email
+      : 'admin@talentbridgebd.com',
     phone: '+8801713007477',
+    office_phone: '+880255040800',
     organization_email: 'admin_tbbd@loyaltrademanagement.com',
   })
 
@@ -49,7 +53,13 @@ export default function MyProfile({ auth }) {
         const data = await response.json()
         const loadedProfile = {
           full_name: data.profile?.full_name || name,
+          primary_email:
+            data.profile?.primary_email ||
+            (email !== 'Not available'
+              ? email
+              : 'admin@talentbridgebd.com'),
           phone: data.profile?.phone || '+8801713007477',
+          office_phone: data.profile?.office_phone || '+880255040800',
           organization_email:
             data.profile?.organization_email ||
             'admin_tbbd@loyaltrademanagement.com',
@@ -124,7 +134,11 @@ export default function MyProfile({ auth }) {
 
       const savedProfile = {
         full_name: data.profile?.full_name || draft.full_name,
+        primary_email:
+          data.profile?.primary_email || draft.primary_email,
         phone: data.profile?.phone || draft.phone,
+        office_phone:
+          data.profile?.office_phone || draft.office_phone,
         organization_email:
           data.profile?.organization_email || draft.organization_email,
       }
@@ -194,15 +208,23 @@ export default function MyProfile({ auth }) {
           </div>
 
           <div className="profile-information-item">
-            <span>Phone</span>
+            <span>Mobile Phone</span>
             <strong>{loading ? 'Loading...' : profile.phone}</strong>
           </div>
 
           <div className="profile-information-item">
             <span>Primary Email</span>
-            <strong>{email}</strong>
+            <strong>
+              {loading ? 'Loading...' : profile.primary_email}
+            </strong>
           </div>
 
+          <div className="profile-information-item">
+            <span>Office Phone</span>
+            <strong>
+              {loading ? 'Loading...' : profile.office_phone}
+            </strong>
+          </div>
           <div className="profile-information-item">
             <span>Organization Email</span>
             <strong>
@@ -344,7 +366,7 @@ export default function MyProfile({ auth }) {
               </div>
 
               <div className="profile-form-field">
-                <label htmlFor="profile-phone">Phone</label>
+                <label htmlFor="profile-phone">Mobile Phone</label>
                 <input
                   id="profile-phone"
                   type="tel"
@@ -360,13 +382,23 @@ export default function MyProfile({ auth }) {
                 <input
                   id="profile-primary-email"
                   type="email"
-                  value={email}
-                  readOnly
-                  disabled
+                  value={draft.primary_email}
+                  onChange={(event) =>
+                    updateDraft('primary_email', event.target.value)
+                  }
                 />
-                <small>
-                  Your primary sign-in email is managed by Microsoft Entra ID.
-                </small>
+              </div>
+
+              <div className="profile-form-field">
+                <label htmlFor="profile-office-phone">Office Phone</label>
+                <input
+                  id="profile-office-phone"
+                  type="tel"
+                  value={draft.office_phone}
+                  onChange={(event) =>
+                    updateDraft('office_phone', event.target.value)
+                  }
+                />
               </div>
 
               <div className="profile-form-field">

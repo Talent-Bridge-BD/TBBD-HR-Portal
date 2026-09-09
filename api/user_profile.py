@@ -17,7 +17,9 @@ _profile_service = UserProfileService(_profile_repository)
 
 class UserProfileRequest(BaseModel):
     full_name: str = ""
+    primary_email: str = ""
     phone: str = ""
+    office_phone: str = ""
     organization_email: str = ""
 
 
@@ -33,14 +35,10 @@ def get_authenticated_user_id(request: Request) -> str:
 
     try:
         padding = "=" * (-len(encoded_principal) % 4)
-        base64.b64decode(
+        decoded_principal = base64.b64decode(
             encoded_principal + padding
         ).decode("utf-8")
-        json.loads(
-            base64.b64decode(
-                encoded_principal + padding
-            ).decode("utf-8")
-        )
+        json.loads(decoded_principal)
     except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
         raise HTTPException(
             status_code=401,
@@ -60,7 +58,9 @@ async def get_profile(request: Request):
             "profile": {
                 "user_id": user_id,
                 "full_name": "",
+                "primary_email": "",
                 "phone": "",
+                "office_phone": "",
                 "organization_email": "",
             }
         }
@@ -80,7 +80,9 @@ async def update_profile(
     profile = UserProfile(
         user_id=user_id,
         full_name=payload.full_name.strip(),
+        primary_email=payload.primary_email.strip(),
         phone=payload.phone.strip(),
+        office_phone=payload.office_phone.strip(),
         organization_email=payload.organization_email.strip(),
     )
 
