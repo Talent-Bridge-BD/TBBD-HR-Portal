@@ -15,7 +15,6 @@ permissions:
   security-events: write
 
 jobs:
-
   security:
     name: Repository Security Scan
     runs-on: ubuntu-latest
@@ -24,5 +23,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run GitHub CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript, python
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
