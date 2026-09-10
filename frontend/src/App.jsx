@@ -12,36 +12,24 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
+import EmployerJobRequests from './pages/EmployerJobRequests'
+import EmployerJobOpenings from './pages/EmployerJobOpenings'
+import EmployerApplications from './pages/EmployerApplications'
+import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
 import CandidateMyApplications from './pages/CandidateMyApplications'
 import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
+import Jobs from './pages/Jobs'
+import RecruitmentCandidates from './pages/RecruitmentCandidates'
+import RecruitmentApplications from './pages/RecruitmentApplications'
+import RecruitmentScreening from './pages/RecruitmentScreening'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser } from './utils/auth'
 
 const placeholderPages = {
-  'Recruitment Jobs': {
-    area: 'RECRUITMENT',
-    title: 'Jobs',
-    description: 'Manage recruitment job openings and workforce requirements.',
-  },
-  'Recruitment Candidates': {
-    area: 'RECRUITMENT',
-    title: 'Candidates',
-    description: 'Manage and review candidates across the recruitment pipeline.',
-  },
-  'Recruitment Applications': {
-    area: 'RECRUITMENT',
-    title: 'Applications',
-    description: 'Review candidate applications and application activity.',
-  },
-  'Recruitment Screening': {
-    area: 'RECRUITMENT',
-    title: 'Screening',
-    description: 'Support structured candidate screening and evaluation.',
-  },
   'Recruitment Interviews': {
     area: 'RECRUITMENT',
     title: 'Interviews',
@@ -126,10 +114,21 @@ export default function App() {
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
-    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Employer Dashboard': (
+      <EmployerDashboard
+        auth={auth}
+        onNavigate={setActivePage}
+      />
+    ),
+    'Employer Job Requests': <EmployerJobRequests auth={auth} />,
+    'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
+    'Recruitment Jobs': <Jobs />,
+  'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
+    'Recruitment Applications': <RecruitmentApplications auth={auth} />,
+    'Recruitment Screening': <RecruitmentScreening auth={auth} />,
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
@@ -139,10 +138,17 @@ export default function App() {
   Object.entries(placeholderPages).forEach(([page, config]) => {
     pages[page] = <PlatformPlaceholder {...config} />
   })
+  pages['Employer Applications'] = (
+    <EmployerApplications auth={auth} />
+  )
+
+  pages['Employer Hiring'] = (
+    <Hiring auth={auth} />
+  )
 
   return (
     <div className="app-shell">
-      <Header />
+      <Header auth={auth} />
 
       <div className="app-body">
         <Sidebar

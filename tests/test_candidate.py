@@ -4,9 +4,9 @@ import json
 from fastapi.testclient import TestClient
 
 from main import app
+from api import candidate as candidate_api
 from repositories.candidate import InMemoryCandidateRepository
 from services.candidate import CandidateService
-import api.candidate as candidate_api
 
 
 candidate_api._repository = InMemoryCandidateRepository()

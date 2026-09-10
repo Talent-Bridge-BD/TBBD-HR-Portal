@@ -11,7 +11,6 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-
 # -----------------------------
 # Stage 2: FastAPI runtime
 # -----------------------------
@@ -34,7 +33,6 @@ COPY api ./api
 COPY repositories ./repositories
 COPY start.sh ./
 
-# React production build
 COPY --from=frontend-build /frontend/dist ./dist
 
 RUN chmod +x start.sh

@@ -12,6 +12,7 @@ from models.candidate import CandidateProfile
 
 
 class CandidateRepository(ABC):
+
     @abstractmethod
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         raise NotImplementedError
@@ -22,6 +23,7 @@ class CandidateRepository(ABC):
 
 
 class InMemoryCandidateRepository(CandidateRepository):
+
     def __init__(self):
         self._profiles: dict[str, CandidateProfile] = {}
 

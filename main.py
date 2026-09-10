@@ -7,13 +7,26 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from services.authorization import build_authorization_context
+from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
+from api.job import router as job_router
+from api.job_request import router as job_request_router
+from api.application import router as application_router
+from api.hiring import router as hiring_router
+from api.user_profile import router as user_profile_router
 
 app = FastAPI()
 
 app.include_router(candidate_router)
 app.include_router(employer_router)
+app.include_router(job_router)
+app.include_router(job_request_router)
+app.include_router(application_router)
+app.include_router(hiring_router)
+app.include_router(user_profile_router)
+
+_organization_repository = SqlOrganizationRepository()
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
@@ -64,10 +77,13 @@ async def get_current_user(request: Request):
     if not roles:
         roles.add("Employee")
 
+    memberships = _organization_repository.get_active_memberships(
+        principal_id or ""
+    )
     authorization_context = build_authorization_context(
         user_id=principal_id or "",
         roles=roles,
-        memberships=[],
+        memberships=memberships,
     )
 
     return {
