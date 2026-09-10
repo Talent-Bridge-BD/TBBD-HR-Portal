@@ -10,6 +10,9 @@ const EMPTY_PROFILE = {
   professional_title: '',
   summary: '',
   location: '',
+  country: '',
+  years_experience: null,
+  current_company: '',
   resume_document_id: null,
 }
 
@@ -94,6 +97,12 @@ export default function CandidateMyProfile() {
           professional_title: profile.professional_title.trim(),
           summary: profile.summary.trim(),
           location: profile.location.trim(),
+          country: profile.country.trim(),
+          years_experience:
+            profile.years_experience === '' || profile.years_experience === null
+              ? null
+              : Number(profile.years_experience),
+          current_company: profile.current_company.trim(),
           resume_document_id: profile.resume_document_id || null,
         }),
       })
@@ -254,7 +263,17 @@ export default function CandidateMyProfile() {
                 name="location"
                 value={profile.location}
                 onChange={handleChange}
-                placeholder="City, Country"
+                placeholder="City"
+              />
+            </label>
+
+            <label className="profile-information-item">
+              <span>Country</span>
+              <input
+                name="country"
+                value={profile.country}
+                onChange={handleChange}
+                placeholder="Country"
               />
             </label>
           </div>
@@ -274,6 +293,30 @@ export default function CandidateMyProfile() {
                 value={profile.professional_title}
                 onChange={handleChange}
                 placeholder="e.g. Software Engineer"
+              />
+            </label>
+
+            <label className="profile-information-item">
+              <span>Current Company</span>
+              <input
+                name="current_company"
+                value={profile.current_company}
+                onChange={handleChange}
+                placeholder="Current employer"
+              />
+            </label>
+
+            <label className="profile-information-item">
+              <span>Years of Experience</span>
+              <input
+                type="number"
+                name="years_experience"
+                value={profile.years_experience ?? ''}
+                onChange={handleChange}
+                min="0"
+                max="80"
+                step="0.1"
+                placeholder="e.g. 5"
               />
             </label>
           </div>

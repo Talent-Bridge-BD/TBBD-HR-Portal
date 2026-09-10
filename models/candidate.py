@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass
+from dataclasses import dataclass
 from typing import Optional
 
 
@@ -12,4 +12,7 @@ class CandidateProfile:
     professional_title: str = ""
     summary: str = ""
     location: str = ""
+    country: str = ""
+    years_experience: Optional[float] = None
+    current_company: str = ""
     resume_document_id: Optional[str] = None

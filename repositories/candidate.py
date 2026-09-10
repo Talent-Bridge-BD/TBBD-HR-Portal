@@ -99,7 +99,14 @@ class SqlCandidateRepository(CandidateRepository):
             phone=row.phone or "",
             professional_title=row.current_title or "",
             summary=row.professional_summary or "",
-            location="",
+            location=row.city or "",
+            country=row.country or "",
+            years_experience=(
+                float(row.years_experience)
+                if row.years_experience is not None
+                else None
+            ),
+            current_company=row.current_company or "",
             resume_document_id=resume_document_id,
         )
 
@@ -116,8 +123,12 @@ class SqlCandidateRepository(CandidateRepository):
                     last_name,
                     email,
                     phone,
+                    city,
+                    country,
                     professional_summary,
-                    current_title
+                    current_title,
+                    years_experience,
+                    current_company
                 FROM dbo.candidates
                 WHERE entra_object_id = ?
                 """,
@@ -172,8 +183,12 @@ class SqlCandidateRepository(CandidateRepository):
                         last_name,
                         email,
                         phone,
+                        city,
+                        country,
                         current_title,
                         professional_summary,
+                        years_experience,
+                        current_company,
                         profile_status
                     )
                     OUTPUT
@@ -183,17 +198,25 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.last_name,
                         INSERTED.email,
                         INSERTED.phone,
+                        INSERTED.city,
+                        INSERTED.country,
                         INSERTED.professional_summary,
-                        INSERTED.current_title
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERTED.current_title,
+                        INSERTED.years_experience,
+                        INSERTED.current_company
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     profile.user_id,
                     profile.first_name,
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
+                    profile.location or None,
+                    profile.country or None,
                     profile.professional_title or None,
                     profile.summary or None,
+                    profile.years_experience,
+                    profile.current_company or None,
                     "incomplete",
                 )
             else:
@@ -205,8 +228,12 @@ class SqlCandidateRepository(CandidateRepository):
                         last_name = ?,
                         email = ?,
                         phone = ?,
+                        city = ?,
+                        country = ?,
                         current_title = ?,
                         professional_summary = ?,
+                        years_experience = ?,
+                        current_company = ?,
                         updated_at = SYSUTCDATETIME()
                     OUTPUT
                         INSERTED.id,
@@ -215,16 +242,24 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.last_name,
                         INSERTED.email,
                         INSERTED.phone,
+                        INSERTED.city,
+                        INSERTED.country,
                         INSERTED.professional_summary,
-                        INSERTED.current_title
+                        INSERTED.current_title,
+                        INSERTED.years_experience,
+                        INSERTED.current_company
                     WHERE id = ?
                     """,
                     profile.first_name,
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
+                    profile.location or None,
+                    profile.country or None,
                     profile.professional_title or None,
                     profile.summary or None,
+                    profile.years_experience,
+                    profile.current_company or None,
                     existing.id,
                 )
 
