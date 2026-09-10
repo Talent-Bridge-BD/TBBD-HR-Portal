@@ -1,63 +1,42 @@
-import unittest
-
+from repositories.organization import InMemoryOrganizationRepository
 from models.organization import OrganizationMembership
-from services.authorization import (
-    build_authorization_context,
-    has_organization_access,
-    has_role,
-)
+from services.authorization_service import AuthorizationService
 
 
-class AuthorizationTests(unittest.TestCase):
+def test_authorization_context_contains_only_active_user_memberships():
+    repository = InMemoryOrganizationRepository()
 
-    def test_employer_manager_can_access_authorized_organization(self):
-        context = build_authorization_context(
-            user_id="user-1",
-            roles={"Employer Manager"},
-            memberships=[
-                OrganizationMembership(
-                    user_id="user-1",
-                    organization_id="org-a",
-                    role="Employer Manager",
-                )
-            ],
-        )
+    repository._memberships = [
+        OrganizationMembership(
+            id="membership-001",
+            organization_id="org-001",
+            user_id="user-001",
+            role="Employer Manager",
+            status="active",
+        ),
+        OrganizationMembership(
+            id="membership-002",
+            organization_id="org-002",
+            user_id="user-001",
+            role="Employer Manager",
+            status="revoked",
+        ),
+        OrganizationMembership(
+            id="membership-003",
+            organization_id="org-003",
+            user_id="user-002",
+            role="Employer Manager",
+            status="active",
+        ),
+    ]
 
-        self.assertTrue(has_role(context, "Employer Manager"))
-        self.assertTrue(has_organization_access(context, "org-a"))
-        self.assertFalse(has_organization_access(context, "org-b"))
+    service = AuthorizationService(repository)
 
-    def test_inactive_membership_does_not_grant_access(self):
-        context = build_authorization_context(
-            user_id="user-1",
-            roles={"Employer Manager"},
-            memberships=[
-                OrganizationMembership(
-                    user_id="user-1",
-                    organization_id="org-a",
-                    role="Employer Manager",
-                    status="inactive",
-                )
-            ],
-        )
+    context = service.build_context(
+        user_id="user-001",
+        roles={"Employer Manager"},
+    )
 
-        self.assertFalse(has_organization_access(context, "org-a"))
-
-    def test_membership_for_another_user_does_not_grant_access(self):
-        context = build_authorization_context(
-            user_id="user-1",
-            roles={"Employer Manager"},
-            memberships=[
-                OrganizationMembership(
-                    user_id="user-2",
-                    organization_id="org-a",
-                    role="Employer Manager",
-                )
-            ],
-        )
-
-        self.assertFalse(has_organization_access(context, "org-a"))
-
-
-if __name__ == "__main__":
-    unittest.main()
+    assert context.user_id == "user-001"
+    assert context.roles == frozenset({"Employer Manager"})
+    assert context.organization_ids == frozenset({"org-001"})
