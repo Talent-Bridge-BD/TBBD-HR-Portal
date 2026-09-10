@@ -1,7 +1,67 @@
+import { useEffect, useState } from 'react'
+
 import PageHeader from '../components/PageHeader'
 import DashboardCard from '../components/DashboardCard'
 
 export default function CandidateAvailableJobs() {
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    async function loadJobs() {
+      try {
+        setLoading(true)
+        setError('')
+
+        const response = await fetch('/api/candidate/jobs')
+
+        if (!response.ok) {
+          const body = await response.text()
+          throw new Error(body || `Unable to load jobs (${response.status})`)
+        }
+
+        const data = await response.json()
+
+        if (!active) return
+
+        setJobs(Array.isArray(data.jobs) ? data.jobs : [])
+      } catch (err) {
+        if (active) {
+          setError(err.message || 'Unable to load available jobs.')
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadJobs()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  function formatDate(value) {
+    if (!value) return 'Not specified'
+
+    const date = new Date(value)
+
+    if (Number.isNaN(date.getTime())) {
+      return value
+    }
+
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
   return (
     <>
       <PageHeader
@@ -10,13 +70,64 @@ export default function CandidateAvailableJobs() {
       />
 
       <DashboardCard title="Job Opportunities">
-        <div className="empty-state">
-          <strong>No jobs available yet</strong>
-          <span>
-            New recruitment opportunities will appear here when they become
-            available.
-          </span>
-        </div>
+        {loading && (
+          <div className="empty-state">
+            <strong>Loading available jobs...</strong>
+            <span>Please wait while current opportunities are retrieved.</span>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="empty-state">
+            <strong>Unable to load jobs</strong>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {!loading && !error && jobs.length === 0 && (
+          <div className="empty-state">
+            <strong>No jobs available yet</strong>
+            <span>
+              New recruitment opportunities will appear here when they become
+              available.
+            </span>
+          </div>
+        )}
+
+        {!loading && !error && jobs.length > 0 && (
+          <div className="overview-grid">
+            {jobs.map((job) => (
+              <div className="overview-item" key={job.id}>
+                <span className="overview-icon">▤</span>
+                <div>
+                  <strong>{job.title}</strong>
+
+                  <span>
+                    {job.location || 'Location not specified'}
+                    {job.country ? ` · ${job.country}` : ''}
+                  </span>
+
+                  {job.employment_type && (
+                    <span>{job.employment_type}</span>
+                  )}
+
+                  <span>
+                    {job.number_of_positions || 1}{' '}
+                    {job.number_of_positions === 1 ? 'position' : 'positions'}
+                  </span>
+
+                  {job.description && <span>{job.description}</span>}
+
+                  <span>
+                    Closing date: {formatDate(job.closing_at)}
+                  </span>
+
+                  <button type="button">Apply</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </DashboardCard>
 
       <section className="dashboard-card">
