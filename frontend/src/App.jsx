@@ -26,6 +26,7 @@ import RecruitmentApplications from './pages/RecruitmentApplications'
 import RecruitmentScreening from './pages/RecruitmentScreening'
 import RecruitmentInterviews from './pages/RecruitmentInterviews'
 import RecruitmentOffers from './pages/RecruitmentOffers'
+import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
@@ -142,6 +143,7 @@ export default function App() {
   })
   pages['Recruitment Interviews'] = <RecruitmentInterviews auth={auth} />
   pages['Recruitment Offers'] = <RecruitmentOffers auth={auth} />
+pages['Recruitment Onboarding'] = <RecruitmentOnboarding auth={auth} />
 
   pages['Employer Applications'] = (
     <EmployerApplications auth={auth} />

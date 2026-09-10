@@ -15,6 +15,7 @@ from api.application import router as application_router
 from api.interview import router as interview_router
 from api.offer import router as offer_router
 from api.hiring import router as hiring_router
+from api.recruitment.onboarding import router as onboarding_router
 from api.user_profile import router as user_profile_router
 
 app = FastAPI()
@@ -26,6 +27,7 @@ app.include_router(application_router)
 app.include_router(interview_router)
 app.include_router(offer_router)
 app.include_router(hiring_router)
+app.include_router(onboarding_router)
 app.include_router(user_profile_router)
 
 _organization_repository = SqlOrganizationRepository()
