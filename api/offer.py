@@ -137,28 +137,15 @@ def _require_organization_access(
     request: Request,
     organization_id: str,
 ):
-    auth_context = get_offer_authorization_context(request)
+    context = get_offer_authorization_context(request)
 
-    organization = _organization_repository.get_organization(
-        organization_id
-    )
-
-    if organization is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Organization not found",
-        )
-
-    if not any(
-        str(membership.organization_id) == str(organization_id)
-        for membership in auth_context.organization_memberships
-    ):
+    if organization_id not in context.organization_ids:
         raise HTTPException(
             status_code=403,
-            detail="You do not have access to this organization",
+            detail="User is not authorized for this organization",
         )
 
-    return auth_context
+    return context
 
 
 @router.get("")
