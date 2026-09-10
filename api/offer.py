@@ -127,7 +127,7 @@ def get_offer_authorization_context(request: Request):
     )
 
     return build_authorization_context(
-        principal_id=principal_id,
+        user_id=principal_id,
         roles=roles,
         memberships=memberships,
     )
