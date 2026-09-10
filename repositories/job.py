@@ -171,7 +171,7 @@ class SqlJobRepository(JobRepository):
                 created_at,
                 updated_at
             FROM dbo.jobs
-            WHERE status = 'published'
+            WHERE status = 'open'
               AND published_at IS NOT NULL
               AND published_at <= SYSUTCDATETIME()
               AND (
