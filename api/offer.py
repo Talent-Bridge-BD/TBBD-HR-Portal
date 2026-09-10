@@ -122,7 +122,7 @@ def get_offer_authorization_context(request: Request):
             detail="Insufficient permissions for recruitment offers",
         )
 
-    memberships = _organization_repository.list_active_memberships(
+    memberships = _organization_repository.get_active_memberships(
         principal_id
     )
 
