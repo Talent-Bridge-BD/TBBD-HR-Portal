@@ -13,6 +13,7 @@ from api.job import router as job_router
 from api.job_request import router as job_request_router
 from api.application import router as application_router
 from api.interview import router as interview_router
+from api.offer import router as offer_router
 from api.hiring import router as hiring_router
 from api.user_profile import router as user_profile_router
 
@@ -23,6 +24,7 @@ app.include_router(job_router)
 app.include_router(job_request_router)
 app.include_router(application_router)
 app.include_router(interview_router)
+app.include_router(offer_router)
 app.include_router(hiring_router)
 app.include_router(user_profile_router)
 
