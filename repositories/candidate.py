@@ -102,7 +102,9 @@ class SqlCandidateRepository(CandidateRepository):
             phone=row.phone or "",
             professional_title=row.current_title or "",
             summary=row.professional_summary or "",
-            location="",
+            location=", ".join(
+                part for part in (row.city or "", row.country or "") if part
+            ),
             resume_document_id=resume_document_id,
         )
 
@@ -138,6 +140,8 @@ class SqlCandidateRepository(CandidateRepository):
                     last_name,
                     email,
                     phone,
+                    city,
+                    country,
                     professional_summary,
                     current_title
                 FROM dbo.candidates
@@ -194,6 +198,8 @@ class SqlCandidateRepository(CandidateRepository):
                         last_name,
                         email,
                         phone,
+                        city,
+                        country,
                         current_title,
                         professional_summary,
                         profile_status
@@ -205,15 +211,19 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.last_name,
                         INSERTED.email,
                         INSERTED.phone,
+                        INSERTED.city,
+                        INSERTED.country,
                         INSERTED.professional_summary,
                         INSERTED.current_title
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     profile.user_id,
                     profile.first_name,
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
+                    profile.location.split(",", 1)[0].strip() if profile.location else None,
+                    profile.location.split(",", 1)[1].strip() if profile.location and "," in profile.location else None,
                     profile.professional_title or None,
                     profile.summary or None,
                     "incomplete",
@@ -227,6 +237,8 @@ class SqlCandidateRepository(CandidateRepository):
                         last_name = ?,
                         email = ?,
                         phone = ?,
+                        city = ?,
+                        country = ?,
                         current_title = ?,
                         professional_summary = ?,
                         updated_at = SYSUTCDATETIME()
@@ -237,6 +249,8 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.last_name,
                         INSERTED.email,
                         INSERTED.phone,
+                        INSERTED.city,
+                        INSERTED.country,
                         INSERTED.professional_summary,
                         INSERTED.current_title
                     WHERE id = ?
@@ -245,6 +259,8 @@ class SqlCandidateRepository(CandidateRepository):
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
+                    profile.location.split(",", 1)[0].strip() if profile.location else None,
+                    profile.location.split(",", 1)[1].strip() if profile.location and "," in profile.location else None,
                     profile.professional_title or None,
                     profile.summary or None,
                     existing.id,
