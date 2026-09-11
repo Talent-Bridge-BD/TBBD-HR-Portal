@@ -11,3 +11,9 @@ frontend/dist
 .DS_Store
 
 deploy.zip
+
+# Local debugging and backup artifacts
+latestlogs/
+*.zip
+repositories/*.backup
+repositories/*.before-*
