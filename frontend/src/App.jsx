@@ -80,6 +80,10 @@ export default function App() {
       .then((data) => {
         if (mounted) {
           setAuth(data)
+
+          if (data?.roles?.includes('Candidate')) {
+            setActivePage('Candidate Dashboard')
+          }
         }
       })
       .catch((error) => {
