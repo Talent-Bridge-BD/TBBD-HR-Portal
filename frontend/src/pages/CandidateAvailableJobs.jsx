@@ -7,6 +7,9 @@ export default function CandidateAvailableJobs() {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [applyingJobId, setApplyingJobId] = useState('')
+  const [applicationError, setApplicationError] = useState('')
+  const [applicationSuccess, setApplicationSuccess] = useState('')
 
   useEffect(() => {
     let active = true
@@ -62,6 +65,44 @@ export default function CandidateAvailableJobs() {
     })
   }
 
+  async function handleApply(jobId) {
+    try {
+      setApplyingJobId(jobId)
+      setApplicationError('')
+      setApplicationSuccess('')
+
+      const response = await fetch('/api/candidate/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          job_id: jobId,
+        }),
+      })
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            data.message ||
+            `Unable to submit application (${response.status})`,
+        )
+      }
+
+      setApplicationSuccess(
+        data.message || 'Application submitted successfully.',
+      )
+    } catch (err) {
+      setApplicationError(
+        err.message || 'Unable to submit your application.',
+      )
+    } finally {
+      setApplyingJobId('')
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -70,10 +111,26 @@ export default function CandidateAvailableJobs() {
       />
 
       <DashboardCard title="Job Opportunities">
+        {applicationError && (
+          <div className="empty-state">
+            <strong>Application could not be submitted</strong>
+            <span>{applicationError}</span>
+          </div>
+        )}
+
+        {applicationSuccess && (
+          <div className="empty-state">
+            <strong>Application submitted</strong>
+            <span>{applicationSuccess}</span>
+          </div>
+        )}
+
         {loading && (
           <div className="empty-state">
             <strong>Loading available jobs...</strong>
-            <span>Please wait while current opportunities are retrieved.</span>
+            <span>
+              Please wait while current opportunities are retrieved.
+            </span>
           </div>
         )}
 
@@ -99,6 +156,7 @@ export default function CandidateAvailableJobs() {
             {jobs.map((job) => (
               <div className="overview-item" key={job.id}>
                 <span className="overview-icon">▤</span>
+
                 <div>
                   <strong>{job.title}</strong>
 
@@ -113,7 +171,9 @@ export default function CandidateAvailableJobs() {
 
                   <span>
                     {job.number_of_positions || 1}{' '}
-                    {job.number_of_positions === 1 ? 'position' : 'positions'}
+                    {job.number_of_positions === 1
+                      ? 'position'
+                      : 'positions'}
                   </span>
 
                   {job.description && <span>{job.description}</span>}
@@ -122,7 +182,13 @@ export default function CandidateAvailableJobs() {
                     Closing date: {formatDate(job.closing_at)}
                   </span>
 
-                  <button type="button">Apply</button>
+                  <button
+                    type="button"
+                    onClick={() => handleApply(job.id)}
+                    disabled={applyingJobId === job.id}
+                  >
+                    {applyingJobId === job.id ? 'Applying...' : 'Apply'}
+                  </button>
                 </div>
               </div>
             ))}
@@ -138,6 +204,7 @@ export default function CandidateAvailableJobs() {
         <div className="overview-grid">
           <div className="overview-item">
             <span className="overview-icon">◉</span>
+
             <div>
               <strong>Complete Your Profile</strong>
               <span>
@@ -149,6 +216,7 @@ export default function CandidateAvailableJobs() {
 
           <div className="overview-item">
             <span className="overview-icon">▤</span>
+
             <div>
               <strong>Explore Jobs</strong>
               <span>
@@ -159,6 +227,7 @@ export default function CandidateAvailableJobs() {
 
           <div className="overview-item">
             <span className="overview-icon">✓</span>
+
             <div>
               <strong>Apply</strong>
               <span>
@@ -169,6 +238,7 @@ export default function CandidateAvailableJobs() {
 
           <div className="overview-item">
             <span className="overview-icon">◷</span>
+
             <div>
               <strong>Track Progress</strong>
               <span>

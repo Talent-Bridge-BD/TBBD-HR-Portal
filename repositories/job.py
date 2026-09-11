@@ -20,6 +20,13 @@ class JobRepository(ABC):
     def list_published_jobs(self) -> list[Job]:
         raise NotImplementedError
 
+    @abstractmethod
+    def get_published_job(
+        self,
+        job_id: str,
+    ) -> Optional[Job]:
+        raise NotImplementedError
+
     def get_job(
         self,
         organization_id: str,
@@ -190,6 +197,46 @@ class SqlJobRepository(JobRepository):
             self._row_to_job(row)
             for row in rows
         ]
+
+    def get_published_job(
+        self,
+        job_id: str,
+    ) -> Optional[Job]:
+        sql = """
+            SELECT
+                id,
+                organization_id,
+                title,
+                description,
+                employment_type,
+                location,
+                country,
+                status,
+                number_of_positions,
+                published_at,
+                closing_at,
+                created_at,
+                updated_at
+            FROM dbo.jobs
+            WHERE id = ?
+              AND status = 'open'
+              AND published_at IS NOT NULL
+              AND published_at <= SYSUTCDATETIME()
+              AND (
+                    closing_at IS NULL
+                    OR closing_at > SYSUTCDATETIME()
+              )
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, job_id)
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return self._row_to_job(row)
 
     def get_job(
         self,

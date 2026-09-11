@@ -26,3 +26,23 @@ class ApplicationService:
             organization_id,
             application_id,
         )
+
+    def list_candidate_applications(
+        self,
+        candidate_id: str,
+    ) -> list[EmployerApplication]:
+        return self.repository.list_candidate_applications(
+            candidate_id,
+        )
+
+    def create_application(
+        self,
+        candidate_id: str,
+        job_id: str,
+        cover_letter: Optional[str] = None,
+    ) -> EmployerApplication:
+        return self.repository.create_application(
+            candidate_id,
+            job_id,
+            cover_letter,
+        )

@@ -13,3 +13,6 @@ class CandidateService:
 
     def save_profile(self, profile: CandidateProfile) -> CandidateProfile:
         return self.repository.save_profile(profile)
+
+    def get_candidate_id(self, user_id: str) -> Optional[str]:
+        return self.repository.get_candidate_id(user_id)

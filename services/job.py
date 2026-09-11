@@ -15,6 +15,9 @@ class JobService:
     def list_published_jobs(self) -> list[Job]:
         return self.repository.list_published_jobs()
 
+    def get_published_job(self, job_id: str) -> Optional[Job]:
+        return self.repository.get_published_job(job_id)
+
     def get_job(
         self,
         organization_id: str,

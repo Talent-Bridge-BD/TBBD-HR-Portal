@@ -14,6 +14,9 @@ from models.candidate import CandidateProfile
 class CandidateRepository(ABC):
 
     @abstractmethod
+    def get_candidate_id(self, user_id: str) -> Optional[str]:
+        raise NotImplementedError
+
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         raise NotImplementedError
 
@@ -102,6 +105,25 @@ class SqlCandidateRepository(CandidateRepository):
             location="",
             resume_document_id=resume_document_id,
         )
+
+    def get_candidate_id(self, user_id: str) -> Optional[str]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT id
+                FROM dbo.candidates
+                WHERE entra_object_id = ?
+                """,
+                user_id,
+            )
+
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return str(row.id)
 
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         with self._connection() as connection:
