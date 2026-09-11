@@ -3,3 +3,7 @@ uvicorn[standard]
 requests
 azure-identity
 pyodbc
+
+azure-storage-blob
+
+python-multipart

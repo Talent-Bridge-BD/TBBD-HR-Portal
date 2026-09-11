@@ -37,6 +37,10 @@ class InMemoryCandidateRepository(CandidateRepository):
         self._profiles[profile.user_id] = profile
         return profile
 
+    def get_candidate_id(self, user_id: str) -> Optional[str]:
+        profile = self._profiles.get(user_id)
+        return profile.user_id if profile else None
+
 
 class SqlCandidateRepository(CandidateRepository):
     """
@@ -105,8 +109,35 @@ class SqlCandidateRepository(CandidateRepository):
             location=", ".join(
                 part for part in (row.city or "", row.country or "") if part
             ),
+            career_level=row.career_level or "",
+            years_experience=float(row.years_experience)
+            if row.years_experience is not None
+            else None,
+            passport_number=row.passport_number or "",
+            passport_country=row.passport_country or "",
+            passport_expiry_date=(
+                row.passport_expiry_date.isoformat()
+                if row.passport_expiry_date is not None
+                else None
+            ),
+            passport_status=row.passport_status or "",
+            international_travel_readiness=(
+                row.international_travel_readiness or ""
+            ),
             resume_document_id=resume_document_id,
         )
+
+    @staticmethod
+    def _split_location(location: str) -> tuple[Optional[str], Optional[str]]:
+        if not location:
+            return None, None
+
+        parts = [part.strip() for part in location.split(",", 1)]
+
+        city = parts[0] or None
+        country = parts[1] if len(parts) > 1 and parts[1] else None
+
+        return city, country
 
     def get_candidate_id(self, user_id: str) -> Optional[str]:
         with self._connection() as connection:
@@ -119,7 +150,6 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 user_id,
             )
-
             row = cursor.fetchone()
 
         if row is None:
@@ -143,12 +173,20 @@ class SqlCandidateRepository(CandidateRepository):
                     city,
                     country,
                     professional_summary,
-                    current_title
+                    current_title,
+                    career_level,
+                    years_experience,
+                    passport_number,
+                    passport_country,
+                    passport_expiry_date,
+                    passport_status,
+                    international_travel_readiness
                 FROM dbo.candidates
                 WHERE entra_object_id = ?
                 """,
                 user_id,
             )
+
             row = cursor.fetchone()
 
             if row is None:
@@ -165,6 +203,7 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 row.id,
             )
+
             document_row = cursor.fetchone()
 
             resume_document_id = (
@@ -173,9 +212,14 @@ class SqlCandidateRepository(CandidateRepository):
                 else None
             )
 
-            return self._row_to_profile(row, resume_document_id)
+            return self._row_to_profile(
+                row,
+                resume_document_id,
+            )
 
     def save_profile(self, profile: CandidateProfile) -> CandidateProfile:
+        city, country = self._split_location(profile.location)
+
         with self._connection() as connection:
             cursor = connection.cursor()
 
@@ -187,6 +231,7 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 profile.user_id,
             )
+
             existing = cursor.fetchone()
 
             if existing is None:
@@ -202,6 +247,13 @@ class SqlCandidateRepository(CandidateRepository):
                         country,
                         current_title,
                         professional_summary,
+                        career_level,
+                        years_experience,
+                        passport_number,
+                        passport_country,
+                        passport_expiry_date,
+                        passport_status,
+                        international_travel_readiness,
                         profile_status
                     )
                     OUTPUT
@@ -214,20 +266,37 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.city,
                         INSERTED.country,
                         INSERTED.professional_summary,
-                        INSERTED.current_title
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERTED.current_title,
+                        INSERTED.career_level,
+                        INSERTED.years_experience,
+                        INSERTED.passport_number,
+                        INSERTED.passport_country,
+                        INSERTED.passport_expiry_date,
+                        INSERTED.passport_status,
+                        INSERTED.international_travel_readiness
+                    VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    )
                     """,
                     profile.user_id,
                     profile.first_name,
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
-                    profile.location.split(",", 1)[0].strip() if profile.location else None,
-                    profile.location.split(",", 1)[1].strip() if profile.location and "," in profile.location else None,
+                    city,
+                    country,
                     profile.professional_title or None,
                     profile.summary or None,
+                    profile.career_level or None,
+                    profile.years_experience,
+                    profile.passport_number or None,
+                    profile.passport_country or None,
+                    profile.passport_expiry_date or None,
+                    profile.passport_status or None,
+                    profile.international_travel_readiness or None,
                     "incomplete",
                 )
+
             else:
                 cursor.execute(
                     """
@@ -241,6 +310,13 @@ class SqlCandidateRepository(CandidateRepository):
                         country = ?,
                         current_title = ?,
                         professional_summary = ?,
+                        career_level = ?,
+                        years_experience = ?,
+                        passport_number = ?,
+                        passport_country = ?,
+                        passport_expiry_date = ?,
+                        passport_status = ?,
+                        international_travel_readiness = ?,
                         updated_at = SYSUTCDATETIME()
                     OUTPUT
                         INSERTED.id,
@@ -252,17 +328,31 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.city,
                         INSERTED.country,
                         INSERTED.professional_summary,
-                        INSERTED.current_title
+                        INSERTED.current_title,
+                        INSERTED.career_level,
+                        INSERTED.years_experience,
+                        INSERTED.passport_number,
+                        INSERTED.passport_country,
+                        INSERTED.passport_expiry_date,
+                        INSERTED.passport_status,
+                        INSERTED.international_travel_readiness
                     WHERE id = ?
                     """,
                     profile.first_name,
                     profile.last_name,
                     profile.email,
                     profile.phone or None,
-                    profile.location.split(",", 1)[0].strip() if profile.location else None,
-                    profile.location.split(",", 1)[1].strip() if profile.location and "," in profile.location else None,
+                    city,
+                    country,
                     profile.professional_title or None,
                     profile.summary or None,
+                    profile.career_level or None,
+                    profile.years_experience,
+                    profile.passport_number or None,
+                    profile.passport_country or None,
+                    profile.passport_expiry_date or None,
+                    profile.passport_status or None,
+                    profile.international_travel_readiness or None,
                     existing.id,
                 )
 

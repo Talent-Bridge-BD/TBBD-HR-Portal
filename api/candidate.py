@@ -1,12 +1,15 @@
 import base64
 import json
-from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from pydantic import BaseModel, field_validator
 from models.candidate import CandidateProfile
 from repositories.application import SqlApplicationRepository
 from repositories.candidate import SqlCandidateRepository
 from repositories.job import SqlJobRepository
+from repositories.blob_storage import BlobStorageRepository
+from repositories.candidate_document import SqlCandidateDocumentRepository
 from services.application import ApplicationService
+from services.candidate_document import CandidateDocumentService
 from services.candidate import CandidateService
 from services.job import JobService
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
@@ -16,6 +19,12 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _application_repository = SqlApplicationRepository()
 _application_service = ApplicationService(_application_repository)
+_document_repository = SqlCandidateDocumentRepository()
+_blob_repository = BlobStorageRepository()
+_document_service = CandidateDocumentService(
+    _document_repository,
+    _blob_repository,
+)
 CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
 class CandidateApplicationRequest(BaseModel):
     job_id: str
@@ -23,14 +32,47 @@ class CandidateApplicationRequest(BaseModel):
 
 
 class CandidateProfileRequest(BaseModel):
+    # Personal information
     first_name: str = ""
     last_name: str = ""
     email: str = ""
     phone: str = ""
+    location: str = ""
+
+    # Professional profile
     professional_title: str = ""
     summary: str = ""
-    location: str = ""
+    career_level: str = ""
+    years_experience: float | None = None
+
+    # Passport / international mobility
+    passport_number: str = ""
+    passport_country: str = ""
+    passport_expiry_date: str | None = None
+    passport_status: str = ""
+    international_travel_readiness: str = ""
+
+    # Existing document reference
     resume_document_id: str | None = None
+    @field_validator("passport_number")
+    @classmethod
+    def validate_passport_number(cls, value: str) -> str:
+        value = value.strip().upper()
+
+        if not value:
+            return value
+
+        import re
+
+        if not re.fullmatch(r"(?:[A-Z]\d{8}|[A-Z]{2}\d{7})", value):
+            raise ValueError(
+                "Passport number must be in the format "
+                "A00000000 or AB0000000"
+            )
+
+        return value
+
+
 def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
     return {
         str(claim.get("val"))
@@ -181,4 +223,149 @@ async def create_candidate_application(
     return {
         "application": application.__dict__,
         "message": "Application submitted successfully",
+    }
+
+
+@router.get("/documents")
+async def get_candidate_documents(request: Request):
+    user_id = get_candidate_identity(request)
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        return {
+            "documents": [],
+            "message": "Candidate profile has not been created yet",
+        }
+
+    documents = _document_service.list_documents(candidate_id)
+
+    return {
+        "documents": [document.__dict__ for document in documents]
+    }
+
+
+@router.post("/documents")
+async def upload_candidate_document(
+    request: Request,
+    document_type: str,
+    file: UploadFile = File(...),
+):
+    user_id = get_candidate_identity(request)
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Complete your candidate profile before uploading documents",
+        )
+
+    if document_type not in {"passport", "resume"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Document type must be passport or resume",
+        )
+
+    max_upload_bytes = CandidateDocumentService.MAX_FILE_SIZE + 1
+    file_bytes = await file.read(max_upload_bytes)
+
+    try:
+        document = _document_service.upload_document(
+            candidate_id=candidate_id,
+            document_type=document_type,
+            file_name=file.filename or "document",
+            content_type=file.content_type or "",
+            file_bytes=file_bytes,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
+
+    return {
+        "document": document.__dict__,
+        "message": "Document uploaded successfully",
+    }
+
+
+@router.get("/documents/{document_id}")
+async def download_candidate_document(
+    document_id: str,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Candidate profile not found",
+        )
+
+    document = _document_repository.get_document(
+        candidate_id,
+        document_id,
+    )
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found",
+        )
+
+    try:
+        file_bytes = _blob_repository.download(document.blob_name)
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Document file could not be retrieved",
+        )
+
+    from fastapi.responses import Response
+
+    return Response(
+        content=file_bytes,
+        media_type=document.content_type or "application/octet-stream",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{document.file_name}"'
+            )
+        },
+    )
+
+
+@router.delete("/documents/{document_id}")
+async def delete_candidate_document(
+    document_id: str,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Candidate profile not found",
+        )
+
+    try:
+        document = _document_service.delete_document(
+            candidate_id,
+            document_id,
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Document could not be deleted",
+        )
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found",
+        )
+
+    return {
+        "document": document.__dict__,
+        "message": "Document deleted successfully",
     }
