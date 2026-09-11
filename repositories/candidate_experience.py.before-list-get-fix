@@ -1,0 +1,358 @@
+from abc import ABC, abstractmethod
+import os
+import struct
+
+from azure.identity import DefaultAzureCredential
+
+from models.candidate_experience import CandidateExperience
+
+
+class CandidateExperienceRepository(ABC):
+    @abstractmethod
+    def list_experience(self, candidate_id: str) -> list[CandidateExperience]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+    ) -> CandidateExperience | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def create_experience(
+        self,
+        candidate_id: str,
+        job_title: str,
+        company: str,
+        location: str | None,
+        employment_type: str | None,
+        start_date,
+        end_date,
+        currently_working: bool,
+        description: str | None,
+    ) -> CandidateExperience:
+        raise NotImplementedError
+
+    def update_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+        job_title: str,
+        company: str,
+        location: str | None,
+        employment_type: str | None,
+        start_date,
+        end_date,
+        currently_working: bool,
+        description: str | None,
+    ) -> CandidateExperience | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+    ) -> bool:
+        raise NotImplementedError
+
+
+class SqlCandidateExperienceRepository(CandidateExperienceRepository):
+    """
+    Azure SQL implementation using Microsoft Entra authentication.
+
+    Candidate ownership is enforced in every read/update/delete query by
+    requiring both candidate_id and experience_id where applicable.
+    """
+
+    SQL_SCOPE = "https://database.windows.net/.default"
+    SQL_ACCESS_TOKEN_ATTRIBUTE = 1256
+
+    def __init__(
+        self,
+        server: str | None = None,
+        database: str | None = None,
+    ):
+        self.server = server or os.environ.get(
+            "SQL_SERVER",
+            "tbbd-sql-sea.database.windows.net",
+        )
+        self.database = database or os.environ.get(
+            "SQL_DATABASE",
+            "tbbd-hr-db",
+        )
+        self.credential = DefaultAzureCredential()
+
+    def _connection(self):
+        import pyodbc
+
+        token = self.credential.get_token(self.SQL_SCOPE).token
+        token_bytes = token.encode("utf-16-le")
+        token_struct = struct.pack(
+            f"<I{len(token_bytes)}s",
+            len(token_bytes),
+            token_bytes,
+        )
+
+        connection_string = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER={self.server},1433;"
+            f"DATABASE={self.database};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
+        return pyodbc.connect(
+            connection_string,
+            attrs_before={
+                self.SQL_ACCESS_TOKEN_ATTRIBUTE: token_struct,
+            },
+        )
+
+    @staticmethod
+    def _map_row(row) -> CandidateExperience:
+        return CandidateExperience(
+            id=str(row.id),
+            candidate_id=str(row.candidate_id),
+            job_title=row.job_title,
+            company=row.company,
+            location=row.location,
+            employment_type=row.employment_type,
+            start_date=row.start_date,
+            end_date=row.end_date,
+            currently_working=bool(row.currently_working),
+            description=row.description,
+            created_at=row.created_at,
+            updated_at=row.updated_at,
+        )
+
+    def list_experience(
+        self,
+        candidate_id: str,
+    ) -> list[CandidateExperience]:
+        sql = """
+        SELECT
+            id,
+            candidate_id,
+            job_title,
+            company,
+            location,
+            employment_type,
+            start_date,
+            end_date,
+            currently_working,
+            description,
+            created_at,
+            updated_at
+        FROM dbo.candidate_experience
+        WHERE candidate_id = ?
+        ORDER BY
+            currently_working DESC,
+            start_date DESC,
+            created_at DESC;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, candidate_id)
+            rows = cursor.fetchall()
+
+        return [self._map_row(row) for row in rows]
+
+    def get_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+    ) -> CandidateExperience | None:
+        sql = """
+        SELECT
+            id,
+            candidate_id,
+            job_title,
+            company,
+            location,
+            employment_type,
+            start_date,
+            end_date,
+            currently_working,
+            description,
+            created_at,
+            updated_at
+        FROM dbo.candidate_experience
+        WHERE id = ?
+          AND candidate_id = ?;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                sql,
+                experience_id,
+                candidate_id,
+            )
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return self._map_row(row)
+
+    def create_experience(
+        self,
+        candidate_id: str,
+        job_title: str,
+        company: str,
+        location: str | None,
+        employment_type: str | None,
+        start_date,
+        end_date,
+        currently_working: bool,
+        description: str | None,
+    ) -> CandidateExperience:
+        sql = """
+        INSERT INTO dbo.candidate_experience (
+            candidate_id,
+            job_title,
+            company,
+            location,
+            employment_type,
+            start_date,
+            end_date,
+            currently_working,
+            description
+        )
+        OUTPUT
+            INSERTED.id,
+            INSERTED.candidate_id,
+            INSERTED.job_title,
+            INSERTED.company,
+            INSERTED.location,
+            INSERTED.employment_type,
+            INSERTED.start_date,
+            INSERTED.end_date,
+            INSERTED.currently_working,
+            INSERTED.description,
+            INSERTED.created_at,
+            INSERTED.updated_at
+        SELECT
+            c.id,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        FROM dbo.candidates AS c
+        WHERE c.entra_object_id = ?;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                sql,
+                job_title,
+                company,
+                location,
+                employment_type,
+                start_date,
+                end_date,
+                currently_working,
+                description,
+                candidate_id,
+            )
+            row = cursor.fetchone()
+            if row is None:
+                connection.rollback()
+                raise ValueError("Candidate profile not found")
+            connection.commit()
+
+        return self._map_row(row)
+
+    def update_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+        job_title: str,
+        company: str,
+        location: str | None,
+        employment_type: str | None,
+        start_date,
+        end_date,
+        currently_working: bool,
+        description: str | None,
+    ) -> CandidateExperience | None:
+        sql = """
+        UPDATE dbo.candidate_experience
+        SET
+            job_title = ?,
+            company = ?,
+            location = ?,
+            employment_type = ?,
+            start_date = ?,
+            end_date = ?,
+            currently_working = ?,
+            description = ?,
+            updated_at = SYSUTCDATETIME()
+        WHERE id = ?
+          AND candidate_id = ?;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                sql,
+                job_title,
+                company,
+                location,
+                employment_type,
+                start_date,
+                end_date,
+                currently_working,
+                description,
+                experience_id,
+                candidate_id,
+            )
+
+            if cursor.rowcount == 0:
+                connection.rollback()
+                return None
+
+            connection.commit()
+
+        return self.get_experience(
+            candidate_id,
+            experience_id,
+        )
+
+    def delete_experience(
+        self,
+        candidate_id: str,
+        experience_id: str,
+    ) -> bool:
+        sql = """
+        DELETE FROM dbo.candidate_experience
+        WHERE id = ?
+          AND candidate_id = ?;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                sql,
+                experience_id,
+                candidate_id,
+            )
+
+            deleted = cursor.rowcount > 0
+
+            if deleted:
+                connection.commit()
+            else:
+                connection.rollback()
+
+        return deleted
