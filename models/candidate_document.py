@@ -12,5 +12,5 @@ class CandidateDocument:
     blob_name: str
     content_type: Optional[str] = None
     file_size: Optional[int] = None
-    status: str = "uploaded"
+    status: str = "submitted"
     uploaded_at: Optional[str] = None

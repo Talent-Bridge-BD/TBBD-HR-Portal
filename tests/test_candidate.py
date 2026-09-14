@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 
 from fastapi.testclient import TestClient
 
@@ -56,10 +57,16 @@ def candidate_headers():
 
 
 def test_candidate_profile_requires_authenticated_identity():
-    response = client.get("/api/candidate/profile")
-
+    original_local_auth = os.environ.get("TBBD_LOCAL_AUTH")
+    os.environ["TBBD_LOCAL_AUTH"] = "0"
+    try:
+        response = client.get("/api/candidate/profile")
+    finally:
+        if original_local_auth is None:
+            os.environ.pop("TBBD_LOCAL_AUTH", None)
+        else:
+            os.environ["TBBD_LOCAL_AUTH"] = original_local_auth
     assert response.status_code == 401
-
 
 def test_candidate_profile_can_be_created_and_retrieved():
     headers = candidate_headers()
@@ -78,7 +85,7 @@ def test_candidate_profile_can_be_created_and_retrieved():
     )
 
     assert response.status_code == 200
-    assert response.json()["profile"]["user_id"] == "test-principal-001"
+    assert response.json()["profile"]["user_id"] == "0a516aec-41c2-46d8-9e31-0a4af12b4eda"
 
     response = client.get(
         "/api/candidate/profile",

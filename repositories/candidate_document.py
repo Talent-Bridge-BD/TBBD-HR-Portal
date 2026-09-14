@@ -92,7 +92,8 @@ class SqlCandidateDocumentRepository(CandidateDocumentRepository):
         token_struct = struct.pack(
             f"<I{len(token_bytes)}s",
             len(token_bytes),
-        ) + token_bytes
+            token_bytes,
+        )
 
         connection_string = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -239,7 +240,7 @@ class SqlCandidateDocumentRepository(CandidateDocumentRepository):
                     ?,
                     ?,
                     ?,
-                    N'uploaded'
+                    N'submitted'
                 )
                 """,
                 candidate_id,
@@ -345,7 +346,7 @@ class SqlCandidateDocumentRepository(CandidateDocumentRepository):
                     ?,
                     ?,
                     ?,
-                    N'uploaded'
+                    N'submitted'
                 )
                 """,
                 candidate_id,

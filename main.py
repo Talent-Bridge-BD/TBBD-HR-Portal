@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from services.authorization import build_authorization_context
+from services.local_auth import get_request_principal
 from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
@@ -30,24 +31,17 @@ _organization_repository = SqlOrganizationRepository()
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
-    import base64
-    import json
+    principal = get_request_principal(request)
 
-    principal_name = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
-    principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
-    encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
-
-    if not encoded_principal:
+    if not principal:
         return {
             "authenticated": False,
             "user": None,
             "roles": [],
         }
 
-    padding = "=" * (-len(encoded_principal) % 4)
-    principal = json.loads(
-        base64.b64decode(encoded_principal + padding).decode("utf-8")
-    )
+    principal_id = principal.get("id") or ""
+    principal_name = principal.get("email") or ""
 
     claims = principal.get("claims", [])
 
@@ -78,10 +72,11 @@ async def get_current_user(request: Request):
         roles.add("Employee")
 
     memberships = _organization_repository.get_active_memberships(
-        principal_id or ""
+        principal_id
     )
+
     authorization_context = build_authorization_context(
-        user_id=principal_id or "",
+        user_id=principal_id,
         roles=roles,
         memberships=memberships,
     )
@@ -91,10 +86,15 @@ async def get_current_user(request: Request):
         "user": {
             "id": principal_id,
             "email": principal_name,
-            "name": next(iter(claim_values("name")), principal_name),
+            "name": next(
+                iter(claim_values("name")),
+                principal_name,
+            ),
         },
         "roles": sorted(authorization_context.roles),
-        "organization_ids": sorted(authorization_context.organization_ids),
+        "organization_ids": sorted(
+            authorization_context.organization_ids
+        ),
     }
 
 

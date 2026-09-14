@@ -11,8 +11,13 @@ from repositories.candidate_document import CandidateDocumentRepository
 
 class CandidateDocumentService:
     MAX_FILE_SIZE = 10 * 1024 * 1024
+    PROFILE_PHOTO_MAX_FILE_SIZE = 5 * 1024 * 1024
 
     ALLOWED_DOCUMENT_TYPES = {
+        "profile_photo": {
+            "image/jpeg",
+            "image/png",
+        },
         "passport": {
             "application/pdf",
             "image/jpeg",
@@ -91,22 +96,25 @@ class CandidateDocumentService:
         if allowed_types is None:
             raise ValueError("Unsupported document type")
 
-        if content_type not in allowed_types:
-            raise ValueError("Unsupported file type")
+        # Browsers may report DOC/DOCX with a generic MIME type.
+        # Actual file type is validated below using extension + signature.
 
         if not file_bytes:
             raise ValueError("File is empty")
 
-        if len(file_bytes) > self.MAX_FILE_SIZE:
-            raise ValueError("File exceeds the 10 MB limit")
-
-        self._validate_file_signature(
-            content_type,
-            file_bytes,
+        max_file_size = (
+            self.PROFILE_PHOTO_MAX_FILE_SIZE
+            if document_type == "profile_photo"
+            else self.MAX_FILE_SIZE
         )
 
-        safe_file_name = self._sanitize_file_name(file_name)
+        if len(file_bytes) > max_file_size:
+            if document_type == "profile_photo":
+                raise ValueError("Profile photo exceeds the 5 MB limit")
 
+            raise ValueError("File exceeds the 10 MB limit")
+
+        safe_file_name = self._sanitize_file_name(file_name)
         extension = (
             safe_file_name.rsplit(".", 1)[-1].lower()
             if "." in safe_file_name
@@ -116,22 +124,29 @@ class CandidateDocumentService:
         if not extension:
             raise ValueError("File extension is required")
 
-        allowed_extensions = {
-            "application/pdf": {"pdf"},
-            "image/jpeg": {"jpg", "jpeg"},
-            "image/png": {"png"},
-            "application/msword": {"doc"},
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
-                "docx"
-            },
+        detected_content_types = {
+            "pdf": "application/pdf",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "png": "image/png",
+            "doc": "application/msword",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         }
 
-        expected_extensions = allowed_extensions.get(content_type, set())
+        detected_content_type = detected_content_types.get(extension)
 
-        if extension not in expected_extensions:
-            raise ValueError(
-                "File extension does not match the declared file type"
-            )
+        if detected_content_type is None:
+            raise ValueError("Unsupported file type")
+
+        if detected_content_type not in allowed_types:
+            raise ValueError("Unsupported file type")
+
+        content_type = detected_content_type
+
+        self._validate_file_signature(
+            content_type,
+            file_bytes,
+        )
 
         blob_name = (
             f"candidates/{candidate_id}/"
