@@ -32,6 +32,30 @@ def test_employer_manager_can_access_dashboard():
     assert result.stats.active_jobs == 3
 
 
+@pytest.mark.parametrize(
+    "role",
+    ["HR Manager", "Administrator"],
+)
+def test_hr_manager_and_administrator_can_access_dashboard(role):
+    dashboard = EmployerDashboard(
+        employer_name="Test Employer",
+        organization_name="Test Organization",
+        stats=EmployerDashboardStats(3, 5, 12, 2),
+        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+    )
+    repository = InMemoryEmployerDashboardRepository(dashboard)
+    service = EmployerDashboardService(repository)
+    context = AuthorizationContext(
+        user_id="user-003",
+        roles=frozenset({role}),
+        organization_ids=frozenset({"org-001"}),
+    )
+
+    result = service.get_dashboard(context, "Test Employer")
+
+    assert result.stats.active_jobs == 3
+
+
 def test_non_employer_manager_cannot_access_dashboard():
     dashboard = EmployerDashboard(
         employer_name="Test Employer",

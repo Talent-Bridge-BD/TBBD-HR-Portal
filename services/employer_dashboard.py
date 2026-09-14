@@ -1,5 +1,5 @@
 from repositories.employer_dashboard import EmployerDashboardRepository
-from services.authorization import AuthorizationContext, require_role
+from services.authorization import AuthorizationContext, has_any_role
 
 
 class EmployerDashboardService:
@@ -11,7 +11,8 @@ class EmployerDashboardService:
         context: AuthorizationContext,
         employer_name: str,
     ):
-        require_role(context, "Employer Manager")
+        if not has_any_role(context, {"Employer Manager", "HR Manager", "Administrator"}):
+            raise PermissionError("Required employer portal role")
 
         return self.repository.get_dashboard(
             context=context,
