@@ -84,8 +84,9 @@ export default function RecruitmentApplications({ auth }) {
                   <th>Candidate</th>
                   <th>Email</th>
                   <th>Job</th>
-                  <th>Status</th>
-                  <th>Applied</th>
+              <th>Workflow Status</th>
+                  <th>Applied Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
 
@@ -98,13 +99,16 @@ export default function RecruitmentApplications({ auth }) {
                     </td>
                     <td>{application.candidate_email}</td>
                     <td>{application.job_title}</td>
-                    <td>{application.status}</td>
+                  <td>{application.workflow_status || application.status || 'Applied'}</td>
                     <td>
                       {application.applied_at
                         ? new Date(
                             application.applied_at
                           ).toLocaleDateString()
                         : '—'}
+                    </td>
+                    <td>
+                      <button type="button">View</button>
                     </td>
                   </tr>
                 ))}
