@@ -12,12 +12,16 @@ class EmployerDashboardStats:
 
 @dataclass(frozen=True)
 class EmployerPipeline:
-    new: int
+    applied: int
     screening: int
-    shortlisted: int
     interview: int
-    offer: int
-    hired: int
+    trade_test: int
+    medical: int
+    visa_processing: int
+    ticketing: int
+    onboarding: int
+    deployment: int
+    completed: int
 
 
 @dataclass(frozen=True)

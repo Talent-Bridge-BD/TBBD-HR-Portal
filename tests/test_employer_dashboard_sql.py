@@ -1,5 +1,5 @@
+
 from models.employer_dashboard import (
-    EmployerDashboard,
     EmployerDashboardStats,
     EmployerPipeline,
 )
@@ -23,17 +23,23 @@ def test_sql_employer_dashboard_returns_zero_for_no_organizations():
 
     assert result.employer_name == "Test Employer"
     assert result.organization_name is None
+
     assert result.stats == EmployerDashboardStats(
         active_jobs=0,
         new_applications=0,
         candidates_pipeline=0,
         interviews_upcoming=0,
     )
+
     assert result.pipeline == EmployerPipeline(
-        new=0,
+        applied=0,
         screening=0,
-        shortlisted=0,
         interview=0,
-        offer=0,
-        hired=0,
+        trade_test=0,
+        medical=0,
+        visa_processing=0,
+        ticketing=0,
+        onboarding=0,
+        deployment=0,
+        completed=0,
     )

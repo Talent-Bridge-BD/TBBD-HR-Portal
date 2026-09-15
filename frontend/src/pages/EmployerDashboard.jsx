@@ -129,7 +129,7 @@ export default function EmployerDashboard({ onNavigate }) {
               <span className="overview-icon">+</span>
               <div>
                 <strong>New</strong>
-                <span>{loading ? '—' : pipeline.new} applications</span>
+                <span>{loading ? '—' : pipeline.applied} applications</span>
               </div>
             </div>
 
@@ -145,7 +145,7 @@ export default function EmployerDashboard({ onNavigate }) {
               <span className="overview-icon">•</span>
               <div>
                 <strong>Shortlisted</strong>
-                <span>{loading ? '—' : pipeline.shortlisted} candidates</span>
+                <span>{loading ? '—' : pipeline.trade_test} candidates</span>
               </div>
             </div>
 
@@ -161,7 +161,7 @@ export default function EmployerDashboard({ onNavigate }) {
               <span className="overview-icon">•</span>
               <div>
                 <strong>Offer</strong>
-                <span>{loading ? '—' : pipeline.offer} candidates</span>
+                <span>{loading ? '—' : pipeline.medical} candidates</span>
               </div>
             </div>
 
@@ -169,7 +169,7 @@ export default function EmployerDashboard({ onNavigate }) {
               <span className="overview-icon">•</span>
               <div>
                 <strong>Hired</strong>
-                <span>{loading ? '—' : pipeline.hired} candidates</span>
+                <span>{loading ? '—' : pipeline.completed} candidates</span>
               </div>
             </div>
           </div>

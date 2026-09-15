@@ -19,14 +19,19 @@ def test_employer_dashboard_repository_returns_dashboard():
             candidates_pipeline=12,
             interviews_upcoming=2,
         ),
-        pipeline=EmployerPipeline(
-            new=5,
+            pipeline=EmployerPipeline(
+            applied=5,
             screening=3,
-            shortlisted=2,
             interview=1,
-            offer=1,
-            hired=0,
+            trade_test=0,
+            medical=0,
+            visa_processing=0,
+            ticketing=0,
+            onboarding=0,
+            deployment=0,
+            completed=0,
         ),
+
     )
 
     repository = InMemoryEmployerDashboardRepository(dashboard)
@@ -48,9 +53,13 @@ def test_employer_dashboard_repository_returns_dashboard():
     assert result.stats.new_applications == 5
     assert result.stats.candidates_pipeline == 12
     assert result.stats.interviews_upcoming == 2
-    assert result.pipeline.new == 5
+    assert result.pipeline.applied == 5
     assert result.pipeline.screening == 3
-    assert result.pipeline.shortlisted == 2
     assert result.pipeline.interview == 1
-    assert result.pipeline.offer == 1
-    assert result.pipeline.hired == 0
+    assert result.pipeline.trade_test == 0
+    assert result.pipeline.medical == 0
+    assert result.pipeline.visa_processing == 0
+    assert result.pipeline.ticketing == 0
+    assert result.pipeline.onboarding == 0
+    assert result.pipeline.deployment == 0
+    assert result.pipeline.completed == 0

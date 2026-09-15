@@ -47,7 +47,7 @@ def test_employer_manager_can_access_dashboard(monkeypatch):
         employer_name="Test Employer",
         organization_name="Test Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
     )
 
     repository = InMemoryEmployerDashboardRepository(dashboard)
@@ -95,15 +95,23 @@ def test_employer_manager_can_access_dashboard(monkeypatch):
     assert data["organization_name"] == "Test Organization"
     assert data["stats"]["active_jobs"] == 3
     assert data["stats"]["new_applications"] == 5
-    assert data["pipeline"]["shortlisted"] == 2
-
+    assert data["pipeline"]["applied"] == 5
+    assert data["pipeline"]["screening"] == 3
+    assert data["pipeline"]["interview"] == 1
+    assert data["pipeline"]["trade_test"] == 0
+    assert data["pipeline"]["medical"] == 0
+    assert data["pipeline"]["visa_processing"] == 0
+    assert data["pipeline"]["ticketing"] == 0
+    assert data["pipeline"]["onboarding"] == 0
+    assert data["pipeline"]["deployment"] == 0
+    assert data["pipeline"]["completed"] == 0
 
 def test_employee_cannot_access_employer_dashboard(monkeypatch):
     dashboard = EmployerDashboard(
         employer_name="Test Employer",
         organization_name="Test Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
     )
 
     repository = InMemoryEmployerDashboardRepository(dashboard)

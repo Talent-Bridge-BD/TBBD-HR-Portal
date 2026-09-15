@@ -15,7 +15,9 @@ def test_employer_manager_can_access_dashboard():
         employer_name="Test Employer",
         organization_name="Test Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+        pipeline=EmployerPipeline(
+        5, 3, 1, 0, 0, 0, 0, 0, 0, 0
+    ),
     )
 
     repository = InMemoryEmployerDashboardRepository(dashboard)
@@ -41,7 +43,9 @@ def test_hr_manager_and_administrator_can_access_dashboard(role):
         employer_name="Test Employer",
         organization_name="Test Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+        pipeline=EmployerPipeline(
+        5, 3, 1, 0, 0, 0, 0, 0, 0, 0
+    ),
     )
     repository = InMemoryEmployerDashboardRepository(dashboard)
     service = EmployerDashboardService(repository)
@@ -61,7 +65,9 @@ def test_non_employer_manager_cannot_access_dashboard():
         employer_name="Test Employer",
         organization_name="Test Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 2, 1, 1, 0),
+        pipeline=EmployerPipeline(
+        5, 3, 1, 0, 0, 0, 0, 0, 0, 0
+    ),
     )
 
     repository = InMemoryEmployerDashboardRepository(dashboard)
