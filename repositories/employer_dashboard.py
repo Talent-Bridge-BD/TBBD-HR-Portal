@@ -193,24 +193,26 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
             cursor.execute(
                 f"""
                 SELECT
-                    a.status,
+                    c.workflow_status AS status,
                     COUNT(*) AS status_count
-                FROM dbo.applications AS a
-                INNER JOIN dbo.jobs AS j
-                    ON j.id = a.job_id
-                WHERE j.organization_id IN ({placeholders})
-                GROUP BY a.status
+                FROM dbo.candidates AS c
+                WHERE c.organization_id IN ({placeholders})
+                GROUP BY c.workflow_status
                 """,
                 *organization_ids,
             )
 
             pipeline_counts = {
-                "submitted": 0,
-                "under_review": 0,
-                "shortlisted": 0,
-                "interview": 0,
-                "offered": 0,
-                "hired": 0,
+                "Applied": 0,
+                "Screening": 0,
+                "Interview": 0,
+                "Trade Test": 0,
+                "Medical": 0,
+                "Visa Processing": 0,
+                "Ticketing": 0,
+                "Onboarding": 0,
+                "Deployment": 0,
+                "Completed": 0,
             }
 
             for row in cursor.fetchall():
@@ -246,15 +248,15 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
                     interviews_upcoming=interviews_upcoming,
                 ),
                 pipeline=EmployerPipeline(
-                    applied=0,
-                    screening=0,
-                    interview=0,
-                    trade_test=0,
-                    medical=0,
-                    visa_processing=0,
-                    ticketing=0,
-                    onboarding=0,
-                    deployment=0,
-                    completed=0,
+                    applied=pipeline_counts["Applied"],
+                    screening=pipeline_counts["Screening"],
+                    interview=pipeline_counts["Interview"],
+                    trade_test=pipeline_counts["Trade Test"],
+                    medical=pipeline_counts["Medical"],
+                    visa_processing=pipeline_counts["Visa Processing"],
+                    ticketing=pipeline_counts["Ticketing"],
+                    onboarding=pipeline_counts["Onboarding"],
+                    deployment=pipeline_counts["Deployment"],
+                    completed=pipeline_counts["Completed"],
                 ),
             )

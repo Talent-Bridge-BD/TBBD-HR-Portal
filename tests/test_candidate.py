@@ -85,7 +85,7 @@ def test_candidate_profile_can_be_created_and_retrieved():
     )
 
     assert response.status_code == 200
-    assert response.json()["profile"]["user_id"] == "0a516aec-41c2-46d8-9e31-0a4af12b4eda"
+    assert response.json()["profile"]["user_id"] == "test-principal-001"
 
     response = client.get(
         "/api/candidate/profile",

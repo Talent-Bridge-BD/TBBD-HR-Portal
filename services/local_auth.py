@@ -69,14 +69,16 @@ def get_request_principal(request: Request) -> Optional[dict]:
       If TBBD_ENV=development and TBBD_LOCAL_AUTH=1, use the fixed
       local Candidate test identity.
     """
-    if is_local_auth_enabled():
-        return get_local_principal()
-
     principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
     encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
 
+    # Explicit Easy Auth headers take precedence over local development auth.
+    # This allows tests to supply a specific Candidate identity.
     if not principal_id or not encoded_principal:
+        if is_local_auth_enabled():
+            return get_local_principal()
         return None
+
 
     import base64
     import json
