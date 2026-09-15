@@ -1271,6 +1271,63 @@ export default function CandidateMyProfile() {
 
         <section className="profile-section">
           <div className="profile-section-heading">
+            <h2>Education</h2>
+            <p>
+              Provide your educational background to help TBBD match you with suitable overseas opportunities.
+            </p>
+          </div>
+
+          <div className="profile-information-grid">
+            <label className="profile-form-field">
+              <span>Highest Education</span>
+              <input
+                type="text"
+                name="highest_education"
+                placeholder="Bachelor Degree"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Institution Name</span>
+              <input
+                type="text"
+                name="institution_name"
+                placeholder="University / College"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Field of Study</span>
+              <input
+                type="text"
+                name="field_of_study"
+                placeholder="Computer Science"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Passing Year</span>
+              <input
+                type="number"
+                name="passing_year"
+                min="1950"
+                max="2100"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Result / GPA</span>
+              <input
+                type="text"
+                name="gpa_result"
+                placeholder="3.75"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <div className="profile-section-heading">
             <h2>Employment Experience</h2>
             <p>
               Add your professional work history to help TBBD match you with
