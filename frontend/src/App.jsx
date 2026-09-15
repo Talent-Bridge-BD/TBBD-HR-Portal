@@ -30,6 +30,7 @@ import RecruitmentMedical from './pages/RecruitmentMedical'
 import RecruitmentVisaProcessing from './pages/RecruitmentVisaProcessing'
 import RecruitmentTicketing from './pages/RecruitmentTicketing'
 import RecruitmentDeployment from './pages/RecruitmentDeployment'
+import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
@@ -41,11 +42,7 @@ const placeholderPages = {
     title: 'Offers',
     description: 'Manage offers and offer-stage recruitment workflows.',
   },
-  'Recruitment Onboarding': {
-    area: 'RECRUITMENT',
-    title: 'Onboarding',
-    description: 'Prepare successful candidates for onboarding and deployment.',
-  },
+
 
   'Employer Job Requests': {
     area: 'EMPLOYER PORTAL',
@@ -140,6 +137,7 @@ export default function App() {
     'Recruitment Visa Processing': <RecruitmentVisaProcessing auth={auth} />,
     'Recruitment Ticketing': <RecruitmentTicketing auth={auth} />,
     'Recruitment Deployment': <RecruitmentDeployment auth={auth} />,
+    'Recruitment Onboarding': <RecruitmentOnboarding auth={auth} />,
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
