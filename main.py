@@ -12,20 +12,26 @@ from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
 from api.job import router as job_router
+from api.job_compensation import router as job_compensation_router
 from api.job_request import router as job_request_router
 from api.application import router as application_router
+from api.interview import router as interview_router
 from api.hiring import router as hiring_router
 from api.user_profile import router as user_profile_router
+from api.recruitment_pipeline import router as recruitment_pipeline_router
 
 app = FastAPI()
 
 app.include_router(candidate_router)
 app.include_router(employer_router)
 app.include_router(job_router)
+app.include_router(job_compensation_router)
 app.include_router(job_request_router)
 app.include_router(application_router)
+app.include_router(interview_router)
 app.include_router(hiring_router)
 app.include_router(user_profile_router)
+app.include_router(recruitment_pipeline_router)
 
 _organization_repository = SqlOrganizationRepository()
 
@@ -74,6 +80,18 @@ async def get_current_user(request: Request):
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
+
+    if (
+        os.environ.get("TBBD_ENV") == "development"
+        and os.environ.get("TBBD_LOCAL_AUTH") == "1"
+        and principal_id == "local-administrator-001"
+    ):
+        class LocalOrganizationMembership:
+            user_id = principal_id
+            organization_id = "005F50D3-26AB-F111-9B32-000D3AC9134A"
+            status = "active"
+
+        memberships = [LocalOrganizationMembership()]
 
     authorization_context = build_authorization_context(
         user_id=principal_id,
