@@ -249,3 +249,1245 @@
     flex-direction: column;
   }
 }
+
+/* Recruitment Candidates workspace */
+.recruitment-candidates-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 20px 24px;
+}
+
+.recruitment-candidates-toolbar > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-secondary, #64748B);
+}
+
+.recruitment-candidates-toolbar > div strong {
+  color: var(--text-primary, #172033);
+  font-size: 24px;
+}
+
+.recruitment-candidates-toolbar input {
+  width: min(360px, 100%);
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color, #E2E8F0);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-primary, #172033);
+  font: inherit;
+  outline: none;
+}
+
+.recruitment-candidates-toolbar input:focus {
+  border-color: #0067B8;
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.10);
+}
+
+.recruitment-candidates-card {
+  overflow: hidden;
+}
+
+.recruitment-candidates-table-wrap {
+  overflow-x: auto;
+}
+
+.recruitment-candidates-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.recruitment-candidates-table th {
+  padding: 15px 20px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.recruitment-candidates-table td {
+  padding: 17px 20px;
+  border-bottom: 1px solid #EEF2F7;
+  color: #172033;
+  vertical-align: middle;
+}
+
+.recruitment-candidates-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.recruitment-candidates-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.recruitment-candidates-table tbody tr:hover {
+  background: #F8FBFE;
+}
+
+.candidate-identity {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 220px;
+}
+
+.candidate-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #E8F2FA;
+  color: #0067B8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.candidate-identity > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candidate-identity strong {
+  color: #172033;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.candidate-identity small {
+  color: #94A3B8;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.candidate-email {
+  color: #475569;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.candidate-job {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.recruitment-status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #EFF6FF;
+  color: #0067B8;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.candidate-date {
+  color: #64748B;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.recruitment-view-button {
+  min-width: 72px;
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid #0067B8;
+  border-radius: 7px;
+  background: #fff;
+  color: #0067B8;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.recruitment-view-button:hover {
+  background: #0067B8;
+  color: #fff;
+}
+
+.recruitment-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.recruitment-detail-panel {
+  width: min(560px, 94vw);
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: -12px 0 40px rgba(15, 23, 42, 0.16);
+}
+
+.recruitment-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px 30px 24px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.recruitment-detail-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #0067B8;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.recruitment-detail-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 22px;
+}
+
+.recruitment-detail-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 7px;
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recruitment-detail-close:hover {
+  background: #E2E8F0;
+}
+
+.recruitment-detail-content {
+  padding: 28px 30px 36px;
+}
+
+.recruitment-detail-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #EEF2F7;
+}
+
+.candidate-avatar-large {
+  flex-basis: 52px;
+  width: 52px;
+  height: 52px;
+  font-size: 15px;
+}
+
+.recruitment-detail-profile h3 {
+  margin: 0 0 5px;
+  color: #172033;
+  font-size: 18px;
+}
+
+.recruitment-detail-profile p {
+  margin: 0;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.recruitment-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.recruitment-detail-grid > div {
+  padding: 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 9px;
+  background: #F8FAFC;
+}
+
+.recruitment-detail-grid span {
+  display: block;
+  margin-bottom: 7px;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recruitment-detail-grid strong {
+  display: block;
+  color: #172033;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.recruitment-cover-letter {
+  padding: 20px;
+  border: 1px solid #E2E8F0;
+  border-radius: 9px;
+}
+
+.recruitment-cover-letter h3 {
+  margin: 0 0 10px;
+  color: #172033;
+  font-size: 14px;
+}
+
+.recruitment-cover-letter p {
+  margin: 0;
+  color: #64748B;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.recruitment-detail-loading,
+.recruitment-detail-error {
+  margin: 30px;
+  padding: 20px;
+  border-radius: 9px;
+  background: #F8FAFC;
+  color: #64748B;
+}
+
+.recruitment-detail-error strong {
+  color: #DC2626;
+}
+
+.recruitment-detail-error p {
+  margin: 7px 0 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 800px) {
+  .recruitment-candidates-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recruitment-candidates-toolbar input {
+    width: 100%;
+  }
+
+  .recruitment-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recruitment-detail-header,
+  .recruitment-detail-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+
+.recruitment-candidates-table thead th {
+  padding-left: 24px;
+  padding-right: 24px;
+  min-width: 120px;
+}
+
+.recruitment-candidates-table thead th:first-child {
+  min-width: 260px;
+}
+
+.recruitment-candidates-table thead th:nth-child(2) {
+  min-width: 230px;
+}
+
+.recruitment-candidates-table thead th:nth-child(3) {
+  min-width: 210px;
+}
+
+.recruitment-candidates-table thead th:nth-child(4) {
+  min-width: 140px;
+}
+
+.recruitment-candidates-table thead th:nth-child(5) {
+  min-width: 140px;
+}
+
+.recruitment-candidates-table thead th:last-child {
+  min-width: 110px;
+}
+
+
+/* Recruitment Interviews — TBBD professional form */
+.recruitment-interview-form {
+  margin-top: 8px;
+}
+
+.recruitment-interview-form .job-opening-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.recruitment-interview-form .job-form-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.recruitment-interview-form .job-form-card h3 {
+  margin: 0 0 18px;
+  color: #172033;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.recruitment-interview-form .job-form-fields {
+  display: grid;
+  gap: 18px;
+}
+
+.recruitment-interview-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.recruitment-interview-form label > span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.recruitment-interview-form input,
+.recruitment-interview-form select,
+.recruitment-interview-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+  padding: 12px 13px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.recruitment-interview-form input,
+.recruitment-interview-form select {
+  min-height: 46px;
+}
+
+.recruitment-interview-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.recruitment-interview-form input:focus,
+.recruitment-interview-form select:focus,
+.recruitment-interview-form textarea:focus {
+  outline: none;
+  border-color: #0067b8;
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.12);
+}
+
+.recruitment-interview-form input::placeholder,
+.recruitment-interview-form textarea::placeholder {
+  color: #94a3b8;
+}
+
+.recruitment-interview-form .job-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.recruitment-interview-form .primary-button,
+.recruitment-interview-form .secondary-button {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.recruitment-interview-form .primary-button {
+  background: #0067b8;
+  border: 1px solid #0067b8;
+  color: #ffffff;
+}
+
+.recruitment-interview-form .primary-button:hover {
+  background: #005a9e;
+  border-color: #005a9e;
+}
+
+.recruitment-interview-form .secondary-button {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.recruitment-interview-form .secondary-button:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+@media (max-width: 800px) {
+  .recruitment-interview-form .job-opening-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recruitment-interview-form .job-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .recruitment-interview-form .primary-button,
+  .recruitment-interview-form .secondary-button {
+    width: 100%;
+  }
+}
+
+/* Recruitment Trade Tests — professional workspace */
+.trade-test-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.trade-test-kpi-card {
+  min-height: 0;
+  padding: 20px 22px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+.trade-test-kpi-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.trade-test-kpi-card strong {
+  color: #172033;
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.trade-test-kpi-card small {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.trade-test-kpi-success strong {
+  color: #16a34a;
+}
+
+.trade-test-kpi-danger strong {
+  color: #dc2626;
+}
+
+.trade-test-workspace {
+  padding: 0;
+  overflow: hidden;
+}
+
+.trade-test-workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 26px 18px;
+}
+
+.trade-test-workspace-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.trade-test-workspace-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.trade-test-count {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trade-test-toolbar {
+  padding: 0 26px 18px;
+}
+
+.trade-test-search {
+  display: block;
+  max-width: 560px;
+}
+
+.trade-test-search input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+}
+
+.trade-test-search input::placeholder {
+  color: #94a3b8;
+}
+
+.trade-test-search input:focus {
+  outline: none;
+  border-color: #0067b8;
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.12);
+}
+
+.trade-test-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid #e2e8f0;
+}
+
+.trade-test-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.trade-test-table th {
+  padding: 14px 20px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.trade-test-table td {
+  padding: 17px 20px;
+  color: #334155;
+  font-size: 13px;
+  vertical-align: middle;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.trade-test-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.trade-test-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.trade-test-table td strong {
+  color: #172033;
+  font-weight: 700;
+}
+
+.trade-test-date {
+  white-space: nowrap;
+  color: #475569;
+}
+
+.trade-test-status,
+.trade-test-result {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.trade-test-status-scheduled {
+  background: #eff6ff;
+  color: #0067b8;
+}
+
+.trade-test-status-completed {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.trade-test-result-pass {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.trade-test-result-fail {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.trade-test-score {
+  color: #172033 !important;
+  font-weight: 800;
+}
+
+.trade-test-empty-state {
+  min-height: 160px;
+  padding: 30px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-align: center;
+  border-top: 1px solid #e2e8f0;
+}
+
+.trade-test-empty-state strong {
+  color: #172033;
+  font-size: 15px;
+}
+
+.trade-test-empty-state span {
+  max-width: 520px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.trade-test-error {
+  margin: 0 26px 26px;
+  padding: 14px 16px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+@media (max-width: 1000px) {
+  .trade-test-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .trade-test-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-test-workspace-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .trade-test-toolbar {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .trade-test-table {
+    min-width: 800px;
+  }
+}
+
+
+/* =========================================================
+   TBBD Medical Examination Workspace
+   ========================================================= */
+
+.medical-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.medical-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 126px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.medical-kpi-card span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.medical-kpi-card strong {
+  color: #172033;
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.medical-kpi-card small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.medical-kpi-progress strong {
+  color: #d97706;
+}
+
+.medical-kpi-fit strong {
+  color: #16a34a;
+}
+
+.medical-kpi-unfit strong {
+  color: #dc2626;
+}
+
+.medical-workspace {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.medical-workspace-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 24px 18px;
+}
+
+.medical-workspace-header h2 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.medical-workspace-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.medical-count {
+  flex: 0 0 auto;
+  color: #64748b;
+  background: #f4f7fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.medical-toolbar {
+  padding: 0 24px 18px;
+}
+
+.medical-search {
+  max-width: 460px;
+}
+
+.medical-search input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  padding: 11px 14px;
+  font-size: 13px;
+  outline: none;
+}
+
+.medical-search input:focus {
+  border-color: #0067b8;
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.10);
+}
+
+.medical-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid #e2e8f0;
+}
+
+.medical-table {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: collapse;
+}
+
+.medical-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  padding: 13px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.medical-table td {
+  color: #172033;
+  font-size: 13px;
+  padding: 16px;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.medical-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.medical-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.medical-table td strong {
+  font-weight: 600;
+}
+
+.medical-candidate {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 210px;
+}
+
+.medical-avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eaf3fb;
+  color: #0067b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.medical-candidate div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.medical-candidate strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.medical-candidate small {
+  color: #64748b;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.medical-date {
+  color: #475569;
+}
+
+.medical-status,
+.medical-result {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.medical-status-scheduled {
+  background: #eff6ff;
+  color: #0067b8;
+}
+
+.medical-status-progress {
+  background: #fff7ed;
+  color: #d97706;
+}
+
+.medical-status-completed {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.medical-status-cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.medical-result-pending {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.medical-result-fit {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.medical-result-unfit {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.medical-result-review {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.medical-view-button {
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.medical-empty-state,
+.medical-error {
+  margin: 0 24px 24px;
+  padding: 32px 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.medical-error {
+  border-style: solid;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.medical-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.medical-detail-panel {
+  width: min(560px, 100%);
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: #ffffff;
+  box-shadow: -12px 0 32px rgba(15, 23, 42, 0.14);
+  padding: 28px;
+}
+
+.medical-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.medical-detail-eyebrow {
+  color: #0067b8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.medical-detail-header h2 {
+  margin: 6px 0 4px;
+  color: #172033;
+  font-size: 22px;
+}
+
+.medical-detail-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.medical-close-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.medical-close-button:hover {
+  background: #f8fafc;
+  color: #172033;
+}
+
+.medical-detail-status {
+  display: flex;
+  gap: 8px;
+  padding: 20px 0;
+}
+
+.medical-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: #e2e8f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.medical-detail-grid > div {
+  background: #ffffff;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.medical-detail-grid span,
+.medical-notes > span,
+.medical-completed span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.medical-detail-grid strong {
+  color: #172033;
+  font-size: 13px;
+}
+
+.medical-notes {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.medical-notes p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.medical-completed {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-left: 3px solid #16a34a;
+  background: #f0fdf4;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.medical-completed strong {
+  color: #166534;
+  font-size: 13px;
+}
+
+@media (max-width: 1000px) {
+  .medical-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .medical-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medical-workspace-header {
+    flex-direction: column;
+    padding: 20px 16px 16px;
+  }
+
+  .medical-toolbar {
+    padding: 0 16px 16px;
+  }
+
+  .medical-detail-panel {
+    padding: 20px;
+  }
+
+  .medical-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

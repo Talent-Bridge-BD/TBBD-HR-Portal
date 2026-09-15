@@ -2,6 +2,21 @@ from repositories.medical_examination import SqlMedicalExaminationRepository
 
 
 class MedicalExaminationService:
+
+    VALID_STATUSES = {
+        "Scheduled",
+        "In Progress",
+        "Completed",
+        "Cancelled",
+    }
+
+    VALID_RESULTS = {
+        "Pending",
+        "Fit",
+        "Unfit",
+        "Further Review",
+    }
+
     def __init__(
         self,
         repository: SqlMedicalExaminationRepository,
@@ -19,17 +34,17 @@ class MedicalExaminationService:
     def create(
         self,
         application_id: str,
-        test_type: str | None = None,
-        scheduled_at=None,
-        location: str | None = None,
-        assessor_name: str | None = None,
+        medical_center: str | None = None,
+        examination_date=None,
+        doctor_name: str | None = None,
+        medical_type: str | None = None,
     ):
         return self.repository.create(
             application_id=application_id,
-            test_type=test_type,
-            scheduled_at=scheduled_at,
-            location=location,
-            assessor_name=assessor_name,
+            medical_center=medical_center,
+            examination_date=examination_date,
+            doctor_name=doctor_name,
+            medical_type=medical_type,
         )
 
     def get(
@@ -40,57 +55,44 @@ class MedicalExaminationService:
             medical_examination_id,
         )
 
-    PASSING_SCORE = 70
-
     def update_assessment(
         self,
         medical_examination_id: str,
-        technical_knowledge_score: int,
-        trade_skills_score: int,
-        safety_awareness_score: int,
-        tool_handling_score: int,
-        communication_score: int,
-        problem_solving_score: int,
-        teamwork_score: int,
-        assessment_notes: str | None = None,
+        medical_center: str | None,
+        examination_date,
+        doctor_name: str | None,
+        medical_type: str | None,
+        status: str,
+        result: str,
+        report_notes: str | None = None,
+        completed_at=None,
     ):
-        scores = {
-            "technical_knowledge_score": technical_knowledge_score,
-            "trade_skills_score": trade_skills_score,
-            "safety_awareness_score": safety_awareness_score,
-            "tool_handling_score": tool_handling_score,
-            "communication_score": communication_score,
-            "problem_solving_score": problem_solving_score,
-            "teamwork_score": teamwork_score,
-        }
+        if status not in self.VALID_STATUSES:
+            raise ValueError(
+                "Invalid medical examination status"
+            )
 
-        for field, score in scores.items():
-            if not isinstance(score, int) or isinstance(score, bool):
-                raise ValueError(f"{field} must be an integer")
+        if result not in self.VALID_RESULTS:
+            raise ValueError(
+                "Invalid medical examination result"
+            )
 
-            if score < 0 or score > 100:
-                raise ValueError(f"{field} must be between 0 and 100")
+        if status == "Completed" and completed_at is None:
+            from datetime import datetime, timezone
 
-        total_score = round(sum(scores.values()) / len(scores))
+            completed_at = datetime.now(timezone.utc)
 
-        result = (
-            "Pass"
-            if total_score >= self.PASSING_SCORE
-            else "Fail"
-        )
+        if status != "Completed":
+            completed_at = None
 
         return self.repository.update_assessment(
             medical_examination_id=medical_examination_id,
-            technical_knowledge_score=technical_knowledge_score,
-            trade_skills_score=trade_skills_score,
-            safety_awareness_score=safety_awareness_score,
-            tool_handling_score=tool_handling_score,
-            communication_score=communication_score,
-            problem_solving_score=problem_solving_score,
-            teamwork_score=teamwork_score,
-            total_score=total_score,
+            medical_center=medical_center,
+            examination_date=examination_date,
+            doctor_name=doctor_name,
+            medical_type=medical_type,
+            status=status,
             result=result,
-            status="Completed",
-            assessment_notes=assessment_notes,
+            report_notes=report_notes,
+            completed_at=completed_at,
         )
-

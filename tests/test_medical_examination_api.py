@@ -234,63 +234,95 @@ def test_medical_examination_get_by_id_rejects_medical_examination_from_other_or
     )
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Trade test not found"
+    assert response.json()["detail"] == "Medical examination not found"
 
 
-def test_medical_examination_service_calculates_result_and_completes_assessment():
-
+def test_medical_examination_service_completes_assessment():
     from services.medical_examination import MedicalExaminationService
 
     class FakeRepository:
-        def update_assessment(self, **kwargs):
-            return kwargs
+        def __init__(self):
+            self.kwargs = None
 
-    service = MedicalExaminationService(FakeRepository())
+        def update_assessment(self, **kwargs):
+            self.kwargs = kwargs
+            return type("MedicalExamination", (), kwargs)()
+
+    repository = FakeRepository()
+    service = MedicalExaminationService(repository)
 
     result = service.update_assessment(
-        medical_examination_id="trade-test-001",
-        technical_knowledge_score=80,
-        trade_skills_score=90,
-        safety_awareness_score=70,
-        tool_handling_score=80,
-        communication_score=90,
-        problem_solving_score=70,
-        teamwork_score=80,
-        assessment_notes="Assessment completed successfully.",
+        medical_examination_id="medical-001",
+        medical_center="TBBD Medical Center",
+        examination_date=None,
+        doctor_name="Dr. Ahmed Hassan",
+        medical_type="Pre-Employment Medical",
+        status="Completed",
+        result="Fit",
+        report_notes="Medical examination completed successfully.",
+        completed_at=None,
     )
 
-    assert result["medical_examination_id"] == "trade-test-001"
-    assert result["total_score"] == 80
-    assert result["result"] == "Pass"
-    assert result["status"] == "Completed"
+    assert result.status == "Completed"
+    assert result.result == "Fit"
+    assert result.medical_center == "TBBD Medical Center"
+    assert result.doctor_name == "Dr. Ahmed Hassan"
+    assert result.medical_type == "Pre-Employment Medical"
+    assert result.completed_at is not None
+    assert repository.kwargs["medical_examination_id"] == "medical-001"
 
 
-def test_medical_examination_service_rejects_score_outside_valid_range():
-
+def test_medical_examination_service_rejects_invalid_status():
     from services.medical_examination import MedicalExaminationService
 
     class FakeRepository:
         def update_assessment(self, **kwargs):
             raise AssertionError(
-                "Repository must not be called for invalid scores"
+                "Repository must not be called for invalid status"
             )
 
     service = MedicalExaminationService(FakeRepository())
 
     try:
         service.update_assessment(
-            medical_examination_id="trade-test-001",
-            technical_knowledge_score=101,
-            trade_skills_score=90,
-            safety_awareness_score=70,
-            tool_handling_score=80,
-            communication_score=90,
-            problem_solving_score=70,
-            teamwork_score=80,
+            medical_examination_id="medical-001",
+            medical_center="TBBD Medical Center",
+            examination_date=None,
+            doctor_name="Dr. Ahmed Hassan",
+            medical_type="Pre-Employment Medical",
+            status="Invalid Status",
+            result="Fit",
+            report_notes=None,
+            completed_at=None,
         )
-    except ValueError as exc:
-        assert str(exc) == (
-            "technical_knowledge_score must be between 0 and 100"
-        )
-    else:
         raise AssertionError("Expected ValueError")
+    except ValueError as exc:
+        assert str(exc) == "Invalid medical examination status"
+
+
+def test_medical_examination_service_rejects_invalid_result():
+    from services.medical_examination import MedicalExaminationService
+
+    class FakeRepository:
+        def update_assessment(self, **kwargs):
+            raise AssertionError(
+                "Repository must not be called for invalid result"
+            )
+
+    service = MedicalExaminationService(FakeRepository())
+
+    try:
+        service.update_assessment(
+            medical_examination_id="medical-001",
+            medical_center="TBBD Medical Center",
+            examination_date=None,
+            doctor_name="Dr. Ahmed Hassan",
+            medical_type="Pre-Employment Medical",
+            status="Completed",
+            result="Invalid Result",
+            report_notes=None,
+            completed_at=None,
+        )
+        raise AssertionError("Expected ValueError")
+    except ValueError as exc:
+        assert str(exc) == "Invalid medical examination result"

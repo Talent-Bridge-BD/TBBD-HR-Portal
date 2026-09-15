@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Request
-
 from datetime import datetime
+
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
@@ -15,35 +16,32 @@ router = APIRouter(
 )
 
 _medical_examination_repository = SqlMedicalExaminationRepository()
+
 _medical_examination_service = MedicalExaminationService(
     _medical_examination_repository,
 )
+
 _application_repository = SqlApplicationRepository()
-
 _organization_repository = SqlOrganizationRepository()
-
-
-from pydantic import BaseModel
 
 
 class MedicalExaminationCreateRequest(BaseModel):
     application_id: str
-    test_type: str | None = None
-    scheduled_at: datetime | None = None
-    location: str | None = None
-    assessor_name: str | None = None
-
+    medical_center: str | None = None
+    examination_date: datetime | None = None
+    doctor_name: str | None = None
+    medical_type: str | None = None
 
 
 class MedicalExaminationAssessmentRequest(BaseModel):
-    technical_knowledge_score: int
-    trade_skills_score: int
-    safety_awareness_score: int
-    tool_handling_score: int
-    communication_score: int
-    problem_solving_score: int
-    teamwork_score: int
-    assessment_notes: str | None = None
+    medical_center: str | None = None
+    examination_date: datetime | None = None
+    doctor_name: str | None = None
+    medical_type: str | None = None
+    status: str
+    result: str
+    report_notes: str | None = None
+    completed_at: datetime | None = None
 
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
@@ -72,6 +70,7 @@ def _get_authorization_context(
     principal_id = request.headers.get(
         "X-MS-CLIENT-PRINCIPAL-ID"
     )
+
     encoded_principal = request.headers.get(
         "X-MS-CLIENT-PRINCIPAL"
     )
@@ -84,11 +83,13 @@ def _get_authorization_context(
 
     try:
         padding = "=" * (-len(encoded_principal) % 4)
+
         principal = json.loads(
             base64.b64decode(
                 encoded_principal + padding
             ).decode("utf-8")
         )
+
     except (
         ValueError,
         UnicodeDecodeError,
@@ -100,8 +101,16 @@ def _get_authorization_context(
         )
 
     claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
+
+    group_ids = _claim_values(
+        claims,
+        "groups",
+    )
+
+    token_roles = _claim_values(
+        claims,
+        "roles",
+    )
 
     roles = set(token_roles)
 
@@ -177,11 +186,12 @@ async def create_medical_examination(
     try:
         medical_examination = _medical_examination_service.create(
             application_id=payload.application_id,
-            test_type=payload.test_type,
-            scheduled_at=payload.scheduled_at,
-            location=payload.location,
-            assessor_name=payload.assessor_name,
+            medical_center=payload.medical_center,
+            examination_date=payload.examination_date,
+            doctor_name=payload.doctor_name,
+            medical_type=payload.medical_type,
         )
+
     except ValueError as exc:
         raise HTTPException(
             status_code=404,
@@ -215,14 +225,14 @@ async def list_medical_examinations(
             detail="Application not found for this organization",
         )
 
-    tests = _medical_examination_service.list_by_application(
+    examinations = _medical_examination_service.list_by_application(
         application_id,
     )
 
     return {
         "medical_examinations": [
             item.__dict__
-            for item in tests
+            for item in examinations
         ]
     }
 
@@ -245,7 +255,7 @@ async def get_medical_examination(
     if medical_examination is None:
         raise HTTPException(
             status_code=404,
-            detail="Trade test not found",
+            detail="Medical examination not found",
         )
 
     application = _application_repository.get_application(
@@ -256,12 +266,13 @@ async def get_medical_examination(
     if application is None:
         raise HTTPException(
             status_code=404,
-            detail="Trade test not found",
+            detail="Medical examination not found",
         )
 
     return {
         "medical_examination": medical_examination.__dict__
     }
+
 
 @router.put("/{medical_examination_id}/assessment")
 async def update_medical_examination_assessment(
@@ -282,7 +293,7 @@ async def update_medical_examination_assessment(
     if medical_examination is None:
         raise HTTPException(
             status_code=404,
-            detail="Trade test not found",
+            detail="Medical examination not found",
         )
 
     application = _application_repository.get_application(
@@ -293,22 +304,28 @@ async def update_medical_examination_assessment(
     if application is None:
         raise HTTPException(
             status_code=404,
-            detail="Trade test not found",
+            detail="Medical examination not found",
         )
 
-    updated = _medical_examination_service.update_assessment(
-        medical_examination_id=medical_examination_id,
-        technical_knowledge_score=payload.technical_knowledge_score,
-        trade_skills_score=payload.trade_skills_score,
-        safety_awareness_score=payload.safety_awareness_score,
-        tool_handling_score=payload.tool_handling_score,
-        communication_score=payload.communication_score,
-        problem_solving_score=payload.problem_solving_score,
-        teamwork_score=payload.teamwork_score,
-        assessment_notes=payload.assessment_notes,
-    )
+    try:
+        updated = _medical_examination_service.update_assessment(
+            medical_examination_id=medical_examination_id,
+            medical_center=payload.medical_center,
+            examination_date=payload.examination_date,
+            doctor_name=payload.doctor_name,
+            medical_type=payload.medical_type,
+            status=payload.status,
+            result=payload.result,
+            report_notes=payload.report_notes,
+            completed_at=payload.completed_at,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
 
     return {
         "medical_examination": updated.__dict__
     }
-
