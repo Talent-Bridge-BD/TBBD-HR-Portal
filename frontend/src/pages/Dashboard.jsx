@@ -67,6 +67,76 @@ export default function Dashboard({ onNavigate }) {
         />
       </div>
 
+      <PageHeader
+        title="Recruitment Pipeline"
+        subtitle="Real-time recruitment operations overview."
+      />
+
+      <div className="stats-grid">
+        <StatCard
+          icon="▤"
+          label="Applications"
+          value="245"
+          detail="Total applications"
+        />
+
+        <StatCard
+          icon="◌"
+          label="Screening"
+          value="67"
+          detail="Candidates in screening"
+        />
+
+        <StatCard
+          icon="◷"
+          label="Interviews"
+          value="31"
+          detail="Interviews scheduled"
+        />
+
+        <StatCard
+          icon="⚒"
+          label="Trade Tests"
+          value="18"
+          detail="Pending assessments"
+        />
+
+        <StatCard
+          icon="✚"
+          label="Medical"
+          value="12"
+          detail="Medical processing"
+        />
+
+        <StatCard
+          icon="🛂"
+          label="Visa"
+          value="9"
+          detail="Visa processing"
+        />
+
+        <StatCard
+          icon="✈"
+          label="Ticketing"
+          value="6"
+          detail="Tickets issued"
+        />
+
+        <StatCard
+          icon="✓"
+          label="Onboarding"
+          value="4"
+          detail="Preparing deployment"
+        />
+
+        <StatCard
+          icon="🚀"
+          label="Deployment"
+          value="2"
+          detail="Successfully deployed"
+        />
+      </div>
+
       <section className="dashboard-two-column">
         <DashboardCard title="Today's Overview">
           <div className="overview-grid">
