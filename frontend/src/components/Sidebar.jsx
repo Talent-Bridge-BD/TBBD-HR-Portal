@@ -15,6 +15,7 @@ const recruitmentNavigation = [
   ['Recruitment Interviews', '◷'],
   ['Recruitment Trade Tests', '⚒'],
   ['Recruitment Medical', '✚'],
+  ['Recruitment Visa Processing', '🛂'],
   ['Recruitment Offers', '◇'],
   ['Recruitment Onboarding', '✓'],
 ]

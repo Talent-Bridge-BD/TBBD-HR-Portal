@@ -27,6 +27,7 @@ import RecruitmentScreening from './pages/RecruitmentScreening'
 import RecruitmentInterviews from './pages/RecruitmentInterviews'
 import RecruitmentTradeTests from './pages/RecruitmentTradeTests'
 import RecruitmentMedical from './pages/RecruitmentMedical'
+import RecruitmentVisaProcessing from './pages/RecruitmentVisaProcessing'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
@@ -134,6 +135,7 @@ export default function App() {
     'Recruitment Interviews': <RecruitmentInterviews auth={auth} />,
     'Recruitment Trade Tests': <RecruitmentTradeTests auth={auth} />,
     'Recruitment Medical': <RecruitmentMedical auth={auth} />,
+    'Recruitment Visa Processing': <RecruitmentVisaProcessing auth={auth} />,
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
