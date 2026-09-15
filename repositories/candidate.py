@@ -124,6 +124,9 @@ class SqlCandidateRepository(CandidateRepository):
             international_travel_readiness=(
                 row.international_travel_readiness or ""
             ),
+            workflow_status=(
+                row.workflow_status or "Applied"
+            ),
             resume_document_id=resume_document_id,
         )
 
@@ -180,7 +183,8 @@ class SqlCandidateRepository(CandidateRepository):
                     passport_country,
                     passport_expiry_date,
                     passport_status,
-                    international_travel_readiness
+                    international_travel_readiness,
+                    workflow_status
                 FROM dbo.candidates
                 WHERE entra_object_id = ?
                 """,
@@ -254,6 +258,7 @@ class SqlCandidateRepository(CandidateRepository):
                         passport_expiry_date,
                         passport_status,
                         international_travel_readiness,
+                        workflow_status,
                         profile_status
                     )
                     OUTPUT
@@ -275,7 +280,7 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.passport_status,
                         INSERTED.international_travel_readiness
                     VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                     """,
                     profile.user_id,
@@ -294,6 +299,7 @@ class SqlCandidateRepository(CandidateRepository):
                     profile.passport_expiry_date or None,
                     profile.passport_status or None,
                     profile.international_travel_readiness or None,
+                    profile.workflow_status,
                     "incomplete",
                 )
 
@@ -317,6 +323,7 @@ class SqlCandidateRepository(CandidateRepository):
                         passport_expiry_date = ?,
                         passport_status = ?,
                         international_travel_readiness = ?,
+                        workflow_status = ?,
                         updated_at = SYSUTCDATETIME()
                     OUTPUT
                         INSERTED.id,
@@ -353,6 +360,7 @@ class SqlCandidateRepository(CandidateRepository):
                     profile.passport_expiry_date or None,
                     profile.passport_status or None,
                     profile.international_travel_readiness or None,
+                    profile.workflow_status,
                     existing.id,
                 )
 

@@ -26,6 +26,8 @@ class CandidateProfile:
     passport_status: str = ""
     international_travel_readiness: str = ""
 
+    workflow_status: str = "Applied"
+
     # Existing document reference
     resume_document_id: Optional[str] = None
 
