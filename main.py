@@ -17,6 +17,7 @@ from api.job_request import router as job_request_router
 from api.application import router as application_router
 from api.interview import router as interview_router
 from api.trade_test import router as trade_test_router
+from api.medical_examination import router as medical_examination_router
 from api.hiring import router as hiring_router
 from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
@@ -31,6 +32,7 @@ app.include_router(job_request_router)
 app.include_router(application_router)
 app.include_router(interview_router)
 app.include_router(trade_test_router)
+app.include_router(medical_examination_router)
 app.include_router(hiring_router)
 app.include_router(user_profile_router)
 app.include_router(recruitment_pipeline_router)
