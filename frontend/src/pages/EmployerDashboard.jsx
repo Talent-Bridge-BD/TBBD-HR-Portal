@@ -212,7 +212,7 @@ export default function EmployerDashboard({ onNavigate }) {
           <QuickAction
             icon="•"
             label="Create Offer"
-            onClick={() => onNavigate('Recruitment Offers')}
+            onClick={() => onNavigate('Recruitment Onboarding')}
           />
 
           <QuickAction

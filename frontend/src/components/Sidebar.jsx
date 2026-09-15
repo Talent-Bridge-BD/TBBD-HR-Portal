@@ -17,7 +17,6 @@ const recruitmentNavigation = [
   ['Recruitment Medical', '✚'],
   ['Recruitment Visa Processing', '🛂'],
   ['Recruitment Ticketing', '✈'],
-  ['Recruitment Offers', '◇'],
   ['Recruitment Onboarding', '✓'],
   ['Recruitment Deployment', '🚀'],
 ]
