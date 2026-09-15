@@ -18,6 +18,27 @@ def is_local_auth_enabled() -> bool:
 
 
 def get_local_principal() -> dict:
+    if os.getenv("TBBD_LOCAL_ROLE") == "Administrator":
+        return {
+            "id": "local-administrator-001",
+            "name": "Local Test Administrator",
+            "email": "administrator@example.test",
+            "claims": [
+                {
+                    "typ": "name",
+                    "val": "Local Test Administrator",
+                },
+                {
+                    "typ": "groups",
+                    "val": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+                },
+                {
+                    "typ": "roles",
+                    "val": "Administrator",
+                },
+            ],
+        }
+
     return {
         "id": LOCAL_CANDIDATE_ID,
         "name": LOCAL_CANDIDATE_NAME,

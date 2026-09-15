@@ -1,15 +1,32 @@
+import os
+
 from dataclasses import dataclass
 from typing import Iterable
 
 
 @dataclass(frozen=True)
 class AuthorizationContext:
+
     user_id: str
+
     roles: frozenset[str]
+
     organization_ids: frozenset[str]
 
 
+AUTHORIZATION_GROUPS = {
+    "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+    "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
+    "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
+    "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
+}
+
+LOCAL_ADMINISTRATOR_ID = "local-administrator-001"
+LOCAL_ADMINISTRATOR_ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
+
+
 def has_role(context: AuthorizationContext, role: str) -> bool:
+
     return role in context.roles
 
 
@@ -17,6 +34,7 @@ def has_any_role(
     context: AuthorizationContext,
     roles: Iterable[str],
 ) -> bool:
+
     return bool(context.roles.intersection(roles))
 
 
@@ -24,11 +42,14 @@ def has_organization_access(
     context: AuthorizationContext,
     organization_id: str,
 ) -> bool:
+
     return organization_id in context.organization_ids
 
 
 def require_role(context: AuthorizationContext, role: str) -> None:
+
     if not has_role(context, role):
+
         raise PermissionError(f"Required role: {role}")
 
 
@@ -36,7 +57,9 @@ def require_organization_access(
     context: AuthorizationContext,
     organization_id: str,
 ) -> None:
+
     if not has_organization_access(context, organization_id):
+
         raise PermissionError(
             f"User is not authorized for organization: {organization_id}"
         )
@@ -47,17 +70,25 @@ def build_authorization_context(
     roles: Iterable[str],
     memberships: Iterable[object],
 ) -> AuthorizationContext:
-    organization_ids = frozenset(
+
+    organization_ids = {
         membership.organization_id
         for membership in memberships
         if (
             membership.user_id == user_id
             and membership.status == "active"
         )
-    )
+    }
+
+    if (
+        os.environ.get("TBBD_ENV") == "development"
+        and os.environ.get("TBBD_LOCAL_AUTH") == "1"
+        and user_id == LOCAL_ADMINISTRATOR_ID
+    ):
+        organization_ids.add(LOCAL_ADMINISTRATOR_ORGANIZATION_ID)
 
     return AuthorizationContext(
         user_id=user_id,
         roles=frozenset(roles),
-        organization_ids=organization_ids,
+        organization_ids=frozenset(organization_ids),
     )

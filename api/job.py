@@ -8,7 +8,10 @@ from pydantic import BaseModel
 from models.job import Job
 from repositories.job import SqlJobRepository
 from repositories.organization import SqlOrganizationRepository
-from services.authorization import build_authorization_context
+from services.authorization import (
+    AUTHORIZATION_GROUPS,
+    build_authorization_context,
+)
 from services.job import JobService
 
 
@@ -34,6 +37,20 @@ class JobRequest(BaseModel):
     number_of_positions: int | None = None
     published_at: datetime | None = None
     closing_at: datetime | None = None
+
+    # Overseas recruitment core fields
+    requisition_number: str = ""
+    employer_name: str = ""
+    employer_country: str = ""
+    employer_city: str = ""
+    trade_skill_category: str = ""
+    industry_sector: str = ""
+    gender_requirement: str = ""
+    minimum_age: int | None = None
+    maximum_age: int | None = None
+    contract_duration: str = ""
+    work_location: str = ""
+    project_name: str = ""
 
 
 def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
@@ -73,15 +90,9 @@ def get_job_authorization_context(request: Request):
 
     roles = set(token_roles)
 
-    if EMPLOYER_MANAGER_GROUP_ID in group_ids:
-        roles.add("Employer Manager")
-
-    if HR_MANAGER_GROUP_ID in group_ids:
-        roles.add("HR Manager")
-
-    if ADMINISTRATOR_GROUP_ID in group_ids:
-        roles.add("Administrator")
-
+    for role, group_id in AUTHORIZATION_GROUPS.items():
+        if group_id in group_ids:
+            roles.add(role)
     allowed_roles = {
         "Employer Manager",
         "HR Manager",
@@ -189,6 +200,18 @@ async def create_job(
         number_of_positions=payload.number_of_positions,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
+        requisition_number=payload.requisition_number or None,
+        employer_name=payload.employer_name or None,
+        employer_country=payload.employer_country or None,
+        employer_city=payload.employer_city or None,
+        trade_skill_category=payload.trade_skill_category or None,
+        industry_sector=payload.industry_sector or None,
+        gender_requirement=payload.gender_requirement or None,
+        minimum_age=payload.minimum_age,
+        maximum_age=payload.maximum_age,
+        contract_duration=payload.contract_duration or None,
+        work_location=payload.work_location or None,
+        project_name=payload.project_name or None,
     )
 
     saved = _job_service.save_job(job)
@@ -233,6 +256,18 @@ async def update_job(
         number_of_positions=payload.number_of_positions,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
+        requisition_number=payload.requisition_number or None,
+        employer_name=payload.employer_name or None,
+        employer_country=payload.employer_country or None,
+        employer_city=payload.employer_city or None,
+        trade_skill_category=payload.trade_skill_category or None,
+        industry_sector=payload.industry_sector or None,
+        gender_requirement=payload.gender_requirement or None,
+        minimum_age=payload.minimum_age,
+        maximum_age=payload.maximum_age,
+        contract_duration=payload.contract_duration or None,
+        work_location=payload.work_location or None,
+        project_name=payload.project_name or None,
         created_at=existing.created_at,
         updated_at=existing.updated_at,
     )
