@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import PageHeader from '../components/PageHeader'
 import StatCard from '../components/StatCard'
 import DashboardCard from '../components/DashboardCard'
@@ -8,6 +9,26 @@ import { getEmployeeDisplayName } from '../utils/employee'
 import { employeeDashboard } from '../data/employeeDashboard'
 
 export default function Dashboard({ onNavigate }) {
+  const [pipeline, setPipeline] = useState({
+    Applied: 0,
+    Screening: 0,
+    Interview: 0,
+    "Trade Test": 0,
+    Medical: 0,
+    "Visa Processing": 0,
+    Ticketing: 0,
+    Onboarding: 0,
+    Deployment: 0,
+    Completed: 0,
+  })
+
+  useEffect(() => {
+    fetch('/api/recruitment/pipeline')
+      .then((response) => response.json())
+      .then((data) => setPipeline(data))
+      .catch((error) => console.error(error))
+  }, [])
+
   const employeeName =
     employeeDashboard.employee.name || getEmployeeDisplayName()
 
@@ -76,63 +97,63 @@ export default function Dashboard({ onNavigate }) {
         <StatCard
           icon="▤"
           label="Applications"
-          value="245"
+          value={pipeline.Applied}
           detail="Total applications"
         />
 
         <StatCard
           icon="◌"
           label="Screening"
-          value="67"
+          value={pipeline.Screening}
           detail="Candidates in screening"
         />
 
         <StatCard
           icon="◷"
           label="Interviews"
-          value="31"
+          value={pipeline.Interview}
           detail="Interviews scheduled"
         />
 
         <StatCard
           icon="⚒"
           label="Trade Tests"
-          value="18"
+          value={pipeline["Trade Test"]}
           detail="Pending assessments"
         />
 
         <StatCard
           icon="✚"
           label="Medical"
-          value="12"
+          value={pipeline.Medical}
           detail="Medical processing"
         />
 
         <StatCard
           icon="🛂"
           label="Visa"
-          value="9"
+          value={pipeline["Visa Processing"]}
           detail="Visa processing"
         />
 
         <StatCard
           icon="✈"
           label="Ticketing"
-          value="6"
+          value={pipeline.Ticketing}
           detail="Tickets issued"
         />
 
         <StatCard
           icon="✓"
           label="Onboarding"
-          value="4"
+          value={pipeline.Onboarding}
           detail="Preparing deployment"
         />
 
         <StatCard
           icon="🚀"
           label="Deployment"
-          value="2"
+          value={pipeline.Deployment}
           detail="Successfully deployed"
         />
       </div>
