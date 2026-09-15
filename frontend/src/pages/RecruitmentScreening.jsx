@@ -85,9 +85,10 @@ export default function RecruitmentScreening({ auth }) {
                   <th>Candidate</th>
                   <th>Email</th>
                   <th>Job</th>
-                  <th>Status</th>
+                  <th>Workflow Status</th>
                   <th>Cover Letter</th>
-                  <th>Applied</th>
+                  <th>Applied Date</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
 
@@ -103,7 +104,7 @@ export default function RecruitmentScreening({ auth }) {
 
                     <td>{application.job_title}</td>
 
-                    <td>{application.status}</td>
+                    <td>{application.workflow_status || application.status || 'Applied'}</td>
 
                     <td>
                       {application.cover_letter ? 'Available' : '—'}
@@ -115,6 +116,9 @@ export default function RecruitmentScreening({ auth }) {
                             application.applied_at
                           ).toLocaleDateString()
                         : '—'}
+                    </td>
+                    <td>
+                      <button type="button">View</button>
                     </td>
                   </tr>
                 ))}
