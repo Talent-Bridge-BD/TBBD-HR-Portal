@@ -36,6 +36,22 @@ export default function Jobs() {
     work_location: "",
     project_name: "",
 
+    // Job Requirements
+    years_of_experience: "",
+    education_requirement: "",
+    language_requirement: "",
+    required_certifications: "",
+
+    // Visa Requirements
+    visa_type: "",
+    visa_number: "",
+    visa_quota: "",
+    visa_expiry: "",
+
+    // Deployment
+    deployment_date: "",
+    batch_number: "",
+
     // Compensation & Benefits
     salary_currency: "",
     basic_salary: "",
@@ -171,6 +187,19 @@ export default function Jobs() {
             contract_duration: form.contract_duration || null,
             work_location: form.work_location || null,
             project_name: form.project_name || null,
+
+            years_of_experience: form.years_of_experience || null,
+            education_requirement: form.education_requirement || null,
+            language_requirement: form.language_requirement || null,
+            required_certifications: form.required_certifications || null,
+
+            visa_type: form.visa_type || null,
+            visa_number: form.visa_number || null,
+            visa_quota: form.visa_quota || null,
+            visa_expiry: form.visa_expiry || null,
+
+            deployment_date: form.deployment_date || null,
+            batch_number: form.batch_number || null,
           }),
         }
       );
@@ -252,6 +281,22 @@ export default function Jobs() {
         contract_duration: "",
         work_location: "",
         project_name: "",
+
+        // Job Requirements
+        years_of_experience: "",
+        education_requirement: "",
+        language_requirement: "",
+        required_certifications: "",
+
+        // Visa Requirements
+        visa_type: "",
+        visa_number: "",
+        visa_quota: "",
+        visa_expiry: "",
+
+        // Deployment
+        deployment_date: "",
+        batch_number: "",
 
         // Compensation & Benefits
         salary_currency: "",
@@ -372,6 +417,22 @@ export default function Jobs() {
       contract_duration: job.contract_duration || "",
       work_location: job.work_location || "",
       project_name: job.project_name || "",
+
+      // Job Requirements
+      years_of_experience: job.years_of_experience || "",
+      education_requirement: job.education_requirement || "",
+      language_requirement: job.language_requirement || "",
+      required_certifications: job.required_certifications || "",
+
+      // Visa Requirements
+      visa_type: job.visa_type || "",
+      visa_number: job.visa_number || "",
+      visa_quota: job.visa_quota || "",
+      visa_expiry: job.visa_expiry || "",
+
+      // Deployment
+      deployment_date: job.deployment_date || "",
+      batch_number: job.batch_number || "",
 
       // Compensation & Benefits
       salary_currency: compensation?.salary_currency || "",
@@ -619,6 +680,46 @@ export default function Jobs() {
               </label>
 
               <label>
+                Years of Experience
+                <input
+                  value={form.years_of_experience}
+                  onChange={(event) =>
+                    updateForm("years_of_experience", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Education Requirement
+                <input
+                  value={form.education_requirement}
+                  onChange={(event) =>
+                    updateForm("education_requirement", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Language Requirement
+                <input
+                  value={form.language_requirement}
+                  onChange={(event) =>
+                    updateForm("language_requirement", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Required Certifications
+                <input
+                  value={form.required_certifications}
+                  onChange={(event) =>
+                    updateForm("required_certifications", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
                 Number of Vacancies
                 <input
                   type="number"
@@ -659,6 +760,72 @@ export default function Jobs() {
                   value={form.description}
                   onChange={(event) =>
                     updateForm("description", event.target.value)
+                  }
+                />
+              </label>
+
+              <div className="form-full-width">
+                <strong>Visa Requirements & Deployment</strong>
+              </div>
+
+              <label>
+                Visa Type
+                <input
+                  value={form.visa_type}
+                  onChange={(event) =>
+                    updateForm("visa_type", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Visa Number
+                <input
+                  value={form.visa_number}
+                  onChange={(event) =>
+                    updateForm("visa_number", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Visa Quota
+                <input
+                  value={form.visa_quota}
+                  onChange={(event) =>
+                    updateForm("visa_quota", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Visa Expiry
+                <input
+                  type="date"
+                  value={form.visa_expiry}
+                  onChange={(event) =>
+                    updateForm("visa_expiry", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Expected Deployment Date
+                <input
+                  type="date"
+                  value={form.deployment_date}
+                  onChange={(event) =>
+                    updateForm("deployment_date", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                Batch Number
+                <input
+                  value={form.batch_number}
+                  onChange={(event) =>
+                    updateForm("batch_number", event.target.value)
                   }
                 />
               </label>
