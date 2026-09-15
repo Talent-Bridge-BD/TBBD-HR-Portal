@@ -19,6 +19,7 @@ const recruitmentNavigation = [
   ['Recruitment Ticketing', '✈'],
   ['Recruitment Offers', '◇'],
   ['Recruitment Onboarding', '✓'],
+  ['Recruitment Deployment', '🚀'],
 ]
 
 const employerNavigation = [
