@@ -21,7 +21,6 @@ from api.medical_examination import router as medical_examination_router
 from api.visa_processing import router as visa_processing_router
 from api.ticketing import router as ticketing_router
 from api.onboarding import router as onboarding_router
-from api.deployment import router as deployment_router
 from api.hiring import router as hiring_router
 from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
@@ -40,7 +39,6 @@ app.include_router(medical_examination_router)
 app.include_router(visa_processing_router)
 app.include_router(ticketing_router)
 app.include_router(onboarding_router)
-app.include_router(deployment_router)
 app.include_router(hiring_router)
 app.include_router(user_profile_router)
 app.include_router(recruitment_pipeline_router)
