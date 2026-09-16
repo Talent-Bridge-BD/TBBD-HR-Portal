@@ -540,7 +540,7 @@ export default function RecruitmentInterviews({ auth }) {
 
 
           <form
-            className="job-opening-form"
+            className="job-opening-form recruitment-interview-form"
             onSubmit={handleSubmit}
           >
 

@@ -156,6 +156,7 @@ setApplications(loadedApplications);
           return;
         }
 
+        console.log("ORG DEBUG", meData, resolvedOrganizationId);
         setOrganizationId(resolvedOrganizationId);
 
         if (!resolvedOrganizationId) {
@@ -297,16 +298,17 @@ setApplications(loadedApplications);
 
   const counters = useMemo(
     () => ({
-      pending: onboardingRecords.filter(
-        (record) => record.status === "Pending"
+      pending: applications.filter((application) => {
+        const record = recordsByApplication.get(application.id);
+        return !record || record.status === "Pending";
+      }).length,
+
+      inProgress: onboardingRecords.filter(
+        (record) => record.status === "In Progress"
       ).length,
 
-      documentsVerified: onboardingRecords.filter(
-        (record) => record.documents_verified
-      ).length,
-
-      orientationCompleted: onboardingRecords.filter(
-        (record) => record.orientation_completed
+      completed: onboardingRecords.filter(
+        (record) => record.status === "Completed"
       ).length,
 
       readyForDeployment: onboardingRecords.filter(
@@ -317,7 +319,7 @@ setApplications(loadedApplications);
           record.orientation_completed
       ).length,
     }),
-    [onboardingRecords]
+    [applications, onboardingRecords, recordsByApplication]
   );
 
   const openCreate = (application) => {
@@ -428,130 +430,112 @@ setApplications(loadedApplications);
       />
 
       <div className="onboarding-kpi-grid">
-        <section className="dashboard-card w-full overflow-hidden border border-amber-100 bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Pending
-              </p>
-              <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
+        <section className="dashboard-card w-full overflow-hidden border border-amber-100 bg-white p-4 shadow-sm">
+          <div className="flex min-h-[112px] items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-500">Pending</p>
+              <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
                 {counters.pending}
               </p>
-              <p className="mt-2 text-xs text-amber-700">
+              <p className="mt-1 text-xs text-amber-700">
                 Awaiting onboarding action
               </p>
             </div>
-
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-lg font-semibold text-amber-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-lg">
               ⏳
             </div>
           </div>
-
-          <div className="mt-5 h-1 rounded-full bg-amber-100">
+          <div className="mt-3 h-1 rounded-full bg-amber-100">
             <div className="h-1 w-1/3 rounded-full bg-amber-500" />
           </div>
         </section>
 
-        <section className="dashboard-card w-full overflow-hidden border border-blue-100 bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                In Progress
+        <section className="dashboard-card w-full overflow-hidden border border-blue-100 bg-white p-4 shadow-sm">
+          <div className="flex min-h-[112px] items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-500">In Progress</p>
+              <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
+                {counters.inProgress}
               </p>
-              <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
-                {onboardingRecords.filter(
-                  (record) => record.status === "In Progress"
-                ).length}
-              </p>
-              <p className="mt-2 text-xs text-blue-700">
+              <p className="mt-1 text-xs text-blue-700">
                 Currently being processed
               </p>
             </div>
-
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg font-semibold text-blue-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-lg">
               🔄
             </div>
           </div>
-
-          <div className="mt-5 h-1 rounded-full bg-blue-100">
+          <div className="mt-3 h-1 rounded-full bg-blue-100">
             <div className="h-1 w-1/2 rounded-full bg-[#0067B8]" />
           </div>
         </section>
 
-        <section className="dashboard-card w-full overflow-hidden border border-green-100 bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Completed
+        <section className="dashboard-card w-full overflow-hidden border border-green-100 bg-white p-4 shadow-sm">
+          <div className="flex min-h-[112px] items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-500">Completed</p>
+              <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
+                {counters.completed}
               </p>
-              <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
-                {onboardingRecords.filter(
-                  (record) => record.status === "Completed"
-                ).length}
-              </p>
-              <p className="mt-2 text-xs text-green-700">
+              <p className="mt-1 text-xs text-green-700">
                 Onboarding completed
               </p>
             </div>
-
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 text-lg font-semibold text-green-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-lg">
               ✅
             </div>
           </div>
-
-          <div className="mt-5 h-1 rounded-full bg-green-100">
+          <div className="mt-3 h-1 rounded-full bg-green-100">
             <div className="h-1 w-full rounded-full bg-green-500" />
           </div>
         </section>
 
-        <section className="dashboard-card w-full overflow-hidden border border-[#0067B8]/15 bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
+        <section className="dashboard-card w-full overflow-hidden border border-[#0067B8]/15 bg-white p-4 shadow-sm">
+          <div className="flex min-h-[112px] items-start justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-sm font-medium text-gray-500">
                 Ready for Deployment
               </p>
-              <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
+              <p className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
                 {counters.readyForDeployment}
               </p>
-              <p className="mt-2 text-xs text-[#0067B8]">
+              <p className="mt-1 text-xs text-[#0067B8]">
                 Ready for next stage
               </p>
             </div>
-
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0067B8]/10 text-lg font-semibold text-[#0067B8]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0067B8]/10 text-lg">
               🚀
             </div>
           </div>
-
-          <div className="mt-5 h-1 rounded-full bg-[#0067B8]/10">
+          <div className="mt-3 h-1 rounded-full bg-[#0067B8]/10">
             <div className="h-1 w-2/3 rounded-full bg-[#0067B8]" />
           </div>
         </section>
       </div>
+
       <section className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+        <div className="onboarding-toolbar-layout">
           <div className="relative min-w-0 flex-1">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
               🔍
             </span>
-
             <input
               type="search"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search Candidate"
               aria-label="Search candidate"
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
+              className="h-11 w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
             />
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row xl:shrink-0">
-            <div className="relative">
+          <div className="onboarding-toolbar-actions">
+            <div className="relative w-full sm:w-[160px]">
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
                 aria-label="Filter onboarding records"
-                className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-gray-700 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20 sm:min-w-[150px]"
+                className="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-sm font-medium text-gray-700 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
               >
                 <option value="All">Filter</option>
                 {STATUS_OPTIONS.map((status) => (
@@ -560,7 +544,6 @@ setApplications(loadedApplications);
                   </option>
                 ))}
               </select>
-
               <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
                 ▾
               </span>
@@ -568,7 +551,7 @@ setApplications(loadedApplications);
 
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:border-[#0067B8] hover:text-[#0067B8] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium text-gray-700 transition hover:border-[#0067B8] hover:text-[#0067B8] disabled:cursor-not-allowed disabled:opacity-60 sm:w-[120px]"
               disabled
               title="Export will be added after the onboarding workflow is finalized."
             >
@@ -578,7 +561,6 @@ setApplications(loadedApplications);
           </div>
         </div>
       </section>
-
       <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-200 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3">
@@ -745,12 +727,17 @@ setApplications(loadedApplications);
                         </td>
 
                         <td className="px-5 py-4">
-                          <div className="w-36">
+                          <div className="w-40">
                             <div className="mb-1.5 flex items-center justify-between gap-3">
                               
-                              <span className="text-xs font-semibold text-gray-900">
-                                {progress}%
-                              </span>
+                              <div className="flex items-center justify-between gap-3">
+                                <span className="text-xs font-medium text-gray-500">
+                                  Progress
+                                </span>
+                                <span className="text-xs font-bold text-gray-900">
+                                  {progress}%
+                                </span>
+                              </div>
                             </div>
 
                             <div className="h-2 overflow-hidden rounded-full bg-gray-100">
@@ -835,7 +822,7 @@ setApplications(loadedApplications);
             </div>
 
             <form onSubmit={saveRecord} className="space-y-6">
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <div className="onboarding-detail-grid">
                 <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                   <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4">
                     <div className="flex items-center gap-3">
@@ -843,8 +830,8 @@ setApplications(loadedApplications);
                         👤
                       </div>
 
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900">
                           Candidate Information
                         </h3>
                         <p className="mt-0.5 text-xs text-gray-500">
@@ -856,9 +843,9 @@ setApplications(loadedApplications);
 
                   <div className="space-y-4 p-5">
                     {selectedApplication && (
-                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0067B8]/10 text-sm font-bold text-[#0067B8]">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0067B8]/10 text-sm font-bold text-[#0067B8]">
                             {getCandidateInitials(
                               selectedApplication.candidate_first_name,
                               selectedApplication.candidate_last_name
@@ -967,8 +954,8 @@ setApplications(loadedApplications);
                         ✓
                       </div>
 
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-gray-900">
                           Onboarding Checklist
                         </h3>
                         <p className="mt-0.5 text-xs text-gray-500">
@@ -983,10 +970,10 @@ setApplications(loadedApplications);
                       {CHECKLIST_FIELDS.map(([field, label]) => (
                         <label
                           key={field}
-                          className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-3 transition ${
+                          className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition ${
                             selectedRecord[field]
-                              ? "border-green-200 bg-green-50/70"
-                              : "border-gray-200 bg-white hover:bg-gray-50"
+                              ? "border-green-200 bg-green-50"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
                           }`}
                         >
                           <input
@@ -1012,7 +999,7 @@ setApplications(loadedApplications);
                           </span>
 
                           {selectedRecord[field] && (
-                            <span className="ml-auto text-xs font-semibold text-green-700">
+                            <span className="ml-auto rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
                               Complete
                             </span>
                           )}
@@ -1020,7 +1007,7 @@ setApplications(loadedApplications);
                       ))}
                     </div>
 
-                    <div className="mt-6 border-t border-gray-100 pt-5">
+                    <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-sm font-semibold text-gray-700">
                           Progress
@@ -1075,15 +1062,31 @@ setApplications(loadedApplications);
                 </div>
 
                 <div className="p-5">
-                  <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Activity
-                    </p>
+                  <div className="mb-5 rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-gray-900">
+                        Activity Timeline
+                      </p>
+                      <span className="text-xs font-medium text-gray-400">
+                        Current session
+                      </span>
+                    </div>
 
-                    <ul className="mt-2 space-y-1.5 text-sm text-gray-600">
-                      <li>• Onboarding record opened for review</li>
-                      <li>• Checklist status can be updated below</li>
-                    </ul>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex gap-3">
+                        <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0067B8]" />
+                        <p className="text-sm leading-5 text-gray-600">
+                          Onboarding record opened for review
+                        </p>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gray-300" />
+                        <p className="text-sm leading-5 text-gray-600">
+                          Checklist status can be updated below
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <label className="block">
@@ -1110,7 +1113,7 @@ setApplications(loadedApplications);
               <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
                 <button
                   type="button"
-                  className="btn"
+                  className="inline-flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300/40"
                   onClick={closeEditor}
                 >
                   Cancel
@@ -1118,7 +1121,7 @@ setApplications(loadedApplications);
 
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0067B8] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#005A9E] focus:outline-none focus:ring-2 focus:ring-[#0067B8]/30"
                 >
                   Save Onboarding
                 </button>
