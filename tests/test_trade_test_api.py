@@ -31,6 +31,116 @@ def make_principal(principal_id, name, groups=None, roles=None):
     ).decode("utf-8")
 
 
+def test_trade_test_list_by_organization_returns_trade_tests(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        trade_test_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {
+                "get_active_memberships": lambda self, user_id: [
+                    type(
+                        "Membership",
+                        (),
+                        {
+                            "user_id": user_id,
+                            "organization_id": ORGANIZATION_ID,
+                            "status": "active",
+                        },
+                    )()
+                ]
+            },
+        )(),
+    )
+
+    monkeypatch.setattr(
+        trade_test_api,
+        "_trade_test_service",
+        type(
+            "FakeTradeTestService",
+            (),
+            {
+                "list_by_organization": lambda self, organization_id: [
+                    type(
+                        "TradeTest",
+                        (),
+                        {
+                            "id": "trade-test-001",
+                            "application_id": "application-001",
+                            "test_type": "Practical Assessment",
+                            "status": "Scheduled",
+                            "result": "Pending",
+                        },
+                    )()
+                ]
+            },
+        )(),
+    )
+
+    encoded_principal = make_principal(
+        "user-001",
+        "Test Administrator",
+        groups=[ADMINISTRATOR_GROUP_ID],
+    )
+
+    client = TestClient(app)
+
+    response = client.get(
+        f"/api/trade-tests?organization_id={ORGANIZATION_ID}",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "user-001",
+            "X-MS-CLIENT-PRINCIPAL-NAME": "administrator@example.test",
+            "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+        },
+    )
+
+    assert response.status_code == 200
+    print("\nTRADE TEST LIST RESPONSE:")
+    print(response.json())
+    assert response.json()["trade_tests"]
+
+
+def test_trade_test_list_by_organization_rejects_unauthorized_organization(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        trade_test_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {
+                "get_active_memberships": lambda self, user_id: [],
+            },
+        )(),
+    )
+
+    encoded_principal = make_principal(
+        "user-001",
+        "Test Administrator",
+        groups=[ADMINISTRATOR_GROUP_ID],
+    )
+
+    client = TestClient(app)
+
+    response = client.get(
+        f"/api/trade-tests?organization_id={ORGANIZATION_ID}",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "user-001",
+            "X-MS-CLIENT-PRINCIPAL-NAME": "administrator@example.test",
+            "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == (
+        "User is not authorized for this organization"
+    )
+
+
 def test_trade_test_create_requires_authentication():
     client = TestClient(app)
 

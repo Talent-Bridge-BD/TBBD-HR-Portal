@@ -152,6 +152,28 @@ def _require_organization_access(
     return context
 
 
+@router.get("")
+async def list_trade_tests_by_organization(
+    organization_id: str,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        organization_id,
+    )
+
+    tests = _trade_test_service.list_by_organization(
+        organization_id,
+    )
+
+    return {
+        "trade_tests": [
+            item.__dict__
+            for item in tests
+        ]
+    }
+
+
 @router.post("")
 async def create_trade_test(
     payload: TradeTestCreateRequest,

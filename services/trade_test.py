@@ -8,6 +8,14 @@ class TradeTestService:
     ):
         self.repository = repository
 
+    def list_by_organization(
+        self,
+        organization_id: str,
+    ):
+        return self.repository.list_by_organization(
+            organization_id,
+        )
+
     def list_by_application(
         self,
         application_id: str,

@@ -9,6 +9,13 @@ from models.trade_test import TradeTest
 class TradeTestRepository(ABC):
 
     @abstractmethod
+    def list_by_organization(
+        self,
+        organization_id: str,
+    ) -> list[TradeTest]:
+        raise NotImplementedError
+
+    @abstractmethod
     def list_by_application(
         self,
         application_id: str,
@@ -115,6 +122,50 @@ class SqlTradeTestRepository(TradeTestRepository):
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
+
+    def list_by_organization(
+        self,
+        organization_id: str,
+    ) -> list[TradeTest]:
+        sql = """
+        SELECT
+            tt.id,
+            tt.application_id,
+            tt.test_type,
+            tt.scheduled_at,
+            tt.location,
+            tt.assessor_name,
+            tt.technical_knowledge_score,
+            tt.trade_skills_score,
+            tt.safety_awareness_score,
+            tt.tool_handling_score,
+            tt.communication_score,
+            tt.problem_solving_score,
+            tt.teamwork_score,
+            tt.total_score,
+            tt.result,
+            tt.status,
+            tt.assessment_notes,
+            tt.created_at,
+            tt.updated_at
+        FROM dbo.trade_tests AS tt
+        INNER JOIN dbo.applications AS a
+            ON a.id = tt.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE j.organization_id = ?
+        ORDER BY tt.scheduled_at DESC, tt.created_at DESC;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, organization_id)
+            rows = cursor.fetchall()
+
+        return [
+            self._map_row(row)
+            for row in rows
+        ]
 
     def list_by_application(
         self,
