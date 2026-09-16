@@ -128,11 +128,10 @@ export default function EmployerDashboard({ onNavigate }) {
             <div className="overview-item">
               <span className="overview-icon">+</span>
               <div>
-                <strong>New</strong>
+                <strong>Applied</strong>
                 <span>{loading ? '—' : pipeline.applied} applications</span>
               </div>
             </div>
-
             <div className="overview-item">
               <span className="overview-icon">•</span>
               <div>
@@ -140,15 +139,6 @@ export default function EmployerDashboard({ onNavigate }) {
                 <span>{loading ? '—' : pipeline.screening} candidates</span>
               </div>
             </div>
-
-            <div className="overview-item">
-              <span className="overview-icon">•</span>
-              <div>
-                <strong>Shortlisted</strong>
-                <span>{loading ? '—' : pipeline.trade_test} candidates</span>
-              </div>
-            </div>
-
             <div className="overview-item">
               <span className="overview-icon">•</span>
               <div>
@@ -156,19 +146,52 @@ export default function EmployerDashboard({ onNavigate }) {
                 <span>{loading ? '—' : pipeline.interview} candidates</span>
               </div>
             </div>
-
             <div className="overview-item">
               <span className="overview-icon">•</span>
               <div>
-                <strong>Offer</strong>
+                <strong>Trade Test</strong>
+                <span>{loading ? '—' : pipeline.trade_test} candidates</span>
+              </div>
+            </div>
+            <div className="overview-item">
+              <span className="overview-icon">•</span>
+              <div>
+                <strong>Medical</strong>
                 <span>{loading ? '—' : pipeline.medical} candidates</span>
               </div>
             </div>
-
             <div className="overview-item">
               <span className="overview-icon">•</span>
               <div>
-                <strong>Hired</strong>
+                <strong>Visa Processing</strong>
+                <span>{loading ? '—' : pipeline.visa_processing} candidates</span>
+              </div>
+            </div>
+            <div className="overview-item">
+              <span className="overview-icon">•</span>
+              <div>
+                <strong>Ticketing</strong>
+                <span>{loading ? '—' : pipeline.ticketing} candidates</span>
+              </div>
+            </div>
+            <div className="overview-item">
+              <span className="overview-icon">•</span>
+              <div>
+                <strong>Onboarding</strong>
+                <span>{loading ? '—' : pipeline.onboarding} candidates</span>
+              </div>
+            </div>
+            <div className="overview-item">
+              <span className="overview-icon">•</span>
+              <div>
+                <strong>Deployment</strong>
+                <span>{loading ? '—' : pipeline.deployment} candidates</span>
+              </div>
+            </div>
+            <div className="overview-item">
+              <span className="overview-icon">•</span>
+              <div>
+                <strong>Completed</strong>
                 <span>{loading ? '—' : pipeline.completed} candidates</span>
               </div>
             </div>
