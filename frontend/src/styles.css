@@ -1982,6 +1982,53 @@ button {
   margin-bottom: 24px;
 }
 
+/* Onboarding toolbar layout */
+.onboarding-toolbar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.onboarding-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .onboarding-toolbar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-toolbar-actions {
+    width: 100%;
+  }
+
+  .onboarding-toolbar-actions > * {
+    flex: 1;
+  }
+}
+
+/* Onboarding detail split panel */
+.onboarding-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.onboarding-detail-grid > section {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .onboarding-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .onboarding-toolbar {
   display: flex;
   gap: 12px;
@@ -2016,23 +2063,64 @@ button {
 
 .onboarding-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.onboarding-table th,
+.onboarding-table td {
+  text-align: left;
 }
 
 .onboarding-table th {
-  text-align: left;
-  padding: 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .onboarding-table td {
-  padding: 14px;
+  padding: 17px 16px;
   border-bottom: 1px solid #f1f5f9;
-  vertical-align: top;
+  vertical-align: middle;
+}
+
+.onboarding-table th:nth-child(1),
+.onboarding-table td:nth-child(1) {
+  width: 30%;
+}
+
+.onboarding-table th:nth-child(2),
+.onboarding-table td:nth-child(2) {
+  width: 27%;
+}
+
+.onboarding-table th:nth-child(3),
+.onboarding-table td:nth-child(3) {
+  width: 16%;
+}
+
+.onboarding-table th:nth-child(4),
+.onboarding-table td:nth-child(4) {
+  width: 19%;
+}
+
+.onboarding-table th:nth-child(5),
+.onboarding-table td:nth-child(5) {
+  width: 8%;
 }
 
 .onboarding-table-wrap {
+  width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 1200px) {
