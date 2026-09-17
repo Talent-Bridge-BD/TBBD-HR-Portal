@@ -1,11 +1,93 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from "react"
+import PageHeader from "../components/PageHeader"
 
-import PageHeader from '../components/PageHeader'
+const PIPELINE_STAGES = [
+  {
+    key: "Applied",
+    label: "Applied",
+    color: "#0067B8",
+  },
+  {
+    key: "Screening",
+    label: "Screening",
+    color: "#D97706",
+  },
+  {
+    key: "Interview",
+    label: "Interview",
+    color: "#7C3AED",
+  },
+  {
+    key: "Trade Test",
+    label: "Trade Test",
+    color: "#7C3AED",
+  },
+  {
+    key: "Medical",
+    label: "Medical",
+    color: "#D97706",
+  },
+  {
+    key: "Visa Processing",
+    label: "Visa Processing",
+    color: "#D97706",
+  },
+  {
+    key: "Ticketing",
+    label: "Ticketing",
+    color: "#0067B8",
+  },
+  {
+    key: "Onboarding",
+    label: "Onboarding",
+    color: "#16A34A",
+  },
+  {
+    key: "Deployment",
+    label: "Deployment",
+    color: "#16A34A",
+  },
+  {
+    key: "Completed",
+    label: "Completed",
+    color: "#16A34A",
+  },
+]
 
+function formatDate(value) {
+  if (!value) return "—"
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return "—"
+  }
+
+  return date.toLocaleDateString()
+}
+
+function getCandidateName(application) {
+  const name = [
+    application.candidate_first_name,
+    application.candidate_last_name,
+  ]
+    .filter(Boolean)
+    .join(" ")
+
+  return name || "Unnamed Candidate"
+}
+
+function getStage(application) {
+  const workflowStatus = application.workflow_status || "Applied"
+
+  return (
+    PIPELINE_STAGES.find((stage) => stage.key === workflowStatus) ||
+    PIPELINE_STAGES[0]
+  )
+}
 
 export default function Hiring({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ""
-
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -25,9 +107,7 @@ export default function Hiring({ auth }) {
       try {
         const response = await fetch(
           `/api/hiring?organization_id=${encodeURIComponent(organizationId)}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" },
         )
 
         if (!response.ok) {
@@ -59,6 +139,15 @@ export default function Hiring({ auth }) {
     }
   }, [organizationId])
 
+  const groupedApplications = useMemo(() => {
+    return PIPELINE_STAGES.reduce((groups, stage) => {
+      groups[stage.key] = applications.filter(
+        (application) => getStage(application).key === stage.key,
+      )
+      return groups
+    }, {})
+  }, [applications])
+
   return (
     <>
       <PageHeader
@@ -80,63 +169,202 @@ export default function Hiring({ auth }) {
             <div>
               <h2>Hiring Pipeline</h2>
               <p>
-                Applications currently progressing toward an offer or hire.
+                Track candidates from application through onboarding and
+                deployment.
               </p>
+            </div>
+            <div className="page-section-meta">
+              <strong>{applications.length}</strong>
+              <span>applications</span>
             </div>
           </div>
 
           {loading && <p>Loading hiring pipeline...</p>}
 
-          {error && (
-            <p role="alert">
-              {error}
-            </p>
-          )}
+          {error && <p role="alert">{error}</p>}
 
-          {!loading && !error && applications.length === 0 && (
-            <p>
-              No candidates are currently in the hiring pipeline.
-            </p>
-          )}
+          {!loading && !error && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${PIPELINE_STAGES.length}, minmax(250px, 1fr))`,
+                gap: "16px",
+                overflowX: "auto",
+                paddingBottom: "12px",
+              }}
+            >
+              {PIPELINE_STAGES.map((stage) => {
+                const stageApplications = groupedApplications[stage.key] || []
 
-          {!loading && !error && applications.length > 0 && (
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Candidate</th>
-                    <th>Email</th>
-                    <th>Job</th>
-                    <th>Status</th>
-                    <th>Applied</th>
-                  </tr>
-                </thead>
+                return (
+                  <div
+                    key={stage.key}
+                    style={{
+                      minHeight: "360px",
+                      background: "#f8fafc",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "14px 16px",
+                        borderTop: `4px solid ${stage.color}`,
+                        background: "#ffffff",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "12px",
+                        }}
+                      >
+                        <h3
+                          style={{
+                            margin: 0,
+                            fontSize: "15px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {stage.label}
+                        </h3>
 
-                <tbody>
-                  {applications.map((application) => (
-                    <tr key={application.id}>
-                      <td>
-                        {application.candidate_first_name}{" "}
-                        {application.candidate_last_name}
-                      </td>
+                        <span
+                          style={{
+                            minWidth: "28px",
+                            height: "28px",
+                            padding: "0 8px",
+                            borderRadius: "999px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: stage.color,
+                            color: "#ffffff",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {stageApplications.length}
+                        </span>
+                      </div>
+                    </div>
 
-                      <td>{application.candidate_email}</td>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                        padding: "12px",
+                      }}
+                    >
+                      {stageApplications.length === 0 ? (
+                        <div
+                          style={{
+                            padding: "24px 12px",
+                            textAlign: "center",
+                            color: "#64748b",
+                            fontSize: "13px",
+                          }}
+                        >
+                          No candidates
+                        </div>
+                      ) : (
+                        stageApplications.map((application) => (
+                          <article
+                            key={application.id}
+                            style={{
+                              background: "#ffffff",
+                              border: "1px solid #e2e8f0",
+                              borderRadius: "14px",
+                              padding: "15px",
+                              boxShadow: "0 2px 6px rgba(15, 23, 42, 0.06)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "space-between",
+                                gap: "10px",
+                              }}
+                            >
+                              <div>
+                                <h4
+                                  style={{
+                                    margin: 0,
+                                    fontSize: "15px",
+                                    fontWeight: 700,
+                                    color: "#0f172a",
+                                  }}
+                                >
+                                  {getCandidateName(application)}
+                                </h4>
 
-                      <td>{application.job_title}</td>
+                                <p
+                                  style={{
+                                    margin: "5px 0 0",
+                                    fontSize: "13px",
+                                    color: "#64748b",
+                                    wordBreak: "break-word",
+                                  }}
+                                >
+                                  {application.candidate_email || "No email"}
+                                </p>
+                              </div>
 
-                      <td>{application.status}</td>
+                              <span
+                                style={{
+                                  flexShrink: 0,
+                                  padding: "4px 8px",
+                                  borderRadius: "999px",
+                                  background: `${stage.color}15`,
+                                  color: stage.color,
+                                  fontSize: "11px",
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {stage.label}
+                              </span>
+                            </div>
 
-                      <td>
-                        {application.applied_at
-                          ? new Date(
-                              application.applied_at,
-                            ).toLocaleDateString()
-                          : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            <div
+                              style={{
+                                marginTop: "14px",
+                                paddingTop: "12px",
+                                borderTop: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <p
+                                style={{
+                                  margin: 0,
+                                  fontSize: "13px",
+                                  fontWeight: 600,
+                                  color: "#334155",
+                                }}
+                              >
+                                {application.job_title || "Untitled position"}
+                              </p>
+
+                              <p
+                                style={{
+                                  margin: "5px 0 0",
+                                  fontSize: "12px",
+                                  color: "#64748b",
+                                }}
+                              >
+                                Applied {formatDate(application.applied_at)}
+                              </p>
+                            </div>
+                          </article>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </section>

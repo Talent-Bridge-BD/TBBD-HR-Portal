@@ -195,8 +195,13 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
                 SELECT
                     c.workflow_status AS status,
                     COUNT(*) AS status_count
-                FROM dbo.candidates AS c
-                WHERE c.organization_id IN ({placeholders})
+                FROM dbo.applications AS a
+                INNER JOIN dbo.jobs AS j
+                    ON j.id = a.job_id
+                INNER JOIN dbo.candidates AS c
+                    ON c.id = a.candidate_id
+                WHERE j.organization_id IN ({placeholders})
+                  AND a.status NOT IN (N'rejected', N'withdrawn')
                 GROUP BY c.workflow_status
                 """,
                 *organization_ids,

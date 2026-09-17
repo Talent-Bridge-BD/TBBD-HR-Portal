@@ -65,6 +65,7 @@ class SqlHiringRepository(HiringRepository):
             candidate_phone=row.phone,
             job_title=row.job_title,
             status=row.status,
+            workflow_status=row.workflow_status or "Applied",
             applied_at=row.applied_at,
             updated_at=row.updated_at,
         )
@@ -84,6 +85,7 @@ class SqlHiringRepository(HiringRepository):
                 c.phone,
                 j.title AS job_title,
                 a.status,
+                c.workflow_status,
                 a.applied_at,
                 a.updated_at
             FROM dbo.applications AS a
@@ -129,6 +131,7 @@ class SqlHiringRepository(HiringRepository):
                 c.phone,
                 j.title AS job_title,
                 a.status,
+                c.workflow_status,
                 a.applied_at,
                 a.updated_at
             FROM dbo.applications AS a
