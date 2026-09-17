@@ -39,16 +39,6 @@ import { getCurrentUser } from './utils/auth'
 const placeholderPages = {
 
 
-  'Employer Job Requests': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Job Requests',
-    description: 'Create and manage employer workforce and recruitment requests.',
-  },
-  'Employer Job Openings': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Job Openings',
-    description: 'View and manage employer job openings.',
-  },
   'Employer Applications': {
     area: 'EMPLOYER PORTAL',
     title: 'Candidate Applications',
@@ -104,7 +94,7 @@ export default function App() {
   }
 
   const pages = {
-    Dashboard: <Dashboard onNavigate={setActivePage} />,
+    Dashboard: <Dashboard auth={auth} onNavigate={setActivePage} />,
     'My Profile': <MyProfile auth={auth} />,
     Leave: <Leave />,
     Attendance: <Attendance />,

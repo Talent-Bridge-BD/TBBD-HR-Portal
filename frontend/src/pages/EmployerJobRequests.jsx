@@ -155,82 +155,96 @@ export default function EmployerJobRequests({ auth }) {
             </span>
           </div>
         ) : showForm ? (
-          <form onSubmit={createRequest} className="dashboard-form">
-            <label>
-              Job Title
-              <input
-                name="title"
-                value={form.title}
-                onChange={updateField}
-                required
-              />
-            </label>
+          <form onSubmit={createRequest} className="job-request-form">
+            <div className="job-request-form-grid">
+              <div className="job-request-field">
+                <label>
+                  Job Title
+                  <input
+                    name="title"
+                    value={form.title}
+                    onChange={updateField}
+                    required
+                  />
+                </label>
+              </div>
 
-            <label>
-              Employment Type
-              <input
-                name="employment_type"
-                value={form.employment_type}
-                onChange={updateField}
-                placeholder="Full-time, Part-time, Contract"
-              />
-            </label>
+              <div className="job-request-field">
+                <label>
+                  Employment Type
+                  <input
+                    name="employment_type"
+                    value={form.employment_type}
+                    onChange={updateField}
+                    placeholder="Full-time, Part-time, Contract"
+                  />
+                </label>
+              </div>
 
-            <label>
-              Location
-              <input
-                name="location"
-                value={form.location}
-                onChange={updateField}
-              />
-            </label>
+              <div className="job-request-field">
+                <label>
+                  Location
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={updateField}
+                  />
+                </label>
+              </div>
 
-            <label>
-              Country
-              <input
-                name="country"
-                value={form.country}
-                onChange={updateField}
-              />
-            </label>
+              <div className="job-request-field">
+                <label>
+                  Country
+                  <input
+                    name="country"
+                    value={form.country}
+                    onChange={updateField}
+                  />
+                </label>
+              </div>
 
-            <label>
-              Number of Positions
-              <input
-                name="number_of_positions"
-                type="number"
-                min="1"
-                value={form.number_of_positions}
-                onChange={updateField}
-              />
-            </label>
+              <div className="job-request-field">
+                <label>
+                  Number of Positions
+                  <input
+                    name="number_of_positions"
+                    type="number"
+                    min="1"
+                    value={form.number_of_positions}
+                    onChange={updateField}
+                  />
+                </label>
+              </div>
 
-            <label>
-              Description
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={updateField}
-                rows="6"
-              />
-            </label>
+              <div className="job-request-field full-width">
+                <label>
+                  Description
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={updateField}
+                    rows="6"
+                  />
+                </label>
+              </div>
+            </div>
 
-            <div className="quick-actions">
+            <div className="job-request-actions">
               <button
-                className="quick-action-button"
-                type="submit"
-                disabled={saving}
-              >
-                {saving ? 'Submitting...' : 'Submit Job Request'}
-              </button>
-
-              <button
-                className="quick-action-button"
+                className="secondary-action"
                 type="button"
                 onClick={() => setShowForm(false)}
                 disabled={saving}
               >
                 Cancel
+              </button>
+
+              <button
+                className="primary-action"
+                type="submit"
+                disabled={saving}
+              >
+                {saving ? 'Submitting...' : 'Submit Job Request'}
               </button>
             </div>
           </form>
@@ -244,19 +258,46 @@ export default function EmployerJobRequests({ auth }) {
             <span>Create your first employer workforce request.</span>
           </div>
         ) : (
-          <div className="notification-list">
+          <div className="job-request-list">
             {requests.map((request) => (
-              <div className="notification-item" key={request.id}>
-                <span className="notification-dot" />
-                <span className="notification-content">
-                  <strong>{request.title}</strong>
-                  <small>
-                    {request.status}
-                    {request.number_of_positions
-                      ? ` · ${request.number_of_positions} position(s)`
-                      : ''}
-                  </small>
-                </span>
+              <div className="job-request-card" key={request.id}>
+                <div className="job-request-main">
+                  <div className="job-request-title-row">
+                    <strong>{request.title}</strong>
+                    <span className="job-request-status">
+                      {request.status || 'Pending'}
+                    </span>
+                  </div>
+
+                  <div className="job-request-meta">
+                    {request.employment_type && (
+                      <span>{request.employment_type}</span>
+                    )}
+
+                    {request.location && (
+                      <span>{request.location}</span>
+                    )}
+
+                    {request.country && (
+                      <span>{request.country}</span>
+                    )}
+
+                    {request.number_of_positions && (
+                      <span>
+                        {request.number_of_positions}{' '}
+                        {request.number_of_positions === 1
+                          ? 'position'
+                          : 'positions'}
+                      </span>
+                    )}
+                  </div>
+
+                  {request.description && (
+                    <p className="job-request-description">
+                      {request.description}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

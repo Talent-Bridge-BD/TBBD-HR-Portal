@@ -6,6 +6,18 @@ export default function EmployerJobOpenings({ auth }) {
   const [organizationId, setOrganizationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+
+  const statusOptions = ['All', 'Open', 'Paused', 'Closed', 'Draft']
+
+  const filteredJobs =
+    statusFilter === 'All'
+      ? jobs
+      : jobs.filter(
+          (job) =>
+            String(job.status || '').toLowerCase() ===
+            statusFilter.toLowerCase(),
+        )
 
   useEffect(() => {
     const id = auth?.organization_ids?.[0] || ''
@@ -81,33 +93,81 @@ export default function EmployerJobOpenings({ auth }) {
           <div className="empty-state">
             <strong>Loading job openings...</strong>
           </div>
-        ) : jobs.length === 0 ? (
-          <div className="empty-state">
-            <strong>No job openings yet</strong>
-            <span>
-              Approved recruitment requests will become job openings here.
-            </span>
-          </div>
         ) : (
-          <div className="notification-list">
-            {jobs.map((job) => (
-              <div className="notification-item" key={job.id}>
-                <span className="notification-dot" />
-                <span className="notification-content">
-                  <strong>{job.title}</strong>
-                  <small>
-                    {job.status}
-                    {job.location ? ` · ${job.location}` : ''}
-                    {job.country ? ` · ${job.country}` : ''}
-                    {job.number_of_positions
-                      ? ` · ${job.number_of_positions} position(s)`
-                      : ''}
-                  </small>
+          <>
+            <div className="job-opening-filters" aria-label="Job opening status filter">
+              {statusOptions.map((status) => {
+                const count =
+                  status === 'All'
+                    ? jobs.length
+                    : jobs.filter(
+                        (job) =>
+                          String(job.status || '').toLowerCase() ===
+                          status.toLowerCase(),
+                      ).length
+
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    className={`job-opening-filter ${
+                      statusFilter === status ? 'active' : ''
+                    }`}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {status} <span>{count}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {filteredJobs.length === 0 ? (
+              <div className="empty-state">
+                <strong>No {statusFilter.toLowerCase()} job openings</strong>
+                <span>
+                  There are no job openings with this status for your
+                  organization.
                 </span>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="job-opening-list">
+                {filteredJobs.map((job) => (
+                  <article className="job-opening-card" key={job.id}>
+                    <div className="job-opening-main">
+                      <div className="job-opening-title-row">
+                        <h3>{job.title}</h3>
+                        <span className={`job-opening-status status-${String(job.status || '').toLowerCase()}`}>
+                          {job.status}
+                        </span>
+                      </div>
+
+                      <div className="job-opening-meta">
+                        {job.location && (
+                          <span>📍 {job.location}</span>
+                        )}
+                        {job.country && (
+                          <span>🌐 {job.country}</span>
+                        )}
+                        {job.employment_type && (
+                          <span>💼 {job.employment_type}</span>
+                        )}
+                        {job.number_of_positions && (
+                          <span>👥 {job.number_of_positions} position(s)</span>
+                        )}
+                        {job.closing_at && (
+                          <span>
+                            📅 Closing {new Date(job.closing_at).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </>
         )}
+
       </section>
     </>
   )
