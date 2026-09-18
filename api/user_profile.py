@@ -1,5 +1,4 @@
-import base64
-import json
+from services.local_auth import get_request_principal
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
@@ -24,25 +23,13 @@ class UserProfileRequest(BaseModel):
 
 
 def get_authenticated_user_id(request: Request) -> str:
-    principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
-    encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
-
-    if not principal_id or not encoded_principal:
-        return "temporary-admin"
-
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        decoded_principal = base64.b64decode(
-            encoded_principal + padding
-        ).decode("utf-8")
-        json.loads(decoded_principal)
-    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+    principal = get_request_principal(request)
+    if principal is None:
         raise HTTPException(
             status_code=401,
-            detail="Invalid authenticated principal",
+            detail="Authentication required",
         )
-
-    return principal_id
+    return principal["id"]
 
 
 @router.get("")
