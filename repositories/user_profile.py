@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import pyodbc
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 
 from models.user_profile import UserProfile
 
@@ -38,7 +38,7 @@ class SqlUserProfileRepository(UserProfileRepository):
             "SQL_DATABASE",
             "tbbd-hr-db",
         )
-        self.credential = DefaultAzureCredential()
+        self.credential = AzureCliCredential(process_timeout=30)
 
     def _connection(self) -> pyodbc.Connection:
         token = self.credential.get_token(self.SQL_SCOPE).token
