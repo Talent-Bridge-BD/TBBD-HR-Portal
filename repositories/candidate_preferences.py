@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import pyodbc
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 
 from models.candidate_preferences import CandidatePreferences
 
@@ -39,9 +39,7 @@ class SqlCandidatePreferencesRepository(CandidatePreferencesRepository):
     DRIVER = "{ODBC Driver 18 for SQL Server}"
 
     def _get_connection(self):
-        credential = DefaultAzureCredential(
-            exclude_interactive_browser_credential=False
-        )
+        credential = AzureCliCredential(process_timeout=30)
 
         token = credential.get_token(
             "https://database.windows.net/.default"
