@@ -7,6 +7,7 @@ export default function EmployerJobOpenings({ auth }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
+  const [actionJobId, setActionJobId] = useState('')
 
   const statusOptions = ['All', 'Open', 'Paused', 'Closed', 'Draft']
 
@@ -24,39 +25,101 @@ export default function EmployerJobOpenings({ auth }) {
     setOrganizationId(id)
   }, [auth])
 
-  useEffect(() => {
-    async function loadJobs() {
-      if (!organizationId) {
-        setJobs([])
-        setLoading(false)
-        return
+  async function loadJobs(showLoading = true) {
+    if (!organizationId) {
+      setJobs([])
+      setLoading(false)
+      return
+    }
+
+    if (showLoading) {
+      setLoading(true)
+    }
+
+    setError('')
+
+    try {
+      const response = await fetch(
+        `/api/jobs?organization_id=${encodeURIComponent(organizationId)}`,
+        { credentials: 'include' },
+      )
+
+      if (!response.ok) {
+        throw new Error(`Failed to load job openings: ${response.status}`)
       }
 
-      setLoading(true)
-      setError('')
-
-      try {
-        const response = await fetch(
-          `/api/jobs?organization_id=${encodeURIComponent(organizationId)}`,
-          { credentials: 'include' },
-        )
-
-        if (!response.ok) {
-          throw new Error(`Failed to load job openings: ${response.status}`)
-        }
-
-        const data = await response.json()
-        setJobs(data.jobs || [])
-      } catch (err) {
-        console.error(err)
-        setError('Unable to load job openings.')
-      } finally {
+      const data = await response.json()
+      setJobs(data.jobs || [])
+    } catch (err) {
+      console.error(err)
+      setError('Unable to load job openings.')
+    } finally {
+      if (showLoading) {
         setLoading(false)
       }
     }
+  }
 
+  useEffect(() => {
     loadJobs()
   }, [organizationId])
+
+  async function updateJobStatus(job, status) {
+    if (!organizationId || !job?.id) return
+
+    setActionJobId(job.id)
+    setError('')
+
+    try {
+      const response = await fetch(`/api/jobs/${job.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization_id: organizationId,
+          title: job.title,
+          description: job.description,
+          employment_type: job.employment_type,
+          location: job.location,
+          country: job.country,
+          status,
+          number_of_positions: job.number_of_positions,
+          published_at:
+            status === 'open'
+              ? job.published_at || new Date().toISOString()
+              : job.published_at,
+          closing_at: job.closing_at,
+          requisition_number: job.requisition_number || '',
+          employer_name: job.employer_name || '',
+          employer_country: job.employer_country || '',
+          employer_city: job.employer_city || '',
+          trade_skill_category: job.trade_skill_category || '',
+          industry_sector: job.industry_sector || '',
+          gender_requirement: job.gender_requirement || '',
+          minimum_age: job.minimum_age,
+          maximum_age: job.maximum_age,
+          contract_duration: job.contract_duration || '',
+          work_location: job.work_location || '',
+          project_name: job.project_name || '',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to change job status.')
+      }
+
+      await loadJobs(false)
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to change job status.')
+    } finally {
+      setActionJobId('')
+    }
+  }
 
   return (
     <>
@@ -158,6 +221,65 @@ export default function EmployerJobOpenings({ auth }) {
                           <span>
                             📅 Closing {new Date(job.closing_at).toLocaleDateString()}
                           </span>
+                        )}
+                      </div>
+
+                      <div className="job-opening-actions">
+                        {String(job.status || '').toLowerCase() === 'draft' && (
+                          <button
+                            className="primary-action"
+                            type="button"
+                            onClick={() => updateJobStatus(job, 'open')}
+                            disabled={actionJobId === job.id}
+                          >
+                            {actionJobId === job.id
+                              ? 'Publishing...'
+                              : 'Publish Job'}
+                          </button>
+                        )}
+
+                        {String(job.status || '').toLowerCase() === 'open' && (
+                          <>
+                            <button
+                              className="secondary-action"
+                              type="button"
+                              onClick={() => updateJobStatus(job, 'paused')}
+                              disabled={actionJobId === job.id}
+                            >
+                              {actionJobId === job.id ? 'Updating...' : 'Pause'}
+                            </button>
+
+                            <button
+                              className="secondary-action"
+                              type="button"
+                              onClick={() => updateJobStatus(job, 'closed')}
+                              disabled={actionJobId === job.id}
+                            >
+                              {actionJobId === job.id ? 'Updating...' : 'Close'}
+                            </button>
+                          </>
+                        )}
+
+                        {String(job.status || '').toLowerCase() === 'paused' && (
+                          <>
+                            <button
+                              className="primary-action"
+                              type="button"
+                              onClick={() => updateJobStatus(job, 'open')}
+                              disabled={actionJobId === job.id}
+                            >
+                              {actionJobId === job.id ? 'Updating...' : 'Open'}
+                            </button>
+
+                            <button
+                              className="secondary-action"
+                              type="button"
+                              onClick={() => updateJobStatus(job, 'closed')}
+                              disabled={actionJobId === job.id}
+                            >
+                              {actionJobId === job.id ? 'Updating...' : 'Close'}
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>

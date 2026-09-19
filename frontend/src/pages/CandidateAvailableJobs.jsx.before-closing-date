@@ -65,72 +65,6 @@ export default function CandidateAvailableJobs() {
     })
   }
 
-  function getClosingState(value) {
-    if (!value) {
-      return {
-        label: 'Closing date: Not specified',
-        closed: false,
-        emphasis: false,
-      }
-    }
-
-    const closingDate = new Date(value)
-
-    if (Number.isNaN(closingDate.getTime())) {
-      return {
-        label: `Closing date: ${formatDate(value)}`,
-        closed: false,
-        emphasis: false,
-      }
-    }
-
-    const now = new Date()
-    const closingDay = new Date(
-      closingDate.getFullYear(),
-      closingDate.getMonth(),
-      closingDate.getDate(),
-    )
-    const today = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    )
-
-    const daysUntilClosing = Math.ceil(
-      (closingDay.getTime() - today.getTime()) / 86400000,
-    )
-
-    if (daysUntilClosing < 0) {
-      return {
-        label: `Applications closed · ${formatDate(value)}`,
-        closed: true,
-        emphasis: true,
-      }
-    }
-
-    if (daysUntilClosing === 0) {
-      return {
-        label: `Closing today · ${formatDate(value)}`,
-        closed: false,
-        emphasis: true,
-      }
-    }
-
-    if (daysUntilClosing <= 7) {
-      return {
-        label: `Closing soon · ${formatDate(value)}`,
-        closed: false,
-        emphasis: true,
-      }
-    }
-
-    return {
-      label: `Closing date: ${formatDate(value)}`,
-      closed: false,
-      emphasis: false,
-    }
-  }
-
   async function handleApply(jobId) {
     try {
       setApplyingJobId(jobId)
@@ -218,16 +152,13 @@ export default function CandidateAvailableJobs() {
         )}
 
         {!loading && !error && jobs.length > 0 && (
-          <div className="candidate-jobs-grid">
+          <div className="overview-grid">
             {jobs.map((job) => (
-              <article className="candidate-job-card" key={job.id}>
-                <div className="candidate-job-icon" aria-hidden="true">▤</div>
+              <div className="overview-item" key={job.id}>
+                <span className="overview-icon">▤</span>
 
-                <div className="candidate-job-content">
-                  <div className="candidate-job-heading">
-                    <strong>{job.title}</strong>
-                  </div>
-                  <div className="candidate-job-meta">
+                <div>
+                  <strong>{job.title}</strong>
 
                   <span>
                     {job.location || 'Location not specified'}
@@ -245,43 +176,21 @@ export default function CandidateAvailableJobs() {
                       : 'positions'}
                   </span>
 
-                  </div>
+                  {job.description && <span>{job.description}</span>}
 
-                  {job.description && (
-                    <span className="candidate-job-description">
-                      {job.description}
-                    </span>
-                  )}
+                  <span>
+                    Closing date: {formatDate(job.closing_at)}
+                  </span>
 
-                  {(() => {
-                    const closingState = getClosingState(job.closing_at)
-
-                    return (
-                      <>
-                        <span
-                          className={
-                            closingState.emphasis
-                              ? 'job-closing-date job-closing-date-emphasis'
-                              : 'job-closing-date'
-                          }
-                        >
-                          {closingState.label}
-                        </span>
-
-                        {!closingState.closed && (
-                          <button
-                            type="button"
-                            onClick={() => handleApply(job.id)}
-                            disabled={applyingJobId === job.id}
-                          >
-                            {applyingJobId === job.id ? 'Applying...' : 'Apply'}
-                          </button>
-                        )}
-                      </>
-                    )
-                  })()}
+                  <button
+                    type="button"
+                    onClick={() => handleApply(job.id)}
+                    disabled={applyingJobId === job.id}
+                  >
+                    {applyingJobId === job.id ? 'Applying...' : 'Apply'}
+                  </button>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         )}

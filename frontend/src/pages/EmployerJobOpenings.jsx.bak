@@ -1,0 +1,263 @@
+import { useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
+
+export default function EmployerJobOpenings({ auth }) {
+  const [jobs, setJobs] = useState([])
+  const [organizationId, setOrganizationId] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [publishingId, setPublishingId] = useState('')
+  const [statusFilter, setStatusFilter] = useState('All')
+
+  const statusOptions = ['All', 'Open', 'Paused', 'Closed', 'Draft']
+
+  const filteredJobs =
+    statusFilter === 'All'
+      ? jobs
+      : jobs.filter(
+          (job) =>
+            String(job.status || '').toLowerCase() ===
+            statusFilter.toLowerCase(),
+        )
+
+  async function publishJob(job) {
+    if (!organizationId || !job?.id) return
+
+    setPublishingId(job.id)
+    setError('')
+
+    try {
+      const response = await fetch(
+        `/api/jobs/${job.id}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            organization_id: organizationId,
+            title: job.title,
+            description: job.description,
+            employment_type: job.employment_type,
+            location: job.location,
+            country: job.country,
+            status: 'open',
+            number_of_positions: job.number_of_positions,
+            published_at: new Date().toISOString(),
+            closing_at: job.closing_at,
+            requisition_number: job.requisition_number || 'REQ-OFFICE-001',
+            employer_name: job.employer_name || 'Loyal Trade Management Ltd.',
+            employer_country: job.employer_country,
+            employer_city: job.employer_city || 'Dhaka',
+            trade_skill_category: job.trade_skill_category || 'Office Administration',
+            industry_sector: job.industry_sector || 'Administration',
+            gender_requirement: job.gender_requirement || 'Any',
+            minimum_age: job.minimum_age,
+            maximum_age: job.maximum_age,
+            contract_duration: job.contract_duration || 'Permanent',
+            work_location: job.work_location,
+            project_name: job.project_name || 'Office Operations',
+          }),
+        },
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to publish job.')
+      }
+
+      await loadJobs()
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to publish job.')
+    } finally {
+      setPublishingId('')
+    }
+  }
+
+  useEffect(() => {
+    const id = auth?.organization_ids?.[0] || ''
+    setOrganizationId(id)
+  }, [auth])
+
+  useEffect(() => {
+    async function loadJobs() {
+      if (!organizationId) {
+        setJobs([])
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+      setError('')
+
+      try {
+        const response = await fetch(
+          `/api/jobs?organization_id=${encodeURIComponent(organizationId)}`,
+          { credentials: 'include' },
+        )
+
+        if (!response.ok) {
+          throw new Error(`Failed to load job openings: ${response.status}`)
+        }
+
+        const data = await response.json()
+        setJobs(data.jobs || [])
+      } catch (err) {
+        console.error(err)
+        setError('Unable to load job openings.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadJobs()
+  }, [organizationId])
+
+  return (
+    <>
+      <PageHeader
+        title="Job Openings"
+        subtitle="View your organization's recruitment job openings."
+      />
+
+      <section className="dashboard-card">
+        <div className="card-heading">
+          <div>
+            <h2>Employer Job Openings</h2>
+            <p>
+              Review open, paused, closed, and draft positions for your
+              organization.
+            </p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="empty-state">
+            <strong>{error}</strong>
+          </div>
+        )}
+
+        {!organizationId && !loading ? (
+          <div className="empty-state">
+            <strong>Organization access required</strong>
+            <span>
+              Your account must be connected to an employer organization.
+            </span>
+          </div>
+        ) : loading ? (
+          <div className="empty-state">
+            <strong>Loading job openings...</strong>
+          </div>
+        ) : (
+          <>
+            <div className="job-opening-filters" aria-label="Job opening status filter">
+              {statusOptions.map((status) => {
+                const count =
+                  status === 'All'
+                    ? jobs.length
+                    : jobs.filter(
+                        (job) =>
+                          String(job.status || '').toLowerCase() ===
+                          status.toLowerCase(),
+                      ).length
+
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    className={`job-opening-filter ${
+                      statusFilter === status ? 'active' : ''
+                    }`}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {status} <span>{count}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {filteredJobs.length === 0 ? (
+              <div className="empty-state">
+                <strong>No {statusFilter.toLowerCase()} job openings</strong>
+                <span>
+                  There are no job openings with this status for your
+                  organization.
+                </span>
+              </div>
+            ) : (
+              <div className="job-opening-list">
+                {filteredJobs.map((job) => (
+                  <article className="job-opening-card" key={job.id}>
+                    <div className="job-opening-main">
+                      <div className="job-opening-title-row">
+                        <h3>{job.title}</h3>
+                        <span className={`job-opening-status status-${String(job.status || '').toLowerCase()}`}>
+                          {job.status}
+                        </span>
+                      </div>
+
+                      <div className="job-opening-meta">
+                        {job.location && (
+                          <span>📍 {job.location}</span>
+                        )}
+                        {job.country && (
+                          <span>🌐 {job.country}</span>
+                        )}
+                        {job.employment_type && (
+                          <span>💼 {job.employment_type}</span>
+                        )}
+                        {job.number_of_positions && (
+                          <span>👥 {job.number_of_positions} position(s)</span>
+                        )}
+                        {job.closing_at && (
+                          <span>
+                            📅 Closing {new Date(job.closing_at).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+
+                      {String(job.status || '').toLowerCase() === 'draft' && (
+                      <div className="job-opening-actions">
+                      <button
+                      className="secondary-action"
+                      type="button"
+                      onClick={() => alert(JSON.stringify(job, null, 2))}
+                     >
+                      View
+                      </button>
+
+                       <button
+                       className="secondary-action"
+                       type="button"
+                       onClick={() => console.log('Edit Job', job)}
+                       >
+                       Edit
+                       </button>
+
+                       {String(job.status || '').toLowerCase() === 'draft' && (
+                        <button
+                      className="primary-action"
+                      type="button"
+                      onClick={() => publishJob(job)}
+                      disabled={publishingId === job.id}
+                     >
+                      {publishingId === job.id
+                      ? 'Publishing...'
+                      : 'Publish Job'}
+                      </button>
+                     )}
+                    </div>                           
+                  </article>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+      </section>
+    </>
+  )
+}

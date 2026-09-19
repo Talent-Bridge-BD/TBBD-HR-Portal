@@ -77,7 +77,7 @@ export default function CandidateMyApplications() {
   }
 
   return (
-    <>
+    <div className="candidate-portal-page">
       <PageHeader
         title="My Applications"
         subtitle="Track your job applications and recruitment progress."
@@ -184,6 +184,6 @@ export default function CandidateMyApplications() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   )
 }

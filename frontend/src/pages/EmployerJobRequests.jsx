@@ -15,6 +15,7 @@ export default function EmployerJobRequests({ auth }) {
   const [organizationId, setOrganizationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [approvingId, setApprovingId] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
@@ -57,6 +58,36 @@ export default function EmployerJobRequests({ auth }) {
   useEffect(() => {
     loadRequests()
   }, [organizationId])
+
+  async function approveRequest(request) {
+    if (!organizationId || !request?.id) return
+
+    setApprovingId(request.id)
+    setError('')
+
+    try {
+      const response = await fetch(
+        `/api/job-requests/${request.id}/approve?organization_id=${encodeURIComponent(organizationId)}`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        },
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Unable to approve job request.')
+      }
+
+      await loadRequests()
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to approve job request.')
+    } finally {
+      setApprovingId('')
+    }
+  }
 
   function updateField(event) {
     const { name, value } = event.target
@@ -296,6 +327,23 @@ export default function EmployerJobRequests({ auth }) {
                     <p className="job-request-description">
                       {request.description}
                     </p>
+                  )}
+
+                  {auth?.roles?.some((role) =>
+                    ['Administrator', 'HR Manager'].includes(role)
+                  ) && request.status === 'pending' && (
+                    <div className="job-request-actions">
+                      <button
+                        className="primary-action"
+                        type="button"
+                        onClick={() => approveRequest(request)}
+                        disabled={approvingId === request.id}
+                      >
+                        {approvingId === request.id
+                          ? 'Approving...'
+                          : 'Approve & Create Job'}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

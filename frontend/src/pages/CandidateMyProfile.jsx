@@ -947,7 +947,7 @@ export default function CandidateMyProfile() {
 
   if (loading) {
     return (
-      <>
+      <div className="candidate-portal-page">
         <PageHeader
           title="My Profile"
           subtitle="Manage your candidate profile and overseas recruitment information."
@@ -960,12 +960,12 @@ export default function CandidateMyProfile() {
             </span>
           </div>
         </section>
-      </>
+      </div>
     )
   }
 
   return (
-    <>
+    <div className="candidate-portal-page">
       <PageHeader
         title="My Profile"
         subtitle="Manage your candidate profile and overseas recruitment information."
@@ -2241,7 +2241,7 @@ export default function CandidateMyProfile() {
           </div>
         </section>
       </form>
-    </>
+    </div>
   )
 }
 

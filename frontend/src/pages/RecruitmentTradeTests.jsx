@@ -1,13 +1,15 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 import PageHeader from "../components/PageHeader";
 
 export default function RecruitmentTradeTests({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || "";
   const [applications, setApplications] = useState([]);
+  const [tradeTests, setTradeTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState("");
   const [testType, setTestType] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
@@ -61,6 +63,40 @@ export default function RecruitmentTradeTests({ auth }) {
   }, [organizationId]);
 
   useEffect(() => {
+    if (!organizationId) {
+      setTradeTests([]);
+      return;
+    }
+
+    fetch(
+      `/api/trade-tests?organization_id=${encodeURIComponent(
+        organizationId
+      )}`,
+      {
+        credentials: "include",
+      }
+    )
+      .then(async (response) => {
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail || "Unable to load trade tests."
+          );
+        }
+
+        return data;
+      })
+      .then((data) => {
+        setTradeTests(data.trade_tests || []);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setTradeTests([]);
+      });
+  }, [organizationId]);
+
+  useEffect(() => {
     if (!organizationId || !selectedApplicationId) {
       setSelectedTradeTests([]);
       return;
@@ -92,6 +128,71 @@ export default function RecruitmentTradeTests({ auth }) {
         setError(err.message);
       });
   }, [organizationId, selectedApplicationId]);
+
+  const filteredTradeTests = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) {
+      return tradeTests;
+    }
+
+    return tradeTests.filter((tradeTest) =>
+      [
+        tradeTest.test_type,
+        tradeTest.location,
+        tradeTest.assessor_name,
+        tradeTest.status,
+        tradeTest.result,
+        tradeTest.scheduled_at,
+      ]
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLowerCase().includes(query)
+        )
+    );
+  }, [tradeTests, search]);
+
+  const formatDate = (value) => {
+    if (!value) {
+      return "—";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
+  };
+
+  const getStatusClass = (status) => {
+    const normalized = String(status || "").toLowerCase();
+
+    if (normalized === "completed") {
+      return "trade-test-status trade-test-status-completed";
+    }
+
+    if (normalized === "scheduled") {
+      return "trade-test-status trade-test-status-scheduled";
+    }
+
+    return "trade-test-status";
+  };
+
+  const getResultClass = (result) => {
+    const normalized = String(result || "").toLowerCase();
+
+    if (normalized === "pass" || normalized === "passed") {
+      return "trade-test-result trade-test-result-pass";
+    }
+
+    if (normalized === "fail" || normalized === "failed") {
+      return "trade-test-result trade-test-result-fail";
+    }
+
+    return "trade-test-result";
+  };
 
   const handleSaveAssessment = async (tradeTestId) => {
     setError("");
@@ -251,27 +352,56 @@ export default function RecruitmentTradeTests({ auth }) {
         subtitle="Manage trade testing and practical skill assessments."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <section className="dashboard-card">
-          <h3>Scheduled Tests</h3>
-          <p>0</p>
+      <div className="trade-test-kpi-grid">
+        <section className="dashboard-card trade-test-kpi-card">
+          <span className="trade-test-kpi-label">Scheduled Tests</span>
+          <strong>{tradeTests.filter((tradeTest) => tradeTest.status === "Scheduled").length}</strong>
+          <small>Upcoming assessments</small>
         </section>
 
-        <section className="dashboard-card">
-          <h3>Completed Tests</h3>
-          <p>0</p>
+        <section className="dashboard-card trade-test-kpi-card">
+          <span className="trade-test-kpi-label">Completed Tests</span>
+          <strong>{tradeTests.filter((tradeTest) => tradeTest.status === "Completed").length}</strong>
+          <small>Assessments completed</small>
         </section>
 
-        <section className="dashboard-card">
-          <h3>Passed</h3>
-          <p className="text-green-600">0</p>
+        <section className="dashboard-card trade-test-kpi-card trade-test-kpi-success">
+          <span className="trade-test-kpi-label">Passed</span>
+          <strong>{tradeTests.filter((tradeTest) => tradeTest.result === "Pass").length}</strong>
+          <small>Successful assessments</small>
         </section>
 
-        <section className="dashboard-card">
-          <h3>Failed</h3>
-          <p className="text-red-600">0</p>
+        <section className="dashboard-card trade-test-kpi-card trade-test-kpi-danger">
+          <span className="trade-test-kpi-label">Failed</span>
+          <strong>{tradeTests.filter((tradeTest) => tradeTest.result === "Fail").length}</strong>
+          <small>Unsuccessful assessments</small>
         </section>
       </div>
+
+      <section className="dashboard-card trade-test-workspace">
+        <div className="trade-test-workspace-header">
+          <div>
+            <h2>Candidate Trade Tests</h2>
+            <p>Review scheduled practical assessments and their results.</p>
+          </div>
+
+          <div className="trade-test-count">
+            {filteredTradeTests.length} test(s)
+          </div>
+        </div>
+
+        <div className="trade-test-toolbar">
+          <label className="trade-test-search">
+            <span className="sr-only">Search trade tests</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search test type, location, assessor or status..."
+            />
+          </label>
+        </div>
+      </section>
 
       {!organizationId ? (
         <section className="placeholder-card">
@@ -334,7 +464,7 @@ export default function RecruitmentTradeTests({ auth }) {
                     {applications.map((application) => (
                       <option key={application.id} value={application.id}>
                         {application.candidate_first_name}{" "}
-                        {application.candidate_last_name} ?{" "}
+                        {application.candidate_last_name} —{" "}
                         {application.job_title}
                       </option>
                     ))}
@@ -389,7 +519,7 @@ export default function RecruitmentTradeTests({ auth }) {
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div>
                     <strong>Test Type</strong>
-                    <p>{tradeTest.test_type || "?"}</p>
+                    <p>{tradeTest.test_type || "Practical Assessment"}</p>
                   </div>
 
                   <div>
@@ -399,18 +529,18 @@ export default function RecruitmentTradeTests({ auth }) {
                         ? new Date(
                             tradeTest.scheduled_at
                           ).toLocaleString()
-                        : "?"}
+                        : "—"}
                     </p>
                   </div>
 
                   <div>
                     <strong>Status</strong>
-                    <p>{tradeTest.status || "?"}</p>
+                    <p>{tradeTest.status || "—"}</p>
                   </div>
 
                   <div>
                     <strong>Result</strong>
-                    <p>{tradeTest.result || "?"}</p>
+                    <p>{tradeTest.result || "Pending"}</p>
                   </div>
 
                   <div>
@@ -419,7 +549,7 @@ export default function RecruitmentTradeTests({ auth }) {
                       {tradeTest.total_score !== null &&
                       tradeTest.total_score !== undefined
                         ? tradeTest.total_score
-                        : "?"}
+                        : "—"}
                     </p>
                   </div>
 
@@ -534,40 +664,77 @@ export default function RecruitmentTradeTests({ auth }) {
             </section>
           )}
 
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Candidate</th>
-                  <th>Email</th>
-                  <th>Job</th>
-                  <th>Application Status</th>
-                  <th>Applied</th>
-                </tr>
-              </thead>
+          {!loading &&
+            !error &&
+            tradeTests.length === 0 && (
+              <div className="trade-test-empty-state">
+                <strong>No trade tests found</strong>
+                <span>
+                  Schedule a trade test for a candidate application to begin
+                  the practical assessment stage.
+                </span>
+              </div>
+            )}
 
-              <tbody>
-                {applications.map((application) => (
-                  <tr key={application.id}>
-                    <td>
-                      {application.candidate_first_name}{" "}
-                      {application.candidate_last_name}
-                    </td>
-                    <td>{application.candidate_email}</td>
-                    <td>{application.job_title}</td>
-                    <td>{application.status}</td>
-                    <td>
-                      {application.applied_at
-                        ? new Date(
-                            application.applied_at
-                          ).toLocaleDateString()
-                        : "?"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {!loading &&
+            !error &&
+            tradeTests.length > 0 &&
+            filteredTradeTests.length === 0 && (
+              <div className="trade-test-empty-state">
+                <strong>No matching trade tests</strong>
+                <span>Try a different search term.</span>
+              </div>
+            )}
+
+          {!loading &&
+            !error &&
+            filteredTradeTests.length > 0 && (
+              <div className="trade-test-table-wrap">
+                <table className="trade-test-table">
+                  <thead>
+                    <tr>
+                      <th>Test Type</th>
+                      <th>Scheduled</th>
+                      <th>Location</th>
+                      <th>Assessor</th>
+                      <th>Status</th>
+                      <th>Result</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTradeTests.map((tradeTest) => (
+                      <tr key={tradeTest.id}>
+                        <td>
+                          <strong>
+                            {tradeTest.test_type || "Practical Assessment"}
+                          </strong>
+                        </td>
+                        <td className="trade-test-date">
+                          {formatDate(tradeTest.scheduled_at)}
+                        </td>
+                        <td>{tradeTest.location || "—"}</td>
+                        <td>{tradeTest.assessor_name || "—"}</td>
+                        <td>
+                          <span className={getStatusClass(tradeTest.status)}>
+                            {tradeTest.status || "—"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={getResultClass(tradeTest.result)}>
+                            {tradeTest.result || "Pending"}
+                          </span>
+                        </td>
+                        <td className="trade-test-score">
+                          {tradeTest.total_score ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
         </section>
       )}
     </>

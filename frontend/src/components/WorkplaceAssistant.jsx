@@ -79,7 +79,9 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
         throw new Error('No relevant workplace policy information was found.')
       }
 
-      setAnswer(results[0].snippet)
+      setAnswer(
+        data?.result?.answer?.trim() || results[0].snippet
+      )
 
       const uniqueSources = []
       const seen = new Set()

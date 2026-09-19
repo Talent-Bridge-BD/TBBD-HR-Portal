@@ -218,16 +218,13 @@ export default function CandidateAvailableJobs() {
         )}
 
         {!loading && !error && jobs.length > 0 && (
-          <div className="candidate-jobs-grid">
+          <div className="overview-grid">
             {jobs.map((job) => (
-              <article className="candidate-job-card" key={job.id}>
-                <div className="candidate-job-icon" aria-hidden="true">▤</div>
+              <div className="overview-item" key={job.id}>
+                <span className="overview-icon">▤</span>
 
-                <div className="candidate-job-content">
-                  <div className="candidate-job-heading">
-                    <strong>{job.title}</strong>
-                  </div>
-                  <div className="candidate-job-meta">
+                <div>
+                  <strong>{job.title}</strong>
 
                   <span>
                     {job.location || 'Location not specified'}
@@ -245,13 +242,7 @@ export default function CandidateAvailableJobs() {
                       : 'positions'}
                   </span>
 
-                  </div>
-
-                  {job.description && (
-                    <span className="candidate-job-description">
-                      {job.description}
-                    </span>
-                  )}
+                  {job.description && <span>{job.description}</span>}
 
                   {(() => {
                     const closingState = getClosingState(job.closing_at)
@@ -281,7 +272,7 @@ export default function CandidateAvailableJobs() {
                     )
                   })()}
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         )}

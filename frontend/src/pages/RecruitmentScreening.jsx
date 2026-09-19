@@ -6,6 +6,7 @@ export default function RecruitmentScreening({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ''
 
   const [applications, setApplications] = useState([])
+  const [actionApplicationId, setActionApplicationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -71,6 +72,50 @@ export default function RecruitmentScreening({ auth }) {
         .includes(query)
     )
   }, [applications, search])
+
+  const shortlistApplication = async (application) => {
+    if (!organizationId || !application?.id) {
+      return
+    }
+
+    setActionApplicationId(application.id)
+
+    try {
+      const response = await fetch(
+        `/api/applications/${application.id}/status?organization_id=${encodeURIComponent(organizationId)}&status=shortlisted`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(
+          message || `Failed to shortlist application: ${response.status}`,
+        )
+      }
+
+      const data = await response.json()
+
+      setApplications((current) =>
+        current.map((item) =>
+          item.id === application.id
+            ? data.application
+            : item,
+        ),
+      )
+
+      if (selectedApplication?.id === application.id) {
+        setSelectedApplication(data.application)
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Unable to shortlist the application.')
+    } finally {
+      setActionApplicationId('')
+    }
+  }
 
   const openApplication = async (applicationId) => {
     setSelectedApplication(null)
@@ -244,15 +289,30 @@ export default function RecruitmentScreening({ auth }) {
                         </td>
 
                         <td>
-                          <button
-                            type="button"
-                            className="recruitment-view-button"
+                          <div className="recruitment-action-group">
+                            <button
+                              type="button"
+                              className="recruitment-view-button"
                             onClick={() =>
                               openApplication(application.id)
                             }
                           >
                             View
                           </button>
+
+                          {String(application.status || '').toLowerCase() === 'under_review' && (
+                            <button
+                              type="button"
+                              className="primary-action"
+                              onClick={() => shortlistApplication(application)}
+                              disabled={actionApplicationId === application.id}
+                            >
+                              {actionApplicationId === application.id
+                                ? 'Shortlisting...'
+                                : 'Shortlist'}
+                            </button>
+                          )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -366,15 +426,81 @@ export default function RecruitmentScreening({ auth }) {
                       </div>
                     </div>
 
-                    <section className="recruitment-cover-letter">
-                      <h3>Cover Letter</h3>
+                   <section className="recruitment-cover-letter">
+  <h3>Cover Letter</h3>
 
-                      <p>
-                        {selectedApplication.cover_letter ||
-                          'No cover letter was provided with this application.'}
-                      </p>
-                    </section>
-                  </div>
+  <p>
+    {selectedApplication.cover_letter ||
+      'No cover letter was provided with this application.'}
+  </p>
+</section>
+
+<section className="recruitment-screening-review">
+  <h3>Screening Assessment</h3>
+
+  <div className="recruitment-detail-grid">
+    <div>
+      <span>Basic Eligibility</span>
+      <strong>☐ Yes ☐ No ☐ Needs Review</strong>
+    </div>
+
+    <div>
+      <span>Relevant Experience</span>
+      <strong>☐ Strong ☐ Moderate ☐ Limited</strong>
+    </div>
+
+    <div>
+      <span>Education</span>
+      <strong>☐ Yes ☐ No ☐ Needs Review</strong>
+    </div>
+
+    <div>
+      <span>Communication</span>
+      <strong>☐ Strong ☐ Satisfactory ☐ Needs Improvement</strong>
+    </div>
+
+    <div>
+      <span>Availability</span>
+      <strong>☐ Immediate ☐ 1 Month ☐ Later</strong>
+    </div>
+  </div>
+
+  <h3>Screening Notes</h3>
+
+  <textarea
+    rows="4"
+    placeholder="Enter screening observations and recruiter notes..."
+  />
+
+  <h3>Recommendation</h3>
+
+  <div className="recruitment-action-group">
+    <button
+      type="button"
+      className="primary-action"
+      onClick={() =>
+        shortlistApplication(selectedApplication)
+      }
+    >
+      Shortlist Candidate
+    </button>
+
+    <button
+      type="button"
+      className="secondary-action"
+    >
+      Continue Screening
+    </button>
+
+    <button
+      type="button"
+      className="danger-action"
+    >
+      Reject Application
+    </button>
+  </div>
+</section>
+</div>
                 ) : null}
               </aside>
             </div>

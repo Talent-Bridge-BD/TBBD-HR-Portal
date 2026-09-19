@@ -14,7 +14,8 @@ export default function CandidateDashboard({ onNavigate }) {
   } = candidateDashboard
 
   return (
-    <>
+    <div className="candidate-portal-page">
+      <>
       <PageHeader
         title={`Welcome, ${candidate.name}`}
         subtitle="Candidate Portal"
@@ -141,6 +142,7 @@ export default function CandidateDashboard({ onNavigate }) {
           />
         </div>
       </section>
-    </>
+      </>
+    </div>
   )
 }

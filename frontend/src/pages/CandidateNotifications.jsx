@@ -3,7 +3,8 @@ import DashboardCard from '../components/DashboardCard'
 
 export default function CandidateNotifications() {
   return (
-    <>
+    <div className="candidate-portal-page">
+      <>
       <PageHeader
         title="Notifications"
         subtitle="Stay informed about your applications, interviews, and recruitment updates."
@@ -65,6 +66,7 @@ export default function CandidateNotifications() {
           </div>
         </div>
       </section>
-    </>
+      </>
+    </div>
   )
 }

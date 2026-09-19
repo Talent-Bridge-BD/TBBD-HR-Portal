@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 
-export default function RecruitmentCandidates({ auth }) {
+export default function RecruitmentScreening({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ''
 
   const [applications, setApplications] = useState([])
+  const [actionApplicationId, setActionApplicationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
@@ -32,7 +33,7 @@ export default function RecruitmentCandidates({ auth }) {
 
         if (!response.ok) {
           throw new Error(
-            data.detail || 'Unable to load candidates.'
+            data.detail || 'Unable to load screening candidates.'
           )
         }
 
@@ -49,40 +50,72 @@ export default function RecruitmentCandidates({ auth }) {
       })
   }, [organizationId])
 
-  const candidates = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          applications.map((application) => [
-            application.candidate_id,
-            application,
-          ])
-        ).values()
-      ),
-    [applications]
-  )
-
-  const filteredCandidates = useMemo(() => {
+  const filteredApplications = useMemo(() => {
     const query = search.trim().toLowerCase()
 
     if (!query) {
-      return candidates
+      return applications
     }
 
-    return candidates.filter((candidate) =>
+    return applications.filter((application) =>
       [
-        candidate.candidate_first_name,
-        candidate.candidate_last_name,
-        candidate.candidate_email,
-        candidate.job_title,
-        candidate.status,
+        application.candidate_first_name,
+        application.candidate_last_name,
+        application.candidate_email,
+        application.job_title,
+        application.status,
+        application.cover_letter,
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
         .includes(query)
     )
-  }, [candidates, search])
+  }, [applications, search])
+
+  const shortlistApplication = async (application) => {
+    if (!organizationId || !application?.id) {
+      return
+    }
+
+    setActionApplicationId(application.id)
+
+    try {
+      const response = await fetch(
+        `/api/applications/${application.id}/status?organization_id=${encodeURIComponent(organizationId)}&status=shortlisted`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(
+          message || `Failed to shortlist application: ${response.status}`,
+        )
+      }
+
+      const data = await response.json()
+
+      setApplications((current) =>
+        current.map((item) =>
+          item.id === application.id
+            ? data.application
+            : item,
+        ),
+      )
+
+      if (selectedApplication?.id === application.id) {
+        setSelectedApplication(data.application)
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Unable to shortlist the application.')
+    } finally {
+      setActionApplicationId('')
+    }
+  }
 
   const openApplication = async (applicationId) => {
     setSelectedApplication(null)
@@ -105,7 +138,7 @@ export default function RecruitmentCandidates({ auth }) {
 
       if (!response.ok) {
         throw new Error(
-          data.detail || 'Unable to load application details.'
+          data.detail || 'Unable to load screening details.'
         )
       }
 
@@ -117,48 +150,7 @@ export default function RecruitmentCandidates({ auth }) {
     }
   }
 
-
-  const updateApplicationStatus = async (
-    applicationId,
-    status
-  ) => {
-    try {
-      const response = await fetch(
-        `/api/applications/${encodeURIComponent(
-          applicationId
-        )}/status?organization_id=${encodeURIComponent(
-          organizationId
-        )}&status=${encodeURIComponent(status)}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-        }
-      )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail || 'Unable to update status.'
-        )
-      }
-
-      setSelectedApplication(data.application)
-
-      setApplications((current) =>
-        current.map((item) =>
-          item.id === applicationId
-            ? data.application
-            : item
-        )
-      )
-    } catch (err) {
-      alert(err.message)
-    }
-  }
-
   const formatDate = (value) => {
-
     if (!value) {
       return '—'
     }
@@ -166,9 +158,9 @@ export default function RecruitmentCandidates({ auth }) {
     return new Date(value).toLocaleDateString()
   }
 
-  const getInitials = (candidate) => {
-    const first = candidate.candidate_first_name?.[0] || ''
-    const last = candidate.candidate_last_name?.[0] || ''
+  const getInitials = (application) => {
+    const first = application.candidate_first_name?.[0] || ''
+    const last = application.candidate_last_name?.[0] || ''
 
     return `${first}${last}`.toUpperCase() || 'C'
   }
@@ -176,8 +168,8 @@ export default function RecruitmentCandidates({ auth }) {
   return (
     <>
       <PageHeader
-        title="Candidates"
-        subtitle="Manage and review candidates across the recruitment pipeline."
+        title="Screening"
+        subtitle="Review and evaluate candidates before moving them to the next recruitment stage."
       />
 
       {!organizationId ? (
@@ -189,37 +181,37 @@ export default function RecruitmentCandidates({ auth }) {
         </section>
       ) : loading ? (
         <section className="placeholder-card">
-          <p>Loading candidates...</p>
+          <p>Loading screening candidates...</p>
         </section>
       ) : error ? (
         <section className="placeholder-card">
-          <h2>Unable to load candidates</h2>
+          <h2>Unable to load screening candidates</h2>
           <p>{error}</p>
         </section>
       ) : (
         <>
           <section className="dashboard-card recruitment-candidates-toolbar">
             <div>
-              <strong>{candidates.length}</strong>
+              <strong>{applications.length}</strong>
               <span>
-                {candidates.length === 1
+                {applications.length === 1
                   ? ' candidate'
                   : ' candidates'}
               </span>
             </div>
 
             <label>
-              <span className="sr-only">Search candidates</span>
+              <span className="sr-only">Search screening candidates</span>
               <input
                 type="search"
-                placeholder="Search candidates, email or job..."
+                placeholder="Search candidate, email or job..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
             </label>
           </section>
 
-          {filteredCandidates.length === 0 ? (
+          {filteredApplications.length === 0 ? (
             <section className="placeholder-card">
               <h2>No matching candidates</h2>
               <p>
@@ -234,30 +226,31 @@ export default function RecruitmentCandidates({ auth }) {
                     <tr>
                       <th>Candidate</th>
                       <th>Email</th>
-                      <th>Applied Job</th>
-                      <th>Status</th>
+                      <th>Job</th>
+                      <th>Workflow Status</th>
+                      <th>Cover Letter</th>
                       <th>Applied Date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {filteredCandidates.map((candidate) => (
-                      <tr key={candidate.candidate_id}>
+                    {filteredApplications.map((application) => (
+                      <tr key={application.id}>
                         <td>
                           <div className="candidate-identity">
                             <span className="candidate-avatar">
-                              {getInitials(candidate)}
+                              {getInitials(application)}
                             </span>
 
                             <div>
                               <strong>
-                                {candidate.candidate_first_name}{' '}
-                                {candidate.candidate_last_name}
+                                {application.candidate_first_name}{' '}
+                                {application.candidate_last_name}
                               </strong>
 
                               <small>
-                                Candidate ID: {candidate.candidate_id}
+                                Application ID: {application.id}
                               </small>
                             </div>
                           </div>
@@ -265,38 +258,61 @@ export default function RecruitmentCandidates({ auth }) {
 
                         <td>
                           <span className="candidate-email">
-                            {candidate.candidate_email}
+                            {application.candidate_email}
                           </span>
                         </td>
 
                         <td>
                           <strong className="candidate-job">
-                            {candidate.job_title || '—'}
+                            {application.job_title || '—'}
                           </strong>
                         </td>
 
                         <td>
                           <span className="recruitment-status-badge">
-                            {candidate.status || 'Applied'}
+                            {application.status || 'Applied'}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="candidate-email">
+                            {application.cover_letter
+                              ? 'Provided'
+                              : '—'}
                           </span>
                         </td>
 
                         <td>
                           <span className="candidate-date">
-                            {formatDate(candidate.applied_at)}
+                            {formatDate(application.applied_at)}
                           </span>
                         </td>
 
                         <td>
-                          <button
-                            type="button"
-                            className="recruitment-view-button"
+                          <div className="recruitment-action-group">
+                            <button
+                              type="button"
+                              className="recruitment-view-button"
                             onClick={() =>
-                              openApplication(candidate.id)
+                              openApplication(application.id)
                             }
                           >
                             View
                           </button>
+
+                          {String(application.status || '').toLowerCase() === 'under_review' && (
+                            <button
+                              type="button"
+                              className="primary-action"
+                              onClick={() => shortlistApplication(application)}
+                              disabled={actionApplicationId === application.id}
+                            >
+                              {actionApplicationId === application.id
+                                ? 'Shortlisting...'
+                                : 'Shortlist'}
+                            </button>
+                          )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -321,19 +337,19 @@ export default function RecruitmentCandidates({ auth }) {
                 className="recruitment-detail-panel"
                 role="dialog"
                 aria-modal="true"
-                aria-label="Candidate application details"
+                aria-label="Screening details"
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="recruitment-detail-header">
                   <div>
                     <span className="recruitment-detail-eyebrow">
-                      APPLICATION DETAILS
+                      SCREENING DETAILS
                     </span>
 
                     <h2>
                       {selectedApplication
                         ? `${selectedApplication.candidate_first_name} ${selectedApplication.candidate_last_name}`
-                        : 'Candidate Details'}
+                        : 'Screening Details'}
                     </h2>
                   </div>
 
@@ -352,7 +368,7 @@ export default function RecruitmentCandidates({ auth }) {
 
                 {detailLoading ? (
                   <div className="recruitment-detail-loading">
-                    Loading application details...
+                    Loading screening details...
                   </div>
                 ) : detailError ? (
                   <div className="recruitment-detail-error">
@@ -394,7 +410,7 @@ export default function RecruitmentCandidates({ auth }) {
                       </div>
 
                       <div>
-                        <span>Application Status</span>
+                        <span>Workflow Status</span>
                         <strong>
                           {selectedApplication.status || 'Applied'}
                         </strong>

@@ -60,15 +60,30 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'HR Manager',
     'Administrator',
   ])
-  const canAccessCandidatePortal = hasAnyRole(auth, [
-    'Candidate',
-  ])
+  const isLocalTestAdministrator =
+    import.meta.env.DEV && auth?.roles?.includes('Administrator')
+
+  const canAccessCandidatePortal =
+    hasAnyRole(auth, ['Candidate']) || isLocalTestAdministrator
 
   const renderItem = ([label, icon, enabled = true]) => (
     <button
       key={label}
       className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
-      onClick={() => enabled && onNavigate(label)}
+      onClick={() => {
+        if (!enabled) return
+
+        if (import.meta.env.DEV) {
+          const isCandidatePage = label.startsWith('Candidate ')
+          if (isCandidatePage) {
+            window.localStorage.setItem('tbbd_local_portal', 'candidate')
+          } else {
+            window.localStorage.removeItem('tbbd_local_portal')
+          }
+        }
+
+        onNavigate(label)
+      }}
       disabled={!enabled}
       title={!enabled ? `${label} — Coming Soon` : label}
     >
