@@ -5,10 +5,18 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from models.job import Job
+
 from models.job_request import JobRequest
+from repositories.job import SqlJobRepository
+
 from repositories.job_request import SqlJobRequestRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import build_authorization_context
+
+from services.local_auth import get_request_principal
+from services.job import JobService
+
 from services.job_request import JobRequestService
 
 router = APIRouter(
@@ -18,6 +26,10 @@ router = APIRouter(
 
 _job_request_repository = SqlJobRequestRepository()
 _job_request_service = JobRequestService(_job_request_repository)
+
+_job_repository = SqlJobRepository()
+
+_job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
@@ -48,34 +60,20 @@ def _claim_values(
 
 
 def get_job_request_authorization_context(request: Request):
-    principal_id = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL-ID"
-    )
-    encoded_principal = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL"
-    )
+    principal = get_request_principal(request)
 
-    if not principal_id or not encoded_principal:
+    if not principal:
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        principal = json.loads(
-            base64.b64decode(
-                encoded_principal + padding
-            ).decode("utf-8")
-        )
-    except (
-        ValueError,
-        UnicodeDecodeError,
-        json.JSONDecodeError,
-    ):
+    principal_id = principal.get("id")
+
+    if not principal_id:
         raise HTTPException(
             status_code=401,
-            detail="Invalid authenticated principal",
+            detail="Authenticated user identity is required",
         )
 
     claims = principal.get("claims", [])
@@ -212,3 +210,87 @@ async def create_job_request(
         "request": saved.__dict__,
         "message": "Job request created",
     }
+
+@router.post("/{request_id}/approve")
+async def approve_job_request(
+    request_id: str,
+    organization_id: str,
+    request: Request,
+):
+    context = _require_organization_access(
+        request,
+        organization_id,
+    )
+
+    if not context.roles.intersection(
+        {"HR Manager", "Administrator"}
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="HR Manager or Administrator role is required",
+        )
+
+    job_request = _job_request_service.get_request(
+        organization_id,
+        request_id,
+    )
+
+    if job_request is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Job request not found",
+        )
+
+    if job_request.status != "pending":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Job request cannot be approved from "
+                f"status '{job_request.status}'"
+            ),
+        )
+
+    job = Job(
+        id="",
+        organization_id=job_request.organization_id,
+        title=job_request.title,
+        description=job_request.description,
+        employment_type=job_request.employment_type,
+        location=job_request.location,
+        country=job_request.country,
+        status="draft",
+        number_of_positions=job_request.number_of_positions,
+        work_location=job_request.location,
+        employer_country=job_request.country,
+    )
+
+    saved_job = _job_service.save_job(job)
+
+    approved_request = JobRequest(
+        id=job_request.id,
+        organization_id=job_request.organization_id,
+        requested_by=job_request.requested_by,
+        title=job_request.title,
+        description=job_request.description,
+        employment_type=job_request.employment_type,
+        location=job_request.location,
+        country=job_request.country,
+        number_of_positions=job_request.number_of_positions,
+        status="approved",
+        requested_at=job_request.requested_at,
+        reviewed_at=datetime.utcnow(),
+        reviewed_by=context.user_id,
+        created_at=job_request.created_at,
+        updated_at=job_request.updated_at,
+    )
+
+    saved_request = _job_request_service.save_request(
+        approved_request,
+    )
+
+    return {
+        "request": saved_request.__dict__,
+        "job": saved_job.__dict__,
+        "message": "Job request approved and draft job created",
+    }
+

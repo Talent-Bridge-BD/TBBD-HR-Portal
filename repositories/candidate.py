@@ -278,7 +278,8 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.passport_country,
                         INSERTED.passport_expiry_date,
                         INSERTED.passport_status,
-                        INSERTED.international_travel_readiness
+                        INSERTED.international_travel_readiness,
+                        INSERTED.workflow_status
                     VALUES (
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
@@ -342,7 +343,8 @@ class SqlCandidateRepository(CandidateRepository):
                         INSERTED.passport_country,
                         INSERTED.passport_expiry_date,
                         INSERTED.passport_status,
-                        INSERTED.international_travel_readiness
+                        INSERTED.international_travel_readiness,
+                        INSERTED.workflow_status
                     WHERE id = ?
                     """,
                     profile.first_name,

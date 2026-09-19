@@ -11,6 +11,9 @@ CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
 
 
 def is_local_auth_enabled() -> bool:
+    print("DEBUG_ENV =", os.getenv("TBBD_ENV"))
+    print("DEBUG_LOCAL_AUTH =", os.getenv("TBBD_LOCAL_AUTH"))
+
     return (
         os.getenv("TBBD_ENV") == "development"
         and os.getenv("TBBD_LOCAL_AUTH") == "1"

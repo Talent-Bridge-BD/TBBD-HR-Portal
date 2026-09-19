@@ -44,6 +44,15 @@ class ApplicationRepository(ABC):
     ) -> EmployerApplication:
         raise NotImplementedError
 
+    @abstractmethod
+    def update_status(
+        self,
+        organization_id: str,
+        application_id: str,
+        status: str,
+    ) -> Optional[EmployerApplication]:
+        raise NotImplementedError
+
 
 class SqlApplicationRepository(ApplicationRepository):
 
@@ -254,6 +263,61 @@ class SqlApplicationRepository(ApplicationRepository):
                 raise RuntimeError(
                     "Created application could not be retrieved"
                 )
+
+            connection.commit()
+
+        return self._map_row(row)
+
+    def update_status(
+        self,
+        organization_id: str,
+        application_id: str,
+        status: str,
+    ) -> Optional[EmployerApplication]:
+        update_sql = """
+            UPDATE a
+            SET
+                a.status = ?,
+                a.updated_at = SYSUTCDATETIME()
+            FROM dbo.applications AS a
+            INNER JOIN dbo.jobs AS j
+                ON j.id = a.job_id
+            WHERE a.id = ?
+              AND j.organization_id = ?;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                update_sql,
+                status,
+                application_id,
+                organization_id,
+            )
+
+            if cursor.rowcount == 0:
+                connection.rollback()
+                return None
+
+            select_sql = (
+                self._application_select()
+                + """
+                WHERE a.id = ?
+                  AND j.organization_id = ?;
+                """
+            )
+
+            cursor.execute(
+                select_sql,
+                application_id,
+                organization_id,
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                connection.rollback()
+                return None
 
             connection.commit()
 

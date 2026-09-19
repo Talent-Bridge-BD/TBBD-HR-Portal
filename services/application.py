@@ -46,3 +46,15 @@ class ApplicationService:
             job_id,
             cover_letter,
         )
+
+    def update_status(
+        self,
+        organization_id: str,
+        application_id: str,
+        status: str,
+    ) -> Optional[EmployerApplication]:
+        return self.repository.update_status(
+            organization_id,
+            application_id,
+            status,
+        )

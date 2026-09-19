@@ -13,6 +13,7 @@ from services.authorization import (
     build_authorization_context,
 )
 from services.job import JobService
+from services.local_auth import get_request_principal
 
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
@@ -62,28 +63,20 @@ def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
 
 
 def get_job_authorization_context(request: Request):
-    principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
-    encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
 
-    if not principal_id or not encoded_principal:
+    principal = get_request_principal(request)
+    if not principal:
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        principal = json.loads(
-            base64.b64decode(
-                encoded_principal + padding
-            ).decode("utf-8")
-        )
-    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
+    principal_id = principal.get("id")
+    if not principal_id:
         raise HTTPException(
             status_code=401,
-            detail="Invalid authenticated principal",
+            detail="Authenticated user identity is required",
         )
-
     claims = principal.get("claims", [])
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
