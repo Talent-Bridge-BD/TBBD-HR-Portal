@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import workplaceAssistantLogo from '../assets/branding/TBBD Workplace Assistant.png'
 
 function cleanSnippet(snippet = '') {
   return snippet
@@ -109,13 +110,19 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
 
   return (
     <section className="assistant-card">
-      <div className="assistant-icon">✦</div>
-
       <div className="assistant-content">
-        <h2>✨ AI-Powered Workplace Assistant</h2>
+        <div className="workplace-assistant-brand">
+          <img
+            src={workplaceAssistantLogo}
+            alt="TBBD Workplace Assistant"
+            className="workplace-assistant-brand-logo"
+          />
+          <h2>TBBD Workplace Assistant</h2>
+        </div>
         <p>
           Get quick answers about HR policies, leave, benefits and workplace information.
         </p>
+        <div className="assistant-prompts-label">Try a question</div>
         <div className="assistant-prompts" aria-label="Example questions">
           <button
             type="button"
@@ -145,7 +152,7 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
             type="text"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Ask a workplace question..."
+            placeholder="Type your question here..."
             aria-label="Ask the Workplace Assistant"
             disabled={loading}
           />

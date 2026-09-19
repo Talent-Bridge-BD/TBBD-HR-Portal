@@ -237,9 +237,9 @@ export default function Dashboard({ auth, onNavigate }) {
       </div>
 
       {isAdministrator || isHRManager ? (
-        <section className="dashboard-two-column">
-          <DashboardCard title="Quick Actions">
-            <div className="quick-actions">
+        <section className="recruitment-portal-section">
+          <DashboardCard title="Recruitment Portal">
+            <div className="quick-access-row">
               <QuickAction
                 icon="▤"
                 label="Manage Jobs"
@@ -256,59 +256,13 @@ export default function Dashboard({ auth, onNavigate }) {
                 onClick={() => onNavigate('Recruitment Applications')}
               />
               <QuickAction
-                icon="◷"
-                label="Screen Candidates"
-                onClick={() => onNavigate('Recruitment Screening')}
-              />
-              <QuickAction
-                icon="◷"
-                label="Schedule Interviews"
-                onClick={() => onNavigate('Recruitment Interviews')}
-              />
-              <QuickAction
-                icon="⚒"
-                label="Trade Tests"
-                onClick={() => onNavigate('Recruitment Trade Tests')}
-              />
-              <QuickAction
-                icon="✚"
-                label="Medical Processing"
-                onClick={() => onNavigate('Recruitment Medical')}
-              />
-              <QuickAction
-                icon="🛂"
-                label="Visa Processing"
-                onClick={() => onNavigate('Recruitment Visa Processing')}
+                icon="✓"
+                label="Selected Candidates"
+                onClick={() => onNavigate('Recruitment Candidates')}
               />
             </div>
           </DashboardCard>
 
-          <DashboardCard title="Recruitment Operations">
-            <div className="application-summary">
-              <div>
-                <strong>{pipeline.Applied}</strong>
-                <span>Applications</span>
-                <small>Total applications</small>
-              </div>
-              <div>
-                <strong>{pipeline.Screening}</strong>
-                <span>Screening</span>
-                <small>Currently screening</small>
-              </div>
-              <div>
-                <strong>{pipeline.Interview}</strong>
-                <span>Interviews</span>
-                <small>Current interview stage</small>
-              </div>
-            </div>
-            <button
-              className="card-link"
-              type="button"
-              onClick={() => onNavigate('Recruitment Applications')}
-            >
-              Review recruitment applications →
-            </button>
-          </DashboardCard>
         </section>
       ) : (
         <section className="dashboard-operations">
