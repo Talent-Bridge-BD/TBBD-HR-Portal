@@ -356,7 +356,7 @@ export default function RecruitmentInterviews({ auth }) {
       <div className="interview-kpi-grid">
         <div className="interview-kpi-card">
           <h3>{interviews.length}</h3>
-          <p>Total Interviews</p>
+          <p>KPI TEST</p>
         </div>
 
         <div className="interview-kpi-card">
