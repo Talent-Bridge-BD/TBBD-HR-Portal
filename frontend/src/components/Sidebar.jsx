@@ -60,11 +60,8 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'HR Manager',
     'Administrator',
   ])
-  const isLocalTestAdministrator =
-    import.meta.env.DEV && auth?.roles?.includes('Administrator')
-
   const canAccessCandidatePortal =
-    hasAnyRole(auth, ['Candidate']) || isLocalTestAdministrator
+    hasAnyRole(auth, ['Candidate'])
 
   const renderItem = ([label, icon, enabled = true]) => (
     <button
@@ -73,14 +70,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
       onClick={() => {
         if (!enabled) return
 
-        if (import.meta.env.DEV) {
-          const isCandidatePage = label.startsWith('Candidate ')
-          if (isCandidatePage) {
-            window.localStorage.setItem('tbbd_local_portal', 'candidate')
-          } else {
-            window.localStorage.removeItem('tbbd_local_portal')
-          }
-        }
 
         onNavigate(label)
       }}

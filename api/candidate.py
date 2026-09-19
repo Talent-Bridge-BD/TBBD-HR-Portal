@@ -21,7 +21,7 @@ from services.candidate_experience import CandidateExperienceService
 from services.candidate_preferences import CandidatePreferencesService
 from services.candidate import CandidateService
 from services.job import JobService
-from services.local_auth import LOCAL_CANDIDATE_ID, get_request_principal
+from services.local_auth import get_request_principal
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 _repository = SqlCandidateRepository()
 _service = CandidateService(_repository)
@@ -404,16 +404,6 @@ def get_candidate_identity(request: Request) -> str:
     claims = principal.get("claims", [])
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
-
-    local_candidate_portal = (
-        os.environ.get("TBBD_ENV") == "development"
-        and os.environ.get("TBBD_LOCAL_AUTH") == "1"
-        and str(principal_id) == "local-administrator-001"
-        and request.headers.get("X-TBBD-Local-Portal") == "candidate"
-    )
-
-    if local_candidate_portal:
-        return LOCAL_CANDIDATE_ID
 
     if CANDIDATE_GROUP_ID not in group_ids and "Candidate" not in token_roles:
         raise HTTPException(

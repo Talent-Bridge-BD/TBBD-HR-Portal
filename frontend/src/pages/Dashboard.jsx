@@ -86,96 +86,98 @@ export default function Dashboard({ auth, onNavigate }) {
         </div>
       </section>
 
+      <section className="dashboard-kpi-strip" aria-label="Executive recruitment summary">
+        <article className="dashboard-kpi-strip-item">
+          <span className="dashboard-kpi-strip-label">Active Candidates</span>
+          <strong>{operations.candidates_pipeline}</strong>
+          <small>Current recruitment pipeline</small>
+        </article>
+
+        <article className="dashboard-kpi-strip-item">
+          <span className="dashboard-kpi-strip-label">Interviews</span>
+          <strong>{pipeline.Interview}</strong>
+          <small>Current interview stage</small>
+        </article>
+
+        <article className="dashboard-kpi-strip-item dashboard-kpi-strip-warning">
+          <span className="dashboard-kpi-strip-label">Pending</span>
+          <strong>{applications.pending}</strong>
+          <small>Needs attention</small>
+        </article>
+
+        <article className="dashboard-kpi-strip-item">
+          <span className="dashboard-kpi-strip-label">Success Rate</span>
+          <strong>—</strong>
+          <small>Awaiting verified metric</small>
+        </article>
+      </section>
+
       <PageHeader
-        title={
-          isAdministrator || isHRManager
-            ? `Welcome back, ${employeeName} 👋`
-            : `Good morning, ${employeeName} 👋`
-        }
-        subtitle={
-          isAdministrator || isHRManager
-            ? 'Here is your Workplace Hub operations overview.'
-            : 'Welcome back to your Workplace Hub.'
-        }
+        title="Recruitment Journey"
+        subtitle="Track candidates across every recruitment stage."
       />
 
-      {isAdministrator || isHRManager ? (
-        <div className="stats-grid">
-          <StatCard
-            icon="▤"
-            label="Active Jobs"
-            value={operations.active_jobs}
-            detail="Currently open"
-          />
-          <StatCard
-            icon="◌"
-            label="New Applications"
-            value={operations.new_applications}
-            detail="Awaiting review"
-          />
-          <StatCard
-            icon="◎"
-            label="Candidates in Pipeline"
-            value={operations.candidates_pipeline}
-            detail="Active applications"
-          />
-          <StatCard
-            icon="◷"
-            label="Upcoming Interviews"
-            value={operations.interviews_upcoming}
-            detail="Scheduled interviews"
-          />
+      <section className="recruitment-journey" aria-label="Recruitment journey">
+        <div className="journey-row">
+          {[
+            ["Applications", pipeline.Applied, "journey-blue"],
+            ["Screening", pipeline.Screening, "journey-cyan"],
+            ["Interviews", pipeline.Interview, "journey-violet"],
+            ["Trade Test", pipeline["Trade Test"], "journey-orange"],
+          ].map(([label, value, accent], index) => (
+            <div className="journey-stage" key={label}>
+              <div className={`journey-stage-node ${accent}`}>
+                <strong>{value}</strong>
+              </div>
+              <span>{label}</span>
+              {index < 3 && <span className="journey-arrow" aria-hidden="true">→</span>}
+            </div>
+          ))}
         </div>
-      ) : (
-        <div className="stats-grid">
-          <StatCard
-            icon="○"
-            label="Attendance"
-            value={`${attendance.percentage}%`}
-            detail={`This month · ${attendance.status}`}
-          />
-          <StatCard
-            icon="□"
-            label="Leave balance"
-            value={`${leave.balance} ${leave.unit}`}
-            detail={leave.detail}
-          />
-          <StatCard
-            icon="■"
-            label="Today's schedule"
-            value={`${schedule.start} — ${schedule.end}`}
-            detail={schedule.location}
-          />
+
+        <div className="journey-row journey-row-second">
+          {[
+            ["Medical", pipeline.Medical, "journey-green"],
+            ["Visa", pipeline["Visa Processing"], "journey-amber"],
+            ["Ticketing", pipeline.Ticketing, "journey-blue"],
+            ["Onboarding", pipeline.Onboarding, "journey-cyan"],
+            ["Deployment", pipeline.Deployment, "journey-emerald"],
+          ].map(([label, value, accent], index) => (
+            <div className="journey-stage" key={label}>
+              <div className={`journey-stage-node ${accent}`}>
+                <strong>{value}</strong>
+              </div>
+              <span>{label}</span>
+              {index < 4 && <span className="journey-arrow" aria-hidden="true">→</span>}
+            </div>
+          ))}
         </div>
-      )}
+      </section>
 
       <PageHeader
         title="Recruitment Pipeline"
         subtitle="Real-time recruitment operations overview."
       />
 
-      <div className="stats-grid">
+      <div className="recruitment-pipeline-grid">
         <StatCard
           icon="▤"
           label="Applications"
           value={pipeline.Applied}
           detail="Total applications"
         />
-
         <StatCard
           icon="◌"
           label="Screening"
           value={pipeline.Screening}
-          detail="Candidates in screening"
+          detail="Currently screening"
         />
-
         <StatCard
           icon="◷"
           label="Interviews"
           value={pipeline.Interview}
-          detail="Interviews scheduled"
+          detail="Current interview stage"
         />
-
         <StatCard
           icon="⚒"
           label="Trade Tests"
@@ -189,21 +191,18 @@ export default function Dashboard({ auth, onNavigate }) {
           value={pipeline.Medical}
           detail="Medical processing"
         />
-
         <StatCard
           icon="🛂"
           label="Visa"
           value={pipeline["Visa Processing"]}
           detail="Visa processing"
         />
-
         <StatCard
           icon="✈"
           label="Ticketing"
           value={pipeline.Ticketing}
           detail="Tickets issued"
         />
-
         <StatCard
           icon="✓"
           label="Onboarding"
@@ -216,6 +215,24 @@ export default function Dashboard({ auth, onNavigate }) {
           label="Deployment"
           value={pipeline.Deployment}
           detail="Successfully deployed"
+        />
+        <StatCard
+          icon="⚠"
+          label="Pending"
+          value={applications.pending}
+          detail="Needs Immediate Attention"
+        />
+        <StatCard
+          icon="✓"
+          label="Approved"
+          value={applications.approved}
+          detail="Recently approved"
+        />
+        <StatCard
+          icon="✅"
+          label="Completed"
+          value={applications.completed}
+          detail="Successfully Processed"
         />
       </div>
 
@@ -294,9 +311,9 @@ export default function Dashboard({ auth, onNavigate }) {
           </DashboardCard>
         </section>
       ) : (
-        <section className="dashboard-two-column">
+        <section className="dashboard-operations">
           <DashboardCard title="Quick Actions">
-            <div className="quick-actions">
+            <div className="dashboard-action-list">
               <QuickAction
                 icon="+"
                 label="Apply Leave"
@@ -319,121 +336,13 @@ export default function Dashboard({ auth, onNavigate }) {
               />
             </div>
           </DashboardCard>
-          <DashboardCard title="My Applications">
-            <div className="application-summary">
-              <div>
-                <strong>{applications.pending}</strong>
-                <span>Pending</span>
-                <small>Needs your attention</small>
-              </div>
-              <div>
-                <strong>{applications.approved}</strong>
-                <span>Approved</span>
-                <small>Recently approved</small>
-              </div>
-              <div>
-                <strong>{applications.completed}</strong>
-                <span>Completed</span>
-                <small>All time</small>
-              </div>
-            </div>
-            <button
-              className="card-link"
-              type="button"
-              onClick={() => onNavigate('Applications')}
-            >
-              View all applications →
-            </button>
-          </DashboardCard>
+
+
         </section>
       )}
-      {isAdministrator || isHRManager ? (
-        <section className="dashboard-card announcements-card">
-          <div className="card-heading">
-            <div>
-              <span className="section-eyebrow">WORKPLACE OPERATIONS</span>
-              <h2>Recruitment Operations</h2>
-            </div>
-          </div>
-          <div className="announcement-list">
-            <article className="announcement-item">
-              <span className="announcement-icon">▤</span>
-              <div>
-                <strong>Jobs & Applications</strong>
-                <p>
-                  Manage active recruitment jobs and review incoming candidate
-                  applications.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Applications')}
-              >
-                Open →
-              </button>
-            </article>
-            <article className="announcement-item">
-              <span className="announcement-icon">◷</span>
-              <div>
-                <strong>Interviews & Assessments</strong>
-                <p>
-                  Review scheduled interviews and continue candidates through
-                  assessment stages.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Interviews')}
-              >
-                Open →
-              </button>
-            </article>
-            <article className="announcement-item">
-              <span className="announcement-icon">🚀</span>
-              <div>
-                <strong>Deployment Operations</strong>
-                <p>
-                  Continue approved candidates through medical, visa,
-                  ticketing, onboarding, and deployment workflows.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Deployment')}
-              >
-                Open →
-              </button>
-            </article>
-          </div>
-        </section>
-      ) : (
-        <section className="dashboard-card announcements-card">
-          <div className="card-heading">
-            <div>
-              <span className="section-eyebrow">COMPANY NEWS</span>
-              <h2>Company Announcements</h2>
-            </div>
-          </div>
-          <div className="announcement-list">
-            {announcements.map((announcement, index) => (
-              <article className="announcement-item" key={announcement.id}>
-                <span className="announcement-icon">
-                  {['!', '◆', '▣'][index % 3]}
-                </span>
-                <div>
-                  <strong>{announcement.title}</strong>
-                  <p>{announcement.message}</p>
-                </div>
-                <span className="announcement-arrow">→</span>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-      <WorkplaceAssistant />
+      <section className="assistant-section">
+        <WorkplaceAssistant />
+      </section>
     </>
   )
 }

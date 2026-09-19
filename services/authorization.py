@@ -1,5 +1,3 @@
-import os
-
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -20,9 +18,6 @@ AUTHORIZATION_GROUPS = {
     "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
     "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
 }
-
-LOCAL_ADMINISTRATOR_ID = "local-administrator-001"
-LOCAL_ADMINISTRATOR_ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
 
 
 def has_role(context: AuthorizationContext, role: str) -> bool:
@@ -80,12 +75,6 @@ def build_authorization_context(
         )
     }
 
-    if (
-        os.environ.get("TBBD_ENV") == "development"
-        and os.environ.get("TBBD_LOCAL_AUTH") == "1"
-        and user_id == LOCAL_ADMINISTRATOR_ID
-    ):
-        organization_ids.add(LOCAL_ADMINISTRATOR_ORGANIZATION_ID)
 
     return AuthorizationContext(
         user_id=user_id,

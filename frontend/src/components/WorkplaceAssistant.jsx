@@ -112,10 +112,33 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
       <div className="assistant-icon">✦</div>
 
       <div className="assistant-content">
-        <h2>TBBD Workplace Assistant</h2>
+        <h2>✨ AI-Powered Workplace Assistant</h2>
         <p>
-          Ask about HR policies, leave, benefits and workplace information.
+          Get quick answers about HR policies, leave, benefits and workplace information.
         </p>
+        <div className="assistant-prompts" aria-label="Example questions">
+          <button
+            type="button"
+            onClick={() => setQuestion('How many leave days do I have?')}
+            disabled={loading}
+          >
+            How many leave days do I have?
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuestion('What is the attendance policy?')}
+            disabled={loading}
+          >
+            What is the attendance policy?
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuestion('Show company holiday calendar.')}
+            disabled={loading}
+          >
+            Show company holiday calendar.
+          </button>
+        </div>
 
         <form className="assistant-input" onSubmit={handleSubmit}>
           <input

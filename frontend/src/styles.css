@@ -7,6 +7,12 @@
   --tbbd-warning: #F59E0B;
   --tbbd-purple: #7C3AED;
   --tbbd-orange: #EA580C;
+  --tbbd-cyan: #06B6D4;
+  --tbbd-violet: #8B5CF6;
+  --tbbd-emerald: #10B981;
+  --tbbd-warning-bg: #FFFBEB;
+  --tbbd-success-bg: #F0FDF4;
+  --tbbd-blue-soft: #F8FBFF;
   --tbbd-danger: #DC2626;
 
   --tbbd-page-background: #F8FAFC;
@@ -2879,5 +2885,512 @@ button {
   color: #991b1b;
   padding: 4px 10px;
   border-radius: 999px;
+}
+
+/* =========================================================
+   TBBD Workplace Hub — Dashboard 10/10 Refresh
+   ========================================================= */
+
+.dashboard-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 22px 0 28px;
+  overflow: hidden;
+  border: 1px solid var(--tbbd-border);
+  border-radius: 16px;
+  background: var(--tbbd-card-background);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+.dashboard-kpi-strip-item {
+  position: relative;
+  min-height: 112px;
+  padding: 20px 24px;
+  border-right: 1px solid var(--tbbd-border);
+}
+
+.dashboard-kpi-strip-item:last-child {
+  border-right: 0;
+}
+
+.dashboard-kpi-strip-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--tbbd-blue);
+}
+
+.dashboard-kpi-strip-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--tbbd-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dashboard-kpi-strip-item strong {
+  display: block;
+  color: var(--tbbd-text-primary);
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-kpi-strip-item small {
+  display: block;
+  margin-top: 5px;
+  color: var(--tbbd-text-secondary);
+  font-size: 12px;
+}
+
+.dashboard-kpi-strip-warning {
+  background: var(--tbbd-warning-bg);
+}
+
+.dashboard-kpi-strip-warning::before {
+  background: var(--tbbd-warning);
+}
+
+/* Recruitment Journey */
+
+.recruitment-journey {
+  margin: -8px 0 30px;
+  padding: 22px 24px;
+  border: 1px solid var(--tbbd-border);
+  border-radius: 16px;
+  background: var(--tbbd-card-background);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+.journey-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.journey-row-second {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--tbbd-border);
+}
+
+.journey-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.journey-stage-node {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: var(--tbbd-card-background);
+}
+
+.journey-stage-node strong {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.journey-stage > span:not(.journey-arrow) {
+  color: var(--tbbd-text-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.journey-arrow {
+  margin-left: auto;
+  color: #94A3B8;
+  font-size: 18px;
+}
+
+.journey-blue {
+  color: var(--tbbd-blue);
+  background: #EFF6FF;
+}
+
+.journey-cyan {
+  color: var(--tbbd-cyan);
+  background: #ECFEFF;
+}
+
+.journey-violet {
+  color: var(--tbbd-violet);
+  background: #F5F3FF;
+}
+
+.journey-orange {
+  color: var(--tbbd-orange);
+  background: #FFF7ED;
+}
+
+.journey-green {
+  color: var(--tbbd-success);
+  background: #F0FDF4;
+}
+
+.journey-amber {
+  color: var(--tbbd-warning);
+  background: var(--tbbd-warning-bg);
+}
+
+.journey-emerald {
+  color: var(--tbbd-emerald);
+  background: #ECFDF5;
+}
+
+/* Pipeline KPI cards */
+
+.recruitment-pipeline-grid {
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.recruitment-pipeline-grid .stat-card {
+  position: relative;
+  min-height: 164px;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--tbbd-border);
+  border-radius: 16px;
+  background: var(--tbbd-card-background);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.recruitment-pipeline-grid .stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--tbbd-blue);
+}
+
+.recruitment-pipeline-grid .stat-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--tbbd-blue);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.recruitment-pipeline-grid .stat-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 15px;
+  border: 1px solid #DBEAFE;
+  border-radius: 11px;
+  background: #EFF6FF;
+  color: var(--tbbd-blue);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.recruitment-pipeline-grid .stat-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--tbbd-text-menu);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.recruitment-pipeline-grid .stat-value {
+  display: block;
+  color: var(--tbbd-text-primary);
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.recruitment-pipeline-grid .stat-detail {
+  display: block;
+  margin-top: 7px;
+  color: var(--tbbd-text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Stage accents */
+
+.recruitment-pipeline-grid .stat-card:nth-child(1)::before {
+  background: var(--tbbd-blue);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(2)::before {
+  background: var(--tbbd-cyan);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(3)::before {
+  background: var(--tbbd-violet);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(4)::before {
+  background: var(--tbbd-orange);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(5)::before {
+  background: var(--tbbd-success);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(6)::before {
+  background: var(--tbbd-warning);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(7)::before {
+  background: var(--tbbd-blue);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(8)::before {
+  background: var(--tbbd-cyan);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(9)::before {
+  background: var(--tbbd-emerald);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(10) {
+  background: var(--tbbd-warning-bg);
+  border-color: var(--tbbd-warning);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(10)::before {
+  background: var(--tbbd-warning);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(10) .stat-icon {
+  border-color: #FDE68A;
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(11)::before {
+  background: var(--tbbd-success);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(12) {
+  background: var(--tbbd-success-bg);
+  border-color: var(--tbbd-success);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(12)::before {
+  background: var(--tbbd-success);
+}
+
+.recruitment-pipeline-grid .stat-card:nth-child(12) .stat-icon {
+  border-color: #BBF7D0;
+  background: #DCFCE7;
+  color: var(--tbbd-success);
+}
+
+/* Quick Actions */
+
+.dashboard-action-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.dashboard-action-list .quick-action {
+  width: 100%;
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid var(--tbbd-border);
+  border-radius: 12px;
+  background: var(--tbbd-card-background);
+  color: var(--tbbd-text-menu);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dashboard-action-list .quick-action:hover {
+  transform: translateY(-2px);
+  border-color: var(--tbbd-blue);
+  background: var(--tbbd-blue-soft);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-action-list .quick-action::after {
+  content: "→";
+  margin-left: auto;
+  color: #94A3B8;
+  font-size: 17px;
+}
+
+.dashboard-action-list .quick-action:hover::after {
+  color: var(--tbbd-blue);
+}
+
+/* Assistant presentation */
+
+.assistant-section {
+  margin-top: 28px;
+}
+
+.assistant-section > * {
+  border-radius: 16px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-kpi-strip-item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .dashboard-kpi-strip-item:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--tbbd-border);
+  }
+
+  .journey-row,
+  .journey-row-second {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journey-row-second {
+    gap: 18px 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-kpi-strip {
+    grid-template-columns: 1fr;
+    margin-top: 18px;
+    border-radius: 14px;
+  }
+
+  .dashboard-kpi-strip-item {
+    min-height: 96px;
+    padding: 18px 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--tbbd-border);
+  }
+
+  .dashboard-kpi-strip-item:last-child {
+    border-bottom: 0;
+  }
+
+  .dashboard-kpi-strip-item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .dashboard-kpi-strip-item::before {
+    left: 20px;
+    right: 20px;
+  }
+
+  .recruitment-journey {
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+
+  .journey-row,
+  .journey-row-second {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .journey-row-second {
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .journey-arrow {
+    display: none;
+  }
+
+  .recruitment-pipeline-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .recruitment-pipeline-grid .stat-card {
+    min-height: 142px;
+    padding: 20px;
+  }
+
+  .recruitment-pipeline-grid .stat-value {
+    font-size: 29px;
+  }
+
+  .dashboard-action-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* TBBD Workplace Hub — Dashboard 10/10 Assistant Prompts */
+
+.assistant-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 14px;
+}
+
+.assistant-prompts button {
+  padding: 8px 12px;
+  border: 1px solid var(--tbbd-border);
+  border-radius: 999px;
+  background: var(--tbbd-light-bg);
+  color: var(--tbbd-text-menu);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+.assistant-prompts button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--tbbd-blue);
+  background: var(--tbbd-blue-soft);
+  color: var(--tbbd-blue);
+}
+
+.assistant-prompts button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 760px) {
+  .assistant-prompts {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .assistant-prompts button {
+    text-align: left;
+  }
 }
 
