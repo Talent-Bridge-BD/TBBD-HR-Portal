@@ -52,8 +52,13 @@ export default function RecruitmentTradeTests({ auth }) {
         return data;
       })
       .then((data) => {
-        setApplications(data.applications || []);
-      })
+  const eligibleApplications = (data.applications || []).filter(
+    (application) =>
+      String(application.status || '').toLowerCase() === 'shortlisted'
+  );
+
+  setApplications(eligibleApplications);
+})
       .catch((err) => {
         setError(err.message);
       })
