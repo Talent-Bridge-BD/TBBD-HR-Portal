@@ -157,6 +157,11 @@ def home():
     return FileResponse(DIST_DIR / "index.html")
 
 
+@app.get("/redirect.html")
+def redirect_page():
+    return FileResponse(DIST_DIR / "redirect.html")
+
+
 def search_hr_documents(query: str):
     endpoint = os.environ.get("SEARCH_ENDPOINT")
     index_name = os.environ.get("SEARCH_INDEX")
