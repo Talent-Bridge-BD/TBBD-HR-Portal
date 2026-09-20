@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import requests
@@ -90,19 +89,6 @@ async def get_current_user(request: Request):
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
-
-    if (
-        os.environ.get("TBBD_ENV") == "development"
-        and os.environ.get("TBBD_LOCAL_AUTH") == "1"
-        and principal_id == "local-administrator-001"
-    ):
-        class LocalOrganizationMembership:
-            user_id = principal_id
-            organization_id = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-            status = "active"
-
-        memberships = [LocalOrganizationMembership()]
-
     authorization_context = build_authorization_context(
         user_id=principal_id,
         roles=roles,

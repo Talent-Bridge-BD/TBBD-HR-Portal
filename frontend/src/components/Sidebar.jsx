@@ -49,6 +49,9 @@ function hasAnyRole(auth, roles) {
 }
 
 export default function Sidebar({ activePage, onNavigate, auth }) {
+  const isAdministrator = auth?.roles?.includes('Administrator')
+  const isHRManager = auth?.roles?.includes('HR Manager')
+
   const canAccessRecruitment = hasAnyRole(auth, [
     'Employer Manager',
     'HR Manager',
@@ -58,7 +61,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
   const canAccessEmployerPortal = hasAnyRole(auth, [
     'Employer Manager',
     'HR Manager',
-    'Administrator',
   ])
   const canAccessCandidatePortal = hasAnyRole(auth, [
     'Candidate',
@@ -88,16 +90,54 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
       <nav>
         <div className="nav-section">
           <span className="nav-section-title">WORKPLACE HUB</span>
-          {workplaceNavigation.map(([label, icon]) =>
-            renderItem([label, icon, true])
-          )}
+          {workplaceNavigation
+            .filter(([label]) =>
+              isAdministrator || isHRManager
+                ? ['Dashboard', 'My Profile'].includes(label)
+                : true
+            )
+            .map(([label, icon]) =>
+              renderItem([label, icon, true])
+            )}
         </div>
 
         {canAccessRecruitment && (
-          <div className="nav-section platform-nav-section">
-            <span className="nav-section-title">RECRUITMENT</span>
-            {recruitmentNavigation.map(renderItem)}
-          </div>
+          <>
+            <div className="nav-section platform-nav-section">
+              <span className="nav-section-title">RECRUITMENT</span>
+              {recruitmentNavigation
+                .filter(([label]) =>
+                  isAdministrator || isHRManager
+                    ? [
+                        'Recruitment Jobs',
+                        'Recruitment Candidates',
+                        'Recruitment Applications',
+                        'Recruitment Screening',
+                        'Recruitment Interviews',
+                        'Recruitment Trade Tests',
+                      ].includes(label)
+                    : true
+                )
+                .map(renderItem)}
+            </div>
+
+            {(isAdministrator || isHRManager) && (
+              <div className="nav-section platform-nav-section">
+                <span className="nav-section-title">PROCESSING</span>
+                {recruitmentNavigation
+                  .filter(([label]) =>
+                    [
+                      'Recruitment Medical',
+                      'Recruitment Visa Processing',
+                      'Recruitment Ticketing',
+                      'Recruitment Onboarding',
+                      'Recruitment Deployment',
+                    ].includes(label)
+                  )
+                  .map(renderItem)}
+              </div>
+            )}
+          </>
         )}
 
         {canAccessEmployerPortal && (
@@ -115,7 +155,13 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
 
         <div className="nav-section">
           <span className="nav-section-title">TOOLS</span>
-          {toolNavigation.map(renderItem)}
+          {toolNavigation
+            .filter(([label]) =>
+              isAdministrator || isHRManager
+                ? label === 'Workplace Assistant'
+                : true
+            )
+            .map(renderItem)}
         </div>
 
         <div className="sidebar-support">

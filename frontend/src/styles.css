@@ -2520,3 +2520,284 @@ button {
     justify-content: center;
   }
 }
+
+/* =========================================================
+   Administrator / HR Workplace Dashboard
+   ========================================================= */
+
+.admin-kpi-grid {
+  margin-bottom: 28px;
+}
+
+.admin-dashboard-section {
+  margin-bottom: 24px;
+}
+
+.admin-dashboard-section .page-header {
+  margin-bottom: 14px;
+}
+
+.recruitment-journey {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: var(--tbbd-card-background);
+  border: 1px solid var(--tbbd-border);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.journey-stage-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 120px;
+  gap: 8px;
+}
+
+.journey-stage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid #e5eaf0;
+  border-radius: 11px;
+  background: #f8fafc;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.journey-stage:hover {
+  border-color: #b9d5e9;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.journey-stage-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e7f2fa;
+  color: #0067b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.journey-stage-content {
+  min-width: 0;
+}
+
+.journey-stage-content strong,
+.journey-stage-content span {
+  display: block;
+}
+
+.journey-stage-content strong {
+  color: #0f172a;
+  font-size: 21px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.journey-stage-content span {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.journey-arrow {
+  flex: 0 0 auto;
+  color: #94a3b8;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.admin-dashboard-actions {
+  margin-bottom: 24px;
+}
+
+.admin-dashboard-actions .quick-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.action-required-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-required-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #edf0f3;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.action-required-item:hover {
+  border-color: #c8dbea;
+  background: #ffffff;
+}
+
+.action-required-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff7e6;
+  color: #d97706;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.action-required-item > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+
+.action-required-item strong,
+.action-required-item small {
+  display: block;
+}
+
+.action-required-item strong {
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.action-required-item small {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.action-required-arrow {
+  flex: 0 0 auto;
+  color: #0067b8;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.action-required-empty {
+  padding: 22px 12px;
+  border: 1px dashed #dbe3eb;
+  border-radius: 10px;
+  color: #64748b;
+  background: #f8fafc;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .recruitment-journey {
+    align-items: stretch;
+  }
+
+  .journey-stage-wrapper {
+    min-width: 135px;
+  }
+}
+
+@media (max-width: 900px) {
+  .recruitment-journey {
+    padding: 12px;
+  }
+
+  .journey-stage-wrapper {
+    flex: 0 0 150px;
+  }
+}
+
+@media (max-width: 650px) {
+  .admin-dashboard-actions .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .recruitment-journey {
+    gap: 6px;
+  }
+
+  .journey-stage-wrapper {
+    min-width: 145px;
+  }
+
+  .journey-stage {
+    min-height: 64px;
+    padding: 9px 10px;
+  }
+
+  .journey-stage-content strong {
+    font-size: 19px;
+  }
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.user-menu-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 140px;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  z-index: 1000;
+}
+
+.user-menu-signout {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 9px 10px;
+  border-radius: 7px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-menu-signout:hover {
+  background: #f8fafc;
+  color: #dc2626;
+}

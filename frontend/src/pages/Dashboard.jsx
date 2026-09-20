@@ -11,7 +11,6 @@ import { employeeDashboard } from '../data/employeeDashboard'
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
-  const isEmployee = !isAdministrator && !isHRManager
   const [operations, setOperations] = useState({
     active_jobs: 0,
     new_applications: 0,
@@ -62,11 +61,57 @@ export default function Dashboard({ auth, onNavigate }) {
     attendance,
     leave,
     schedule,
-    tasks,
-    notifications,
     applications,
     announcements,
   } = employeeDashboard
+
+  const recruitmentJourney = [
+    {
+      label: 'Applications',
+      value: pipeline.Applied,
+      page: 'Recruitment Applications',
+    },
+    {
+      label: 'Screening',
+      value: pipeline.Screening,
+      page: 'Recruitment Screening',
+    },
+    {
+      label: 'Interviews',
+      value: pipeline.Interview,
+      page: 'Recruitment Interviews',
+    },
+    {
+      label: 'Trade Tests',
+      value: pipeline["Trade Test"],
+      page: 'Recruitment Trade Tests',
+    },
+    {
+      label: 'Medical',
+      value: pipeline.Medical,
+      page: 'Recruitment Medical',
+    },
+    {
+      label: 'Visa',
+      value: pipeline["Visa Processing"],
+      page: 'Recruitment Visa Processing',
+    },
+    {
+      label: 'Ticketing',
+      value: pipeline.Ticketing,
+      page: 'Recruitment Ticketing',
+    },
+    {
+      label: 'Onboarding',
+      value: pipeline.Onboarding,
+      page: 'Recruitment Onboarding',
+    },
+    {
+      label: 'Deployment',
+      value: pipeline.Deployment,
+      page: 'Recruitment Deployment',
+    },
+  ]
 
   return (
     <>
@@ -100,339 +145,259 @@ export default function Dashboard({ auth, onNavigate }) {
       />
 
       {isAdministrator || isHRManager ? (
-        <div className="stats-grid">
-          <StatCard
-            icon="▤"
-            label="Active Jobs"
-            value={operations.active_jobs}
-            detail="Currently open"
-          />
-          <StatCard
-            icon="◌"
-            label="New Applications"
-            value={operations.new_applications}
-            detail="Awaiting review"
-          />
-          <StatCard
-            icon="◎"
-            label="Candidates in Pipeline"
-            value={operations.candidates_pipeline}
-            detail="Active applications"
-          />
-          <StatCard
-            icon="◷"
-            label="Upcoming Interviews"
-            value={operations.interviews_upcoming}
-            detail="Scheduled interviews"
-          />
-        </div>
-      ) : (
-        <div className="stats-grid">
-          <StatCard
-            icon="○"
-            label="Attendance"
-            value={`${attendance.percentage}%`}
-            detail={`This month · ${attendance.status}`}
-          />
-          <StatCard
-            icon="□"
-            label="Leave balance"
-            value={`${leave.balance} ${leave.unit}`}
-            detail={leave.detail}
-          />
-          <StatCard
-            icon="■"
-            label="Today's schedule"
-            value={`${schedule.start} — ${schedule.end}`}
-            detail={schedule.location}
-          />
-        </div>
-      )}
-
-      <PageHeader
-        title="Recruitment Pipeline"
-        subtitle="Real-time recruitment operations overview."
-      />
-
-      <div className="stats-grid">
-        <StatCard
-          icon="▤"
-          label="Applications"
-          value={pipeline.Applied}
-          detail="Total applications"
-        />
-
-        <StatCard
-          icon="◌"
-          label="Screening"
-          value={pipeline.Screening}
-          detail="Candidates in screening"
-        />
-
-        <StatCard
-          icon="◷"
-          label="Interviews"
-          value={pipeline.Interview}
-          detail="Interviews scheduled"
-        />
-
-        <StatCard
-          icon="⚒"
-          label="Trade Tests"
-          value={pipeline["Trade Test"]}
-          detail="Pending assessments"
-        />
-
-        <StatCard
-          icon="✚"
-          label="Medical"
-          value={pipeline.Medical}
-          detail="Medical processing"
-        />
-
-        <StatCard
-          icon="🛂"
-          label="Visa"
-          value={pipeline["Visa Processing"]}
-          detail="Visa processing"
-        />
-
-        <StatCard
-          icon="✈"
-          label="Ticketing"
-          value={pipeline.Ticketing}
-          detail="Tickets issued"
-        />
-
-        <StatCard
-          icon="✓"
-          label="Onboarding"
-          value={pipeline.Onboarding}
-          detail="Preparing deployment"
-        />
-
-        <StatCard
-          icon="🚀"
-          label="Deployment"
-          value={pipeline.Deployment}
-          detail="Successfully deployed"
-        />
-      </div>
-
-      {isAdministrator || isHRManager ? (
-        <section className="dashboard-two-column">
-          <DashboardCard title="Quick Actions">
-            <div className="quick-actions">
-              <QuickAction
-                icon="▤"
-                label="Manage Jobs"
-                onClick={() => onNavigate('Recruitment Jobs')}
-              />
-              <QuickAction
-                icon="◎"
-                label="Review Candidates"
-                onClick={() => onNavigate('Recruitment Candidates')}
-              />
-              <QuickAction
-                icon="◌"
-                label="Review Applications"
-                onClick={() => onNavigate('Recruitment Applications')}
-              />
-              <QuickAction
-                icon="◷"
-                label="Screen Candidates"
-                onClick={() => onNavigate('Recruitment Screening')}
-              />
-              <QuickAction
-                icon="◷"
-                label="Schedule Interviews"
-                onClick={() => onNavigate('Recruitment Interviews')}
-              />
-              <QuickAction
-                icon="⚒"
-                label="Trade Tests"
-                onClick={() => onNavigate('Recruitment Trade Tests')}
-              />
-              <QuickAction
-                icon="✚"
-                label="Medical Processing"
-                onClick={() => onNavigate('Recruitment Medical')}
-              />
-              <QuickAction
-                icon="🛂"
-                label="Visa Processing"
-                onClick={() => onNavigate('Recruitment Visa Processing')}
-              />
-            </div>
-          </DashboardCard>
-
-          <DashboardCard title="Recruitment Operations">
-            <div className="application-summary">
-              <div>
-                <strong>{pipeline.Applied}</strong>
-                <span>Applications</span>
-                <small>Total applications</small>
-              </div>
-              <div>
-                <strong>{pipeline.Screening}</strong>
-                <span>Screening</span>
-                <small>Currently screening</small>
-              </div>
-              <div>
-                <strong>{pipeline.Interview}</strong>
-                <span>Interviews</span>
-                <small>Current interview stage</small>
-              </div>
-            </div>
-            <button
-              className="card-link"
-              type="button"
-              onClick={() => onNavigate('Recruitment Applications')}
-            >
-              Review recruitment applications →
-            </button>
-          </DashboardCard>
-        </section>
-      ) : (
-        <section className="dashboard-two-column">
-          <DashboardCard title="Quick Actions">
-            <div className="quick-actions">
-              <QuickAction
-                icon="+"
-                label="Apply Leave"
-                onClick={() => onNavigate('Leave')}
-              />
-              <QuickAction
-                icon="○"
-                label="View Attendance"
-                onClick={() => onNavigate('Attendance')}
-              />
-              <QuickAction
-                icon="■"
-                label="My Schedule"
-                onClick={() => onNavigate('Schedule')}
-              />
-              <QuickAction
-                icon="◎"
-                label="My Profile"
-                onClick={() => onNavigate('My Profile')}
-              />
-            </div>
-          </DashboardCard>
-          <DashboardCard title="My Applications">
-            <div className="application-summary">
-              <div>
-                <strong>{applications.pending}</strong>
-                <span>Pending</span>
-                <small>Needs your attention</small>
-              </div>
-              <div>
-                <strong>{applications.approved}</strong>
-                <span>Approved</span>
-                <small>Recently approved</small>
-              </div>
-              <div>
-                <strong>{applications.completed}</strong>
-                <span>Completed</span>
-                <small>All time</small>
-              </div>
-            </div>
-            <button
-              className="card-link"
-              type="button"
-              onClick={() => onNavigate('Applications')}
-            >
-              View all applications →
-            </button>
-          </DashboardCard>
-        </section>
-      )}
-      {isAdministrator || isHRManager ? (
-        <section className="dashboard-card announcements-card">
-          <div className="card-heading">
-            <div>
-              <span className="section-eyebrow">WORKPLACE OPERATIONS</span>
-              <h2>Recruitment Operations</h2>
-            </div>
+        <>
+          <div className="stats-grid admin-kpi-grid">
+            <StatCard
+              icon="◈"
+              label="Active Candidates"
+              value={operations.candidates_pipeline}
+              detail="Candidates in active recruitment"
+            />
+            <StatCard
+              icon="◉"
+              label="Interviews"
+              value={operations.interviews_upcoming}
+              detail="Upcoming scheduled interviews"
+            />
+            <StatCard
+              icon="◌"
+              label="Pending"
+              value={operations.new_applications}
+              detail="Applications awaiting review"
+            />
+            <StatCard
+              icon="✓"
+              label="Completed"
+              value={pipeline.Completed}
+              detail="Completed recruitment stages"
+            />
           </div>
-          <div className="announcement-list">
-            <article className="announcement-item">
-              <span className="announcement-icon">▤</span>
-              <div>
-                <strong>Jobs & Applications</strong>
-                <p>
-                  Manage active recruitment jobs and review incoming candidate
-                  applications.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Applications')}
-              >
-                Open →
-              </button>
-            </article>
-            <article className="announcement-item">
-              <span className="announcement-icon">◷</span>
-              <div>
-                <strong>Interviews & Assessments</strong>
-                <p>
-                  Review scheduled interviews and continue candidates through
-                  assessment stages.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Interviews')}
-              >
-                Open →
-              </button>
-            </article>
-            <article className="announcement-item">
-              <span className="announcement-icon">🚀</span>
-              <div>
-                <strong>Deployment Operations</strong>
-                <p>
-                  Continue approved candidates through medical, visa,
-                  ticketing, onboarding, and deployment workflows.
-                </p>
-              </div>
-              <button
-                className="card-link"
-                type="button"
-                onClick={() => onNavigate('Recruitment Deployment')}
-              >
-                Open →
-              </button>
-            </article>
-          </div>
-        </section>
-      ) : (
-        <section className="dashboard-card announcements-card">
-          <div className="card-heading">
-            <div>
-              <span className="section-eyebrow">COMPANY NEWS</span>
-              <h2>Company Announcements</h2>
-            </div>
-          </div>
-          <div className="announcement-list">
-            {announcements.map((announcement, index) => (
-              <article className="announcement-item" key={announcement.id}>
-                <span className="announcement-icon">
-                  {['!', '◆', '▣'][index % 3]}
-                </span>
-                <div>
-                  <strong>{announcement.title}</strong>
-                  <p>{announcement.message}</p>
+
+          <section className="admin-dashboard-section">
+            <PageHeader
+              title="Recruitment Journey"
+              subtitle="Follow candidates through the complete recruitment workflow."
+            />
+
+            <div className="recruitment-journey">
+              {recruitmentJourney.map((stage, index) => (
+                <div className="journey-stage-wrapper" key={stage.label}>
+                  <button
+                    className="journey-stage"
+                    type="button"
+                    onClick={() => onNavigate(stage.page)}
+                  >
+                    <span className="journey-stage-number">
+                      {index + 1}
+                    </span>
+                    <span className="journey-stage-content">
+                      <strong>{stage.value}</strong>
+                      <span>{stage.label}</span>
+                    </span>
+                  </button>
+
+                  {index < recruitmentJourney.length - 1 && (
+                    <span className="journey-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  )}
                 </div>
-                <span className="announcement-arrow">→</span>
-              </article>
-            ))}
+              ))}
+            </div>
+          </section>
+
+          <section className="dashboard-two-column admin-dashboard-actions">
+            <DashboardCard title="Quick Actions">
+              <div className="quick-actions">
+                <QuickAction
+                  icon="+"
+                  label="Create Job"
+                  onClick={() => onNavigate('Recruitment Jobs')}
+                />
+                <QuickAction
+                  icon="◈"
+                  label="Add Candidate"
+                  onClick={() => onNavigate('Recruitment Candidates')}
+                />
+                <QuickAction
+                  icon="◌"
+                  label="Review Applications"
+                  onClick={() => onNavigate('Recruitment Applications')}
+                />
+                <QuickAction
+                  icon="◷"
+                  label="Screening"
+                  onClick={() => onNavigate('Recruitment Screening')}
+                />
+                <QuickAction
+                  icon="◉"
+                  label="Schedule Interview"
+                  onClick={() => onNavigate('Recruitment Interviews')}
+                />
+              </div>
+            </DashboardCard>
+
+            <DashboardCard title="Action Required">
+              <div className="action-required-list">
+                {pipeline.Applied > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Applications')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Applied}</strong>
+                      <small>Applications require review</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Screening > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Screening')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Screening}</strong>
+                      <small>Candidates in screening</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Interview > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Interviews')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Interview}</strong>
+                      <small>Interview-stage candidates</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Applied === 0 &&
+                pipeline.Screening === 0 &&
+                pipeline.Interview === 0 ? (
+                  <div className="action-required-empty">
+                    No actions required.
+                  </div>
+                ) : null}
+              </div>
+            </DashboardCard>
+          </section>
+        </>
+      ) : (
+        <>
+          <div className="stats-grid">
+            <StatCard
+              icon="○"
+              label="Attendance"
+              value={`${attendance.percentage}%`}
+              detail={`This month · ${attendance.status}`}
+            />
+            <StatCard
+              icon="□"
+              label="Leave balance"
+              value={`${leave.balance} ${leave.unit}`}
+              detail={leave.detail}
+            />
+            <StatCard
+              icon="■"
+              label="Today's schedule"
+              value={`${schedule.start} — ${schedule.end}`}
+              detail={schedule.location}
+            />
           </div>
-        </section>
+
+          <section className="dashboard-two-column">
+            <DashboardCard title="Quick Actions">
+              <div className="quick-actions">
+                <QuickAction
+                  icon="+"
+                  label="Apply Leave"
+                  onClick={() => onNavigate('Leave')}
+                />
+                <QuickAction
+                  icon="○"
+                  label="View Attendance"
+                  onClick={() => onNavigate('Attendance')}
+                />
+                <QuickAction
+                  icon="■"
+                  label="My Schedule"
+                  onClick={() => onNavigate('Schedule')}
+                />
+                <QuickAction
+                  icon="◉"
+                  label="My Profile"
+                  onClick={() => onNavigate('My Profile')}
+                />
+              </div>
+            </DashboardCard>
+
+            <DashboardCard title="My Applications">
+              <div className="application-summary">
+                <div>
+                  <strong>{applications.pending}</strong>
+                  <span>Pending</span>
+                  <small>Needs your attention</small>
+                </div>
+                <div>
+                  <strong>{applications.approved}</strong>
+                  <span>Approved</span>
+                  <small>Recently approved</small>
+                </div>
+                <div>
+                  <strong>{applications.completed}</strong>
+                  <span>Completed</span>
+                  <small>All time</small>
+                </div>
+              </div>
+              <button
+                className="card-link"
+                type="button"
+                onClick={() => onNavigate('Applications')}
+              >
+                View all applications →
+              </button>
+            </DashboardCard>
+          </section>
+
+          <section className="dashboard-card announcements-card">
+            <div className="card-heading">
+              <div>
+                <span className="section-eyebrow">COMPANY NEWS</span>
+                <h2>Company Announcements</h2>
+              </div>
+            </div>
+
+            <div className="announcement-list">
+              {announcements.map((announcement, index) => (
+                <article className="announcement-item" key={announcement.id}>
+                  <span className="announcement-icon">
+                    {['!', '◆', '▣'][index % 3]}
+                  </span>
+                  <div>
+                    <strong>{announcement.title}</strong>
+                    <p>{announcement.message}</p>
+                  </div>
+                  <span className="announcement-arrow">→</span>
+                </article>
+              ))}
+            </div>
+          </section>
+        </>
       )}
+
       <WorkplaceAssistant />
     </>
   )

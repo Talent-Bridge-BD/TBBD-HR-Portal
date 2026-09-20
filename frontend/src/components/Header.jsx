@@ -11,6 +11,11 @@ export default function Header({ auth }) {
         : 'Employee'
 
   const avatar = displayRole.charAt(0)
+
+  const handleSignOut = () => {
+    window.location.href = '/.auth/logout'
+  }
+
   return (
     <header className="top-header">
       <div className="brand">
@@ -29,10 +34,22 @@ export default function Header({ auth }) {
           Help
         </button>
 
-        <div className="user-menu">
-          <span className="avatar">{avatar}</span>
-          <span>{displayRole}</span>
-        </div>
+        <details className="user-menu">
+          <summary className="user-menu-trigger">
+            <span className="avatar">{avatar}</span>
+            <span>{displayRole}</span>
+          </summary>
+
+          <div className="user-menu-dropdown">
+            <button
+              type="button"
+              className="user-menu-signout"
+              onClick={handleSignOut}
+            >
+              Sign out
+            </button>
+          </div>
+        </details>
       </div>
     </header>
   )
