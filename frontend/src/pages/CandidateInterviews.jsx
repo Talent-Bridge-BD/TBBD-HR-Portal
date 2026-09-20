@@ -3,7 +3,7 @@ import DashboardCard from '../components/DashboardCard'
 
 export default function CandidateInterviews() {
   return (
-    <>
+    <div className="candidate-portal-page">
       <PageHeader
         title="Interviews"
         subtitle="View your scheduled interviews and recruitment appointments."
@@ -65,6 +65,6 @@ export default function CandidateInterviews() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   )
 }

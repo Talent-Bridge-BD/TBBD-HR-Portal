@@ -2,6 +2,7 @@ from pathlib import Path
 
 import requests
 from fastapi import FastAPI, Request
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -25,6 +26,29 @@ from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
 
 app = FastAPI()
+
+
+AZURE_OPENAI_ENDPOINT = os.environ.get(
+    "AZURE_OPENAI_ENDPOINT",
+    "https://tbbd-openai-sea-prd.cognitiveservices.azure.com/",
+)
+AZURE_OPENAI_DEPLOYMENT = os.environ.get(
+    "AZURE_OPENAI_DEPLOYMENT",
+    "gpt-4.1-mini",
+)
+
+_azure_openai_token_provider = get_bearer_token_provider(
+    DefaultAzureCredential(),
+    "https://cognitiveservices.azure.com/.default",
+)
+
+from openai import AzureOpenAI
+
+_azure_openai_client = AzureOpenAI(
+    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    azure_ad_token_provider=_azure_openai_token_provider,
+    api_version="2024-10-21",
+)
 
 app.include_router(candidate_router)
 app.include_router(employer_router)
@@ -155,6 +179,8 @@ def search_hr_documents(query: str):
 
     payload = {
         "search": query,
+        "queryType": "semantic",
+        "semanticConfiguration": "ks-tbbd-hr-policies-v2-semantic-configuration",
         "top": 5,
         "select": "uid,snippet_parent_id,doc_url,snippet"
     }
@@ -192,6 +218,85 @@ def search_hr_documents(query: str):
         )
 
     return results
+
+
+def generate_workplace_answer(query: str, search_results: list[dict]) -> str:
+    if not search_results:
+        return (
+            "I couldn't find relevant information in the available TBBD "
+            "workplace policies."
+        )
+
+    context_parts = []
+    for index, result in enumerate(search_results, start=1):
+        document = result.get("document") or "TBBD HR Policy"
+        snippet = result.get("snippet") or ""
+        if not snippet:
+            continue
+
+        context_parts.append(
+            f"Source {index}: {document}\n"
+            f"{snippet}"
+        )
+
+    context = "\n\n".join(context_parts)
+
+    if not context:
+        return (
+            "I couldn't find usable policy information for that question."
+        )
+
+    system_prompt = """
+You are the TBBD Workplace Assistant.
+
+Answer the employee's question using ONLY the supplied TBBD workplace
+policy and knowledge excerpts.
+
+Important rules:
+- Answer the employee's actual question directly.
+- Synthesize the relevant information instead of copying a whole document.
+- If the question asks for a process, present the steps in a clear order.
+- If the question asks who is responsible for each process step, map a
+  role to a step only when the supplied sources explicitly connect that role
+  to that specific step.
+- A broad responsibility such as "HR → Plan and manage training" must be
+  reported only as "HR → Plan and manage training". Do not add, explain, or
+  interpret it as ownership of approval, assignment, monitoring, evaluation,
+  or any other individual process step unless the source explicitly says so.
+- Keep documented process steps and documented role responsibilities separate.
+  Do not force every process step to have a named owner.
+- If a process step has no explicitly documented owner, say "The policy does
+  not specify a responsible role for this step."
+- Never use phrases such as "implied", "presumably", "likely", or "also
+  responsible" to fill a responsibility gap.
+- Do not invent policies, responsibilities, deadlines, approvals, or
+  procedures that are not supported by the supplied sources.
+- If the sources do not contain enough information, say that clearly.
+- Ignore raw document artifacts such as image references, markdown image
+  links, SharePoint paths, figure references, or extraction metadata.
+- Do not mention retrieval, embeddings, snippets, vector search, or
+  internal system details.
+- Keep the answer concise but complete.
+"""
+
+    response = _azure_openai_client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": system_prompt.strip()},
+            {
+                "role": "user",
+                "content": (
+                    f"Employee question:\n{query}\n\n"
+                    f"Retrieved TBBD policy context:\n{context}"
+                ),
+            },
+        ],
+        temperature=0.2,
+        max_tokens=700,
+    )
+
+    answer = response.choices[0].message.content
+    return (answer or "").strip()
 
 
 @app.post("/mcp")
@@ -246,11 +351,13 @@ async def handle_mcp(request: Request):
                 }
 
             results = search_hr_documents(query)
+            answer = generate_workplace_answer(query, results)
 
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
+                    "answer": answer,
                     "content": results
                 },
             }

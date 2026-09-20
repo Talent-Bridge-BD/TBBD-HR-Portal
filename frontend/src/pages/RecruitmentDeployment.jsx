@@ -290,9 +290,6 @@ setApplications(loadedApplications);
 
       const matchesStatus =
         statusFilter === "All" ||
-        (statusFilter === "Ready" &&
-          (recordStatus === "Ready" ||
-            recordStatus === "Not Started")) ||
         recordStatus === statusFilter;
 
       return matchesSearch && matchesStatus;
@@ -301,10 +298,9 @@ setApplications(loadedApplications);
 
   const counters = useMemo(
     () => ({
-      pending: applications.filter((application) => {
-        const record = recordsByApplication.get(application.id);
-        return !record || record.status === "Ready";
-      }).length,
+      pending: onboardingRecords.filter(
+        (record) => record.status === "Ready"
+      ).length,
 
       inProgress: onboardingRecords.filter(
         (record) => record.status === "Scheduled"

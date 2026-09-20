@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-
 import PageHeader from '../components/PageHeader'
 
 
 const INTERVIEW_STATUSES = [
   'scheduled',
   'completed',
+  'passed',
+  'failed',
   'cancelled',
   'rescheduled',
   'no_show',
@@ -297,7 +298,7 @@ export default function RecruitmentInterviews({ auth }) {
       return '—'
     }
 
-    return new Date(value).toLocaleString()
+    return new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 
   }
 
@@ -352,6 +353,46 @@ export default function RecruitmentInterviews({ auth }) {
       )}
 
 
+      <div className="interview-kpi-grid">
+        <div className="interview-kpi-card">
+          <h3>{interviews.length}</h3>
+          <p>KPI TEST</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'scheduled'
+              ).length
+            }
+          </h3>
+          <p>Scheduled</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'completed'
+              ).length
+            }
+          </h3>
+          <p>Completed</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'cancelled'
+              ).length
+            }
+          </h3>
+          <p>Cancelled</p>
+        </div>
+      </div>
+
       <section className="dashboard-card">
 
         <div className="card-heading">
@@ -399,119 +440,110 @@ export default function RecruitmentInterviews({ auth }) {
 
         ) : (
 
-          <div className="table-wrap">
+          <div className="interview-card-grid">
 
-            <table>
+            {interviews.map((interview) => (
 
-              <thead>
+              <div
+                key={interview.id}
+                className="interview-card"
+              >
 
-                <tr>
+                <div className="interview-card-header">
 
-                  <th>Candidate</th>
-                  <th>Job</th>
-                  <th>Date & Time</th>
-                  <th>Type</th>
-                  <th>Interviewer</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <div>
 
-                </tr>
+                    <div className="candidate-avatar-large">
+                      {`${interview.candidate_first_name?.[0] || ''}${
+                        interview.candidate_last_name?.[0] || ''
+                      }`}
+                    </div>
 
-              </thead>
+                    <h3>
+                      {interview.candidate_first_name}{' '}
+                      {interview.candidate_last_name}
+                    </h3>
 
-              <tbody>
+                    <p>
+                      {interview.candidate_email}
+                    </p>
 
-                {interviews.map((interview) => (
+                  </div>
 
-                  <tr key={interview.id}>
+                  <span className="status-badge status-scheduled">
+                    {interview.status.replace('_', ' ')}
+                  </span>
 
-                    <td>
+                </div>
 
-                      <strong>
-                        {interview.candidate_first_name}{' '}
-                        {interview.candidate_last_name}
-                      </strong>
+                <div className="interview-card-body">
 
-                      <br />
+                  <p>
+                    <strong>Position:</strong>{' '}
+                    {interview.job_title}
+                  </p>
 
-                      <small>
-                        {interview.candidate_email}
-                      </small>
+                  <p>
+                    <strong>Date:</strong>{' '}
+                    {formatDateTime(interview.scheduled_start)}
+                  </p>
 
-                    </td>
+                  <p>
+                    <strong>Interview Type:</strong>{' '}
+                    {interview.interview_type || 'Not specified'}
+                  </p>
 
-                    <td>
-                      {interview.job_title}
-                    </td>
+                  <p>
+                    <strong>Interviewer:</strong>{' '}
+                    {interview.interviewer_name || 'Not assigned'}
+                  </p>
 
-                    <td>
-                      {formatDateTime(
-                        interview.scheduled_start
-                      )}
-                    </td>
+                </div>
 
-                    <td>
-                      {interview.interview_type || '—'}
-                    </td>
+                <div className="interview-card-actions">
 
-                    <td>
-                      {interview.interviewer_name || '—'}
-                    </td>
+                  <select
+                    value={interview.status}
+                    onChange={(event) =>
+                      updateStatus(
+                        interview,
+                        event.target.value
+                      )
+                    }
+                    aria-label={`Interview result for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
+                  >
 
-                    <td>
+                    {INTERVIEW_STATUSES.map((status) => (
 
-                      <select
-                        value={interview.status}
-                        onChange={(event) =>
-                          updateStatus(
-                            interview,
-                            event.target.value
-                          )
-                        }
+                      <option
+                        key={status}
+                        value={status}
                       >
+                        {status === 'no_show'
+                          ? 'No Show'
+                          : status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
 
-                        {INTERVIEW_STATUSES.map((status) => (
+                    ))}
 
-                          <option
-                            key={status}
-                            value={status}
-                          >
-                            {status.replace('_', ' ')}
-                          </option>
+                  </select>
 
-                        ))}
+                  {interview.location_or_link && (
+                    <a
+                      href={interview.location_or_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="secondary-button"
+                    >
+                      Open Interview
+                    </a>
+                  )}
 
-                      </select>
+                </div>
 
-                    </td>
+              </div>
 
-                    <td>
-
-                      {interview.location_or_link ? (
-
-                        <a
-                          href={interview.location_or_link}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Open link
-                        </a>
-
-                      ) : (
-
-                        '—'
-
-                      )}
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
+            ))}
 
           </div>
 

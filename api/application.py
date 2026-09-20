@@ -7,6 +7,7 @@ from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from services.application import ApplicationService
 from services.authorization import build_authorization_context
+from services.local_auth import get_request_principal
 
 
 router = APIRouter(
@@ -41,34 +42,20 @@ def _claim_values(
 def get_application_authorization_context(
     request: Request,
 ):
-    principal_id = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL-ID"
-    )
-    encoded_principal = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL"
-    )
+    principal = get_request_principal(request)
 
-    if not principal_id or not encoded_principal:
+    if not principal:
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        principal = json.loads(
-            base64.b64decode(
-                encoded_principal + padding
-            ).decode("utf-8")
-        )
-    except (
-        ValueError,
-        UnicodeDecodeError,
-        json.JSONDecodeError,
-    ):
+    principal_id = principal.get("id")
+
+    if not principal_id:
         raise HTTPException(
             status_code=401,
-            detail="Invalid authenticated principal",
+            detail="Authenticated user identity is required",
         )
 
     claims = principal.get("claims", [])
@@ -108,7 +95,6 @@ def get_application_authorization_context(
         memberships=memberships,
     )
 
-
 def _require_organization_access(
     request: Request,
     organization_id: str,
@@ -143,6 +129,53 @@ async def list_applications(
             item.__dict__
             for item in applications
         ]
+    }
+
+
+@router.put("/{application_id}/status")
+async def update_application_status(
+    application_id: str,
+    organization_id: str,
+    status: str,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        organization_id,
+    )
+    allowed_statuses = {
+        "submitted",
+        "under_review",
+        "shortlisted",
+        "interview",
+        "offer",
+        "hired",
+        "rejected",
+    }
+
+    normalized_status = status.strip().lower()
+
+    if normalized_status not in allowed_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid application status: {status}",
+        )
+
+    application = _application_service.update_status(
+        organization_id,
+        application_id,
+        normalized_status,
+    )
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    return {
+        "application": application.__dict__,
+        "message": "Application status updated successfully",
     }
 
 

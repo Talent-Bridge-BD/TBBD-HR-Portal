@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, field_validator
 from models.candidate import CandidateProfile

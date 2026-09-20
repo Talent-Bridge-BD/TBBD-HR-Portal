@@ -449,7 +449,7 @@ class SqlJobRepository(JobRepository):
                         employer_name = ?,
                         employer_country = ?,
                         employer_city = ?,
-                        job_category = ?
+                        job_category = ?,
                         industry_sector = ?,
                         gender_requirement = ?,
                         minimum_age = ?,

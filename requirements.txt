@@ -7,3 +7,7 @@ pyodbc
 azure-storage-blob
 
 python-multipart
+
+openai>=2.54.0,<3.0
+
+PyJWT[crypto]

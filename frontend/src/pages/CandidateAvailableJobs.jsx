@@ -65,6 +65,72 @@ export default function CandidateAvailableJobs() {
     })
   }
 
+  function getClosingState(value) {
+    if (!value) {
+      return {
+        label: 'Closing date: Not specified',
+        closed: false,
+        emphasis: false,
+      }
+    }
+
+    const closingDate = new Date(value)
+
+    if (Number.isNaN(closingDate.getTime())) {
+      return {
+        label: `Closing date: ${formatDate(value)}`,
+        closed: false,
+        emphasis: false,
+      }
+    }
+
+    const now = new Date()
+    const closingDay = new Date(
+      closingDate.getFullYear(),
+      closingDate.getMonth(),
+      closingDate.getDate(),
+    )
+    const today = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    )
+
+    const daysUntilClosing = Math.ceil(
+      (closingDay.getTime() - today.getTime()) / 86400000,
+    )
+
+    if (daysUntilClosing < 0) {
+      return {
+        label: `Applications closed · ${formatDate(value)}`,
+        closed: true,
+        emphasis: true,
+      }
+    }
+
+    if (daysUntilClosing === 0) {
+      return {
+        label: `Closing today · ${formatDate(value)}`,
+        closed: false,
+        emphasis: true,
+      }
+    }
+
+    if (daysUntilClosing <= 7) {
+      return {
+        label: `Closing soon · ${formatDate(value)}`,
+        closed: false,
+        emphasis: true,
+      }
+    }
+
+    return {
+      label: `Closing date: ${formatDate(value)}`,
+      closed: false,
+      emphasis: false,
+    }
+  }
+
   async function handleApply(jobId) {
     try {
       setApplyingJobId(jobId)
@@ -104,7 +170,7 @@ export default function CandidateAvailableJobs() {
   }
 
   return (
-    <>
+    <div className="candidate-portal-page">
       <PageHeader
         title="Available Jobs"
         subtitle="Explore recruitment opportunities that may match your profile."
@@ -152,13 +218,16 @@ export default function CandidateAvailableJobs() {
         )}
 
         {!loading && !error && jobs.length > 0 && (
-          <div className="overview-grid">
+          <div className="candidate-jobs-grid">
             {jobs.map((job) => (
-              <div className="overview-item" key={job.id}>
-                <span className="overview-icon">▤</span>
+              <article className="candidate-job-card" key={job.id}>
+                <div className="candidate-job-icon" aria-hidden="true">▤</div>
 
-                <div>
-                  <strong>{job.title}</strong>
+                <div className="candidate-job-content">
+                  <div className="candidate-job-heading">
+                    <strong>{job.title}</strong>
+                  </div>
+                  <div className="candidate-job-meta">
 
                   <span>
                     {job.location || 'Location not specified'}
@@ -176,21 +245,43 @@ export default function CandidateAvailableJobs() {
                       : 'positions'}
                   </span>
 
-                  {job.description && <span>{job.description}</span>}
+                  </div>
 
-                  <span>
-                    Closing date: {formatDate(job.closing_at)}
-                  </span>
+                  {job.description && (
+                    <span className="candidate-job-description">
+                      {job.description}
+                    </span>
+                  )}
 
-                  <button
-                    type="button"
-                    onClick={() => handleApply(job.id)}
-                    disabled={applyingJobId === job.id}
-                  >
-                    {applyingJobId === job.id ? 'Applying...' : 'Apply'}
-                  </button>
+                  {(() => {
+                    const closingState = getClosingState(job.closing_at)
+
+                    return (
+                      <>
+                        <span
+                          className={
+                            closingState.emphasis
+                              ? 'job-closing-date job-closing-date-emphasis'
+                              : 'job-closing-date'
+                          }
+                        >
+                          {closingState.label}
+                        </span>
+
+                        {!closingState.closed && (
+                          <button
+                            type="button"
+                            onClick={() => handleApply(job.id)}
+                            disabled={applyingJobId === job.id}
+                          >
+                            {applyingJobId === job.id ? 'Applying...' : 'Apply'}
+                          </button>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
@@ -248,6 +339,6 @@ export default function CandidateAvailableJobs() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   )
 }

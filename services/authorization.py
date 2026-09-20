@@ -20,7 +20,6 @@ AUTHORIZATION_GROUPS = {
 }
 
 
-
 def has_role(context: AuthorizationContext, role: str) -> bool:
 
     return role in context.roles
@@ -75,6 +74,7 @@ def build_authorization_context(
             and membership.status == "active"
         )
     }
+
 
     return AuthorizationContext(
         user_id=user_id,

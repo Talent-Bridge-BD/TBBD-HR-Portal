@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import workplaceAssistantLogo from '../assets/branding/TBBD Workplace Assistant.png'
 
 function cleanSnippet(snippet = '') {
   return snippet
@@ -79,7 +80,9 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
         throw new Error('No relevant workplace policy information was found.')
       }
 
-      setAnswer(results[0].snippet)
+      setAnswer(
+        data?.result?.answer?.trim() || results[0].snippet
+      )
 
       const uniqueSources = []
       const seen = new Set()
@@ -107,20 +110,49 @@ export default function WorkplaceAssistant({ initialQuestion = '' }) {
 
   return (
     <section className="assistant-card">
-      <div className="assistant-icon">✦</div>
-
       <div className="assistant-content">
-        <h2>TBBD Workplace Assistant</h2>
+        <div className="workplace-assistant-brand">
+          <img
+            src={workplaceAssistantLogo}
+            alt="TBBD Workplace Assistant"
+            className="workplace-assistant-brand-logo"
+          />
+          <h2>TBBD Workplace Assistant</h2>
+        </div>
         <p>
-          Ask about HR policies, leave, benefits and workplace information.
+          Get quick answers about HR policies, leave, benefits and workplace information.
         </p>
+        <div className="assistant-prompts-label">Try a question</div>
+        <div className="assistant-prompts" aria-label="Example questions">
+          <button
+            type="button"
+            onClick={() => setQuestion('How many leave days do I have?')}
+            disabled={loading}
+          >
+            How many leave days do I have?
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuestion('What is the attendance policy?')}
+            disabled={loading}
+          >
+            What is the attendance policy?
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuestion('Show company holiday calendar.')}
+            disabled={loading}
+          >
+            Show company holiday calendar.
+          </button>
+        </div>
 
         <form className="assistant-input" onSubmit={handleSubmit}>
           <input
             type="text"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Ask a workplace question..."
+            placeholder="Type your question here..."
             aria-label="Ask the Workplace Assistant"
             disabled={loading}
           />

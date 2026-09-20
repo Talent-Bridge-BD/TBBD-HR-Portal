@@ -243,6 +243,8 @@ async def update_interview(
     allowed_statuses = {
         "scheduled",
         "completed",
+        "passed",
+        "failed",
         "cancelled",
         "rescheduled",
         "no_show",

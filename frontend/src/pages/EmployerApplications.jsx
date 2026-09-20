@@ -94,6 +94,7 @@ export default function EmployerApplications({ auth }) {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [actionApplicationId, setActionApplicationId] = useState('')
 
   useEffect(() => {
     if (!organizationId) {
@@ -130,6 +131,51 @@ export default function EmployerApplications({ auth }) {
         setLoading(false)
       })
   }, [organizationId])
+
+  async function startScreening(application) {
+    if (!application?.id || !organizationId) return
+
+    setActionApplicationId(application.id)
+    setError('')
+
+    try {
+      const response = await fetch(
+        `/api/applications/${application.id}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            organization_id: organizationId,
+            status: 'screening',
+          }),
+        },
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to start screening.',
+        )
+      }
+
+      setApplications((current) =>
+        current.map((item) =>
+          item.id === application.id
+            ? { ...item, ...data.application }
+            : item,
+        ),
+      )
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to start screening.')
+    } finally {
+      setActionApplicationId('')
+    }
+  }
 
   const summary = useMemo(() => {
     const counts = {
@@ -485,7 +531,20 @@ export default function EmployerApplications({ auth }) {
                           {status}
                         </span>
 
-
+                        {status === 'Applied' && (
+                          <button
+                            className="primary-action"
+                            type="button"
+                            onClick={() => startScreening(application)}
+                            disabled={
+                              actionApplicationId === application.id
+                            }
+                          >
+                            {actionApplicationId === application.id
+                              ? 'Starting...'
+                              : 'Start Screening'}
+                          </button>
+                        )}
                       </div>
                     </article>
                   )

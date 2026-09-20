@@ -62,15 +62,19 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'Employer Manager',
     'HR Manager',
   ])
-  const canAccessCandidatePortal = hasAnyRole(auth, [
-    'Candidate',
-  ])
+  const canAccessCandidatePortal =
+    hasAnyRole(auth, ['Candidate'])
 
   const renderItem = ([label, icon, enabled = true]) => (
     <button
       key={label}
       className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
-      onClick={() => enabled && onNavigate(label)}
+      onClick={() => {
+        if (!enabled) return
+
+
+        onNavigate(label)
+      }}
       disabled={!enabled}
       title={!enabled ? `${label} — Coming Soon` : label}
     >

@@ -34,7 +34,7 @@ import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
-import { getCurrentUser } from './utils/auth'
+import { getCurrentUser, signIn } from './utils/auth'
 
 const placeholderPages = {
 
@@ -88,6 +88,35 @@ export default function App() {
       <div className="app-shell">
         <main className="main-content">
           <p>Loading Workplace Hub...</p>
+        </main>
+      </div>
+    )
+  }
+
+  if (!auth?.authenticated) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <div className="empty-state">
+            <strong>Sign in required</strong>
+            <p>
+              Sign in with your Microsoft account to access Talent Bridge BD.
+            </p>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => {
+                signIn().catch((error) => {
+                  console.error(
+                    'Microsoft Entra sign-in failed:',
+                    error,
+                  )
+                })
+              }}
+            >
+              Sign in with Microsoft
+            </button>
+          </div>
         </main>
       </div>
     )
