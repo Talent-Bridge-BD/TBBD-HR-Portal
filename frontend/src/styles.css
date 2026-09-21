@@ -4451,14 +4451,18 @@ button {
   border-radius: 10px;
   background: #edf5fb;
   color: #0067b8;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+}
+
+.lifecycle-stage-icon {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
 }
 
 .lifecycle-stage-main {
   min-width: 0;
   flex: 1;
+  padding-left: 4px;
 }
 
 .lifecycle-stage-main strong,
