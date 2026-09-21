@@ -5,7 +5,7 @@ import struct
 from abc import ABC, abstractmethod
 
 import pyodbc
-from azure.identity import AzureCliCredential
+from azure.identity import DefaultAzureCredential
 
 from models.organization import Organization, OrganizationMembership
 
@@ -73,7 +73,7 @@ class SqlOrganizationRepository(OrganizationRepository):
             "SQL_DATABASE",
             "tbbd-hr-db",
         )
-        self.credential = AzureCliCredential()
+        self.credential = DefaultAzureCredential()
 
     def _connection(self) -> pyodbc.Connection:
         token = self.credential.get_token(self.SQL_SCOPE).token
