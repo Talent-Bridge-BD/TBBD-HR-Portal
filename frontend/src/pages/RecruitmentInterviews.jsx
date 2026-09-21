@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 
 const INTERVIEW_STATUSES = [
@@ -49,12 +50,11 @@ export default function RecruitmentInterviews({ auth }) {
 
     try {
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/interviews?organization_id=${encodeURIComponent(
           organizationId
         )}`,
         {
-          credentials: 'include',
         }
       )
 
@@ -88,12 +88,11 @@ export default function RecruitmentInterviews({ auth }) {
 
     try {
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications?organization_id=${encodeURIComponent(
           organizationId
         )}`,
         {
-          credentials: 'include',
         }
       )
 
@@ -201,13 +200,12 @@ export default function RecruitmentInterviews({ auth }) {
         notes: form.notes,
       }
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/interviews?organization_id=${encodeURIComponent(
           organizationId
         )}`,
         {
           method: 'POST',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -244,7 +242,7 @@ export default function RecruitmentInterviews({ auth }) {
 
     try {
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/interviews/${encodeURIComponent(
           interview.id
         )}?organization_id=${encodeURIComponent(
@@ -252,7 +250,6 @@ export default function RecruitmentInterviews({ auth }) {
         )}`,
         {
           method: 'PUT',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },

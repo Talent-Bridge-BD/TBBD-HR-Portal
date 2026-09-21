@@ -11,6 +11,7 @@ from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     AUTHORIZATION_GROUPS,
     build_authorization_context,
+    is_global_administrator,
 )
 from services.job import JobService
 from services.local_auth import get_request_principal
@@ -129,12 +130,17 @@ async def list_jobs(
     organization_id: str,
     request: Request,
 ):
-    _require_organization_access(
-        request,
-        organization_id,
-    )
+    context = get_job_authorization_context(request)
 
-    jobs = _job_service.list_jobs(organization_id)
+    if is_global_administrator(context):
+        jobs = _job_service.list_all_active_organization_jobs()
+    else:
+        if organization_id not in context.organization_ids:
+            raise HTTPException(
+                status_code=403,
+                detail="User is not authorized for this organization",
+            )
+        jobs = _job_service.list_jobs(organization_id)
 
     return {
         "jobs": [

@@ -1,4 +1,13 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Organization:
+    id: str
+    name: str
+    status: str
 
 
 @dataclass(frozen=True)

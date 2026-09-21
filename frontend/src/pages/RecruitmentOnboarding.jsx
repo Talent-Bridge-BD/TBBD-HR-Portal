@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import { authenticatedFetch } from "../utils/auth";
 
 const STATUS_OPTIONS = [
   "Pending",
@@ -51,6 +52,7 @@ const getCandidateInitials = (firstName, lastName) => {
 
 export default function RecruitmentOnboarding({ auth }) {
   const [organizationId, setOrganizationId] = useState("");
+  const [isAdministrator, setIsAdministrator] = useState(false);
 
   const [applications, setApplications] = useState([]);
   const [onboardingRecords, setOnboardingRecords] = useState([]);
@@ -61,8 +63,8 @@ export default function RecruitmentOnboarding({ auth }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const loadOnboarding = async () => {
-    if (!organizationId) {
+  const loadOnboarding = async (resolvedOrganizationId = organizationId, administrator = isAdministrator) => {
+    if (!administrator && !resolvedOrganizationId) {
       setApplications([]);
       setOnboardingRecords([]);
       setError("No organization is available for this account.");
@@ -74,10 +76,14 @@ export default function RecruitmentOnboarding({ auth }) {
     setError("");
 
     try {
-      const applicationsResponse = await fetch(
-        `/api/applications?organization_id=${encodeURIComponent(
-          organizationId
-        )}`
+      const applicationsUrl = administrator
+        ? "/api/applications"
+        : `/api/applications?organization_id=${encodeURIComponent(
+            resolvedOrganizationId
+          )}`;
+
+      const applicationsResponse = await authenticatedFetch(
+        applicationsUrl
       );
 
       const applicationsData = await applicationsResponse.json();
@@ -92,10 +98,19 @@ export default function RecruitmentOnboarding({ auth }) {
 
       const recordsByApplication = await Promise.all(
         loadedApplications.map(async (application) => {
-          const response = await fetch(
+          const applicationOrganizationId =
+            application?.organization_id || resolvedOrganizationId;
+
+          if (!applicationOrganizationId) {
+            return [];
+          }
+
+          const response = await authenticatedFetch(
             `/api/onboarding/application/${encodeURIComponent(
               application.id
-            )}?organization_id=${encodeURIComponent(organizationId)}`
+            )}?organization_id=${encodeURIComponent(
+              applicationOrganizationId
+            )}`
           );
 
           if (response.status === 404) {
@@ -115,9 +130,7 @@ export default function RecruitmentOnboarding({ auth }) {
         })
       );
 
-      
-setApplications(loadedApplications);
-
+      setApplications(loadedApplications);
       setOnboardingRecords(recordsByApplication.flat());
     } catch (loadError) {
       setApplications([]);
@@ -135,15 +148,16 @@ setApplications(loadedApplications);
 
     const load = async () => {
       try {
-        const meResponse = await fetch("/api/me", {
-          credentials: "include",
-        });
+        const meResponse = await authenticatedFetch("/api/me");
 
         if (!meResponse.ok) {
           throw new Error("Unable to load the signed-in user.");
         }
 
         const meData = await meResponse.json();
+
+        const roles = meData?.roles || [];
+        const administrator = roles.includes("Administrator");
 
         const resolvedOrganizationId =
           meData?.user?.organization_id ||
@@ -156,64 +170,19 @@ setApplications(loadedApplications);
           return;
         }
 
-        console.log("ORG DEBUG", meData, resolvedOrganizationId);
+        setIsAdministrator(administrator);
         setOrganizationId(resolvedOrganizationId);
 
-        if (!resolvedOrganizationId) {
+        if (!administrator && !resolvedOrganizationId) {
           setError("No organization is available for this account.");
           setLoading(false);
           return;
         }
 
-        const applicationsResponse = await fetch(
-          `/api/applications?organization_id=${encodeURIComponent(
-            resolvedOrganizationId
-          )}`
+        await loadOnboarding(
+          resolvedOrganizationId,
+          administrator
         );
-
-        const applicationsData = await applicationsResponse.json();
-
-        if (!applicationsResponse.ok) {
-          throw new Error(
-            applicationsData.detail || "Unable to load applications."
-          );
-        }
-
-        const loadedApplications = applicationsData.applications || [];
-
-        const recordsByApplication = await Promise.all(
-          loadedApplications.map(async (application) => {
-            const response = await fetch(
-              `/api/onboarding/application/${encodeURIComponent(
-                application.id
-              )}?organization_id=${encodeURIComponent(
-                resolvedOrganizationId
-              )}`
-            );
-
-            if (response.status === 404) {
-              return [];
-            }
-
-            const data = await response.json();
-
-            if (!response.ok) {
-              throw new Error(
-                data.detail ||
-                  `Unable to load onboarding for application ${application.id}.`
-              );
-            }
-
-            return data.onboarding || [];
-          })
-        );
-
-        if (!cancelled) {
-          
-setApplications(loadedApplications);
-
-          setOnboardingRecords(recordsByApplication.flat());
-        }
       } catch (loadError) {
         if (!cancelled) {
           setApplications([]);
@@ -221,9 +190,6 @@ setApplications(loadedApplications);
           setError(
             loadError.message || "Unable to load onboarding records."
           );
-        }
-      } finally {
-        if (!cancelled) {
           setLoading(false);
         }
       }
@@ -235,7 +201,6 @@ setApplications(loadedApplications);
       cancelled = true;
     };
   }, []);
-
 
   const applicationMap = useMemo(
     () =>

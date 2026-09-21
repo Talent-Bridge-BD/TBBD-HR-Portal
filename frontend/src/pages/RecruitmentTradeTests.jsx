@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 
 import PageHeader from "../components/PageHeader";
 
+import { authenticatedFetch } from '../utils/auth'
 export default function RecruitmentTradeTests({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || "";
   const [applications, setApplications] = useState([]);
@@ -32,7 +33,7 @@ export default function RecruitmentTradeTests({ auth }) {
       return;
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/applications?organization_id=${encodeURIComponent(
         organizationId
       )}`,
@@ -73,7 +74,7 @@ export default function RecruitmentTradeTests({ auth }) {
       return;
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/trade-tests?organization_id=${encodeURIComponent(
         organizationId
       )}`,
@@ -107,7 +108,7 @@ export default function RecruitmentTradeTests({ auth }) {
       return;
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/trade-tests/application/${encodeURIComponent(
         selectedApplicationId
       )}?organization_id=${encodeURIComponent(organizationId)}`,
@@ -231,7 +232,7 @@ export default function RecruitmentTradeTests({ auth }) {
     }
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/trade-tests/${encodeURIComponent(
           tradeTestId
         )}/assessment?organization_id=${encodeURIComponent(
@@ -295,7 +296,7 @@ export default function RecruitmentTradeTests({ auth }) {
     }
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/trade-tests?organization_id=${encodeURIComponent(
           organizationId
         )}`,
@@ -327,7 +328,7 @@ export default function RecruitmentTradeTests({ auth }) {
       setTestType("");
       setScheduledAt("");
 
-      const refreshResponse = await fetch(
+      const refreshResponse = await authenticatedFetch(
         `/api/trade-tests/application/${encodeURIComponent(
           selectedApplicationId
         )}?organization_id=${encodeURIComponent(organizationId)}`,

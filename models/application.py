@@ -6,6 +6,7 @@ from typing import Optional
 @dataclass(frozen=True)
 class EmployerApplication:
     id: str
+    organization_id: str
     candidate_id: str
     job_id: str
     candidate_first_name: str

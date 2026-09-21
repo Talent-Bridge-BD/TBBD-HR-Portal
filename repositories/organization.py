@@ -7,10 +7,11 @@ from abc import ABC, abstractmethod
 import pyodbc
 from azure.identity import AzureCliCredential
 
-from models.organization import OrganizationMembership
+from models.organization import Organization, OrganizationMembership
 
 
 class OrganizationRepository(ABC):
+
     @abstractmethod
     def get_active_memberships(
         self,
@@ -18,10 +19,16 @@ class OrganizationRepository(ABC):
     ) -> list[OrganizationMembership]:
         raise NotImplementedError
 
+    @abstractmethod
+    def list_active_organizations(self) -> list[Organization]:
+        raise NotImplementedError
+
 
 class InMemoryOrganizationRepository(OrganizationRepository):
+
     def __init__(self):
         self._memberships: list[OrganizationMembership] = []
+        self._organizations: list[Organization] = []
 
     def get_active_memberships(
         self,
@@ -34,12 +41,20 @@ class InMemoryOrganizationRepository(OrganizationRepository):
             and membership.status == "active"
         ]
 
+    def list_active_organizations(self) -> list[Organization]:
+        return [
+            organization
+            for organization in self._organizations
+            if organization.status == "active"
+        ]
+
 
 class SqlOrganizationRepository(OrganizationRepository):
     """
     Azure SQL implementation using Microsoft Entra authentication.
 
-    Reads active organization memberships for an authenticated user.
+    Reads active organization memberships for an authenticated user
+    and active organizations available to authorized system users.
     """
 
     SQL_ACCESS_TOKEN_ATTRIBUTE = 1256
@@ -68,7 +83,6 @@ class SqlOrganizationRepository(OrganizationRepository):
             len(token_bytes),
             token_bytes,
         )
-
         connection_string = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
             f"SERVER={self.server},1433;"
@@ -77,7 +91,6 @@ class SqlOrganizationRepository(OrganizationRepository):
             "TrustServerCertificate=no;"
             "Connection Timeout=30;"
         )
-
         return pyodbc.connect(
             connection_string,
             attrs_before={
@@ -91,7 +104,6 @@ class SqlOrganizationRepository(OrganizationRepository):
     ) -> list[OrganizationMembership]:
         with self._connection() as connection:
             cursor = connection.cursor()
-
             cursor.execute(
                 """
                 SELECT
@@ -107,7 +119,6 @@ class SqlOrganizationRepository(OrganizationRepository):
                 """,
                 user_id,
             )
-
             rows = cursor.fetchall()
 
             return [
@@ -116,6 +127,31 @@ class SqlOrganizationRepository(OrganizationRepository):
                     organization_id=str(row.organization_id),
                     user_id=str(row.user_id),
                     role=str(row.role),
+                    status=str(row.status),
+                )
+                for row in rows
+            ]
+
+    def list_active_organizations(self) -> list[Organization]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT
+                    CONVERT(nvarchar(36), id) AS id,
+                    name,
+                    status
+                FROM dbo.organizations
+                WHERE status = N'active'
+                ORDER BY name
+                """
+            )
+            rows = cursor.fetchall()
+
+            return [
+                Organization(
+                    id=str(row.id),
+                    name=str(row.name),
                     status=str(row.status),
                 )
                 for row in rows

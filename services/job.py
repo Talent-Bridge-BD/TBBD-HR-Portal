@@ -12,6 +12,9 @@ class JobService:
     def list_jobs(self, organization_id: str) -> list[Job]:
         return self.repository.list_jobs(organization_id)
 
+    def list_all_active_organization_jobs(self) -> list[Job]:
+        return self.repository.list_all_active_organization_jobs()
+
     def list_published_jobs(self) -> list[Job]:
         return self.repository.list_published_jobs()
 

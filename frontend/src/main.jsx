@@ -6,6 +6,7 @@ import './index.css'
 import { initializeMsal } from './utils/auth'
 
 async function startApp() {
+
   try {
     await initializeMsal()
   } catch (error) {

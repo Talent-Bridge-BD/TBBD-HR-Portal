@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function RecruitmentCandidates({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ''
@@ -19,13 +20,10 @@ export default function RecruitmentCandidates({ auth }) {
       return
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/applications?organization_id=${encodeURIComponent(
         organizationId
       )}`,
-      {
-        credentials: 'include',
-      }
     )
       .then(async (response) => {
         const data = await response.json()
@@ -90,15 +88,12 @@ export default function RecruitmentCandidates({ auth }) {
     setDetailLoading(true)
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${encodeURIComponent(
           applicationId
         )}?organization_id=${encodeURIComponent(
           organizationId
-        )}`,
-        {
-          credentials: 'include',
-        }
+        )}`
       )
 
       const data = await response.json()
@@ -123,7 +118,7 @@ export default function RecruitmentCandidates({ auth }) {
     status
   ) => {
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${encodeURIComponent(
           applicationId
         )}/status?organization_id=${encodeURIComponent(
@@ -131,7 +126,6 @@ export default function RecruitmentCandidates({ auth }) {
         )}&status=${encodeURIComponent(status)}`,
         {
           method: 'PUT',
-          credentials: 'include',
         }
       )
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { authenticatedFetch } from '../utils/auth'
 const API_BASE = "/api/ticketing";
 const APPLICATIONS_API = "/api/applications";
 
@@ -68,13 +69,10 @@ export default function RecruitmentTicketing({ auth }) {
           return;
         }
 
-        const applicationsResponse = await fetch(
+        const applicationsResponse = await authenticatedFetch(
           `${APPLICATIONS_API}?organization_id=${encodeURIComponent(
             organizationId
-          )}`,
-          {
-            credentials: "include",
-          }
+          )}`
         );
 
         if (!applicationsResponse.ok) {
@@ -99,7 +97,7 @@ export default function RecruitmentTicketing({ auth }) {
 
             if (!applicationId) return [];
 
-            const response = await fetch(
+            const response = await authenticatedFetch(
               `${API_BASE}?application_id=${encodeURIComponent(
                 applicationId
               )}`

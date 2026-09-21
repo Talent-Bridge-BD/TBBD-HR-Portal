@@ -17,6 +17,11 @@ class ApplicationService:
             organization_id,
         )
 
+    def list_all_active_organization_applications(
+        self,
+    ) -> list[EmployerApplication]:
+        return self.repository.list_all_active_organization_applications()
+
     def get_application(
         self,
         organization_id: str,

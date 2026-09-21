@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 const STATUS_STYLES = {
   Applied: {
@@ -102,13 +103,10 @@ export default function EmployerApplications({ auth }) {
       return
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/applications?organization_id=${encodeURIComponent(
         organizationId
       )}`,
-      {
-        credentials: 'include',
-      }
     )
       .then(async (response) => {
         const data = await response.json()
@@ -139,11 +137,10 @@ export default function EmployerApplications({ auth }) {
     setError('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${application.id}`,
         {
           method: 'PUT',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },

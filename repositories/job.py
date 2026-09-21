@@ -17,6 +17,10 @@ class JobRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_all_active_organization_jobs(self) -> list[Job]:
+        raise NotImplementedError
+
+    @abstractmethod
     def list_published_jobs(self) -> list[Job]:
         raise NotImplementedError
 
@@ -49,6 +53,28 @@ class InMemoryJobRepository(JobRepository):
             for job in self._jobs.values()
             if job.organization_id == organization_id
         ]
+
+    def list_all_active_organization_jobs(self) -> list[Job]:
+        return list(self._jobs.values())
+
+    def list_published_jobs(self) -> list[Job]:
+        return [
+            job
+            for job in self._jobs.values()
+            if job.status == "open"
+            and job.published_at is not None
+        ]
+
+    def get_published_job(
+        self,
+        job_id: str,
+    ) -> Optional[Job]:
+        job = self._jobs.get(job_id)
+        if job is None:
+            return None
+        if job.status != "open" or job.published_at is None:
+            return None
+        return job
 
     def get_job(
         self,
@@ -142,6 +168,49 @@ class SqlJobRepository(JobRepository):
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
+
+    def list_all_active_organization_jobs(self) -> list[Job]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT
+                    j.id,
+                    j.organization_id,
+                    j.title,
+                    j.description,
+                    j.employment_type,
+                    j.location,
+                    j.country,
+                    j.status,
+                    j.number_of_positions,
+                    j.job_reference,
+                    j.employer_name,
+                    j.employer_country,
+                    j.employer_city,
+                    j.job_category,
+                    j.industry_sector,
+                    j.gender_requirement,
+                    j.minimum_age,
+                    j.maximum_age,
+                    j.contract_duration,
+                    j.work_location,
+                    j.project_name,
+                    j.published_at,
+                    j.closing_at,
+                    j.created_at,
+                    j.updated_at
+                FROM dbo.jobs AS j
+                INNER JOIN dbo.organizations AS o
+                    ON o.id = j.organization_id
+                WHERE o.status = N'active'
+                ORDER BY j.created_at DESC
+                """,
+            )
+            return [
+                self._row_to_job(row)
+                for row in cursor.fetchall()
+            ]
 
     def list_jobs(self, organization_id: str) -> list[Job]:
         with self._connection() as connection:

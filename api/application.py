@@ -6,7 +6,10 @@ from fastapi import APIRouter, HTTPException, Request
 from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from services.application import ApplicationService
-from services.authorization import build_authorization_context
+from services.authorization import (
+    build_authorization_context,
+    is_global_administrator,
+)
 from services.local_auth import get_request_principal
 
 
@@ -101,6 +104,9 @@ def _require_organization_access(
 ):
     context = get_application_authorization_context(request)
 
+    if is_global_administrator(context):
+        return context
+
     if organization_id not in context.organization_ids:
         raise HTTPException(
             status_code=403,
@@ -112,17 +118,28 @@ def _require_organization_access(
 
 @router.get("")
 async def list_applications(
-    organization_id: str,
     request: Request,
+    organization_id: str | None = None,
 ):
-    _require_organization_access(
-        request,
-        organization_id,
-    )
+    context = get_application_authorization_context(request)
 
-    applications = _application_service.list_applications(
-        organization_id,
-    )
+    if is_global_administrator(context) and not organization_id:
+        applications = _application_service.list_all_active_organization_applications()
+    else:
+        if not organization_id:
+            raise HTTPException(
+                status_code=400,
+                detail="organization_id is required",
+            )
+
+        _require_organization_access(
+            request,
+            organization_id,
+        )
+
+        applications = _application_service.list_applications(
+            organization_id,
+        )
 
     return {
         "applications": [

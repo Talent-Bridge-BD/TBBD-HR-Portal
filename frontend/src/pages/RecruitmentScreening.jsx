@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function RecruitmentScreening({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ''
@@ -20,13 +21,10 @@ export default function RecruitmentScreening({ auth }) {
       return
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/applications?organization_id=${encodeURIComponent(
         organizationId
       )}`,
-      {
-        credentials: 'include',
-      }
     )
       .then(async (response) => {
         const data = await response.json()
@@ -81,11 +79,10 @@ export default function RecruitmentScreening({ auth }) {
     setActionApplicationId(application.id)
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${application.id}/status?organization_id=${encodeURIComponent(organizationId)}&status=shortlisted`,
         {
           method: 'PUT',
-          credentials: 'include',
         },
       )
 
@@ -123,15 +120,12 @@ export default function RecruitmentScreening({ auth }) {
     setDetailLoading(true)
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${encodeURIComponent(
           applicationId
         )}?organization_id=${encodeURIComponent(
           organizationId
-        )}`,
-        {
-          credentials: 'include',
-        }
+        )}`
       )
 
       const data = await response.json()

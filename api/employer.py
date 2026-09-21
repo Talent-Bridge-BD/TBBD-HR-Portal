@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request
 from repositories.employer_dashboard import SqlEmployerDashboardRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import build_authorization_context
+from services.local_auth import get_request_principal
 from services.employer_dashboard import EmployerDashboardService
 
 
@@ -25,32 +26,32 @@ AUTHORIZATION_GROUPS = {
 
 
 def _get_principal(request: Request) -> tuple[str, str, set[str]]:
-    principal_name = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME") or ""
-    principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID") or ""
-    encoded_principal = request.headers.get("X-MS-CLIENT-PRINCIPAL")
+    principal = get_request_principal(request)
 
-    if not encoded_principal:
-        raise HTTPException(status_code=401, detail="Authentication required")
-
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        principal = json.loads(
-            base64.b64decode(encoded_principal + padding).decode("utf-8")
+    if not principal:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
         )
-    except (ValueError, json.JSONDecodeError):
-        raise HTTPException(status_code=401, detail="Invalid authentication principal")
+
+    principal_id = principal.get("id")
+    if not principal_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
 
     claims = principal.get("claims", [])
 
     def claim_values(claim_type):
-        return [
-            claim.get("val")
+        return {
+            str(claim.get("val"))
             for claim in claims
-            if claim.get("typ") == claim_type
-        ]
+            if claim.get("typ") == claim_type and claim.get("val")
+        }
 
-    group_ids = set(claim_values("groups"))
-    token_roles = set(claim_values("roles"))
+    group_ids = claim_values("groups")
+    token_roles = claim_values("roles")
 
     roles = set(token_roles)
 
@@ -61,7 +62,7 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
     if not roles:
         roles.add("Employee")
 
-    employer_name = next(iter(claim_values("name")), principal_name)
+    employer_name = principal.get("email") or "Employer"
 
     return principal_id, employer_name, roles
 

@@ -11,6 +11,8 @@ class AuthorizationContext:
 
     organization_ids: frozenset[str]
 
+    is_global_administrator: bool
+
 
 AUTHORIZATION_GROUPS = {
     "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
@@ -23,6 +25,11 @@ AUTHORIZATION_GROUPS = {
 def has_role(context: AuthorizationContext, role: str) -> bool:
 
     return role in context.roles
+
+
+def is_global_administrator(context: AuthorizationContext) -> bool:
+
+    return context.is_global_administrator
 
 
 def has_any_role(
@@ -76,8 +83,11 @@ def build_authorization_context(
     }
 
 
+    normalized_roles = frozenset(roles)
+
     return AuthorizationContext(
         user_id=user_id,
-        roles=frozenset(roles),
+        roles=normalized_roles,
         organization_ids=frozenset(organization_ids),
+        is_global_administrator="Administrator" in normalized_roles,
     )

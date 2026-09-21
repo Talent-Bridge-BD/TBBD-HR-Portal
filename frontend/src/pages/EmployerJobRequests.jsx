@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 const emptyForm = {
   title: '',
@@ -36,9 +37,8 @@ export default function EmployerJobRequests({ auth }) {
     setError('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/job-requests?organization_id=${encodeURIComponent(organizationId)}`,
-        { credentials: 'include' },
       )
 
       if (!response.ok) {
@@ -66,11 +66,10 @@ export default function EmployerJobRequests({ auth }) {
     setError('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/job-requests/${request.id}/approve?organization_id=${encodeURIComponent(organizationId)}`,
         {
           method: 'POST',
-          credentials: 'include',
         },
       )
 
@@ -109,9 +108,8 @@ export default function EmployerJobRequests({ auth }) {
     setError('')
 
     try {
-      const response = await fetch('/api/job-requests', {
+      const response = await authenticatedFetch('/api/job-requests', {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

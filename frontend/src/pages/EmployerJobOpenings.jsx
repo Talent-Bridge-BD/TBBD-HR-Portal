@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function EmployerJobOpenings({ auth }) {
   const [jobs, setJobs] = useState([])
@@ -39,9 +40,8 @@ export default function EmployerJobOpenings({ auth }) {
     setError('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/jobs?organization_id=${encodeURIComponent(organizationId)}`,
-        { credentials: 'include' },
       )
 
       if (!response.ok) {
@@ -71,9 +71,8 @@ export default function EmployerJobOpenings({ auth }) {
     setError('')
 
     try {
-      const response = await fetch(`/api/jobs/${job.id}`, {
+      const response = await authenticatedFetch(`/api/jobs/${job.id}`, {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

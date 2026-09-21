@@ -7,7 +7,10 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from services.authorization import build_authorization_context
+from services.authorization import (
+    build_authorization_context,
+    is_global_administrator,
+)
 from services.local_auth import get_request_principal
 from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
@@ -136,6 +139,74 @@ async def get_current_user(request: Request):
         ),
     }
 
+
+
+@app.get("/api/organizations")
+async def list_organizations(request: Request):
+    principal = get_request_principal(request)
+
+    if not principal:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
+
+    principal_id = principal.get("id") or ""
+    claims = principal.get("claims", [])
+
+    def claim_values(claim_type):
+        return [
+            claim.get("val")
+            for claim in claims
+            if claim.get("typ") == claim_type
+        ]
+
+    group_ids = set(claim_values("groups"))
+    token_roles = set(claim_values("roles"))
+
+    authorization_groups = {
+        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
+        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
+        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
+    }
+
+    roles = set(token_roles)
+
+    for role, group_id in authorization_groups.items():
+        if group_id in group_ids:
+            roles.add(role)
+
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
+    )
+
+    authorization_context = build_authorization_context(
+        user_id=principal_id,
+        roles=roles,
+        memberships=memberships,
+    )
+
+    if not is_global_administrator(authorization_context):
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=403,
+            detail="Administrator access is required",
+        )
+
+    organizations = _organization_repository.list_active_organizations()
+
+    return {
+        "organizations": [
+            {
+                "id": organization.id,
+                "name": organization.name,
+                "status": organization.status,
+            }
+            for organization in organizations
+        ]
+    }
 
 
 @app.get("/healthz")

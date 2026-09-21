@@ -6,6 +6,7 @@ import QuickAction from '../components/QuickAction'
 import WorkplaceAssistant from '../components/WorkplaceAssistant'
 import banner from '../assets/images/tbbd-workplace-hub.jpg'
 import { getEmployeeDisplayName } from '../utils/employee'
+import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 
 export default function Dashboard({ auth, onNavigate }) {
@@ -34,7 +35,7 @@ export default function Dashboard({ auth, onNavigate }) {
   useEffect(() => {
     if (!isAdministrator && !isHRManager) return
 
-    fetch('/api/employer/dashboard')
+    authenticatedFetch('/api/employer/dashboard')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Unable to load operations dashboard')
@@ -124,8 +125,7 @@ export default function Dashboard({ auth, onNavigate }) {
             </span>
             <h1>TBBD Workplace Hub</h1>
             <p>
-              One connected platform for employees, HR services, workplace
-              information, and everyday productivity.
+              Your connected recruitment and workforce workspace.
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function Dashboard({ auth, onNavigate }) {
         }
         subtitle={
           isAdministrator || isHRManager
-            ? 'Here is your Workplace Hub operations overview.'
+            ? 'Here is your recruitment and workforce operations overview.'
             : 'Welcome back to your Workplace Hub.'
         }
       />
@@ -175,33 +175,31 @@ export default function Dashboard({ auth, onNavigate }) {
 
           <section className="admin-dashboard-section">
             <PageHeader
-              title="Recruitment Journey"
-              subtitle="Follow candidates through the complete recruitment workflow."
+              title="Recruitment Lifecycle"
+              subtitle="Track candidates through every stage of the recruitment workflow."
             />
 
-            <div className="recruitment-journey">
+            <div className="recruitment-lifecycle">
               {recruitmentJourney.map((stage, index) => (
-                <div className="journey-stage-wrapper" key={stage.label}>
-                  <button
-                    className="journey-stage"
-                    type="button"
-                    onClick={() => onNavigate(stage.page)}
-                  >
-                    <span className="journey-stage-number">
-                      {index + 1}
-                    </span>
-                    <span className="journey-stage-content">
-                      <strong>{stage.value}</strong>
-                      <span>{stage.label}</span>
-                    </span>
-                  </button>
+                <button
+                  className="lifecycle-stage"
+                  type="button"
+                  key={stage.label}
+                  onClick={() => onNavigate(stage.page)}
+                >
+                  <span className="lifecycle-stage-number">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
 
-                  {index < recruitmentJourney.length - 1 && (
-                    <span className="journey-arrow" aria-hidden="true">
-                      →
-                    </span>
-                  )}
-                </div>
+                  <span className="lifecycle-stage-main">
+                    <strong>{stage.value}</strong>
+                    <span>{stage.label}</span>
+                  </span>
+
+                  <span className="lifecycle-stage-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </button>
               ))}
             </div>
           </section>
@@ -237,7 +235,10 @@ export default function Dashboard({ auth, onNavigate }) {
               </div>
             </DashboardCard>
 
-            <DashboardCard title="Action Required">
+            <DashboardCard
+              title="Action Required"
+              subtitle="Items that need your attention."
+            >
               <div className="action-required-list">
                 {pipeline.Applied > 0 ? (
                   <button
@@ -398,7 +399,13 @@ export default function Dashboard({ auth, onNavigate }) {
         </>
       )}
 
-      <WorkplaceAssistant />
+      {isAdministrator || isHRManager ? (
+        <section className="admin-dashboard-section admin-assistant-section">
+          <WorkplaceAssistant />
+        </section>
+      ) : (
+        <WorkplaceAssistant />
+      )}
     </>
   )
 }

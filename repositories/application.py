@@ -21,6 +21,37 @@ class ApplicationRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_all_active_organization_applications(
+        self,
+    ) -> list[EmployerApplication]:
+        raise NotImplementedError
+
+    def list_all_active_organization_applications(
+        self,
+    ) -> list[EmployerApplication]:
+        sql = (
+            self._application_select()
+            + """
+            WHERE EXISTS (
+                SELECT 1
+                FROM dbo.organizations AS o
+                WHERE o.id = j.organization_id
+                  AND o.status = N'active'
+            )
+            ORDER BY a.applied_at DESC;
+            """
+        )
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+
+        return [
+            self._map_row(row)
+            for row in rows
+        ]
+
     def get_application(
         self,
         organization_id: str,
@@ -103,6 +134,7 @@ class SqlApplicationRepository(ApplicationRepository):
     def _map_row(row) -> EmployerApplication:
         return EmployerApplication(
             id=str(row.id),
+            organization_id=str(row.organization_id),
             candidate_id=str(row.candidate_id),
             job_id=str(row.job_id),
             candidate_first_name=row.first_name,
@@ -121,6 +153,7 @@ class SqlApplicationRepository(ApplicationRepository):
         return """
             SELECT
                 a.id,
+                j.organization_id,
                 a.candidate_id,
                 a.job_id,
                 c.first_name,

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { authenticatedFetch } from "../utils/auth";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -36,25 +37,33 @@ export default function RecruitmentVisaProcessing() {
         setLoading(true);
         setError("");
 
-        const meResponse = await fetch("/api/me");
+        const meResponse = await authenticatedFetch("/api/me");
         if (!meResponse.ok) {
           throw new Error("Unable to load current user.");
         }
 
         const me = await meResponse.json();
+        const roles = me?.roles || [];
+        const isAdministrator = roles.includes("Administrator");
         const organizationId =
           me?.user?.organization_id ||
-          me?.user?.organization_ids?.[0] ||
           me?.organization_id ||
-          me?.organization_ids?.[0];
+          me?.organization_ids?.[0] ||
+          me?.user?.organization_ids?.[0] ||
+          null;
 
-        if (!organizationId) {
-          throw new Error("No organization was found for the current user.");
+        let applicationsUrl = "/api/applications";
+
+        if (!isAdministrator) {
+          if (!organizationId) {
+            throw new Error("No organization was found for the current user.");
+          }
+
+          applicationsUrl =
+            `/api/applications?organization_id=${encodeURIComponent(organizationId)}`;
         }
 
-        const applicationsResponse = await fetch(
-          `/api/applications?organization_id=${encodeURIComponent(organizationId)}`
-        );
+        const applicationsResponse = await authenticatedFetch(applicationsUrl);
 
         if (!applicationsResponse.ok) {
           throw new Error("Unable to load applications.");
@@ -69,9 +78,11 @@ export default function RecruitmentVisaProcessing() {
 
         for (const application of applications) {
           try {
-            const response = await fetch(
-              `/api/visa-processing/application/${application.id}?organization_id=${encodeURIComponent(
-                organizationId
+            const response = await authenticatedFetch(
+              `/api/visa-processing/application/${encodeURIComponent(
+                application.id
+              )}?organization_id=${encodeURIComponent(
+                application?.organization_id || organizationId
               )}`
             );
 

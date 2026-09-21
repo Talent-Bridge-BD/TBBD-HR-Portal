@@ -78,6 +78,15 @@ export async function getCurrentUser() {
   return response.json()
 }
 
-export function hasRole(auth, role) {
-  return Boolean(auth?.roles?.includes(role))
+export async function authenticatedFetch(url, options = {}) {
+  const accessToken = await getAccessToken()
+
+  const headers = new Headers(options.headers || {})
+  headers.set('Authorization', `Bearer ${accessToken}`)
+
+  return fetch(url, {
+    ...options,
+    credentials: 'include',
+    headers,
+  })
 }

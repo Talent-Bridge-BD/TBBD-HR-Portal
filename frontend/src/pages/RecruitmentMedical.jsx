@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import { authenticatedFetch } from '../utils/auth'
 
 function formatDate(value) {
   if (!value) return "—";
@@ -72,23 +73,32 @@ export default function RecruitmentMedical() {
       setError("");
 
       try {
-        const meResponse = await fetch("/api/me");
+        const meResponse = await authenticatedFetch("/api/me");
 
         if (!meResponse.ok) {
           throw new Error("Unable to load the signed-in user.");
         }
 
         const meData = await meResponse.json();
-        const organizationId = meData?.user?.organization_id ||
-          meData?.organization_ids?.[0];
+        const roles = meData?.roles || [];
+        const isAdministrator = roles.includes("Administrator");
+        const organizationId =
+          meData?.user?.organization_id ||
+          meData?.organization_ids?.[0] ||
+          null;
 
-        if (!organizationId) {
-          throw new Error("No organization is available for the signed-in user.");
+        let applicationsUrl = "/api/applications";
+
+        if (!isAdministrator) {
+          if (!organizationId) {
+            throw new Error("No organization is available for the signed-in user.");
+          }
+
+          applicationsUrl =
+            `/api/applications?organization_id=${encodeURIComponent(organizationId)}`;
         }
 
-        const applicationsResponse = await fetch(
-          `/api/applications?organization_id=${encodeURIComponent(organizationId)}`
-        );
+        const applicationsResponse = await authenticatedFetch(applicationsUrl);
 
         if (!applicationsResponse.ok) {
           throw new Error("Unable to load recruitment applications.");
@@ -100,10 +110,12 @@ export default function RecruitmentMedical() {
         const records = [];
 
         for (const application of applicationItems) {
-          const response = await fetch(
+          const response = await authenticatedFetch(
             `/api/medical-examinations/application/${encodeURIComponent(
               application.id
-            )}?organization_id=${encodeURIComponent(organizationId)}`
+            )}?organization_id=${encodeURIComponent(
+              application?.organization_id || organizationId
+            )}`
           );
 
           if (!response.ok) {

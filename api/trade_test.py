@@ -6,6 +6,7 @@ from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.trade_test import SqlTradeTestRepository
 from services.authorization import build_authorization_context
+from services.local_auth import get_request_principal
 from services.trade_test import TradeTestService
 
 
@@ -66,37 +67,19 @@ def _claim_values(
 def _get_authorization_context(
     request: Request,
 ):
-    import base64
-    import json
+    principal = get_request_principal(request)
 
-    principal_id = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL-ID"
-    )
-    encoded_principal = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL"
-    )
-
-    if not principal_id or not encoded_principal:
+    if not principal:
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    try:
-        padding = "=" * (-len(encoded_principal) % 4)
-        principal = json.loads(
-            base64.b64decode(
-                encoded_principal + padding
-            ).decode("utf-8")
-        )
-    except (
-        ValueError,
-        UnicodeDecodeError,
-        json.JSONDecodeError,
-    ):
+    principal_id = principal.get("id")
+    if not principal_id:
         raise HTTPException(
             status_code=401,
-            detail="Invalid authenticated principal",
+            detail="Authenticated user identity is required",
         )
 
     claims = principal.get("claims", [])

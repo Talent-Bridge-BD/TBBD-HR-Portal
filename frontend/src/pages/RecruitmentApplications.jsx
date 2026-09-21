@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function RecruitmentApplications({ auth }) {
   const organizationId = auth?.organization_ids?.[0] || ''
@@ -19,13 +20,10 @@ export default function RecruitmentApplications({ auth }) {
       return
     }
 
-    fetch(
+    authenticatedFetch(
       `/api/applications?organization_id=${encodeURIComponent(
         organizationId
-      )}`,
-      {
-        credentials: 'include',
-      }
+      )}`
     )
       .then(async (response) => {
         const data = await response.json()
@@ -77,15 +75,12 @@ export default function RecruitmentApplications({ auth }) {
     setDetailLoading(true)
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/applications/${encodeURIComponent(
           applicationId
         )}?organization_id=${encodeURIComponent(
           organizationId
-        )}`,
-        {
-          credentials: 'include',
-        }
+        )}`
       )
 
       const data = await response.json()

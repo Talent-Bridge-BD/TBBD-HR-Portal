@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import PageHeader from "../components/PageHeader"
+import { authenticatedFetch } from "../utils/auth"
 
 const PIPELINE_STAGES = [
   {
@@ -105,9 +106,8 @@ export default function Hiring({ auth }) {
       setError("")
 
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `/api/hiring?organization_id=${encodeURIComponent(organizationId)}`,
-          { credentials: "include" },
         )
 
         if (!response.ok) {
