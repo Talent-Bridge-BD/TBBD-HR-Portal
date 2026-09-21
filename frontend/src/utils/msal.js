@@ -15,7 +15,9 @@ export const TBBD_API_SCOPE =
   '/access_as_user'
 
 export const TBBD_REDIRECT_URI =
-  HTTP + 'localhost:5173/redirect.html'
+  import.meta.env.DEV
+    ? HTTP + 'localhost:5173/redirect.html'
+    : HTTPS + 'portal.talentbridgebd.com/redirect.html'
 
 export const msalConfig = {
   auth: {
@@ -26,7 +28,9 @@ export const msalConfig = {
       TBBD_TENANT_ID,
     redirectUri: TBBD_REDIRECT_URI,
     postLogoutRedirectUri:
-      HTTP + 'localhost:5173',
+      import.meta.env.DEV
+        ? HTTP + 'localhost:5173'
+        : HTTPS + 'portal.talentbridgebd.com',
   },
   cache: {
     cacheLocation: 'sessionStorage',
