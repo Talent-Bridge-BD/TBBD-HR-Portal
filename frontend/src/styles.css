@@ -4128,6 +4128,7 @@ button {
 }
 
 .admin-dashboard-actions {
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
   margin-bottom: 24px;
 }
 
