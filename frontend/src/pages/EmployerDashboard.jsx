@@ -208,8 +208,6 @@ export default function EmployerDashboard({ onNavigate }) {
 
   const { stats, pipeline } = dashboard
 
-  const organizationLabel =
-    dashboard.organization_name || 'Authorized Organization'
 
   return (
     <>
@@ -218,12 +216,6 @@ export default function EmployerDashboard({ onNavigate }) {
           src={employerPortalBanner}
           alt="Talent Bridge BD Employer Portal"
         />
-        <div className="employer-dashboard-banner-content">
-          <span className="employer-dashboard-banner-brand">TALENT BRIDGE BD</span>
-          <h1>EMPLOYER PORTAL</h1>
-          <p>Connect with talent. Build your workforce.</p>
-          <span className="employer-dashboard-banner-org">{organizationLabel}</span>
-        </div>
       </div>
 
       {error && (
