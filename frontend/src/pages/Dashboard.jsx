@@ -310,11 +310,6 @@ export default function Dashboard({ auth, onNavigate }) {
                   onClick={() => onNavigate('Recruitment Applications')}
                 />
                 <QuickAction
-                  icon="◷"
-                  label="Screening"
-                  onClick={() => onNavigate('Recruitment Screening')}
-                />
-                <QuickAction
                   icon="◉"
                   label="Schedule Interview"
                   onClick={() => onNavigate('Recruitment Interviews')}
