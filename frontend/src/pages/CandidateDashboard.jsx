@@ -114,11 +114,6 @@ export default function CandidateDashboard({ onNavigate }) {
 
   return (
     <div className="candidate-portal-page">
-      <PageHeader
-        title={`Welcome, ${candidate.name}`}
-        subtitle="Candidate Portal"
-      />
-
       <section className="candidate-hero-banner">
         <img
           src={candidatePortalBanner}
