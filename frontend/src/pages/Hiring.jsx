@@ -228,17 +228,12 @@ export default function Hiring({ auth }) {
                           gap: "12px",
                         }}
                       >
-                        <h3
-                          style={{
-                            margin: 0,
-                            fontSize: "15px",
-                            fontWeight: 700,
-                          }}
-                        >
+                        <h3 className="hiring-pipeline-title">
                           {stage.label}
                         </h3>
 
                         <span
+                          className="hiring-pipeline-count"
                           style={{
                             minWidth: "28px",
                             height: "28px",
@@ -249,8 +244,6 @@ export default function Hiring({ auth }) {
                             justifyContent: "center",
                             background: stage.color,
                             color: "#ffffff",
-                            fontSize: "13px",
-                            fontWeight: 700,
                           }}
                         >
                           {stageApplications.length}
@@ -268,11 +261,11 @@ export default function Hiring({ auth }) {
                     >
                       {stageApplications.length === 0 ? (
                         <div
+                          className="hiring-empty-state"
                           style={{
                             padding: "24px 12px",
                             textAlign: "center",
                             color: "#64748b",
-                            fontSize: "13px",
                           }}
                         >
                           No candidates
@@ -298,22 +291,14 @@ export default function Hiring({ auth }) {
                               }}
                             >
                               <div>
-                                <h4
-                                  style={{
-                                    margin: 0,
-                                    fontSize: "15px",
-                                    fontWeight: 700,
-                                    color: "#0f172a",
-                                  }}
-                                >
+                                <h4 className="hiring-candidate-name">
                                   {getCandidateName(application)}
                                 </h4>
 
                                 <p
+                                  className="hiring-candidate-email"
                                   style={{
                                     margin: "5px 0 0",
-                                    fontSize: "13px",
-                                    color: "#64748b",
                                     wordBreak: "break-word",
                                   }}
                                 >
@@ -322,14 +307,13 @@ export default function Hiring({ auth }) {
                               </div>
 
                               <span
+                                className="hiring-stage-badge"
                                 style={{
                                   flexShrink: 0,
                                   padding: "4px 8px",
                                   borderRadius: "999px",
                                   background: `${stage.color}15`,
                                   color: stage.color,
-                                  fontSize: "11px",
-                                  fontWeight: 700,
                                 }}
                               >
                                 {stage.label}
@@ -344,10 +328,9 @@ export default function Hiring({ auth }) {
                               }}
                             >
                               <p
+                                className="hiring-job-title"
                                 style={{
                                   margin: 0,
-                                  fontSize: "13px",
-                                  fontWeight: 600,
                                   color: "#334155",
                                 }}
                               >
@@ -355,9 +338,9 @@ export default function Hiring({ auth }) {
                               </p>
 
                               <p
+                                className="hiring-applied-date"
                                 style={{
                                   margin: "5px 0 0",
-                                  fontSize: "12px",
                                   color: "#64748b",
                                 }}
                               >
