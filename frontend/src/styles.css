@@ -2672,7 +2672,9 @@ button {
   background: #fff;
   color: var(--tbbd-text-primary);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
   outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -2796,8 +2798,9 @@ button {
   min-height: 40px;
   padding: 9px 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
 }
 
