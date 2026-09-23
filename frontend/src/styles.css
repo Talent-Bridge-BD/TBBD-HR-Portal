@@ -1663,7 +1663,9 @@ button {
 .profile-name-line h2 {
   margin: 0;
   color: var(--tbbd-text-body);
-  font-size: 24px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .profile-active-badge {
@@ -1677,6 +1679,8 @@ button {
   margin: 4px 0 0;
   color: var(--tbbd-text-body);
   font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-section {
@@ -1696,6 +1700,8 @@ button {
   margin: 0;
   color: var(--tbbd-text-body);
   font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .profile-section-heading p {
@@ -1750,6 +1756,8 @@ button {
   margin: 0;
   color: var(--tbbd-text-body);
   font-size: 14px;
+  line-height: 1.35;
+  font-weight: 600;
 }
 
 .profile-document-heading p {
@@ -1766,8 +1774,9 @@ button {
   border-radius: 999px;
   background: #f3f5f7;
   color: var(--tbbd-text-body);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1792,14 +1801,18 @@ button {
 .profile-document-file strong {
   overflow: hidden;
   color: var(--tbbd-text-body);
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .profile-document-file span {
-  color: var(--tbbd-text-body);
-  font-size: 11px;
+  color: var(--tbbd-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-document-empty {
@@ -1868,8 +1881,9 @@ button {
   display: block;
   margin-top: 9px;
   color: #7a8797;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-photo-preview {
@@ -2005,15 +2019,16 @@ button {
 
 .profile-information-item strong {
   color: var(--tbbd-text-body);
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-information-item span {
   color: #4f5f73;
   font-size: 13px;
-  font-weight: 650;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .profile-information-item input,
@@ -2026,7 +2041,9 @@ button {
   background: #ffffff;
   color: var(--tbbd-text-body);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-information-item textarea {
@@ -2061,7 +2078,9 @@ button {
 .profile-actions-section h2 {
   margin: 0;
   color: var(--tbbd-text-body);
-  font-size: 16px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .profile-actions-section p {
@@ -2084,8 +2103,9 @@ button {
   background: var(--tbbd-blue);
   color: #ffffff;
   font: inherit;
-  font-size: 13px;
-  font-weight: 650;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -2169,7 +2189,9 @@ button {
 
 .profile-modal-header h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
 }
 
 .profile-modal-header p {
@@ -2204,7 +2226,8 @@ button {
 }
 
 .profile-form-field label {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.3;
   font-weight: 600;
   color: #344054;
 }
@@ -2219,6 +2242,9 @@ button {
   background: #ffffff;
   color: #101828;
   font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
   outline: none;
 }
 
@@ -2235,8 +2261,9 @@ button {
 
 .profile-form-field small {
   color: #667085;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
+  font-weight: 400;
 }
 
 .profile-modal-actions {
