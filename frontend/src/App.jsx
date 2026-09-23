@@ -141,7 +141,7 @@ export default function App() {
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
-    'Recruitment Jobs': <Jobs />,
+    'Recruitment Jobs': <Jobs auth={auth} />,
   'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
     'Recruitment Applications': <RecruitmentApplications auth={auth} />,
     'Recruitment Screening': <RecruitmentScreening auth={auth} />,

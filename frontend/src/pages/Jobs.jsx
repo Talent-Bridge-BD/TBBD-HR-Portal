@@ -3,11 +3,15 @@ import { authenticatedFetch } from "../utils/auth";
 
 const API_BASE = "";
 
-export default function Jobs() {
+export default function Jobs({ auth }) {
   const [jobs, setJobs] = useState([]);
-  const [organizationId, setOrganizationId] = useState("");
-  const [organizationLoading, setOrganizationLoading] = useState(true);
-  const [isAdministrator, setIsAdministrator] = useState(false);
+
+  const roles = auth?.roles || [];
+  const organizationId = auth?.organization_ids?.[0] || "";
+  const isAdministrator = roles.includes("Administrator");
+  const canManageJobs = roles.some((role) =>
+    ["Employer Manager", "HR Manager", "Administrator"].includes(role)
+  );
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -94,39 +98,9 @@ export default function Jobs() {
       setLoading(false);
     }
   }
-
   useEffect(() => {
-    async function loadOrganization() {
-      try {
-        const response = await authenticatedFetch("/api/me");
-
-        if (!response.ok) {
-          throw new Error("Unable to load account information");
-        }
-
-        const data = await response.json();
-        const roles = data.roles || [];
-        setIsAdministrator(roles.includes("Administrator"));
-
-        const ids = data.organization_ids || [];
-
-        setOrganizationId(ids[0] || "");
-      } catch (error) {
-        setMessage(error.message);
-      } finally {
-        setOrganizationLoading(false);
-      }
-    }
-
-    loadOrganization();
-  }, []);
-
-  useEffect(() => {
-    if (!organizationLoading) {
-      loadJobs();
-    }
-  }, [organizationId, organizationLoading, isAdministrator]);
-
+    loadJobs();
+  }, [organizationId, isAdministrator]);
   function updateForm(field, value) {
     setForm((current) => ({
       ...current,
@@ -467,18 +441,6 @@ export default function Jobs() {
           <h1>Jobs</h1>
           <p>Manage recruitment job openings and workforce requirements.</p>
         </div>
-        <button
-          type="button"
-          className="primary-button"
-          onClick={openCreateForm}
-          disabled={
-            organizationLoading ||
-            !organizationId ||
-            isAdministrator
-          }
-        >
-          + Create Job
-        </button>
       </div>
 
       {showCreateForm && (
@@ -1000,15 +962,22 @@ export default function Jobs() {
 
       <div className="card">
         <div className="card-header">
-          <h2>Job Openings</h2>
-          <span>{jobs.length} jobs</span>
+          <div>
+            <h2>Job Openings</h2>
+            <span>{jobs.length} jobs</span>
+          </div>
+          {canManageJobs && organizationId && (
+            <button
+              type="button"
+              className="primary-button"
+              onClick={openCreateForm}
+            >
+              + Create Job
+            </button>
+          )}
         </div>
 
-        {organizationLoading ? (
-          <div className="empty-state">
-            <p>Loading organization access...</p>
-          </div>
-        ) : !isAdministrator && !organizationId ? (
+        {!isAdministrator && !organizationId ? (
           <div className="empty-state">
             <h3>Organization access required</h3>
             <p>
@@ -1049,7 +1018,7 @@ export default function Jobs() {
                   {job.employment_type && (
                     <span>{job.employment_type}</span>
                   )}
-                  {!isAdministrator && (
+                  {canManageJobs && organizationId && (
                     <button
                       type="button"
                       className="secondary-button"
