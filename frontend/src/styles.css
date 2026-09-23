@@ -3083,7 +3083,10 @@ button {
 
 .candidate-portal-page .section-heading h2,
 .candidate-portal-page .card-heading h2 {
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+
 }
 
 .candidate-portal-page .card-heading p {
