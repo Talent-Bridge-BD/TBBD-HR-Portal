@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 const STATUS_STYLES = {
   Applied: {
@@ -90,7 +91,12 @@ function getInitials(application) {
 }
 
 export default function EmployerApplications({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || ''
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ''
 
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
@@ -98,7 +104,7 @@ export default function EmployerApplications({ auth }) {
   const [actionApplicationId, setActionApplicationId] = useState('')
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false)
       return
     }
@@ -128,7 +134,7 @@ export default function EmployerApplications({ auth }) {
       .finally(() => {
         setLoading(false)
       })
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   async function startScreening(application) {
     if (!application?.id || !organizationId) return
