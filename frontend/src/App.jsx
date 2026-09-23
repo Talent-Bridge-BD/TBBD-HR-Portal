@@ -89,7 +89,6 @@ export default function App() {
     return (
       <div className="app-shell">
         <main className="main-content">
-          <OrganizationSelector />
           <p>Loading Workplace Hub...</p>
         </main>
       </div>
