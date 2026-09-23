@@ -10,6 +10,7 @@ from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     AUTHORIZATION_GROUPS,
     build_authorization_context,
+    is_global_administrator,
 )
 from services.job import JobService
 from services.job_compensation import JobCompensationService
@@ -132,6 +133,9 @@ def _require_job_access(
     job_id: str,
 ):
     context = get_job_compensation_authorization_context(request)
+
+    if is_global_administrator(context):
+        return context
 
     if organization_id not in context.organization_ids:
         raise HTTPException(

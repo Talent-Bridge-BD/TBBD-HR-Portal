@@ -45,6 +45,9 @@ def has_organization_access(
     organization_id: str,
 ) -> bool:
 
+    if is_global_administrator(context):
+        return True
+
     return organization_id in context.organization_ids
 
 

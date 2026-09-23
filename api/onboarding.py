@@ -153,6 +153,8 @@ def _require_organization_write_access(
     organization_id: str,
 ):
     context = _get_authorization_context(request)
+    if is_global_administrator(context):
+        return context
 
     if organization_id not in context.organization_ids:
         raise HTTPException(

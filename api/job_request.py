@@ -12,7 +12,10 @@ from repositories.job import SqlJobRepository
 
 from repositories.job_request import SqlJobRequestRepository
 from repositories.organization import SqlOrganizationRepository
-from services.authorization import build_authorization_context
+from services.authorization import (
+    build_authorization_context,
+    is_global_administrator,
+)
 
 from services.local_auth import get_request_principal
 from services.job import JobService
@@ -119,6 +122,9 @@ def _require_organization_access(
     organization_id: str,
 ):
     context = get_job_request_authorization_context(request)
+
+    if is_global_administrator(context):
+        return context
 
     if organization_id not in context.organization_ids:
         raise HTTPException(

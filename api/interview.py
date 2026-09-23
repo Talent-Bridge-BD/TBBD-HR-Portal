@@ -7,7 +7,10 @@ from pydantic import BaseModel
 
 from repositories.interview import SqlInterviewRepository
 from repositories.organization import SqlOrganizationRepository
-from services.authorization import build_authorization_context
+from services.authorization import (
+    build_authorization_context,
+    is_global_administrator,
+)
 from services.interview import InterviewService
 
 
@@ -136,6 +139,9 @@ def _require_organization_access(
     organization_id: str,
 ):
     context = get_interview_authorization_context(request)
+
+    if is_global_administrator(context):
+        return context
 
     if organization_id not in context.organization_ids:
         raise HTTPException(

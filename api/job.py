@@ -116,6 +116,9 @@ def _require_organization_access(
 ):
     context = get_job_authorization_context(request)
 
+    if is_global_administrator(context):
+        return context
+
     if organization_id not in context.organization_ids:
         raise HTTPException(
             status_code=403,
