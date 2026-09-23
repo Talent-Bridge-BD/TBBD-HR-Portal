@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 export default function RecruitmentScreening({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || ''
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ''
 
   const [applications, setApplications] = useState([])
   const [actionApplicationId, setActionApplicationId] = useState('')
@@ -16,7 +22,7 @@ export default function RecruitmentScreening({ auth }) {
   const [detailError, setDetailError] = useState('')
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false)
       return
     }
@@ -46,7 +52,7 @@ export default function RecruitmentScreening({ auth }) {
       .finally(() => {
         setLoading(false)
       })
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   const filteredApplications = useMemo(() => {
     const query = search.trim().toLowerCase()
