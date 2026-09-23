@@ -3139,6 +3139,7 @@ button {
   color: var(--tbbd-text-primary);
   font-size: 18px;
   line-height: 1.3;
+  font-weight: 600;
 }
 
 .candidate-job-meta {
@@ -3149,6 +3150,7 @@ button {
   color: #64748b;
   font-size: 13px;
   line-height: 1.45;
+  font-weight: 400;
 }
 
 .candidate-job-meta > span {
@@ -3162,6 +3164,7 @@ button {
   color: #64748b;
   font-size: 14px;
   line-height: 1.55;
+  font-weight: 400;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   overflow: hidden;
@@ -3190,7 +3193,7 @@ button {
   background: #0067B8;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
 }
