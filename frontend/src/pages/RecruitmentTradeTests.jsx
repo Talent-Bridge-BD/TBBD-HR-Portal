@@ -3,8 +3,14 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import PageHeader from "../components/PageHeader";
 
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 export default function RecruitmentTradeTests({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || "";
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization();
+
+  const organizationId = selectedOrganizationId || "";
   const [applications, setApplications] = useState([]);
   const [tradeTests, setTradeTests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +34,7 @@ export default function RecruitmentTradeTests({ auth }) {
   const [assessmentNotes, setAssessmentNotes] = useState("");
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false);
       return;
     }
@@ -66,10 +72,10 @@ export default function RecruitmentTradeTests({ auth }) {
       .finally(() => {
         setLoading(false);
       });
-  }, [organizationId]);
+  }, [organizationId, organizationLoading]);
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setTradeTests([]);
       return;
     }
@@ -100,10 +106,14 @@ export default function RecruitmentTradeTests({ auth }) {
         setError(err.message);
         setTradeTests([]);
       });
-  }, [organizationId]);
+  }, [organizationId, organizationLoading]);
 
   useEffect(() => {
-    if (!organizationId || !selectedApplicationId) {
+    if (
+      organizationLoading ||
+      !organizationId ||
+      !selectedApplicationId
+    ) {
       setSelectedTradeTests([]);
       return;
     }
@@ -133,7 +143,7 @@ export default function RecruitmentTradeTests({ auth }) {
       .catch((err) => {
         setError(err.message);
       });
-  }, [organizationId, selectedApplicationId]);
+  }, [organizationId, organizationLoading, selectedApplicationId]);
 
   const filteredTradeTests = useMemo(() => {
     const query = search.trim().toLowerCase();
