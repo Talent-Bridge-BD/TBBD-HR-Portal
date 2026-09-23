@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 
 const INTERVIEW_STATUSES = [
@@ -16,7 +17,12 @@ const INTERVIEW_STATUSES = [
 
 export default function RecruitmentInterviews({ auth }) {
 
-  const organizationId = auth?.organization_ids?.[0] || ''
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ''
 
   const [interviews, setInterviews] = useState([])
   const [applications, setApplications] = useState([])
@@ -40,7 +46,7 @@ export default function RecruitmentInterviews({ auth }) {
 
   const loadInterviews = async () => {
 
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false)
       return
     }
@@ -82,7 +88,7 @@ export default function RecruitmentInterviews({ auth }) {
 
   const loadApplications = async () => {
 
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       return
     }
 
@@ -119,7 +125,7 @@ export default function RecruitmentInterviews({ auth }) {
     loadInterviews()
     loadApplications()
 
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
 
   const resetForm = () => {
