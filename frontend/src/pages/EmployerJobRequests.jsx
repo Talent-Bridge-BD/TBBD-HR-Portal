@@ -144,7 +144,7 @@ export default function EmployerJobRequests({ auth }) {
   }
 
   return (
-    <>
+    <div className="employer-job-requests-page">
       <PageHeader
         title="Job Requests"
         subtitle="Create and manage employer workforce and recruitment requests."
@@ -349,6 +349,6 @@ export default function EmployerJobRequests({ auth }) {
           </div>
         )}
       </section>
-    </>
+    </div>
   )
 }
