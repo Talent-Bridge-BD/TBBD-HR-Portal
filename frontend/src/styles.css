@@ -4905,7 +4905,7 @@ button {
 .candidate-portal-page .candidate-overview-value {
   margin-bottom: 2px;
   color: var(--tbbd-text-primary);
-  font-size: 27px;
+  font-size: 30px;
   line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.4px;
@@ -4921,8 +4921,9 @@ button {
 .candidate-portal-page .candidate-overview-card > span:last-child {
   margin-top: 2px;
   color: var(--tbbd-text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.35;
+  font-weight: 400;
 }
 
 .candidate-portal-page .candidate-overview-card-submitted .candidate-overview-icon {
@@ -5006,8 +5007,9 @@ button {
 
 .candidate-portal-page .candidate-application-content small {
   color: var(--tbbd-text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.35;
+  font-weight: 400;
 }
 
 .candidate-portal-page .candidate-application-status {
@@ -5017,8 +5019,8 @@ button {
   border-radius: 999px;
   color: #0067b8;
   background: #f2f8fc;
-  font-size: 11px;
-  line-height: 1;
+  font-size: 12px;
+  line-height: 1.2;
   font-weight: 600;
   text-transform: capitalize;
 }
@@ -5057,7 +5059,8 @@ button {
 
 .candidate-portal-page .candidate-empty-state strong {
   color: var(--tbbd-text-primary);
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.35;
   font-weight: 600;
 }
 
@@ -5065,8 +5068,9 @@ button {
   max-width: 300px;
   margin-top: 4px;
   color: var(--tbbd-text-secondary);
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .candidate-portal-page .candidate-quick-actions-card {
