@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 export default function RecruitmentCandidates({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || ''
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ''
 
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
@@ -15,7 +21,7 @@ export default function RecruitmentCandidates({ auth }) {
   const [detailError, setDetailError] = useState('')
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false)
       return
     }
@@ -45,7 +51,7 @@ export default function RecruitmentCandidates({ auth }) {
       .finally(() => {
         setLoading(false)
       })
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   const candidates = useMemo(
     () =>
@@ -176,9 +182,10 @@ export default function RecruitmentCandidates({ auth }) {
 
       {!organizationId ? (
         <section className="placeholder-card">
-          <h2>Organization access required</h2>
+          <h2>Organization selection required</h2>
           <p>
-            Your account is not currently assigned to an organization.
+            Select an operating organization above to view and manage
+            recruitment candidates.
           </p>
         </section>
       ) : loading ? (
