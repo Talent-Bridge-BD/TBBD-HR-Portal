@@ -211,7 +211,8 @@ export default function EmployerDashboard({ onNavigate }) {
 
   return (
     <>
-      <div className="employer-dashboard-banner">
+      <div className="employer-dashboard">
+        <div className="employer-dashboard-banner">
         <img
           src={employerPortalBanner}
           alt="Talent Bridge BD Employer Portal"
@@ -370,6 +371,7 @@ export default function EmployerDashboard({ onNavigate }) {
           />
         </div>
       </section>
+      </div>
     </>
   )
 }
