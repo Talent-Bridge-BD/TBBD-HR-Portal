@@ -288,8 +288,8 @@ export default function EmployerApplications({ auth }) {
                 >
                   <div>
                     <div
+                      className="employer-app-summary-label"
                       style={{
-                        fontSize: '13px',
                         color: '#64748B',
                         marginBottom: '6px',
                       }}
@@ -298,9 +298,8 @@ export default function EmployerApplications({ auth }) {
                     </div>
 
                     <div
+                      className="employer-app-summary-value"
                       style={{
-                        fontSize: '28px',
-                        fontWeight: 700,
                         color: '#0F172A',
                         lineHeight: 1,
                       }}
@@ -343,21 +342,15 @@ export default function EmployerApplications({ auth }) {
               }}
             >
               <div>
-                <h2
-                  style={{
-                    margin: 0,
-                    fontSize: '18px',
-                    color: '#0F172A',
-                  }}
-                >
+                <h2 className="employer-app-section-title">
                   Candidate Applications
                 </h2>
 
                 <p
+                  className="employer-app-section-description"
                   style={{
                     margin: '5px 0 0',
                     color: '#64748B',
-                    fontSize: '13px',
                   }}
                 >
                   Review candidates progressing through recruitment.
@@ -365,13 +358,12 @@ export default function EmployerApplications({ auth }) {
               </div>
 
               <div
+                className="employer-app-count-pill"
                 style={{
                   padding: '6px 10px',
                   borderRadius: '999px',
                   background: '#F8FAFC',
                   color: '#475569',
-                  fontSize: '13px',
-                  fontWeight: 600,
                 }}
               >
                 {summary.total}{' '}
@@ -390,9 +382,8 @@ export default function EmployerApplications({ auth }) {
                 }}
               >
                 <div
+                  className="employer-app-empty-title"
                   style={{
-                    fontSize: '16px',
-                    fontWeight: 600,
                     color: '#334155',
                     marginBottom: '6px',
                   }}
@@ -400,7 +391,7 @@ export default function EmployerApplications({ auth }) {
                   No applications yet
                 </div>
 
-                <div style={{ fontSize: '14px' }}>
+                <div className="employer-app-empty-text">
                   Candidate applications for your organization will
                   appear here.
                 </div>
@@ -445,7 +436,6 @@ export default function EmployerApplications({ auth }) {
                           background: '#EAF4FB',
                           color: '#0067B8',
                           fontWeight: 700,
-                          fontSize: '14px',
                         }}
                       >
                         {getInitials(application)}
@@ -453,9 +443,8 @@ export default function EmployerApplications({ auth }) {
 
                       <div style={{ minWidth: 0 }}>
                         <div
+                          className="employer-app-candidate-name"
                           style={{
-                            fontSize: '16px',
-                            fontWeight: 700,
                             color: '#0F172A',
                             marginBottom: '4px',
                           }}
@@ -464,8 +453,8 @@ export default function EmployerApplications({ auth }) {
                         </div>
 
                         <div
+                          className="employer-app-candidate-email"
                           style={{
-                            fontSize: '13px',
                             color: '#64748B',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -478,8 +467,8 @@ export default function EmployerApplications({ auth }) {
 
                       <div style={{ minWidth: 0 }}>
                         <div
+                          className="employer-app-position-label"
                           style={{
-                            fontSize: '13px',
                             color: '#64748B',
                             marginBottom: '4px',
                           }}
@@ -488,9 +477,8 @@ export default function EmployerApplications({ auth }) {
                         </div>
 
                         <div
+                          className="employer-app-position"
                           style={{
-                            fontSize: '14px',
-                            fontWeight: 600,
                             color: '#334155',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -501,9 +489,9 @@ export default function EmployerApplications({ auth }) {
                         </div>
 
                         <div
+                          className="employer-app-applied-date"
                           style={{
                             marginTop: '5px',
-                            fontSize: '12px',
                             color: '#94A3B8',
                           }}
                         >
@@ -520,6 +508,7 @@ export default function EmployerApplications({ auth }) {
                         }}
                       >
                         <span
+                          className="employer-app-status-badge"
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -527,8 +516,6 @@ export default function EmployerApplications({ auth }) {
                             borderRadius: '999px',
                             background: statusStyle.background,
                             color: statusStyle.color,
-                            fontSize: '12px',
-                            fontWeight: 700,
                           }}
                         >
                           {status}
