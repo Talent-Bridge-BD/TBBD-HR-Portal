@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 const API_BASE = "/api/ticketing";
 const APPLICATIONS_API = "/api/applications";
 
@@ -46,7 +47,12 @@ function getStatusClass(status) {
 }
 
 export default function RecruitmentTicketing({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || "";
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization();
+
+  const organizationId = selectedOrganizationId || "";
   const [applications, setApplications] = useState([]);
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
@@ -64,7 +70,7 @@ export default function RecruitmentTicketing({ auth }) {
       setError("");
 
       try {
-        if (!organizationId) {
+        if (organizationLoading || !organizationId) {
           setLoading(false);
           return;
         }
@@ -133,7 +139,7 @@ export default function RecruitmentTicketing({ auth }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [organizationId, organizationLoading]);
 
   const enrichedTickets = useMemo(
     () =>
