@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import PageHeader from "../components/PageHeader"
 import { authenticatedFetch } from "../utils/auth"
+import { useOrganization } from "../context/OrganizationContext"
 
 const PIPELINE_STAGES = [
   {
@@ -88,13 +89,18 @@ function getStage(application) {
 }
 
 export default function Hiring({ auth }) {
-  const organizationId = auth?.organization_ids?.[0] || ""
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ""
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setApplications([])
       return
     }
@@ -137,7 +143,7 @@ export default function Hiring({ auth }) {
     return () => {
       cancelled = true
     }
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   const groupedApplications = useMemo(() => {
     return PIPELINE_STAGES.reduce((groups, stage) => {
