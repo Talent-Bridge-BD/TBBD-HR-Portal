@@ -5020,3 +5020,43 @@ button {
     display: none;
   }
 }
+
+/* Organization operating-context selector */
+.organization-selector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+  min-height: 38px;
+}
+
+.organization-selector label {
+  color: var(--tbbd-text-secondary, #64748b);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.organization-selector select {
+  min-width: 230px;
+  max-width: 360px;
+  height: 38px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #dbe3eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--tbbd-text-primary, #0f172a);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.organization-selector select:hover {
+  border-color: #b9c8d8;
+}
+
+.organization-selector select:focus {
+  border-color: var(--tbbd-blue, #0067b8);
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.10);
+}

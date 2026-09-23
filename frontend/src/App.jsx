@@ -35,6 +35,8 @@ import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
 import { getCurrentUser, signIn } from './utils/auth'
+import { OrganizationProvider } from './context/OrganizationContext'
+import OrganizationSelector from './components/OrganizationSelector'
 
 const placeholderPages = {
 
@@ -87,6 +89,7 @@ export default function App() {
     return (
       <div className="app-shell">
         <main className="main-content">
+          <OrganizationSelector />
           <p>Loading Workplace Hub...</p>
         </main>
       </div>
@@ -170,26 +173,29 @@ export default function App() {
   )
 
   return (
-    <div className="app-shell">
-      <Header auth={auth} />
+    <OrganizationProvider auth={auth}>
+      <div className="app-shell">
+        <Header auth={auth} />
 
-      <div className="app-body">
-        <Sidebar
-          activePage={activePage}
-          onNavigate={setActivePage}
-          auth={auth}
-        />
+        <div className="app-body">
+          <Sidebar
+            activePage={activePage}
+            onNavigate={setActivePage}
+            auth={auth}
+          />
 
-        <main className="main-content">
-          {pages[activePage] || (
-            <PlatformPlaceholder
-              area="TBBD PLATFORM"
-              title="Page Not Found"
-              description="The requested platform area could not be found."
-            />
-          )}
-        </main>
+          <main className="main-content">
+            <OrganizationSelector />
+            {pages[activePage] || (
+              <PlatformPlaceholder
+                area="TBBD PLATFORM"
+                title="Page Not Found"
+                description="The requested platform area could not be found."
+              />
+            )}
+          </main>
+        </div>
       </div>
-    </div>
+    </OrganizationProvider>
   )
 }
