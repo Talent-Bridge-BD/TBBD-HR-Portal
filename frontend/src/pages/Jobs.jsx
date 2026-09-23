@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { authenticatedFetch } from "../utils/auth";
+import { useOrganization } from "../context/OrganizationContext";
 
 const API_BASE = "";
 
@@ -7,8 +8,12 @@ export default function Jobs({ auth }) {
   const [jobs, setJobs] = useState([]);
 
   const roles = auth?.roles || [];
-  const organizationId = auth?.organization_ids?.[0] || "";
   const isAdministrator = roles.includes("Administrator");
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization();
+  const organizationId = selectedOrganizationId || "";
   const canManageJobs = roles.some((role) =>
     ["Employer Manager", "HR Manager", "Administrator"].includes(role)
   );
@@ -72,7 +77,7 @@ export default function Jobs({ auth }) {
   });
 
   async function loadJobs() {
-    if (!isAdministrator && !organizationId) {
+    if (organizationLoading || !organizationId) {
       setLoading(false);
       return;
     }
@@ -82,7 +87,7 @@ export default function Jobs({ auth }) {
 
     try {
       const response = await authenticatedFetch(
-        `${API_BASE}/api/jobs?organization_id=${encodeURIComponent(isAdministrator ? "" : organizationId)}`
+        `${API_BASE}/api/jobs?organization_id=${encodeURIComponent(organizationId)}`
       );
 
       const data = await response.json();
@@ -100,7 +105,7 @@ export default function Jobs({ auth }) {
   }
   useEffect(() => {
     loadJobs();
-  }, [organizationId, isAdministrator]);
+  }, [organizationId, organizationLoading]);
   function updateForm(field, value) {
     setForm((current) => ({
       ...current,
@@ -977,12 +982,12 @@ export default function Jobs({ auth }) {
           )}
         </div>
 
-        {!isAdministrator && !organizationId ? (
+        {!organizationId ? (
           <div className="empty-state">
-            <h3>Organization access required</h3>
+            <h3>Organization selection required</h3>
             <p>
-              No active organization is currently assigned to your account.
-              Jobs will appear here once organization access is configured.
+              Select an operating organization above to view and manage its
+              recruitment jobs.
             </p>
           </div>
         ) : loading ? (
