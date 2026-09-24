@@ -210,6 +210,7 @@ async def list_organizations(request: Request):
 
 
 @app.get("/healthz")
+@app.head("/healthz")
 def healthz():
     return {"status": "ok"}
 
