@@ -754,35 +754,56 @@ export default function RecruitmentDeployment({ auth }) {
       </section>
 
       {selectedRecord && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <section className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[92vh] overflow-y-auto p-7">
-            <div className="mb-6 flex items-start justify-between gap-4 border-b border-gray-200 pb-5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0067B8]/10 text-xl text-[#0067B8]">
-                  👤
+        <div className="deployment-editor-backdrop">
+          <section
+            className="deployment-editor"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="deployment-editor-title"
+          >
+            <div className="deployment-editor-header">
+              <div className="deployment-editor-hero">
+                <div className="deployment-editor-avatar">
+                  {getCandidateInitials(
+                    selectedApplication?.candidate_first_name,
+                    selectedApplication?.candidate_last_name
+                  )}
                 </div>
 
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedRecord.id
-                      ? "Edit Onboarding"
-                      : "Start Deployment"}
-                  </h2>
+                <div className="deployment-editor-hero-info">
+                  <div className="deployment-editor-name-line">
+                    <div>
+                      <p className="deployment-editor-kicker">
+                        {selectedRecord.id
+                          ? "Edit Onboarding"
+                          : "Start Deployment"}
+                      </p>
 
-                  {selectedApplication && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      {[
-                        selectedApplication.candidate_first_name,
-                        selectedApplication.candidate_last_name,
-                      ]
-                        .filter(Boolean)
-                        .join(" ") || "Candidate"}
+                      <h2 id="deployment-editor-title">
+                        {[
+                          selectedApplication?.candidate_first_name,
+                          selectedApplication?.candidate_last_name,
+                        ]
+                          .filter(Boolean)
+                          .join(" ") || "Candidate Profile"}
+                      </h2>
+                    </div>
 
-                      {selectedApplication.job_title
-                        ? ` · ${selectedApplication.job_title}`
-                        : ""}
-                    </p>
-                  )}
+                    <span className="deployment-editor-status">
+                      ● {selectedRecord.status || "Ready"}
+                    </span>
+                  </div>
+
+                  <p className="deployment-editor-job-title">
+                    {selectedRecord.job_title ||
+                      selectedApplication?.job_title ||
+                      "Job title not added"}
+                  </p>
+
+                  <p className="deployment-editor-organization">
+                    {selectedRecord.employer_name ||
+                      "Employer not added"}
+                  </p>
                 </div>
               </div>
 
@@ -790,305 +811,213 @@ export default function RecruitmentDeployment({ auth }) {
                 type="button"
                 onClick={closeEditor}
                 aria-label="Close onboarding editor"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                className="deployment-editor-close"
               >
                 ×
               </button>
             </div>
 
-            <form onSubmit={saveRecord} className="space-y-6">
-              <div className="onboarding-detail-grid">
-                <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                  <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0067B8]/10 text-base text-[#0067B8]">
-                        👤
-                      </div>
-
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-semibold text-gray-900">
-                          👤 Candidate Profile
-                        </h3>
-                        <p className="mt-0.5 text-xs text-gray-500">
-                          Candidate and employment details
-                        </p>
-                      </div>
-                    </div>
+            <form onSubmit={saveRecord} className="deployment-editor-form">
+              <section className="deployment-editor-completion">
+                <div className="deployment-editor-completion-heading">
+                  <div>
+                    <strong>Deployment Readiness</strong>
+                    <span>
+                      {
+                        CHECKLIST_FIELDS.filter(([field]) =>
+                          Boolean(selectedRecord[field])
+                        ).length
+                      }{" "}
+                      of {CHECKLIST_FIELDS.length} deployment steps completed
+                    </span>
                   </div>
 
-                  <div className="space-y-4 p-5">
-                    {selectedApplication && (
-                      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0067B8]/10 text-sm font-bold text-[#0067B8]">
-                            {getCandidateInitials(
-                              selectedApplication.candidate_first_name,
-                              selectedApplication.candidate_last_name
-                            )}
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-gray-900">
-                              {[
-                                selectedApplication.candidate_first_name,
-                                selectedApplication.candidate_last_name,
-                              ]
-                                .filter(Boolean)
-                                .join(" ") || "Candidate"}
-                            </p>
-
-                            <p className="mt-0.5 truncate text-xs text-gray-500">
-                              {selectedApplication.candidate_email || "—"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Employer
-                      </span>
-                      <input
-                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
-                        value={selectedRecord.employer_name || ""}
-                        onChange={(event) =>
-                          setSelectedRecord((current) => ({
-                            ...current,
-                            employer_name: event.target.value,
-                          }))
-                        }
-                        placeholder="Employer name"
-                      />
-                    </label>
-
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Job Title
-                      </span>
-                      <input
-                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
-                        value={selectedRecord.job_title || ""}
-                        onChange={(event) =>
-                          setSelectedRecord((current) => ({
-                            ...current,
-                            job_title: event.target.value,
-                          }))
-                        }
-                        placeholder="Job title"
-                      />
-                    </label>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Joining Date
-                        </span>
-                        <input
-                          type="date"
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
-                          value={selectedRecord.joining_date || ""}
-                          onChange={(event) =>
-                            setSelectedRecord((current) => ({
-                              ...current,
-                              joining_date: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Status
-                        </span>
-                        <select
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
-                          value={selectedRecord.status || "Ready"}
-                          onChange={(event) =>
-                            setSelectedRecord((current) => ({
-                              ...current,
-                              status: event.target.value,
-                            }))
-                          }
-                        >
-                          {STATUS_OPTIONS.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                  <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-50 text-base text-green-600">
-                        ✓
-                      </div>
-
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-semibold text-gray-900">
-                          Deployment Checklist
-                        </h3>
-                        <p className="mt-0.5 text-xs text-gray-500">
-                          Track deployment readiness
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <div className="space-y-2.5">
-                      {CHECKLIST_FIELDS.map(([field, label]) => (
-                        <label
-                          key={field}
-                          className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition ${
-                            selectedRecord[field]
-                              ? "border-green-200 bg-green-50"
-                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-[#0067B8] focus:ring-[#0067B8]"
-                            checked={Boolean(selectedRecord[field])}
-                            onChange={(event) =>
-                              setSelectedRecord((current) => ({
-                                ...current,
-                                [field]: event.target.checked,
-                              }))
-                            }
-                          />
-
-                          <span
-                            className={`text-sm font-medium ${
-                              selectedRecord[field]
-                                ? "text-green-800"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {label}
-                          </span>
-
-                          {selectedRecord[field] && (
-                            <span className="ml-auto rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                              Complete
-                            </span>
-                          )}
-                        </label>
-                      ))}
-                    </div>
-
-                    <div className="mt-6 rounded-xl border border-[#0067B8]/20 bg-gradient-to-r from-blue-50 to-cyan-50 p-5 shadow-sm">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-700">
-                          Progress
-                        </span>
-
-                        <span className="text-sm font-bold text-[#0067B8]">
-                          {getChecklistProgress(selectedRecord)}%
-                        </span>
-                      </div>
-
-                      <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
-                        <div
-                          className="h-full rounded-full bg-[#0067B8] transition-all duration-300"
-                          style={{
-                            width: `${getChecklistProgress(
-                              selectedRecord
-                            )}%`,
-                          }}
-                        />
-                      </div>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        {
-                          CHECKLIST_FIELDS.filter(([field]) =>
-                            Boolean(selectedRecord[field])
-                          ).length
-                        }{" "}
-                        of {CHECKLIST_FIELDS.length} deployment steps completed
-                      </p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-                <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-base">
-                      📝
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        Notes & Activity
-                      </h3>
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        Add onboarding remarks, deployment instructions, or
-                        important information.
-                      </p>
-                    </div>
-                  </div>
+                  <strong>
+                    {getChecklistProgress(selectedRecord)}%
+                  </strong>
                 </div>
 
-                <div className="p-5">
-                  <div className="mb-5 rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold text-gray-900">
-                        📋 Deployment Journey
-                      </p>
-                      <span className="text-xs font-medium text-gray-400">
-                        Current session
-                      </span>
-                    </div>
+                <div className="deployment-editor-completion-track">
+                  <div
+                    className="deployment-editor-completion-bar"
+                    style={{
+                      width: `${getChecklistProgress(
+                        selectedRecord
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </section>
 
-                    <div className="mt-4 space-y-3">
-                      <div className="flex gap-3">
-                        <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0067B8]" />
-                        <p className="text-sm leading-5 text-gray-600">
-                          Onboarding record opened for review
-                        </p>
-                      </div>
+              <section className="deployment-editor-section">
+                <div className="deployment-editor-section-heading">
+                  <h3>Candidate & Employment Information</h3>
+                  <p>
+                    Candidate and employment details for this deployment
+                    record.
+                  </p>
+                </div>
 
-                      <div className="flex gap-3">
-                        <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gray-300" />
-                        <p className="text-sm leading-5 text-gray-600">
-                          Checklist status can be updated below
-                        </p>
-                      </div>
-                    </div>
+                {selectedApplication?.candidate_email && (
+                  <div className="deployment-editor-information-item deployment-editor-information-full">
+                    <span>Candidate Email</span>
+                    <strong>
+                      {selectedApplication.candidate_email}
+                    </strong>
                   </div>
+                )}
 
-                  <label className="block">
-                    <span className="mb-1.5 block text-sm font-semibold text-gray-700">
-                      Notes
-                    </span>
-
-                    <textarea
-                      className="min-h-[120px] w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0067B8] focus:ring-2 focus:ring-[#0067B8]/20"
-                      rows="5"
-                      placeholder="Add onboarding notes, deployment instructions, or remarks..."
-                      value={selectedRecord.notes || ""}
+                <div className="deployment-editor-information-grid">
+                  <label className="deployment-editor-information-item">
+                    <span>Employer</span>
+                    <input
+                      value={selectedRecord.employer_name || ""}
                       onChange={(event) =>
                         setSelectedRecord((current) => ({
                           ...current,
-                          notes: event.target.value,
+                          employer_name: event.target.value,
+                        }))
+                      }
+                      placeholder="Employer name"
+                    />
+                  </label>
+
+                  <label className="deployment-editor-information-item">
+                    <span>Job Title</span>
+                    <input
+                      value={selectedRecord.job_title || ""}
+                      onChange={(event) =>
+                        setSelectedRecord((current) => ({
+                          ...current,
+                          job_title: event.target.value,
+                        }))
+                      }
+                      placeholder="Job title"
+                    />
+                  </label>
+
+                  <label className="deployment-editor-information-item">
+                    <span>Joining Date</span>
+                    <input
+                      type="date"
+                      value={selectedRecord.joining_date || ""}
+                      onChange={(event) =>
+                        setSelectedRecord((current) => ({
+                          ...current,
+                          joining_date: event.target.value,
                         }))
                       }
                     />
                   </label>
+
+                  <label className="deployment-editor-information-item">
+                    <span>Status</span>
+                    <select
+                      value={selectedRecord.status || "Ready"}
+                      onChange={(event) =>
+                        setSelectedRecord((current) => ({
+                          ...current,
+                          status: event.target.value,
+                        }))
+                      }
+                    >
+                      {STATUS_OPTIONS.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
               </section>
 
-              <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
+              <section className="deployment-editor-section">
+                <div className="deployment-editor-section-heading">
+                  <h3>Deployment Checklist</h3>
+                  <p>
+                    Track deployment readiness and completion status.
+                  </p>
+                </div>
+
+                <div className="deployment-editor-checklist">
+                  {CHECKLIST_FIELDS.map(([field, label]) => (
+                    <label
+                      key={field}
+                      className={`deployment-editor-checklist-item ${
+                        selectedRecord[field] ? "is-complete" : ""
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(selectedRecord[field])}
+                        onChange={(event) =>
+                          setSelectedRecord((current) => ({
+                            ...current,
+                            [field]: event.target.checked,
+                          }))
+                        }
+                      />
+
+                      <span className="deployment-editor-checklist-label">
+                        {label}
+                      </span>
+
+                      {selectedRecord[field] && (
+                        <span className="deployment-editor-checklist-status">
+                          Complete
+                        </span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section className="deployment-editor-section">
+                <div className="deployment-editor-section-heading">
+                  <h3>Notes & Activity</h3>
+                  <p>
+                    Add onboarding remarks, deployment instructions, or
+                    important information.
+                  </p>
+                </div>
+
+                <div className="deployment-editor-journey">
+                  <div className="deployment-editor-journey-heading">
+                    <strong>Deployment Journey</strong>
+                    <span>Current session</span>
+                  </div>
+
+                  <div className="deployment-editor-journey-item">
+                    <span className="deployment-editor-journey-dot is-active" />
+                    <p>Onboarding record opened for review</p>
+                  </div>
+
+                  <div className="deployment-editor-journey-item">
+                    <span className="deployment-editor-journey-dot" />
+                    <p>Checklist status can be updated below</p>
+                  </div>
+                </div>
+
+                <label className="deployment-editor-notes">
+                  <span>Notes</span>
+                  <textarea
+                    rows="5"
+                    value={selectedRecord.notes || ""}
+                    onChange={(event) =>
+                      setSelectedRecord((current) => ({
+                        ...current,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder="Add onboarding notes, deployment instructions, or remarks..."
+                  />
+                </label>
+              </section>
+
+              <div className="deployment-editor-actions">
                 <button
                   type="button"
-                  className="inline-flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300/40"
+                  className="deployment-editor-button deployment-editor-button-secondary"
                   onClick={closeEditor}
                 >
                   Cancel
@@ -1096,14 +1025,13 @@ export default function RecruitmentDeployment({ auth }) {
 
                 <button
                   type="submit"
-                  className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0067B8] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#005A9E] focus:outline-none focus:ring-2 focus:ring-[#0067B8]/30"
+                  className="deployment-editor-button deployment-editor-button-primary"
                 >
-                  Save Deployment 🚀
+                  Save Deployment
                 </button>
               </div>
             </form>
           </section>
-
         </div>
       )}
     </>
