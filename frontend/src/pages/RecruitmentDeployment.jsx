@@ -755,7 +755,7 @@ export default function RecruitmentDeployment({ auth }) {
 
       {selectedRecord && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <section className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+          <section className="bg-white rounded-xl shadow-xl w-full max-w-6xl max-h-[92vh] overflow-y-auto p-7">
             <div className="mb-6 flex items-start justify-between gap-4 border-b border-gray-200 pb-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0067B8]/10 text-xl text-[#0067B8]">
