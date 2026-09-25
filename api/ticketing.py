@@ -69,7 +69,7 @@ def _get_authorization_context(request: Request):
     if "9a977cf0-7c9f-4024-9415-357a8a4292bc" in group_ids:
         roles.add("HR Manager")
 
-    if "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66" in group_ids:
+    if "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66" in group_ids:
         roles.add("Administrator")
 
     allowed_roles = {

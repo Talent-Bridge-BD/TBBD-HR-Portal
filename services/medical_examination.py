@@ -25,14 +25,17 @@ class MedicalExaminationService:
 
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ):
         return self.repository.list_by_application(
+            organization_id,
             application_id,
         )
 
     def create(
         self,
+        organization_id: str,
         application_id: str,
         medical_center: str | None = None,
         examination_date=None,
@@ -40,6 +43,7 @@ class MedicalExaminationService:
         medical_type: str | None = None,
     ):
         return self.repository.create(
+            organization_id=organization_id,
             application_id=application_id,
             medical_center=medical_center,
             examination_date=examination_date,
@@ -49,14 +53,17 @@ class MedicalExaminationService:
 
     def get(
         self,
+        organization_id: str,
         medical_examination_id: str,
     ):
         return self.repository.get(
+            organization_id,
             medical_examination_id,
         )
 
     def update_assessment(
         self,
+        organization_id: str,
         medical_examination_id: str,
         medical_center: str | None,
         examination_date,
@@ -86,6 +93,7 @@ class MedicalExaminationService:
             completed_at = None
 
         return self.repository.update_assessment(
+            organization_id=organization_id,
             medical_examination_id=medical_examination_id,
             medical_center=medical_center,
             examination_date=examination_date,

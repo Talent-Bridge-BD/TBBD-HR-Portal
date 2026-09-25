@@ -12,7 +12,7 @@ from models.ticketing import Ticketing
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 def make_principal(

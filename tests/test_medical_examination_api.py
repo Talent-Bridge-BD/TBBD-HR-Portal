@@ -8,7 +8,7 @@ from main import app
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 def make_principal(principal_id, name, groups=None, roles=None):
@@ -202,7 +202,7 @@ def test_medical_examination_get_by_id_rejects_medical_examination_from_other_or
             "FakeMedicalExaminationService",
             (),
             {
-                "get": lambda self, medical_examination_id: type(
+                "get": lambda self, organization_id, medical_examination_id: type(
                     "MedicalExamination",
                     (),
                     {
@@ -264,6 +264,7 @@ def test_medical_examination_service_completes_assessment():
     service = MedicalExaminationService(repository)
 
     result = service.update_assessment(
+        organization_id=ORGANIZATION_ID,
         medical_examination_id="medical-001",
         medical_center="TBBD Medical Center",
         examination_date=None,
@@ -297,6 +298,7 @@ def test_medical_examination_service_rejects_invalid_status():
 
     try:
         service.update_assessment(
+            organization_id=ORGANIZATION_ID,
             medical_examination_id="medical-001",
             medical_center="TBBD Medical Center",
             examination_date=None,
@@ -325,6 +327,7 @@ def test_medical_examination_service_rejects_invalid_result():
 
     try:
         service.update_assessment(
+            organization_id=ORGANIZATION_ID,
             medical_examination_id="medical-001",
             medical_center="TBBD Medical Center",
             examination_date=None,

@@ -10,14 +10,17 @@ class VisaProcessingService:
 
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ):
         return self.repository.list_by_application(
+            organization_id,
             application_id,
         )
 
     def create(
         self,
+        organization_id: str,
         application_id: str,
         test_type: str | None = None,
         scheduled_at=None,
@@ -25,6 +28,7 @@ class VisaProcessingService:
         assessor_name: str | None = None,
     ):
         return self.repository.create(
+            organization_id=organization_id,
             application_id=application_id,
             test_type=test_type,
             scheduled_at=scheduled_at,
@@ -34,9 +38,11 @@ class VisaProcessingService:
 
     def get(
         self,
+        organization_id: str,
         visa_processing_id: str,
     ):
         return self.repository.get(
+            organization_id,
             visa_processing_id,
         )
 
@@ -44,6 +50,7 @@ class VisaProcessingService:
 
     def update_assessment(
         self,
+        organization_id: str,
         visa_processing_id: str,
         technical_knowledge_score: int,
         trade_skills_score: int,
@@ -80,6 +87,7 @@ class VisaProcessingService:
         )
 
         return self.repository.update_assessment(
+            organization_id=organization_id,
             visa_processing_id=visa_processing_id,
             technical_knowledge_score=technical_knowledge_score,
             trade_skills_score=trade_skills_score,

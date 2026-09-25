@@ -11,6 +11,7 @@ class VisaProcessingRepository(ABC):
     @abstractmethod
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ) -> list[VisaProcessing]:
         raise NotImplementedError
@@ -18,6 +19,7 @@ class VisaProcessingRepository(ABC):
     @abstractmethod
     def create(
         self,
+        organization_id: str,
         application_id: str,
         test_type: str | None = None,
         scheduled_at=None,
@@ -26,8 +28,10 @@ class VisaProcessingRepository(ABC):
     ) -> VisaProcessing:
         raise NotImplementedError
 
+    @abstractmethod
     def get(
         self,
+        organization_id: str,
         visa_processing_id: str,
     ) -> VisaProcessing | None:
         raise NotImplementedError
@@ -35,6 +39,7 @@ class VisaProcessingRepository(ABC):
     @abstractmethod
     def update_assessment(
         self,
+        organization_id: str,
         visa_processing_id: str,
         technical_knowledge_score: int,
         trade_skills_score: int,
@@ -118,6 +123,7 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
 
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ) -> list[VisaProcessing]:
 
@@ -142,15 +148,21 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
             assessment_notes,
             created_at,
             updated_at
-        FROM dbo.visa_processings
-        WHERE application_id = ?
-        ORDER BY scheduled_at DESC, created_at DESC;
+        FROM dbo.visa_processings AS vp
+        INNER JOIN dbo.applications AS a
+            ON a.id = vp.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE j.organization_id = ?
+          AND vp.application_id = ?
+        ORDER BY vp.scheduled_at DESC, vp.created_at DESC;
         """
 
         with self._connection() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 sql,
+                organization_id,
                 application_id,
             )
             rows = cursor.fetchall()
@@ -162,6 +174,7 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
 
     def create(
         self,
+        organization_id: str,
         application_id: str,
         test_type: str | None = None,
         scheduled_at=None,
@@ -196,7 +209,20 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
             INSERTED.assessment_notes,
             INSERTED.created_at,
             INSERTED.updated_at
-        VALUES (?, ?, ?, ?, ?);
+        SELECT
+            ?
+            , ?
+            , ?
+            , ?
+            , ?
+        WHERE EXISTS (
+            SELECT 1
+            FROM dbo.applications AS a
+            INNER JOIN dbo.jobs AS j
+                ON j.id = a.job_id
+            WHERE a.id = ?
+              AND j.organization_id = ?
+        );
         """
 
         with self._connection() as connection:
@@ -208,14 +234,20 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
                 scheduled_at,
                 location,
                 assessor_name,
+                application_id,
+                organization_id,
             )
             row = cursor.fetchone()
+            if row is None:
+                connection.rollback()
+                raise ValueError("Application not found for organization")
             connection.commit()
 
         return self._map_row(row)
 
     def get(
         self,
+        organization_id: str,
         visa_processing_id: str,
     ) -> VisaProcessing | None:
 
@@ -240,8 +272,13 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
             assessment_notes,
             created_at,
             updated_at
-        FROM dbo.visa_processings
-        WHERE id = ?;
+        FROM dbo.visa_processings AS vp
+        INNER JOIN dbo.applications AS a
+            ON a.id = vp.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE vp.id = ?
+          AND j.organization_id = ?;
         """
 
         with self._connection() as connection:
@@ -249,6 +286,7 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
             cursor.execute(
                 sql,
                 visa_processing_id,
+                organization_id,
             )
             row = cursor.fetchone()
 
@@ -259,6 +297,7 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
 
     def update_assessment(
         self,
+        organization_id: str,
         visa_processing_id: str,
         technical_knowledge_score: int,
         trade_skills_score: int,
@@ -267,13 +306,14 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
         communication_score: int,
         problem_solving_score: int,
         teamwork_score: int,
+        total_score: int,
         result: str,
         status: str,
         assessment_notes: str | None = None,
     ) -> VisaProcessing:
 
         sql = """
-        UPDATE dbo.visa_processings
+        UPDATE vp
         SET
             technical_knowledge_score = ?,
             trade_skills_score = ?,
@@ -307,7 +347,13 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
             INSERTED.assessment_notes,
             INSERTED.created_at,
             INSERTED.updated_at
-        WHERE id = ?;
+        FROM dbo.visa_processings AS vp
+        INNER JOIN dbo.applications AS a
+            ON a.id = vp.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE vp.id = ?
+          AND j.organization_id = ?;
         """
 
         with self._connection() as connection:
@@ -326,6 +372,7 @@ class SqlVisaProcessingRepository(VisaProcessingRepository):
                 status,
                 assessment_notes,
                 visa_processing_id,
+                organization_id,
             )
 
             row = cursor.fetchone()

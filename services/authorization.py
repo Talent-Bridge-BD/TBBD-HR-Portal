@@ -15,7 +15,7 @@ class AuthorizationContext:
 
 
 AUTHORIZATION_GROUPS = {
-    "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+    "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
     "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
     "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
     "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",

@@ -8,7 +8,7 @@ from main import app
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 def make_principal(principal_id, name, groups=None, roles=None):
@@ -103,7 +103,7 @@ def test_trade_test_list_by_organization_returns_trade_tests(
     assert response.json()["trade_tests"]
 
 
-def test_trade_test_list_by_organization_rejects_unauthorized_organization(
+def test_trade_test_list_by_organization_allows_global_administrator_without_membership(
     monkeypatch,
 ):
     monkeypatch.setattr(
@@ -114,6 +114,17 @@ def test_trade_test_list_by_organization_rejects_unauthorized_organization(
             (),
             {
                 "get_active_memberships": lambda self, user_id: [],
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        trade_test_api,
+        "_trade_test_service",
+        type(
+            "FakeTradeTestService",
+            (),
+            {
+                "list_by_organization": lambda self, organization_id: [],
             },
         )(),
     )
@@ -135,10 +146,8 @@ def test_trade_test_list_by_organization_rejects_unauthorized_organization(
         },
     )
 
-    assert response.status_code == 403
-    assert response.json()["detail"] == (
-        "User is not authorized for this organization"
-    )
+    assert response.status_code == 200
+    assert response.json()["trade_tests"] == []
 
 
 def test_trade_test_create_requires_authentication():
