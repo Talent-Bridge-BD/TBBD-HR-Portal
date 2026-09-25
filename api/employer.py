@@ -62,7 +62,7 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
     if not roles:
         roles.add("Employee")
 
-    employer_name = principal.get("email") or "Employer"
+    employer_name = principal.get("name") or principal.get("email") or "Employer"
 
     return principal_id, employer_name, roles
 

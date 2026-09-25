@@ -40,6 +40,7 @@ def test_employer_dashboard_repository_returns_dashboard():
         user_id="user-001",
         roles=frozenset({"Employer Manager"}),
         organization_ids=frozenset({"org-001"}),
+        is_global_administrator=False,
     )
 
     result = repository.get_dashboard(

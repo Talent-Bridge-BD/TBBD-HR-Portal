@@ -27,6 +27,7 @@ def test_employer_manager_can_access_dashboard():
         user_id="user-001",
         roles=frozenset({"Employer Manager"}),
         organization_ids=frozenset({"org-001"}),
+        is_global_administrator=False,
     )
 
     result = service.get_dashboard(context, "Test Employer")
@@ -53,6 +54,7 @@ def test_hr_manager_and_administrator_can_access_dashboard(role):
         user_id="user-003",
         roles=frozenset({role}),
         organization_ids=frozenset({"org-001"}),
+        is_global_administrator=(role == "Administrator"),
     )
 
     result = service.get_dashboard(context, "Test Employer")
@@ -77,6 +79,7 @@ def test_non_employer_manager_cannot_access_dashboard():
         user_id="user-002",
         roles=frozenset({"Employee"}),
         organization_ids=frozenset({"org-001"}),
+        is_global_administrator=False,
     )
 
     with pytest.raises(PermissionError):

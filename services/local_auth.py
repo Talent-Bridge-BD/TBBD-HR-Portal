@@ -43,6 +43,17 @@ def _get_easy_auth_principal(request: Request) -> Optional[dict]:
         "X-MS-CLIENT-PRINCIPAL-NAME"
     )
 
+    name_claim = next(
+        (
+            str(claim.get("val"))
+            for claim in principal.get("claims", [])
+            if claim.get("typ") == "name" and claim.get("val")
+        ),
+        None,
+    )
+    if name_claim:
+        principal["name"] = name_claim
+
     return principal
 
 
@@ -94,6 +105,7 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
         or ""
     )
 
+    name = claims.get("name")
     principal_claims = []
 
     for group_id in claims.get("groups", []):
@@ -125,11 +137,15 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
         ]
     )
 
-    return {
+    principal = {
         "id": principal_id,
         "email": email,
         "claims": principal_claims,
     }
+    if name:
+        principal["name"] = str(name)
+
+    return principal
 
 
 def get_request_principal(request: Request) -> Optional[dict]:
