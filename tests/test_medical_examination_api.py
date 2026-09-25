@@ -71,6 +71,18 @@ def test_medical_examination_create_rejects_missing_application_for_organization
         )(),
     )
 
+    monkeypatch.setattr(
+        medical_examination_api,
+        "_application_repository",
+        type(
+            "FakeApplicationRepository",
+            (),
+            {
+                "get_application": lambda self, organization_id, application_id: None
+            },
+        )(),
+    )
+
     encoded_principal = make_principal(
         "user-001",
         "Test Administrator",

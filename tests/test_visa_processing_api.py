@@ -71,6 +71,18 @@ def test_visa_processing_create_rejects_missing_application_for_organization(
         )(),
     )
 
+    monkeypatch.setattr(
+        visa_processing_api,
+        "_application_repository",
+        type(
+            "FakeApplicationRepository",
+            (),
+            {
+                "get_application": lambda self, organization_id, application_id: None
+            },
+        )(),
+    )
+
     encoded_principal = make_principal(
         "user-001",
         "Test Administrator",
