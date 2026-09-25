@@ -60,6 +60,12 @@ class ApplicationRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_application_by_id(
+        self,
+        application_id: str,
+    ) -> Optional[EmployerApplication]:
+        raise NotImplementedError
+
     def list_candidate_applications(
         self,
         candidate_id: str,
@@ -214,6 +220,27 @@ class SqlApplicationRepository(ApplicationRepository):
                 application_id,
                 organization_id,
             )
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return self._map_row(row)
+
+    def get_application_by_id(
+        self,
+        application_id: str,
+    ) -> Optional[EmployerApplication]:
+        sql = (
+            self._application_select()
+            + """
+            WHERE a.id = ?;
+            """
+        )
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, application_id)
             row = cursor.fetchone()
 
         if row is None:
