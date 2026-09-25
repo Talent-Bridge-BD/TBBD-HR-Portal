@@ -49,7 +49,7 @@ export default function Dashboard({ auth, onNavigate }) {
   }, [isAdministrator, isHRManager])
 
   useEffect(() => {
-    fetch('/api/recruitment/pipeline')
+    authenticatedFetch('/api/recruitment/pipeline')
       .then((response) => response.json())
       .then((data) => setPipeline(data))
       .catch((error) => console.error(error))
