@@ -9,84 +9,6 @@ import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 
-function LifecycleIcon({ type }) {
-  const paths = {
-    applications: (
-      <>
-        <rect x="5" y="3.5" width="14" height="17" rx="2" />
-        <path d="M8.5 8h7M8.5 12h7M8.5 16h4" />
-      </>
-    ),
-    screening: (
-      <>
-        <circle cx="10.5" cy="10.5" r="5.5" />
-        <path d="m15 15 4.5 4.5" />
-      </>
-    ),
-    interviews: (
-      <>
-        <rect x="4" y="5.5" width="16" height="14" rx="2" />
-        <path d="M8 3.5v4M16 3.5v4M4 10h16" />
-        <path d="M8 14h2M14 14h2M8 17h2" />
-      </>
-    ),
-    tradeTests: (
-      <>
-        <path d="m14.5 5.5 4 4" />
-        <path d="m13 7 4 4" />
-        <path d="M4 20l2.5-7.5L14.5 5 19 9.5l-7.5 8z" />
-        <path d="m7 17 3 3" />
-      </>
-    ),
-    medical: (
-      <>
-        <path d="M12 20.5s-7-4.3-7-10.3A4.2 4.2 0 0 1 12 7a4.2 4.2 0 0 1 7 3.2c0 6-7 10.3-7 10.3Z" />
-        <path d="M12 9v5M9.5 11.5h5" />
-      </>
-    ),
-    visa: (
-      <>
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <path d="M8 8h8M8 12h8M8 16h4" />
-      </>
-    ),
-    ticketing: (
-      <>
-        <path d="M4 7.5a2 2 0 0 0 0 4v1a2 2 0 0 0 0 4v2h16v-2a2 2 0 0 0 0-4v-1a2 2 0 0 0 0-4v-2H4Z" />
-        <path d="M12 7v10" />
-      </>
-    ),
-    onboarding: (
-      <>
-        <rect x="5" y="3.5" width="14" height="17" rx="2" />
-        <path d="M9 3.5v3h6v-3M9 12h6M9 16h4" />
-      </>
-    ),
-    deployment: (
-      <>
-        <path d="m12 3 3 5h-2v5h-2V8H9l3-5Z" />
-        <path d="M7 13v4.5A2.5 2.5 0 0 0 9.5 20h5a2.5 2.5 0 0 0 2.5-2.5V13" />
-        <path d="M8 16h8" />
-      </>
-    ),
-  }
-
-  return (
-    <svg
-      className="lifecycle-stage-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {paths[type]}
-    </svg>
-  )
-}
-
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
@@ -148,55 +70,46 @@ export default function Dashboard({ auth, onNavigate }) {
     {
       label: 'Applications',
       value: pipeline.Applied,
-      icon: 'applications',
       page: 'Recruitment Applications',
     },
     {
       label: 'Screening',
       value: pipeline.Screening,
-      icon: 'screening',
       page: 'Recruitment Screening',
     },
     {
       label: 'Interviews',
       value: pipeline.Interview,
-      icon: 'interviews',
       page: 'Recruitment Interviews',
     },
     {
       label: 'Trade Tests',
       value: pipeline["Trade Test"],
-      icon: 'tradeTests',
       page: 'Recruitment Trade Tests',
     },
     {
       label: 'Medical',
       value: pipeline.Medical,
-      icon: 'medical',
       page: 'Recruitment Medical',
     },
     {
       label: 'Visa',
       value: pipeline["Visa Processing"],
-      icon: 'visa',
       page: 'Recruitment Visa Processing',
     },
     {
       label: 'Ticketing',
       value: pipeline.Ticketing,
-      icon: 'ticketing',
       page: 'Recruitment Ticketing',
     },
     {
       label: 'Onboarding',
       value: pipeline.Onboarding,
-      icon: 'onboarding',
       page: 'Recruitment Onboarding',
     },
     {
       label: 'Deployment',
       value: pipeline.Deployment,
-      icon: 'deployment',
       page: 'Recruitment Deployment',
     },
   ]
@@ -212,7 +125,8 @@ export default function Dashboard({ auth, onNavigate }) {
             </span>
             <h1>TBBD Workplace Hub</h1>
             <p>
-              Your connected recruitment and workforce workspace.
+              One connected platform for employees, HR services, workplace
+              information, and everyday productivity.
             </p>
           </div>
         </div>
@@ -226,7 +140,7 @@ export default function Dashboard({ auth, onNavigate }) {
         }
         subtitle={
           isAdministrator || isHRManager
-            ? 'Here is your recruitment and workforce operations overview.'
+            ? 'Here is your Workplace Hub operations overview.'
             : 'Welcome back to your Workplace Hub.'
         }
       />
@@ -266,28 +180,99 @@ export default function Dashboard({ auth, onNavigate }) {
               subtitle="Track candidates through every stage of the recruitment workflow."
             />
 
-            <div className="recruitment-lifecycle">
-              {recruitmentJourney.map((stage) => (
-                <button
-                  className="lifecycle-stage"
-                  type="button"
-                  key={stage.label}
-                  onClick={() => onNavigate(stage.page)}
-                >
-                  <span className="lifecycle-stage-number">
-                    <LifecycleIcon type={stage.icon} />
-                  </span>
+            <div className="recruitment-lifecycle" aria-label="Recruitment lifecycle">
+              <div className="lifecycle-grid">
+                {recruitmentJourney.map((stage) => {
+                  const iconMap = {
+                    Applications: {
+                      color: "#0067B8",
+                      bg: "#EFF6FF",
+                      path: "M6 3.75A1.75 1.75 0 0 1 7.75 2h6.5A1.75 1.75 0 0 1 16 3.75v16.5A1.75 1.75 0 0 1 14.25 22h-6.5A1.75 1.75 0 0 1 6 20.25V3.75ZM9 5.25v2h4v-2H9Zm0 5v1.5h6v-1.5H9Zm0 3.5v1.5h6v-1.5H9Zm0 3.5v1.5h4v-1.5H9Z",
+                    },
+                    Screening: {
+                      color: "#0891B2",
+                      bg: "#ECFEFF",
+                      path: "m20.25 20.25-4.35-4.35a7 7 0 1 0-1.06 1.06l4.35 4.35 1.06-1.06ZM10.5 16a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11Z",
+                    },
+                    Interviews: {
+                      color: "#7C3AED",
+                      bg: "#F5F3FF",
+                      path: "M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2.5 20.5A6.5 6.5 0 0 1 9 14h1a6.5 6.5 0 0 1 6.5 6.5H2.5Zm13-4.75a5.6 5.6 0 0 1 3.95 4.75h2.05A5.99 5.99 0 0 0 16 14.8a5.8 5.8 0 0 0-.5-.05Z",
+                    },
+                    "Trade Tests": {
+                      color: "#EA580C",
+                      bg: "#FFF7ED",
+                      path: "M7 3h10a2 2 0 0 1 2 2v14H5V5a2 2 0 0 1 2-2Zm2 3v2h6V6H9Zm0 4v1.5h6V10H9Zm0 3.5V15h4v-1.5H9Z",
+                    },
+                    Medical: {
+                      color: "#16A34A",
+                      bg: "#F0FDF4",
+                      path: "M12 21s-7-4.35-7-10.1A4.1 4.1 0 0 1 9.1 7c1.2 0 2.3.53 2.9 1.43A3.48 3.48 0 0 1 14.9 7 4.1 4.1 0 0 1 19 10.9C19 16.65 12 21 12 21Zm-1.25-5.25h2.5v-2.5h2.5v-2.5h-2.5v-2.5h-2.5v2.5h-2.5v2.5h2.5v2.5Z",
+                    },
+                    Visa: {
+                      color: "#D97706",
+                      bg: "#FFFBEB",
+                      path: "M5 3h10a2 2 0 0 1 2 2v2.5l2 2V21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h12v-8h-2a2 2 0 0 1-2-2V5H5Zm10 0v4h2l-2-2V5ZM7 13h8v1.5H7V13Zm0 3h6v1.5H7V16Z",
+                    },
+                    Ticketing: {
+                      color: "#4F46E5",
+                      bg: "#EEF2FF",
+                      path: "M4 6a2 2 0 0 1 2-2h12v4a2 2 0 0 0 0 4v4H6a2 2 0 0 1-2-2V6Zm3 0v2h5V6H7Zm0 5v2h7v-2H7Zm0 4v2h4v-2H7Z",
+                    },
+                    Onboarding: {
+                      color: "#0D9488",
+                      bg: "#F0FDFA",
+                      path: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-6 9a6 6 0 0 1 12 0H3Zm14-7v-2h-2v2h-2v2h2v2h2v-2h2v-2h-2Z",
+                    },
+                    Deployment: {
+                      color: "#059669",
+                      bg: "#ECFDF5",
+                      path: "M6 4h12a2 2 0 0 1 2 2v12H4V6a2 2 0 0 1 2-2Zm3 3v2h6V7H9Zm-2 5v4h10v-4H7Zm2 1.5h6v1H9v-1Z",
+                    },
+                  };
 
-                  <span className="lifecycle-stage-main">
-                    <strong>{stage.value}</strong>
-                    <span>{stage.label}</span>
-                  </span>
+                  const icon = iconMap[stage.label] || {
+                    color: "#0067B8",
+                    bg: "#EFF6FF",
+                    path: "M12 3 4 7v5c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V7l-8-4Z",
+                  };
 
-                  <span className="lifecycle-stage-arrow" aria-hidden="true">
-                    →
-                  </span>
-                </button>
-              ))}
+                  return (
+                    <button
+                      className="lifecycle-stage"
+                      key={stage.label}
+                      type="button"
+                      onClick={() => onNavigate(stage.page)}
+                    >
+                      <span
+                        className="lifecycle-stage-icon"
+                        style={{
+                          color: icon.color,
+                          backgroundColor: icon.bg,
+                        }}
+                        aria-hidden="true"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="currentColor"
+                        >
+                          <path d={icon.path} />
+                        </svg>
+                      </span>
+
+                      <span className="lifecycle-stage-label">
+                        {stage.label}
+                      </span>
+
+                      <strong className="lifecycle-stage-count">
+                        {stage.value}
+                      </strong>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
@@ -310,6 +295,11 @@ export default function Dashboard({ auth, onNavigate }) {
                   onClick={() => onNavigate('Recruitment Applications')}
                 />
                 <QuickAction
+                  icon="◷"
+                  label="Screening"
+                  onClick={() => onNavigate('Recruitment Screening')}
+                />
+                <QuickAction
                   icon="◉"
                   label="Schedule Interview"
                   onClick={() => onNavigate('Recruitment Interviews')}
@@ -317,10 +307,7 @@ export default function Dashboard({ auth, onNavigate }) {
               </div>
             </DashboardCard>
 
-            <DashboardCard
-              title="Action Required"
-              subtitle="Items that need your attention."
-            >
+            <DashboardCard title="Action Required">
               <div className="action-required-list">
                 {pipeline.Applied > 0 ? (
                   <button
@@ -481,13 +468,7 @@ export default function Dashboard({ auth, onNavigate }) {
         </>
       )}
 
-      {isAdministrator || isHRManager ? (
-        <section className="admin-dashboard-section admin-assistant-section">
-          <WorkplaceAssistant />
-        </section>
-      ) : (
-        <WorkplaceAssistant />
-      )}
+      <WorkplaceAssistant />
     </>
   )
 }
