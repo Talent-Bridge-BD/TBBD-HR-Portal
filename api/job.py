@@ -136,7 +136,7 @@ async def list_jobs(
     context = get_job_authorization_context(request)
 
     if is_global_administrator(context):
-        jobs = _job_service.list_all_active_organization_jobs()
+        jobs = _job_service.list_jobs(organization_id)
     else:
         if organization_id not in context.organization_ids:
             raise HTTPException(
