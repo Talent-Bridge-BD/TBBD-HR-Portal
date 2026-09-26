@@ -5838,3 +5838,30 @@ button {
     min-height: 82px;
   }
 }
+
+/* Employer Dashboard — compact typography */
+.employer-dashboard .stat-label {
+  font-size: 13px;
+}
+
+.employer-dashboard .stat-detail {
+  font-size: 12px;
+}
+
+.employer-dashboard .overview-item strong {
+  font-size: 14px;
+}
+
+.employer-dashboard .overview-item > div > span {
+  font-size: 12px;
+}
+
+.employer-dashboard .card-heading h2,
+.employer-dashboard h2 {
+  font-size: 17px;
+}
+
+.employer-dashboard .quick-action {
+  font-size: 13px;
+}
+

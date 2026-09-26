@@ -169,10 +169,12 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
           </div>
         )}
 
-        <div className="nav-section">
-          <span className="nav-section-title">TOOLS</span>
-          {toolNavigation.map(renderItem)}
-        </div>
+        {!auth?.roles?.includes('Employer Manager') && (
+          <div className="nav-section">
+            <span className="nav-section-title">TOOLS</span>
+            {toolNavigation.map(renderItem)}
+          </div>
+        )}
 
       </nav>
     </aside>
