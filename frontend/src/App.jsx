@@ -12,7 +12,6 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import AdministrationEmployers from './pages/AdministrationEmployers'
-import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
 import EmployerApplications from './pages/EmployerApplications'
@@ -65,16 +64,14 @@ export default function App() {
 
     getCurrentUser()
       .then((data) => {
-        if (mounted) {
-          setAuth(data)
+        if (!mounted) return
 
-          if (data?.roles?.includes('Employer Manager')) {
-            setActivePage('Dashboard')
-          } else if (data?.roles?.includes('Candidate')) {
-            setActivePage('Candidate Dashboard')
-          } else {
-            setActivePage('Dashboard')
-          }
+        setAuth(data)
+
+        if (data?.roles?.includes('Candidate')) {
+          setActivePage('Candidate Dashboard')
+        } else {
+          setActivePage('Dashboard')
         }
       })
       .catch((error) => {

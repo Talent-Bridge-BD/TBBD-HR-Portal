@@ -8,10 +8,13 @@ import banner from '../assets/images/tbbd-workplace-hub.jpg'
 import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
+import EmployerDashboard from './EmployerDashboard'
 
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
+  const isEmployerManager = auth?.roles?.includes('Employer Manager')
+
   const [operations, setOperations] = useState({
     active_jobs: 0,
     new_applications: 0,
@@ -113,6 +116,10 @@ export default function Dashboard({ auth, onNavigate }) {
       page: 'Recruitment Deployment',
     },
   ]
+
+  if (isEmployerManager) {
+    return <EmployerDashboard onNavigate={onNavigate} />
+  }
 
   return (
     <>
