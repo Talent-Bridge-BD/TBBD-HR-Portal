@@ -37,9 +37,14 @@ const candidateNavigation = [
   ['Candidate Notifications', '🔔'],
 ]
 
+const administrationNavigation = [
+  ['Administration Employers', '♙'],
+  ['Administration Reports', '▤'],
+  ['Administration Settings', '⚙'],
+]
+
 const toolNavigation = [
   ['Workplace Assistant', '✦'],
-  ['Microsoft 365', '▦', false],
 ]
 
 function hasAnyRole(auth, roles) {
@@ -51,14 +56,12 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
   const isHRManager = auth?.roles?.includes('HR Manager')
 
   const canAccessRecruitment = hasAnyRole(auth, [
-    'Employer Manager',
     'HR Manager',
     'Administrator',
   ])
 
   const canAccessEmployerPortal = hasAnyRole(auth, [
     'Employer Manager',
-    'HR Manager',
     'Administrator',
   ])
   const canAccessCandidatePortal =
@@ -101,9 +104,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                 return ['Dashboard', 'My Profile'].includes(label)
               }
 
-              return isAdministrator || isHRManager
-                ? ['Dashboard', 'My Profile'].includes(label)
-                : true
+              return ['Dashboard', 'My Profile'].includes(label)
             })
             .map(([label, icon]) =>
               renderItem([label, icon, true])
@@ -156,6 +157,11 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                   .map(renderItem)}
               </div>
             )}
+
+            <div className="nav-section platform-nav-section">
+              <span className="nav-section-title">ADMINISTRATION</span>
+              {administrationNavigation.map(renderItem)}
+            </div>
           </>
         )}
 
@@ -174,13 +180,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
 
         <div className="nav-section">
           <span className="nav-section-title">TOOLS</span>
-          {toolNavigation
-            .filter(([label]) =>
-              isAdministrator || isHRManager
-                ? label === 'Workplace Assistant'
-                : true
-            )
-            .map(renderItem)}
+          {toolNavigation.map(renderItem)}
         </div>
 
       </nav>
