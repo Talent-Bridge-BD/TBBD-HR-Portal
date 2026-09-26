@@ -165,7 +165,7 @@ async def update_application_status(
         "under_review",
         "shortlisted",
         "interview",
-        "offer",
+        "offered",
         "hired",
         "rejected",
     }
