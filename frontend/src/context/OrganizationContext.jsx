@@ -73,15 +73,34 @@ export function OrganizationProvider({ auth, children }) {
           ? auth.organization_ids
           : []
 
-        const organizations = organizationIds.map((id) => ({
-          id,
-          name: id,
-          status: 'active',
-        }))
+        try {
+          const response = await authenticatedFetch('/api/organizations')
 
-        if (mounted) {
-          setAvailableOrganizations(organizations)
-          setOrganizationLoading(false)
+          if (!response.ok) {
+            throw new Error(
+              `Organization request failed: ${response.status}`,
+            )
+          }
+
+          const data = await response.json()
+
+          const organizations = (data?.organizations || []).filter(
+            (organization) => organizationIds.includes(organization.id),
+          )
+
+          if (mounted) {
+            setAvailableOrganizations(organizations)
+          }
+        } catch (error) {
+          console.error('Failed to load organizations:', error)
+
+          if (mounted) {
+            setAvailableOrganizations([])
+          }
+        } finally {
+          if (mounted) {
+            setOrganizationLoading(false)
+          }
         }
 
         return
