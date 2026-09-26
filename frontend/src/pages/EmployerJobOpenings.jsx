@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 export default function EmployerJobOpenings({ auth }) {
+  const { selectedOrganizationId, organizationLoading } = useOrganization()
+  const organizationId = selectedOrganizationId || ''
   const [jobs, setJobs] = useState([])
-  const [organizationId, setOrganizationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -21,13 +23,9 @@ export default function EmployerJobOpenings({ auth }) {
             statusFilter.toLowerCase(),
         )
 
-  useEffect(() => {
-    const id = auth?.organization_ids?.[0] || ''
-    setOrganizationId(id)
-  }, [auth])
 
   async function loadJobs(showLoading = true) {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setJobs([])
       setLoading(false)
       return
@@ -62,7 +60,7 @@ export default function EmployerJobOpenings({ auth }) {
 
   useEffect(() => {
     loadJobs()
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   async function updateJobStatus(job, status) {
     if (!organizationId || !job?.id) return

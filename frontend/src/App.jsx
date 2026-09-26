@@ -11,6 +11,7 @@ import Applications from './pages/Applications'
 import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
+import AdministrationEmployers from './pages/AdministrationEmployers'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
@@ -34,6 +35,7 @@ import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
+import CandidateHelpSupport from './pages/CandidateHelpSupport'
 import { getCurrentUser, signIn } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
@@ -66,8 +68,12 @@ export default function App() {
         if (mounted) {
           setAuth(data)
 
-          if (data?.roles?.includes('Candidate')) {
+          if (data?.roles?.includes('Employer Manager')) {
+            setActivePage('Employer Dashboard')
+          } else if (data?.roles?.includes('Candidate')) {
             setActivePage('Candidate Dashboard')
+          } else {
+            setActivePage('Dashboard')
           }
         }
       })
@@ -132,6 +138,7 @@ export default function App() {
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
+    'Administration Employers': <AdministrationEmployers auth={auth} />,
     'Employer Dashboard': (
       <EmployerDashboard
         auth={auth}
@@ -158,6 +165,7 @@ export default function App() {
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
   'Candidate Notifications': <CandidateNotifications />,
+  'Candidate Help & Support': <CandidateHelpSupport />,
   }
 
   Object.entries(placeholderPages).forEach(([page, config]) => {

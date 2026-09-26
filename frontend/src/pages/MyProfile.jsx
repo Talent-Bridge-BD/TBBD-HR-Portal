@@ -13,14 +13,6 @@ export default function MyProfile({ auth }) {
     auth?.roles?.find((item) => item === 'Candidate') ||
     'Employee'
 
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase()
-
   const [profile, setProfile] = useState({
     full_name: name,
     primary_email: email !== 'Not available'
@@ -30,6 +22,16 @@ export default function MyProfile({ auth }) {
     office_phone: '+880255040800',
     organization_email: 'admin_tbbd@loyaltrademanagement.com',
   })
+
+  const displayName = profile.full_name || name
+
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
 
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(profile)
@@ -175,7 +177,7 @@ export default function MyProfile({ auth }) {
 
         <div className="profile-hero-info">
           <div className="profile-name-line">
-            <h2>{name}</h2>
+            <h2>{displayName}</h2>
             <span className="profile-active-badge">● Active</span>
           </div>
 

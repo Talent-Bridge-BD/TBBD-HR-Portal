@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 import DashboardCard from '../components/DashboardCard'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function CandidateMyApplications() {
   const [applications, setApplications] = useState([])
@@ -16,7 +17,7 @@ export default function CandidateMyApplications() {
         setLoading(true)
         setError('')
 
-        const response = await fetch('/api/candidate/applications')
+        const response = await authenticatedFetch('/api/candidate/applications')
 
         if (!response.ok) {
           const body = await response.text()

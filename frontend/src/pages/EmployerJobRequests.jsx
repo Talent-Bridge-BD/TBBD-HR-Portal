@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 
 const emptyForm = {
   title: '',
@@ -12,8 +13,9 @@ const emptyForm = {
 }
 
 export default function EmployerJobRequests({ auth }) {
+  const { selectedOrganizationId, organizationLoading } = useOrganization()
+  const organizationId = selectedOrganizationId || ''
   const [requests, setRequests] = useState([])
-  const [organizationId, setOrganizationId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [approvingId, setApprovingId] = useState('')
@@ -21,13 +23,9 @@ export default function EmployerJobRequests({ auth }) {
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    const id = auth?.organization_ids?.[0] || ''
-    setOrganizationId(id)
-  }, [auth])
 
   async function loadRequests() {
-    if (!organizationId) {
+    if (organizationLoading || !organizationId) {
       setRequests([])
       setLoading(false)
       return
@@ -57,7 +55,7 @@ export default function EmployerJobRequests({ auth }) {
 
   useEffect(() => {
     loadRequests()
-  }, [organizationId])
+  }, [organizationId, organizationLoading])
 
   async function approveRequest(request) {
     if (!organizationId || !request?.id) return

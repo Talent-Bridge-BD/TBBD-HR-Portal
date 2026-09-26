@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
 import DashboardCard from '../components/DashboardCard'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function CandidateAvailableJobs() {
   const [jobs, setJobs] = useState([])
@@ -19,7 +20,7 @@ export default function CandidateAvailableJobs() {
         setLoading(true)
         setError('')
 
-        const response = await fetch('/api/candidate/jobs')
+        const response = await authenticatedFetch('/api/candidate/jobs')
 
         if (!response.ok) {
           const body = await response.text()
@@ -137,7 +138,7 @@ export default function CandidateAvailableJobs() {
       setApplicationError('')
       setApplicationSuccess('')
 
-      const response = await fetch('/api/candidate/applications', {
+      const response = await authenticatedFetch('/api/candidate/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

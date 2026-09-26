@@ -35,12 +35,11 @@ const candidateNavigation = [
   ['Candidate Interviews', '◷'],
   ['Candidate Documents', '□'],
   ['Candidate Notifications', '🔔'],
+  ['Candidate Help & Support', '?'],
 ]
 
 const administrationNavigation = [
   ['Administration Employers', '♙'],
-  ['Administration Reports', '▤'],
-  ['Administration Settings', '⚙'],
 ]
 
 const toolNavigation = [
@@ -110,15 +109,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
               renderItem([label, icon, true])
             )}
 
-          {canAccessCandidatePortal && (
-            <button
-              className="nav-item support-item"
-              onClick={() => onNavigate('Help & Support')}
-            >
-              <span className="nav-icon">?</span>
-              <span className="nav-label">Help &amp; Support</span>
-            </button>
-          )}
         </div>
 
         {canAccessRecruitment && (
@@ -158,10 +148,12 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
               </div>
             )}
 
-            <div className="nav-section platform-nav-section">
-              <span className="nav-section-title">ADMINISTRATION</span>
-              {administrationNavigation.map(renderItem)}
-            </div>
+            {isAdministrator && (
+              <div className="nav-section platform-nav-section">
+                <span className="nav-section-title">ADMINISTRATION</span>
+                {administrationNavigation.map(renderItem)}
+              </div>
+            )}
           </>
         )}
 
