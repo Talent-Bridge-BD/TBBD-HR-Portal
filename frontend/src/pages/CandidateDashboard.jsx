@@ -252,24 +252,28 @@ export default function CandidateDashboard({ onNavigate }) {
           label="Applications"
           value={stats.applications}
           detail="Total submitted"
+          onClick={() => onNavigate('Candidate My Applications')}
         />
         <StatCard
           icon={<Icon name="active" />}
           label="Active applications"
           value={stats.activeApplications}
           detail="Currently in progress"
+          onClick={() => onNavigate('Candidate My Applications')}
         />
         <StatCard
           icon={<Icon name="interviews" />}
           label="Upcoming interviews"
           value={stats.upcomingInterviews}
           detail="Scheduled interviews"
+          onClick={() => onNavigate('Candidate Interviews')}
         />
         <StatCard
           icon={<Icon name="documents" />}
           label="Documents"
           value={stats.documents}
           detail="Available documents"
+          onClick={() => onNavigate('Candidate Documents')}
         />
       </section>
 
@@ -280,6 +284,25 @@ export default function CandidateDashboard({ onNavigate }) {
               <div
                 className={`candidate-overview-card candidate-overview-card-${item.key}`}
                 key={item.key}
+                onClick={() =>
+                  onNavigate(
+                    item.key === 'interviews'
+                      ? 'Candidate Interviews'
+                      : 'Candidate My Applications',
+                  )
+                }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onNavigate(
+                      item.key === 'interviews'
+                        ? 'Candidate Interviews'
+                        : 'Candidate My Applications',
+                    )
+                  }
+                }}
               >
                 <span className="candidate-overview-icon">
                   <Icon name={item.icon} size={21} />
@@ -312,6 +335,7 @@ export default function CandidateDashboard({ onNavigate }) {
                   className="candidate-application-item"
                   type="button"
                   key={application.id}
+                  onClick={() => onNavigate('Candidate My Applications')}
                 >
                   <span className="candidate-application-icon">
                     <Icon name="applications" size={19} />
