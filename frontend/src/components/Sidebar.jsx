@@ -22,7 +22,6 @@ const recruitmentNavigation = [
 ]
 
 const employerNavigation = [
-  ['Employer Dashboard', '⌂'],
   ['Employer Job Requests', '＋'],
   ['Employer Job Openings', '▤'],
   ['Employer Applications', '♙'],

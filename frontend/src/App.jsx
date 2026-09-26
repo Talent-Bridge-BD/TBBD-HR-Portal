@@ -69,7 +69,7 @@ export default function App() {
           setAuth(data)
 
           if (data?.roles?.includes('Employer Manager')) {
-            setActivePage('Employer Dashboard')
+            setActivePage('Dashboard')
           } else if (data?.roles?.includes('Candidate')) {
             setActivePage('Candidate Dashboard')
           } else {
@@ -139,12 +139,6 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
-    'Employer Dashboard': (
-      <EmployerDashboard
-        auth={auth}
-        onNavigate={setActivePage}
-      />
-    ),
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
