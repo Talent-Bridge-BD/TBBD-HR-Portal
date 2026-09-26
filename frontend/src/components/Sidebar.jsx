@@ -30,10 +30,8 @@ const employerNavigation = [
 ]
 
 const candidateNavigation = [
-  ['Candidate Dashboard', '⌂'],
-  ['Candidate My Profile', '◉'],
-  ['Candidate My Applications', '▤'],
   ['Candidate Available Jobs', '▤'],
+  ['Candidate My Applications', '▤'],
   ['Candidate Interviews', '◷'],
   ['Candidate Documents', '□'],
   ['Candidate Notifications', '🔔'],
@@ -98,14 +96,28 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
         <div className="nav-section">
           <span className="nav-section-title">WORKPLACE HUB</span>
           {workplaceNavigation
-            .filter(([label]) =>
-              isAdministrator || isHRManager
+            .filter(([label]) => {
+              if (canAccessCandidatePortal) {
+                return ['Dashboard', 'My Profile'].includes(label)
+              }
+
+              return isAdministrator || isHRManager
                 ? ['Dashboard', 'My Profile'].includes(label)
                 : true
-            )
+            })
             .map(([label, icon]) =>
               renderItem([label, icon, true])
             )}
+
+          {canAccessCandidatePortal && (
+            <button
+              className="nav-item support-item"
+              onClick={() => onNavigate('Help & Support')}
+            >
+              <span className="nav-icon">?</span>
+              <span className="nav-label">Help &amp; Support</span>
+            </button>
+          )}
         </div>
 
         {canAccessRecruitment && (
@@ -171,12 +183,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
             .map(renderItem)}
         </div>
 
-        <div className="sidebar-support">
-          <button className="nav-item support-item">
-            <span className="nav-icon">?</span>
-            <span className="nav-label">Help &amp; Support</span>
-          </button>
-        </div>
       </nav>
     </aside>
   )
