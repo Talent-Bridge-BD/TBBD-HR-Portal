@@ -23,6 +23,29 @@ class OrganizationRepository(ABC):
     def list_active_organizations(self) -> list[Organization]:
         raise NotImplementedError
 
+    @abstractmethod
+    def list_members(self, organization_id: str) -> list[OrganizationMembership]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_membership(
+        self,
+        organization_id: str,
+        user_id: str,
+        role: str,
+    ) -> OrganizationMembership:
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_membership_status(
+        self,
+        organization_id: str,
+        user_id: str,
+        status: str,
+        role: str | None = None,
+    ) -> OrganizationMembership:
+        raise NotImplementedError
+
 
 class InMemoryOrganizationRepository(OrganizationRepository):
 
@@ -47,6 +70,66 @@ class InMemoryOrganizationRepository(OrganizationRepository):
             for organization in self._organizations
             if organization.status == "active"
         ]
+
+    def list_members(self, organization_id: str) -> list[OrganizationMembership]:
+        return [
+            membership
+            for membership in self._memberships
+            if membership.organization_id == organization_id
+        ]
+
+    def add_membership(
+        self,
+        organization_id: str,
+        user_id: str,
+        role: str,
+    ) -> OrganizationMembership:
+        existing = next(
+            (
+                membership
+                for membership in self._memberships
+                if membership.organization_id == organization_id
+                and membership.user_id == user_id
+            ),
+            None,
+        )
+
+        if existing is not None:
+            raise ValueError("Organization membership already exists")
+
+        membership = OrganizationMembership(
+            id=f"membership-{len(self._memberships) + 1:03d}",
+            organization_id=organization_id,
+            user_id=user_id,
+            role=role,
+            status="active",
+        )
+        self._memberships.append(membership)
+        return membership
+
+    def update_membership_status(
+        self,
+        organization_id: str,
+        user_id: str,
+        status: str,
+        role: str | None = None,
+    ) -> OrganizationMembership:
+        for index, membership in enumerate(self._memberships):
+            if (
+                membership.organization_id == organization_id
+                and membership.user_id == user_id
+            ):
+                updated = OrganizationMembership(
+                    id=membership.id,
+                    organization_id=membership.organization_id,
+                    user_id=membership.user_id,
+                    role=role if role is not None else membership.role,
+                    status=status,
+                )
+                self._memberships[index] = updated
+                return updated
+
+        raise ValueError("Organization membership not found")
 
 
 class SqlOrganizationRepository(OrganizationRepository):
@@ -131,6 +214,127 @@ class SqlOrganizationRepository(OrganizationRepository):
                 )
                 for row in rows
             ]
+
+    def list_members(self, organization_id: str) -> list[OrganizationMembership]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT
+                    CONVERT(nvarchar(36), id) AS id,
+                    CONVERT(nvarchar(36), organization_id) AS organization_id,
+                    user_id,
+                    role,
+                    status
+                FROM dbo.organization_memberships
+                WHERE organization_id = ?
+                ORDER BY user_id
+                """,
+                organization_id,
+            )
+            rows = cursor.fetchall()
+            return [
+                OrganizationMembership(
+                    id=str(row.id),
+                    organization_id=str(row.organization_id),
+                    user_id=str(row.user_id),
+                    role=str(row.role),
+                    status=str(row.status),
+                )
+                for row in rows
+            ]
+
+    def add_membership(
+        self,
+        organization_id: str,
+        user_id: str,
+        role: str,
+    ) -> OrganizationMembership:
+        import uuid
+
+        membership_id = str(uuid.uuid4())
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                INSERT INTO dbo.organization_memberships (
+                    id,
+                    organization_id,
+                    user_id,
+                    role,
+                    status
+                )
+                VALUES (?, ?, ?, ?, N'active')
+                """,
+                membership_id,
+                organization_id,
+                user_id,
+                role,
+            )
+            connection.commit()
+
+        return OrganizationMembership(
+            id=membership_id,
+            organization_id=organization_id,
+            user_id=user_id,
+            role=role,
+            status="active",
+        )
+
+    def update_membership_status(
+        self,
+        organization_id: str,
+        user_id: str,
+        status: str,
+        role: str | None = None,
+    ) -> OrganizationMembership:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE dbo.organization_memberships
+                SET status = ?,
+                    role = COALESCE(?, role),
+                    updated_at = SYSUTCDATETIME()
+                WHERE organization_id = ?
+                  AND user_id = ?
+                """,
+                status,
+                role,
+                organization_id,
+                user_id,
+            )
+
+            if cursor.rowcount != 1:
+                raise ValueError("Organization membership not found")
+
+            cursor.execute(
+                """
+                SELECT
+                    CONVERT(nvarchar(36), id) AS id,
+                    CONVERT(nvarchar(36), organization_id) AS organization_id,
+                    user_id,
+                    role,
+                    status
+                FROM dbo.organization_memberships
+                WHERE organization_id = ?
+                  AND user_id = ?
+                """,
+                organization_id,
+                user_id,
+            )
+
+            row = cursor.fetchone()
+            connection.commit()
+
+        return OrganizationMembership(
+            id=str(row.id),
+            organization_id=str(row.organization_id),
+            user_id=str(row.user_id),
+            role=str(row.role),
+            status=str(row.status),
+        )
 
     def list_active_organizations(self) -> list[Organization]:
         with self._connection() as connection:
