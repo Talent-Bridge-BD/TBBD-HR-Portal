@@ -128,7 +128,11 @@ export default function App() {
   }
 
   const pages = {
-    Dashboard: <Dashboard auth={auth} onNavigate={setActivePage} />,
+    Dashboard: auth?.roles?.includes('Candidate') ? (
+      <CandidateDashboard onNavigate={setActivePage} />
+    ) : (
+      <Dashboard auth={auth} onNavigate={setActivePage} />
+    ),
     'My Profile': <MyProfile auth={auth} />,
     Leave: <Leave />,
     Attendance: <Attendance />,
