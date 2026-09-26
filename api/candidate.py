@@ -5,6 +5,7 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, field_validator
 from models.candidate import CandidateProfile
 from repositories.application import SqlApplicationRepository
+from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
 from repositories.job import SqlJobRepository
 from repositories.blob_storage import BlobStorageRepository
@@ -14,6 +15,7 @@ from repositories.candidate_language import SqlCandidateLanguageRepository
 from repositories.candidate_experience import SqlCandidateExperienceRepository
 from repositories.candidate_preferences import SqlCandidatePreferencesRepository
 from services.application import ApplicationService
+from services.interview import InterviewService
 from services.candidate_document import CandidateDocumentService
 from services.candidate_skill import CandidateSkillService
 from services.candidate_language import CandidateLanguageService
@@ -29,6 +31,10 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _application_repository = SqlApplicationRepository()
 _application_service = ApplicationService(_application_repository)
+
+_interview_repository = SqlInterviewRepository()
+
+_interview_service = InterviewService(_interview_repository)
 _document_repository = SqlCandidateDocumentRepository()
 _blob_repository = BlobStorageRepository()
 _document_service = CandidateDocumentService(
@@ -468,6 +474,28 @@ async def get_candidate_applications(request: Request):
         "applications": [
             item.__dict__
             for item in applications
+        ],
+    }
+
+
+@router.get("/interviews")
+async def get_candidate_interviews(request: Request):
+    user_id = get_candidate_identity(request)
+    candidate_id = _service.get_candidate_id(user_id)
+    if candidate_id is None:
+        return {
+            "interviews": [],
+            "message": "Candidate profile has not been created yet",
+        }
+
+    interviews = _interview_service.list_candidate_interviews(
+        candidate_id,
+    )
+
+    return {
+        "interviews": [
+            item.__dict__
+            for item in interviews
         ],
     }
 

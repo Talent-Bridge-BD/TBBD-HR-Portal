@@ -232,6 +232,7 @@ export default function EmployerDashboard({ onNavigate }) {
           label="Active jobs"
           value={loading ? '—' : stats.active_jobs}
           detail="Currently open"
+          onClick={() => onNavigate('Recruitment Jobs')}
         />
 
         <StatCard
@@ -239,6 +240,7 @@ export default function EmployerDashboard({ onNavigate }) {
           label="New applications"
           value={loading ? '—' : stats.new_applications}
           detail="Awaiting review"
+          onClick={() => onNavigate('Employer Applications')}
         />
 
         <StatCard
@@ -246,6 +248,7 @@ export default function EmployerDashboard({ onNavigate }) {
           label="Candidates pipeline"
           value={loading ? '—' : stats.candidates_pipeline}
           detail="Active applications"
+          onClick={() => onNavigate('Employer Applications')}
         />
 
         <StatCard
@@ -253,76 +256,187 @@ export default function EmployerDashboard({ onNavigate }) {
           label="Upcoming interviews"
           value={loading ? '—' : stats.interviews_upcoming}
           detail="Scheduled interviews"
+          onClick={() => onNavigate('Employer Hiring')}
         />
       </div>
 
       <section className="dashboard-grid">
         <DashboardCard title="Recruitment Pipeline">
           <div className="overview-grid">
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Employer Applications')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Employer Applications')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="inbox" /></span>
               <div>
                 <strong>Applied</strong>
                 <span>{loading ? '—' : pipeline.applied} applications</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Employer Applications')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Employer Applications')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="search" /></span>
               <div>
                 <strong>Screening</strong>
                 <span>{loading ? '—' : pipeline.screening} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Interviews')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Interviews')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="interview" /></span>
               <div>
                 <strong>Interview</strong>
                 <span>{loading ? '—' : pipeline.interview} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Trade Tests')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Trade Tests')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="tools" /></span>
               <div>
                 <strong>Trade Test</strong>
                 <span>{loading ? '—' : pipeline.trade_test} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Medical')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Medical')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="medical" /></span>
               <div>
                 <strong>Medical</strong>
                 <span>{loading ? '—' : pipeline.medical} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Visa Processing')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Visa Processing')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="passport" /></span>
               <div>
                 <strong>Visa Processing</strong>
                 <span>{loading ? '—' : pipeline.visa_processing} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Ticketing')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Ticketing')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="plane" /></span>
               <div>
                 <strong>Ticketing</strong>
                 <span>{loading ? '—' : pipeline.ticketing} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Onboarding')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Onboarding')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="clipboard" /></span>
               <div>
                 <strong>Onboarding</strong>
                 <span>{loading ? '—' : pipeline.onboarding} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Deployment')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Deployment')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="rocket" /></span>
               <div>
                 <strong>Deployment</strong>
                 <span>{loading ? '—' : pipeline.deployment} candidates</span>
               </div>
             </div>
-            <div className="overview-item">
+            <div
+              className="overview-item overview-item-clickable"
+              onClick={() => onNavigate('Recruitment Candidates')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onNavigate('Recruitment Candidates')
+                }
+              }}
+            >
               <span className="overview-icon"><DashboardIcon name="check" /></span>
               <div>
                 <strong>Completed</strong>

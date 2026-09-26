@@ -1656,3 +1656,21 @@
     width: 100%;
   }
 }
+
+
+/* Clickable recruitment pipeline stages */
+.overview-item-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.overview-item-clickable:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+}
+
+.overview-item-clickable:focus-visible {
+  outline: 2px solid #0067B8;
+  outline-offset: 2px;
+}
