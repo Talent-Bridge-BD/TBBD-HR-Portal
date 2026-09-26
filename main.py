@@ -190,14 +190,24 @@ async def list_organizations(request: Request):
         memberships=memberships,
     )
 
-    if not is_global_administrator(authorization_context):
+    if is_global_administrator(authorization_context):
+        organizations = _organization_repository.list_active_organizations()
+    elif (
+        "HR Manager" in authorization_context.roles
+        or "Employer Manager" in authorization_context.roles
+    ) and authorization_context.organization_ids:
+        organizations = [
+            organization
+            for organization in _organization_repository.list_active_organizations()
+            if organization.id in authorization_context.organization_ids
+        ]
+    else:
         from fastapi import HTTPException
         raise HTTPException(
             status_code=403,
-            detail="Administrator access is required",
+            detail="Organization access is required",
         )
 
-    organizations = _organization_repository.list_active_organizations()
 
     return {
         "organizations": [
