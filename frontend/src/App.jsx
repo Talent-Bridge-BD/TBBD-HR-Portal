@@ -36,18 +36,13 @@ import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
+import EmployerNotifications from './pages/EmployerNotifications'
 import CandidateHelpSupport from './pages/CandidateHelpSupport'
 import { getCurrentUser, signIn } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
 
-const placeholderPages = {
-  'Employer Notifications': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Notifications',
-    description: 'Employer recruitment updates and important notifications will appear here.',
-  },
-}
+const placeholderPages = {}
 
 export default function App() {
   const [activePage, setActivePage] = useState('Dashboard')
@@ -149,6 +144,7 @@ export default function App() {
     'Employer Candidates': <RecruitmentCandidates auth={auth} />,
     'Employer Interviews / Tests': <EmployerInterviewsTests auth={auth} />,
     'Employer Hiring': <Hiring auth={auth} />,
+    'Employer Notifications': <EmployerNotifications />,
 
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
