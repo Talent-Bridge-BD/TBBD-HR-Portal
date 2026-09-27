@@ -164,7 +164,6 @@ export default function App() {
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
   'Candidate Notifications': <CandidateNotifications />,
-  'Candidate Help & Support': <CandidateHelpSupport />,
   }
 
   Object.entries(placeholderPages).forEach(([page, config]) => {

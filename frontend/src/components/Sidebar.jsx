@@ -38,7 +38,6 @@ const candidateNavigation = [
   ['Candidate Interviews', '◷'],
   ['Candidate Documents', '□'],
   ['Candidate Notifications', '🔔'],
-  ['Candidate Help & Support', '?'],
 ]
 
 const administrationNavigation = [
