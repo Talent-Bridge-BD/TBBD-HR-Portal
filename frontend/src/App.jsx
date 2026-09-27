@@ -12,9 +12,10 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import AdministrationEmployers from './pages/AdministrationEmployers'
+import EmployerDashboard from './pages/EmployerDashboard'
+import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
-import EmployerApplications from './pages/EmployerApplications'
 import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
@@ -26,6 +27,7 @@ import RecruitmentApplications from './pages/RecruitmentApplications'
 import RecruitmentScreening from './pages/RecruitmentScreening'
 import RecruitmentInterviews from './pages/RecruitmentInterviews'
 import RecruitmentTradeTests from './pages/RecruitmentTradeTests'
+import EmployerInterviewsTests from './pages/EmployerInterviewsTests'
 import RecruitmentMedical from './pages/RecruitmentMedical'
 import RecruitmentVisaProcessing from './pages/RecruitmentVisaProcessing'
 import RecruitmentTicketing from './pages/RecruitmentTicketing'
@@ -40,17 +42,10 @@ import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
 
 const placeholderPages = {
-
-
-  'Employer Applications': {
+  'Employer Notifications': {
     area: 'EMPLOYER PORTAL',
-    title: 'Candidate Applications',
-    description: 'Review candidates submitted against employer openings.',
-  },
-  'Employer Hiring': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Hiring',
-    description: 'Manage employer hiring decisions and recruitment progress.',
+    title: 'Notifications',
+    description: 'Employer recruitment updates and important notifications will appear here.',
   },
 }
 
@@ -68,8 +63,15 @@ export default function App() {
 
         setAuth(data)
 
-        if (data?.roles?.includes('Candidate')) {
+        const roles = data?.roles || []
+
+        if (roles.includes('Candidate')) {
           setActivePage('Candidate Dashboard')
+        } else if (
+          roles.includes('Employer Manager') ||
+          roles.includes('Employer.Manager')
+        ) {
+          setActivePage('Employer Dashboard')
         } else {
           setActivePage('Dashboard')
         }
@@ -140,8 +142,14 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
+    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Employer My Organization': <EmployerOrganization />,
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
+    'Employer Candidates': <RecruitmentCandidates auth={auth} />,
+    'Employer Interviews / Tests': <EmployerInterviewsTests auth={auth} />,
+    'Employer Hiring': <Hiring auth={auth} />,
+
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
@@ -166,13 +174,6 @@ export default function App() {
   Object.entries(placeholderPages).forEach(([page, config]) => {
     pages[page] = <PlatformPlaceholder {...config} />
   })
-  pages['Employer Applications'] = (
-    <EmployerApplications auth={auth} />
-  )
-
-  pages['Employer Hiring'] = (
-    <Hiring auth={auth} />
-  )
 
   return (
     <OrganizationProvider auth={auth}>

@@ -359,7 +359,7 @@ export default function RecruitmentInterviews({ auth }) {
       <div className="interview-kpi-grid">
         <div className="interview-kpi-card">
           <h3>{interviews.length}</h3>
-          <p>KPI TEST</p>
+          <p>Total Interviews</p>
         </div>
 
         <div className="interview-kpi-card">
@@ -473,8 +473,12 @@ export default function RecruitmentInterviews({ auth }) {
 
                   </div>
 
-                  <span className="status-badge status-scheduled">
-                    {interview.status.replace('_', ' ')}
+                  <span
+                    className={`status-badge status-${interview.status || 'scheduled'}`}
+                  >
+                    {(interview.status || 'scheduled')
+                      .replace('_', ' ')
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
                   </span>
 
                 </div>

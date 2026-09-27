@@ -22,10 +22,14 @@ const recruitmentNavigation = [
 ]
 
 const employerNavigation = [
+  ['Employer Dashboard', '⌂'],
+  ['Employer My Organization', '◉'],
   ['Employer Job Requests', '＋'],
   ['Employer Job Openings', '▤'],
-  ['Employer Applications', '♙'],
+  ['Employer Candidates', '♙'],
+  ['Employer Interviews / Tests', '◷'],
   ['Employer Hiring', '✓'],
+  ['Employer Notifications', '🔔'],
 ]
 
 const candidateNavigation = [
