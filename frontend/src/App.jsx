@@ -66,8 +66,12 @@ export default function App() {
         if (mounted) {
           setAuth(data)
 
-          if (data?.roles?.includes('Candidate')) {
+          if (data?.roles?.includes('Employer Manager')) {
+            setActivePage('Employer Dashboard')
+          } else if (data?.roles?.includes('Candidate')) {
             setActivePage('Candidate Dashboard')
+          } else {
+            setActivePage('Dashboard')
           }
         }
       })

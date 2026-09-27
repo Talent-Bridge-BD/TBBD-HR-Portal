@@ -53,7 +53,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
   const isHRManager = auth?.roles?.includes('HR Manager')
 
   const canAccessRecruitment = hasAnyRole(auth, [
-    'Employer Manager',
     'HR Manager',
     'Administrator',
   ])
