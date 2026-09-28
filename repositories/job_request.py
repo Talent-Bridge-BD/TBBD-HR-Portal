@@ -85,6 +85,8 @@ class SqlJobRequestRepository(JobRequestRepository):
             location=row.location,
             country=row.country,
             number_of_positions=row.number_of_positions,
+            working_hours=row.working_hours,
+            benefits=row.benefits,
             status=row.status,
             requested_at=row.requested_at,
             reviewed_at=row.reviewed_at,
@@ -111,6 +113,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                     location,
                     country,
                     number_of_positions,
+                    working_hours,
+                    benefits,
                     status,
                     requested_at,
                     reviewed_at,
@@ -148,6 +152,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                     location,
                     country,
                     number_of_positions,
+                    working_hours,
+                    benefits,
                     status,
                     requested_at,
                     reviewed_at,
@@ -203,6 +209,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                         location,
                         country,
                         number_of_positions,
+                        working_hours,
+                        benefits,
                         status,
                         requested_at
                     )
@@ -216,6 +224,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                         INSERTED.location,
                         INSERTED.country,
                         INSERTED.number_of_positions,
+                        INSERTED.working_hours,
+                        INSERTED.benefits,
                         INSERTED.status,
                         INSERTED.requested_at,
                         INSERTED.reviewed_at,
@@ -223,7 +233,7 @@ class SqlJobRequestRepository(JobRequestRepository):
                         INSERTED.created_at,
                         INSERTED.updated_at
                     VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                     """,
                     request.organization_id,
@@ -234,6 +244,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                     request.location,
                     request.country,
                     request.number_of_positions,
+                    request.working_hours,
+                    request.benefits,
                     request.status,
                     request.requested_at,
                 )
@@ -248,6 +260,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                         location = ?,
                         country = ?,
                         number_of_positions = ?,
+                        working_hours = ?,
+                        benefits = ?,
                         status = ?,
                         reviewed_at = ?,
                         reviewed_by = ?,
@@ -262,6 +276,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                         INSERTED.location,
                         INSERTED.country,
                         INSERTED.number_of_positions,
+                        INSERTED.working_hours,
+                        INSERTED.benefits,
                         INSERTED.status,
                         INSERTED.requested_at,
                         INSERTED.reviewed_at,
@@ -277,6 +293,8 @@ class SqlJobRequestRepository(JobRequestRepository):
                     request.location,
                     request.country,
                     request.number_of_positions,
+                    request.working_hours,
+                    request.benefits,
                     request.status,
                     request.reviewed_at,
                     request.reviewed_by,

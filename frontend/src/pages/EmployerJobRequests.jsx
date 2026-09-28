@@ -10,6 +10,8 @@ const emptyForm = {
   location: '',
   country: '',
   number_of_positions: 1,
+  working_hours: '',
+  benefits: '',
 }
 
 function formatDate(value) {
@@ -145,6 +147,8 @@ export default function EmployerJobRequests({ auth }) {
           country: form.country.trim(),
           number_of_positions:
             Number(form.number_of_positions) || 1,
+          working_hours: form.working_hours.trim(),
+          benefits: form.benefits.trim(),
         }),
       })
 
@@ -406,6 +410,24 @@ export default function EmployerJobRequests({ auth }) {
                     value={form.number_of_positions}
                     onChange={handleChange}
                     required
+                  />
+                </label>
+                <label className="employer-request-field">
+                  <span>Working Hours</span>
+                  <input
+                    name="working_hours"
+                    value={form.working_hours}
+                    onChange={handleChange}
+                    placeholder="e.g. 8 hours/day, 6 days/week"
+                  />
+                </label>
+                <label className="employer-request-field full-width">
+                  <span>Benefits</span>
+                  <textarea
+                    name="benefits"
+                    value={form.benefits}
+                    onChange={handleChange}
+                    placeholder="e.g. Accommodation, transport, medical insurance, annual leave"
                   />
                 </label>
               </div>

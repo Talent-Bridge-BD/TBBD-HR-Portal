@@ -14,6 +14,8 @@ class JobRequest:
     location: Optional[str] = None
     country: Optional[str] = None
     number_of_positions: Optional[int] = None
+    working_hours: Optional[str] = None
+    benefits: Optional[str] = None
     status: str = "pending"
     requested_at: Optional[datetime] = None
     reviewed_at: Optional[datetime] = None

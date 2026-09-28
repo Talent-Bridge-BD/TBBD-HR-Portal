@@ -37,6 +37,8 @@ class JobRequest(BaseModel):
     country: str = ""
     status: str = "draft"
     number_of_positions: int | None = None
+    working_hours: str = ""
+    benefits: str = ""
     published_at: datetime | None = None
     closing_at: datetime | None = None
 
@@ -200,6 +202,8 @@ async def create_job(
         country=payload.country or None,
         status=payload.status,
         number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
         requisition_number=payload.requisition_number or None,
@@ -256,6 +260,8 @@ async def update_job(
         country=payload.country or None,
         status=payload.status,
         number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
         requisition_number=payload.requisition_number or None,

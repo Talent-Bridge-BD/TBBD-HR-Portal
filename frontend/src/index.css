@@ -1674,3 +1674,249 @@
   outline: 2px solid #0067B8;
   outline-offset: 2px;
 }
+
+/* Employer Job Openings */
+
+.job-opening-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.job-opening-filter {
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #475569;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.job-opening-filter span {
+  margin-left: 4px;
+  color: #64748B;
+}
+
+.job-opening-filter.active {
+  border-color: #0067B8;
+  background: #0067B8;
+  color: #FFFFFF;
+}
+
+.job-opening-filter.active span {
+  color: #FFFFFF;
+}
+
+.job-opening-list {
+  display: grid;
+  gap: 14px;
+}
+
+.job-opening-card {
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.job-opening-main {
+  padding: 20px;
+}
+
+.job-opening-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.job-opening-title-row h3 {
+  margin: 0;
+  color: #0F172A;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.job-opening-status {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.job-opening-status.status-open {
+  color: #16A34A;
+  background: rgba(22, 163, 74, 0.10);
+}
+
+.job-opening-status.status-paused {
+  color: #D97706;
+  background: rgba(217, 119, 6, 0.10);
+}
+
+.job-opening-status.status-closed {
+  color: #DC2626;
+  background: rgba(220, 38, 38, 0.10);
+}
+
+.job-opening-status.status-draft {
+  color: #64748B;
+  background: #F1F5F9;
+}
+
+.job-opening-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.job-opening-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.job-opening-review-note {
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.job-opening-editor {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background: #F8FAFC;
+}
+
+.job-opening-editor-heading {
+  margin-bottom: 20px;
+}
+
+.job-opening-editor-heading h3 {
+  margin: 0 0 5px;
+  color: #0F172A;
+  font-size: 17px;
+}
+
+.job-opening-editor-heading p {
+  margin: 0;
+  color: #64748B;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.job-opening-form-section {
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.job-opening-form-section:first-of-type {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+
+.job-opening-form-section h4 {
+  margin: 0 0 14px;
+  color: #0F172A;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.job-opening-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.job-opening-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.job-opening-form-grid label span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.job-opening-form-grid input,
+.job-opening-form-grid textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #172033;
+  font: inherit;
+  font-size: 14px;
+}
+
+.job-opening-form-grid input {
+  min-height: 40px;
+  padding: 0 11px;
+}
+
+.job-opening-form-grid textarea {
+  padding: 10px 11px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.job-opening-form-grid input:focus,
+.job-opening-form-grid textarea:focus {
+  outline: none;
+  border-color: #0067B8;
+  box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.10);
+}
+
+.job-opening-form-full {
+  grid-column: 1 / -1;
+}
+
+.job-opening-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #E2E8F0;
+}
+
+@media (max-width: 700px) {
+  .job-opening-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .job-opening-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .job-opening-form-full {
+    grid-column: auto;
+  }
+
+  .job-opening-editor-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .job-opening-editor-actions button {
+    width: 100%;
+  }
+}
