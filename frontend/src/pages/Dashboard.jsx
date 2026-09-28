@@ -65,6 +65,8 @@ export default function Dashboard({ auth, onNavigate }) {
     attendance,
     leave,
     schedule,
+    tasks,
+    notifications,
     applications,
     announcements,
   } = employeeDashboard
@@ -395,8 +397,83 @@ export default function Dashboard({ auth, onNavigate }) {
             />
           </div>
 
+          <section className="workplace-dashboard-card-grid">
+            <DashboardCard title="My Tasks">
+              <div className="workplace-summary-card">
+                <div>
+                  <strong>{tasks.pending}</strong>
+                  <span>Pending tasks</span>
+                  <small>Tasks that may need your attention</small>
+                </div>
+                <button
+                  className="card-link"
+                  type="button"
+                  onClick={() => onNavigate('My Tasks')}
+                >
+                  View tasks →
+                </button>
+              </div>
+            </DashboardCard>
+
+            <DashboardCard title="Notifications">
+              <div className="workplace-notification-summary">
+                {notifications.slice(0, 3).map((notification) => (
+                  <button
+                    className="workplace-notification-item"
+                    type="button"
+                    key={notification.id}
+                    onClick={() => onNavigate('Notifications')}
+                  >
+                    <span className="workplace-notification-dot" />
+                    <span>
+                      <strong>{notification.title}</strong>
+                      <small>{notification.message}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <button
+                className="card-link"
+                type="button"
+                onClick={() => onNavigate('Notifications')}
+              >
+                View notifications →
+              </button>
+            </DashboardCard>
+          </section>
+
+          <section className="workplace-dashboard-card-grid">
+            <DashboardCard title="Upcoming Calendar">
+              <div className="workplace-empty-card">
+                <span className="workplace-empty-icon">◷</span>
+                <strong>Calendar coming soon</strong>
+                <p>
+                  Upcoming events will appear here when the workplace calendar
+                  data source is connected.
+                </p>
+              </div>
+            </DashboardCard>
+
+            <DashboardCard title="Recent Activity">
+              <div className="workplace-activity-list">
+                {announcements.slice(0, 3).map((announcement) => (
+                  <article
+                    className="workplace-activity-item"
+                    key={announcement.id}
+                  >
+                    <span className="workplace-activity-icon">•</span>
+                    <div>
+                      <strong>{announcement.title}</strong>
+                      <small>{announcement.message}</small>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </DashboardCard>
+          </section>
+
           <section className="dashboard-two-column">
-            <DashboardCard title="Quick Actions">
+            <DashboardCard title="Quick Access">
               <div className="quick-actions">
                 <QuickAction
                   icon="+"

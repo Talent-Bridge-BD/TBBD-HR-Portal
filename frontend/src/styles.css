@@ -6471,3 +6471,178 @@ button {
     width: 100%;
   }
 }
+
+/* Workplace Hub dashboard cards */
+.workplace-dashboard-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.workplace-summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 92px;
+}
+
+.workplace-summary-card > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workplace-summary-card strong {
+  font-size: 30px;
+  line-height: 1;
+  color: var(--tbbd-text-primary);
+}
+
+.workplace-summary-card span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tbbd-text-body);
+}
+
+.workplace-summary-card small,
+.workplace-notification-item small,
+.workplace-activity-item small {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--tbbd-text-secondary);
+}
+
+.workplace-notification-summary,
+.workplace-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workplace-notification-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--tbbd-border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.workplace-notification-item:last-child {
+  border-bottom: 0;
+}
+
+.workplace-notification-item:hover strong,
+.workplace-activity-item:hover strong {
+  color: var(--tbbd-blue);
+}
+
+.workplace-notification-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--tbbd-blue);
+}
+
+.workplace-notification-item span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.workplace-notification-item strong,
+.workplace-activity-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tbbd-text-primary);
+}
+
+.workplace-empty-card {
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+}
+
+.workplace-empty-icon {
+  font-size: 24px;
+  color: var(--tbbd-blue);
+}
+
+.workplace-empty-card strong {
+  font-size: 15px;
+  color: var(--tbbd-text-primary);
+}
+
+.workplace-empty-card p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tbbd-text-secondary);
+}
+
+.workplace-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--tbbd-border);
+}
+
+.workplace-activity-item:last-child {
+  border-bottom: 0;
+}
+
+.workplace-activity-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  border-radius: 50%;
+  background: var(--tbbd-blue-soft);
+  color: var(--tbbd-blue);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.workplace-activity-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+@media (max-width: 900px) {
+  .workplace-dashboard-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .workplace-dashboard-card-grid {
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .workplace-summary-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .workplace-summary-card strong {
+    font-size: 28px;
+  }
+}
