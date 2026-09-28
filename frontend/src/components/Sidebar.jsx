@@ -63,6 +63,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
 
   const canAccessEmployerPortal = hasAnyRole(auth, [
     'Employer Manager',
+    'HR Manager',
     'Administrator',
   ])
   const canAccessCandidatePortal =

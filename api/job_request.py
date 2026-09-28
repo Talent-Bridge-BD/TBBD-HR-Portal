@@ -221,6 +221,65 @@ async def create_job_request(
         "message": "Job request created",
     }
 
+@router.put("/{request_id}")
+async def update_job_request(
+    request_id: str,
+    payload: JobRequestPayload,
+    request: Request,
+):
+    context = _require_organization_access(
+        request,
+        payload.organization_id,
+    )
+
+    existing = _job_request_service.get_request(
+        payload.organization_id,
+        request_id,
+    )
+
+    if existing is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Job request not found",
+        )
+
+    if existing.status != "pending":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Job request cannot be edited from "
+                f"status '{existing.status}'"
+            ),
+        )
+
+    updated_request = JobRequest(
+        id=existing.id,
+        organization_id=existing.organization_id,
+        requested_by=existing.requested_by,
+        title=payload.title,
+        description=payload.description or None,
+        employment_type=payload.employment_type or None,
+        location=payload.location or None,
+        country=payload.country or None,
+        number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
+        status="pending",
+        requested_at=existing.requested_at,
+        reviewed_at=existing.reviewed_at,
+        reviewed_by=existing.reviewed_by,
+        created_at=existing.created_at,
+        updated_at=existing.updated_at,
+    )
+
+    saved = _job_request_service.save_request(updated_request)
+
+    return {
+        "request": saved.__dict__,
+        "message": "Job request updated",
+    }
+
+
 @router.post("/{request_id}/approve")
 async def approve_job_request(
     request_id: str,
