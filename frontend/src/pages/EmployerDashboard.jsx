@@ -232,7 +232,7 @@ export default function EmployerDashboard({ onNavigate }) {
           label="Active jobs"
           value={loading ? '—' : stats.active_jobs}
           detail="Currently open"
-          onClick={() => onNavigate('Recruitment Jobs')}
+          onClick={() => onNavigate('Employer Job Openings')}
         />
 
         <StatCard
@@ -256,7 +256,7 @@ export default function EmployerDashboard({ onNavigate }) {
           label="Upcoming interviews"
           value={loading ? '—' : stats.interviews_upcoming}
           detail="Scheduled interviews"
-          onClick={() => onNavigate('Employer Hiring')}
+          onClick={() => onNavigate('Employer Interviews / Tests')}
         />
       </div>
 
@@ -301,13 +301,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Interviews')}
+              onClick={() => onNavigate('Employer Interviews / Tests')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Interviews')
+                  onNavigate('Employer Interviews / Tests')
                 }
               }}
             >
@@ -319,13 +319,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Trade Tests')}
+              onClick={() => onNavigate('Employer Interviews / Tests')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Trade Tests')
+                  onNavigate('Employer Interviews / Tests')
                 }
               }}
             >
@@ -337,13 +337,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Medical')}
+              onClick={() => onNavigate('Employer Hiring')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Medical')
+                  onNavigate('Employer Hiring')
                 }
               }}
             >
@@ -355,13 +355,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Visa Processing')}
+              onClick={() => onNavigate('Employer Hiring')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Visa Processing')
+                  onNavigate('Employer Hiring')
                 }
               }}
             >
@@ -373,13 +373,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Ticketing')}
+              onClick={() => onNavigate('Employer Hiring')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Ticketing')
+                  onNavigate('Employer Hiring')
                 }
               }}
             >
@@ -391,13 +391,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Onboarding')}
+              onClick={() => onNavigate('Employer Hiring')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Onboarding')
+                  onNavigate('Employer Hiring')
                 }
               }}
             >
@@ -409,13 +409,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Deployment')}
+              onClick={() => onNavigate('Employer Hiring')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Deployment')
+                  onNavigate('Employer Hiring')
                 }
               }}
             >
@@ -427,13 +427,13 @@ export default function EmployerDashboard({ onNavigate }) {
             </div>
             <div
               className="overview-item overview-item-clickable"
-              onClick={() => onNavigate('Recruitment Candidates')}
+              onClick={() => onNavigate('Employer Candidates')}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
-                  onNavigate('Recruitment Candidates')
+                  onNavigate('Employer Candidates')
                 }
               }}
             >
@@ -457,31 +457,31 @@ export default function EmployerDashboard({ onNavigate }) {
           <QuickAction
             icon={<DashboardIcon name="plus" />}
             label="Create Job"
-            onClick={() => onNavigate('Recruitment Jobs')}
+            onClick={() => onNavigate('Employer Job Openings')}
           />
 
           <QuickAction
             icon={<DashboardIcon name="users" />}
             label="Review Candidates"
-            onClick={() => onNavigate('Recruitment Candidates')}
+            onClick={() => onNavigate('Employer Candidates')}
           />
 
           <QuickAction
             icon={<DashboardIcon name="calendar" />}
             label="Schedule Interview"
-            onClick={() => onNavigate('Recruitment Interviews')}
+            onClick={() => onNavigate('Employer Interviews / Tests')}
           />
 
           <QuickAction
             icon={<DashboardIcon name="document" />}
             label="Create Offer"
-            onClick={() => onNavigate('Recruitment Onboarding')}
+            onClick={() => onNavigate('Employer Hiring')}
           />
 
           <QuickAction
             icon={<DashboardIcon name="settings" />}
             label="Manage Organization"
-            onClick={() => onNavigate('Employer Organization')}
+            onClick={() => onNavigate('Employer My Organization')}
           />
         </div>
       </section>

@@ -16,6 +16,7 @@ import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
+import EmployerApplications from './pages/EmployerApplications'
 import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
@@ -141,6 +142,7 @@ export default function App() {
     'Employer My Organization': <EmployerOrganization />,
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
+    'Employer Applications': <EmployerApplications auth={auth} />,
     'Employer Candidates': <RecruitmentCandidates auth={auth} />,
     'Employer Interviews / Tests': <EmployerInterviewsTests auth={auth} />,
     'Employer Hiring': <Hiring auth={auth} />,
