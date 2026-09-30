@@ -29,6 +29,24 @@ const emptyOpeningForm = {
 }
 
 function isJobReadyToPublish(job) {
+  console.log('Publish check:', {
+    title: job?.title,
+    description: job?.description,
+    employment_type: job?.employment_type,
+    location: job?.location,
+    country: job?.country,
+    number_of_positions: job?.number_of_positions,
+    working_hours: job?.working_hours,
+    benefits: job?.benefits,
+    employer_name: job?.employer_name,
+    employer_country: job?.employer_country,
+    employer_city: job?.employer_city,
+    trade_skill_category: job?.trade_skill_category,
+    industry_sector: job?.industry_sector,
+    contract_duration: job?.contract_duration,
+    work_location: job?.work_location,
+    closing_at: job?.closing_at,
+  })
   const requiredFields = [
     job?.title,
     job?.description,
@@ -294,11 +312,6 @@ export default function EmployerJobOpenings({ auth }) {
 
   return (
     <>
-      <PageHeader
-        title="Job Openings"
-        subtitle="View your organization's recruitment job openings."
-      />
-
       <section className="dashboard-card">
         <div className="card-heading">
           <div>
