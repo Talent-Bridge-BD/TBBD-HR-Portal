@@ -231,6 +231,8 @@ class SqlJobRepository(JobRepository):
                     country,
                     status,
                     number_of_positions,
+                    working_hours,
+                    benefits,
                     job_reference,
                     employer_name,
                     employer_country,

@@ -96,7 +96,7 @@ export default function EmployerJobOpenings({ auth }) {
 
   const roles = auth?.roles || []
   const canManageOpenings = roles.some((role) =>
-    ['Administrator', 'HR Manager'].includes(role),
+    ['Employer Manager', 'Administrator', 'HR Manager'].includes(role),
   )
 
   const statusOptions = ['All', 'Open', 'Paused', 'Closed', 'Draft']
@@ -509,9 +509,7 @@ export default function EmployerJobOpenings({ auth }) {
                                   />
                                 </label>
                               </div>
-                            </div>
 
-                            <div className="job-opening-form-section">
                               <h4>Job Opening Details</h4>
 
                               <div className="job-opening-form-grid">
@@ -665,29 +663,29 @@ export default function EmployerJobOpenings({ auth }) {
 
                         <div className="job-opening-actions">
                           {isDraft && canManageOpenings && (
-                            isJobReadyToPublish(job) ? (
-                              <button
-                                className="primary-action"
-                                type="button"
-                                onClick={() => updateJobStatus(job, 'open')}
-                                disabled={actionJobId === job.id}
-                              >
-                                {actionJobId === job.id
-                                  ? 'Publishing...'
-                                  : 'Publish Job'}
-                              </button>
-                            ) : (
-                              <button
-                                className="primary-action"
-                                type="button"
-                                onClick={() => startEditing(job)}
-                                disabled={
-                                  actionJobId === job.id || isEditing
-                                }
-                              >
-                                Complete Opening
-                              </button>
-                            )
+                            <>
+                              {isJobReadyToPublish(job) ? (
+                                <button
+                                  className="primary-action"
+                                  type="button"
+                                  onClick={() => updateJobStatus(job, 'open')}
+                                  disabled={actionJobId === job.id}
+                                >
+                                  {actionJobId === job.id
+                                    ? 'Publishing...'
+                                    : 'Publish Job'}
+                                </button>
+                              ) : (
+                                <button
+                                  className="primary-action"
+                                  type="button"
+                                  onClick={() => startEditing(job)}
+                                  disabled={actionJobId === job.id || isEditing}
+                                >
+                                  Complete Opening
+                                </button>
+                              )}
+                            </>
                           )}
 
                           {isDraft && !canManageOpenings && (

@@ -89,7 +89,14 @@ export function OrganizationProvider({ auth, children }) {
           )
 
           if (mounted) {
-            setAvailableOrganizations(organizations)
+
+          console.log("ORG DEBUG", {
+           auth,
+            organizationIds,
+            organizations,
+       })
+
+          setAvailableOrganizations(organizations)
           }
         } catch (error) {
           console.error('Failed to load organizations:', error)
