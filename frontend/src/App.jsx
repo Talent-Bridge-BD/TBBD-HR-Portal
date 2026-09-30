@@ -12,6 +12,7 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import EmployerDashboard from './pages/EmployerDashboard'
+import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
 import EmployerJobOpenings from './pages/EmployerJobOpenings'
 import EmployerApplications from './pages/EmployerApplications'
@@ -142,8 +143,11 @@ export default function App() {
         onNavigate={setActivePage}
       />
     ),
-    'Employer Job Requests': <EmployerJobRequests auth={auth} />,
+    'Employer Organization': <EmployerOrganization />,
+'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
+    'Employer Candidates': <RecruitmentCandidates auth={auth} />,
+    'Employer Interviews / Tests': <RecruitmentInterviews auth={auth} />,
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
@@ -202,3 +206,6 @@ export default function App() {
     </OrganizationProvider>
   )
 }
+
+
+

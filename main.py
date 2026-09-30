@@ -209,6 +209,60 @@ async def list_organizations(request: Request):
     }
 
 
+@app.get("/api/organizations/{organization_id}")
+async def get_organization(organization_id: str, request: Request):
+    principal = get_request_principal(request)
+
+    if not principal:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
+
+    principal_id = principal.get("id") or ""
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
+    )
+
+    authorized = any(
+        membership.organization_id == organization_id
+        and membership.status == "active"
+        for membership in memberships
+    )
+
+    if not authorized:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=403,
+            detail="User is not authorized for this organization",
+        )
+
+    organizations = _organization_repository.list_active_organizations()
+
+    organization = next(
+        (
+            item
+            for item in organizations
+            if item.id == organization_id
+        ),
+        None,
+    )
+
+    if organization is None:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=404,
+            detail="Organization not found",
+        )
+
+    return {
+        "organization": {
+            "id": organization.id,
+            "name": organization.name,
+            "status": organization.status,
+        }
+    }
 @app.get("/healthz")
 @app.head("/healthz")
 def healthz():
@@ -459,3 +513,4 @@ async def handle_mcp(request: Request):
             "id": body.get("id", 1) if "body" in locals() else 1,
             "error": str(e),
         }
+

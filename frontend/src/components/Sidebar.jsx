@@ -62,6 +62,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'HR Manager',
     'Administrator',
   ])
+
   const canAccessCandidatePortal =
     !isAdministrator &&
     !isHRManager &&
@@ -73,7 +74,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
       className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
       onClick={() => {
         if (!enabled) return
-
 
         onNavigate(label)
       }}
@@ -94,23 +94,35 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
   return (
     <aside className="sidebar">
       <nav>
+        {/* WORKPLACE HUB */}
         <div className="nav-section">
           <span className="nav-section-title">WORKPLACE HUB</span>
+
           {workplaceNavigation
-            .filter(([label]) =>
-              isAdministrator || isHRManager
-                ? ['Dashboard', 'My Profile'].includes(label)
-                : true
-            )
+            .filter(([label]) => {
+              // Administrators, HR Managers, and Candidates
+              // only see Dashboard and My Profile here.
+              if (
+                isAdministrator ||
+                isHRManager ||
+                canAccessCandidatePortal
+              ) {
+                return ['Dashboard', 'My Profile'].includes(label)
+              }
+
+              return true
+            })
             .map(([label, icon]) =>
               renderItem([label, icon, true])
             )}
         </div>
 
+        {/* RECRUITMENT */}
         {canAccessRecruitment && (
           <>
             <div className="nav-section platform-nav-section">
               <span className="nav-section-title">RECRUITMENT</span>
+
               {recruitmentNavigation
                 .filter(([label]) =>
                   isAdministrator || isHRManager
@@ -127,9 +139,11 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                 .map(renderItem)}
             </div>
 
+            {/* PROCESSING */}
             {(isAdministrator || isHRManager) && (
               <div className="nav-section platform-nav-section">
                 <span className="nav-section-title">PROCESSING</span>
+
                 {recruitmentNavigation
                   .filter(([label]) =>
                     [
@@ -146,35 +160,44 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
           </>
         )}
 
+        {/* EMPLOYER PORTAL */}
         {canAccessEmployerPortal && (
           <div className="nav-section platform-nav-section">
             <span className="nav-section-title">EMPLOYER PORTAL</span>
+
             {employerNavigation.map(renderItem)}
           </div>
         )}
+
+        {/* CANDIDATE PORTAL */}
         {canAccessCandidatePortal && (
           <div className="nav-section platform-nav-section">
             <span className="nav-section-title">CANDIDATE PORTAL</span>
+
             {candidateNavigation.map(renderItem)}
           </div>
         )}
 
+        {/* TOOLS */}
         <div className="nav-section">
           <span className="nav-section-title">TOOLS</span>
-          {toolNavigation
-            .filter(([label]) =>
-              isAdministrator || isHRManager
-                ? label === 'Workplace Assistant'
-                : true
-            )
-            .map(renderItem)}
-        </div>
 
-        <div className="sidebar-support">
-          <button className="nav-item support-item">
-            <span className="nav-icon">?</span>
-            <span className="nav-label">Help &amp; Support</span>
-          </button>
+          {toolNavigation
+            .filter(([label]) => {
+              // Candidate users only see Workplace Assistant.
+              if (canAccessCandidatePortal) {
+                return label === 'Workplace Assistant'
+              }
+
+              // Administrators and HR Managers also only see
+              // Workplace Assistant.
+              if (isAdministrator || isHRManager) {
+                return label === 'Workplace Assistant'
+              }
+
+              return true
+            })
+            .map(renderItem)}
         </div>
       </nav>
     </aside>
