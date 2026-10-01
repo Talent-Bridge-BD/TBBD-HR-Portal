@@ -50,6 +50,7 @@ class InterviewUpdateRequest(BaseModel):
     interviewer_name: str = ""
     notes: str = ""
     status: str = "scheduled"
+    outcome: str = "Pending"
 
 
 def _claim_values(
@@ -235,17 +236,27 @@ async def update_interview(
     allowed_statuses = {
         "scheduled",
         "completed",
-        "passed",
-        "failed",
         "cancelled",
         "rescheduled",
         "no_show",
+    }
+
+    allowed_outcomes = {
+        "Pending",
+        "Pass",
+        "Fail",
     }
 
     if payload.status not in allowed_statuses:
         raise HTTPException(
             status_code=400,
             detail="Invalid interview status",
+        )
+
+    if payload.outcome not in allowed_outcomes:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid interview outcome",
         )
 
     interview = _interview_service.update_interview(
@@ -258,6 +269,7 @@ async def update_interview(
         interviewer_name=payload.interviewer_name,
         notes=payload.notes,
         status=payload.status,
+        outcome=payload.outcome,
     )
 
     if interview is None:

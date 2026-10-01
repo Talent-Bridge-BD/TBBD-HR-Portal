@@ -7,11 +7,15 @@ import { useOrganization } from '../context/OrganizationContext'
 const INTERVIEW_STATUSES = [
   'scheduled',
   'completed',
-  'passed',
-  'failed',
   'cancelled',
   'rescheduled',
   'no_show',
+]
+
+const INTERVIEW_OUTCOMES = [
+  'Pending',
+  'Pass',
+  'Fail',
 ]
 
 
@@ -244,7 +248,11 @@ export default function RecruitmentInterviews({ auth }) {
   }
 
 
-  const updateStatus = async (interview, status) => {
+  const updateInterview = async (
+    interview,
+    status,
+    outcome
+  ) => {
 
     try {
 
@@ -267,6 +275,7 @@ export default function RecruitmentInterviews({ auth }) {
             interviewer_name: interview.interviewer_name || '',
             notes: interview.notes || '',
             status,
+            outcome,
           }),
         }
       )
@@ -275,7 +284,7 @@ export default function RecruitmentInterviews({ auth }) {
 
       if (!response.ok) {
         throw new Error(
-          data.detail || 'Unable to update interview status.'
+          data.detail || 'Unable to update interview.'
         )
       }
 
@@ -491,6 +500,11 @@ export default function RecruitmentInterviews({ auth }) {
                   </p>
 
                   <p>
+                    <strong>Interview Outcome:</strong>{' '}
+                    {interview.outcome || 'Pending'}
+                  </p>
+
+                  <p>
                     <strong>Date:</strong>{' '}
                     {formatDateTime(interview.scheduled_start)}
                   </p>
@@ -510,14 +524,15 @@ export default function RecruitmentInterviews({ auth }) {
                 <div className="interview-card-actions">
 
                   <select
-                    value={interview.status}
+                    value={interview.status || 'scheduled'}
                     onChange={(event) =>
-                      updateStatus(
+                      updateInterview(
                         interview,
-                        event.target.value
+                        event.target.value,
+                        interview.outcome || 'Pending'
                       )
                     }
-                    aria-label={`Interview result for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
+                    aria-label={`Interview status for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
                   >
 
                     {INTERVIEW_STATUSES.map((status) => (
@@ -533,6 +548,27 @@ export default function RecruitmentInterviews({ auth }) {
 
                     ))}
 
+                  </select>
+
+                  <select
+                    value={interview.outcome || 'Pending'}
+                    onChange={(event) =>
+                      updateInterview(
+                        interview,
+                        interview.status || 'scheduled',
+                        event.target.value
+                      )
+                    }
+                    aria-label={`Interview outcome for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
+                  >
+                    {INTERVIEW_OUTCOMES.map((outcome) => (
+                      <option
+                        key={outcome}
+                        value={outcome}
+                      >
+                        {outcome}
+                      </option>
+                    ))}
                   </select>
 
                   {interview.location_or_link && (

@@ -220,7 +220,15 @@ async def create_job(
         project_name=payload.project_name or None,
     )
 
-    saved = _job_service.save_job(job)
+    try:
+        saved = _job_service.save_job(job)
+    except Exception as exc:
+        import traceback
+        print("\n=== JOB UPDATE ERROR ===")
+        print(repr(exc))
+        traceback.print_exc()
+        print("=== END JOB UPDATE ERROR ===\n")
+        raise
 
     return {
         "job": saved.__dict__,
@@ -280,7 +288,15 @@ async def update_job(
         updated_at=existing.updated_at,
     )
 
-    saved = _job_service.save_job(job)
+    try:
+        saved = _job_service.save_job(job)
+    except Exception as exc:
+        import traceback
+        print("\n========== UPDATE JOB ERROR ==========")
+        print(repr(exc))
+        traceback.print_exc()
+        print("=====================================\n")
+        raise
 
     return {
         "job": saved.__dict__,

@@ -20,6 +20,17 @@ export default function RecruitmentScreening({ auth }) {
   const [selectedApplication, setSelectedApplication] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
+  const [screening, setScreening] = useState({
+    basic_eligibility: '',
+    relevant_experience: '',
+    education: '',
+    communication: '',
+    availability: '',
+    screening_notes: '',
+    recommendation: '',
+  })
+  const [screeningLoading, setScreeningLoading] = useState(false)
+  const [screeningSaving, setScreeningSaving] = useState(false)
 
   useEffect(() => {
     if (organizationLoading || !organizationId) {
@@ -123,30 +134,146 @@ export default function RecruitmentScreening({ auth }) {
   const openApplication = async (applicationId) => {
     setSelectedApplication(null)
     setDetailError('')
+    setScreening({
+      basic_eligibility: '',
+      relevant_experience: '',
+      education: '',
+      communication: '',
+      availability: '',
+      screening_notes: '',
+      recommendation: '',
+    })
     setDetailLoading(true)
+    setScreeningLoading(true)
+
+    try {
+      const [applicationResponse, screeningResponse] =
+        await Promise.all([
+          authenticatedFetch(
+            `/api/applications/${encodeURIComponent(
+              applicationId
+            )}?organization_id=${encodeURIComponent(
+              organizationId
+            )}`
+          ),
+          authenticatedFetch(
+            `/api/screening/application/${encodeURIComponent(
+              applicationId
+            )}?organization_id=${encodeURIComponent(
+              organizationId
+            )}`
+          ),
+        ])
+
+      const applicationData = await applicationResponse.json()
+      const screeningData = await screeningResponse.json()
+
+      if (!applicationResponse.ok) {
+        throw new Error(
+          applicationData.detail ||
+            'Unable to load screening details.'
+        )
+      }
+
+      if (!screeningResponse.ok) {
+        throw new Error(
+          screeningData.detail ||
+            'Unable to load screening assessment.'
+        )
+      }
+
+      setSelectedApplication(applicationData.application)
+
+      const savedScreening = screeningData.screening
+
+      if (savedScreening) {
+        setScreening({
+          basic_eligibility:
+            savedScreening.basic_eligibility || '',
+          relevant_experience:
+            savedScreening.relevant_experience || '',
+          education:
+            savedScreening.education || '',
+          communication:
+            savedScreening.communication || '',
+          availability:
+            savedScreening.availability || '',
+          screening_notes:
+            savedScreening.screening_notes || '',
+          recommendation:
+            savedScreening.recommendation || '',
+        })
+      }
+    } catch (err) {
+      setDetailError(err.message)
+    } finally {
+      setDetailLoading(false)
+      setScreeningLoading(false)
+    }
+  }
+
+  const saveScreening = async (recommendation = null) => {
+    if (!selectedApplication?.id || !organizationId) {
+      return false
+    }
+
+    const payload = {
+      ...screening,
+      recommendation:
+        recommendation ?? (screening.recommendation || null),
+    }
+
+    setScreeningSaving(true)
 
     try {
       const response = await authenticatedFetch(
-        `/api/applications/${encodeURIComponent(
-          applicationId
+        `/api/screening/application/${encodeURIComponent(
+          selectedApplication.id
         )}?organization_id=${encodeURIComponent(
           organizationId
-        )}`
+        )}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        },
       )
 
       const data = await response.json()
 
       if (!response.ok) {
         throw new Error(
-          data.detail || 'Unable to load screening details.'
+          data.detail ||
+            'Unable to save screening assessment.'
         )
       }
 
-      setSelectedApplication(data.application)
+      setScreening({
+        basic_eligibility:
+          data.screening.basic_eligibility || '',
+        relevant_experience:
+          data.screening.relevant_experience || '',
+        education:
+          data.screening.education || '',
+        communication:
+          data.screening.communication || '',
+        availability:
+          data.screening.availability || '',
+        screening_notes:
+          data.screening.screening_notes || '',
+        recommendation:
+          data.screening.recommendation || '',
+      })
+
+      return true
     } catch (err) {
+      console.error(err)
       setDetailError(err.message)
+      return false
     } finally {
-      setDetailLoading(false)
+      setScreeningSaving(false)
     }
   }
 
@@ -438,67 +565,205 @@ export default function RecruitmentScreening({ auth }) {
 <section className="recruitment-screening-review">
   <h3>Screening Assessment</h3>
 
-  <div className="recruitment-detail-grid">
-    <div>
-      <span>Basic Eligibility</span>
-      <strong>☐ Yes ☐ No ☐ Needs Review</strong>
-    </div>
+  {screeningLoading ? (
+    <p>Loading screening assessment...</p>
+  ) : (
+    <>
+      <div className="recruitment-detail-grid">
+        <div>
+          <span>Basic Eligibility</span>
+          <div className="recruitment-screening-options">
+            {['Yes', 'No', 'Needs Review'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="basic_eligibility"
+                  value={value}
+                  checked={screening.basic_eligibility === value}
+                  onChange={(event) =>
+                    setScreening((current) => ({
+                      ...current,
+                      basic_eligibility: event.target.value,
+                    }))
+                  }
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+        </div>
 
-    <div>
-      <span>Relevant Experience</span>
-      <strong>☐ Strong ☐ Moderate ☐ Limited</strong>
-    </div>
+        <div>
+          <span>Relevant Experience</span>
+          <div className="recruitment-screening-options">
+            {['Strong', 'Moderate', 'Limited'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="relevant_experience"
+                  value={value}
+                  checked={screening.relevant_experience === value}
+                  onChange={(event) =>
+                    setScreening((current) => ({
+                      ...current,
+                      relevant_experience: event.target.value,
+                    }))
+                  }
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+        </div>
 
-    <div>
-      <span>Education</span>
-      <strong>☐ Yes ☐ No ☐ Needs Review</strong>
-    </div>
+        <div>
+          <span>Education</span>
+          <div className="recruitment-screening-options">
+            {['Yes', 'No', 'Needs Review'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="education"
+                  value={value}
+                  checked={screening.education === value}
+                  onChange={(event) =>
+                    setScreening((current) => ({
+                      ...current,
+                      education: event.target.value,
+                    }))
+                  }
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+        </div>
 
-    <div>
-      <span>Communication</span>
-      <strong>☐ Strong ☐ Satisfactory ☐ Needs Improvement</strong>
-    </div>
+        <div>
+          <span>Communication</span>
+          <div className="recruitment-screening-options">
+            {['Strong', 'Satisfactory', 'Needs Improvement'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="communication"
+                  value={value}
+                  checked={screening.communication === value}
+                  onChange={(event) =>
+                    setScreening((current) => ({
+                      ...current,
+                      communication: event.target.value,
+                    }))
+                  }
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+        </div>
 
-    <div>
-      <span>Availability</span>
-      <strong>☐ Immediate ☐ 1 Month ☐ Later</strong>
-    </div>
-  </div>
+        <div>
+          <span>Availability</span>
+          <div className="recruitment-screening-options">
+            {['Immediate', '1 Month', 'Later'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="availability"
+                  value={value}
+                  checked={screening.availability === value}
+                  onChange={(event) =>
+                    setScreening((current) => ({
+                      ...current,
+                      availability: event.target.value,
+                    }))
+                  }
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
 
-  <h3>Screening Notes</h3>
+      <h3>Screening Notes</h3>
 
-  <textarea
-    rows="4"
-    placeholder="Enter screening observations and recruiter notes..."
-  />
+      <textarea
+        rows="4"
+        placeholder="Enter screening observations and recruiter notes..."
+        value={screening.screening_notes}
+        onChange={(event) =>
+          setScreening((current) => ({
+            ...current,
+            screening_notes: event.target.value,
+          }))
+        }
+      />
 
-  <h3>Recommendation</h3>
+      <div className="recruitment-action-group">
+        <button
+          type="button"
+          className="secondary-action"
+          disabled={screeningSaving}
+          onClick={() => saveScreening()}
+        >
+          {screeningSaving ? 'Saving...' : 'Save Assessment'}
+        </button>
+      </div>
 
-  <div className="recruitment-action-group">
-    <button
-      type="button"
-      className="primary-action"
-      onClick={() =>
-        shortlistApplication(selectedApplication)
-      }
-    >
-      Shortlist Candidate
-    </button>
+      <h3>Recommendation</h3>
 
-    <button
-      type="button"
-      className="secondary-action"
-    >
-      Continue Screening
-    </button>
+      <div className="recruitment-action-group">
+        <button
+          type="button"
+          className="primary-action"
+          disabled={screeningSaving}
+          onClick={async () => {
+            const saved = await saveScreening(
+              'Shortlist Candidate'
+            )
+            if (saved) {
+              await shortlistApplication(
+                selectedApplication
+              )
+            }
+          }}
+        >
+          {screeningSaving ? 'Saving...' : 'Shortlist Candidate'}
+        </button>
 
-    <button
-      type="button"
-      className="danger-action"
-    >
-      Reject Application
-    </button>
-  </div>
+        <button
+          type="button"
+          className="secondary-action"
+          disabled={screeningSaving}
+          onClick={() =>
+            saveScreening('Continue Screening')
+          }
+        >
+          Continue Screening
+        </button>
+
+        <button
+          type="button"
+          className="danger-action"
+          disabled={screeningSaving}
+          onClick={async () => {
+            const saved = await saveScreening(
+              'Reject Application'
+            )
+            if (saved) {
+              await shortlistApplication(
+                selectedApplication,
+                'rejected'
+              )
+            }
+          }}
+        >
+          Reject Application
+        </button>
+      </div>
+    </>
+  )}
 </section>
 </div>
                 ) : null}

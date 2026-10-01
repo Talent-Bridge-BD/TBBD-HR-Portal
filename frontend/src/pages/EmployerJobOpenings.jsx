@@ -79,6 +79,18 @@ export default function EmployerJobOpenings({ auth }) {
 
   const organizationId = selectedOrganizationId || ''
 
+  console.log('EmployerJobOpenings organization debug:', {
+    selectedOrganizationId,
+    organizationLoading,
+    organizationId,
+  })
+
+  console.log('EmployerJobOpenings organization:', {
+    selectedOrganizationId,
+    organizationLoading,
+    organizationId,
+  })
+
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -271,6 +283,11 @@ export default function EmployerJobOpenings({ auth }) {
       })
 
       const data = await response.json()
+
+      console.log('UPDATE STATUS:', response.status)
+      console.log('UPDATE RESPONSE:', data)
+      console.log('JOB STATUS REQUEST:', status)
+      console.log('JOB ID:', job.id)
 
       if (!response.ok) {
         throw new Error(data.detail || 'Unable to change job status.')

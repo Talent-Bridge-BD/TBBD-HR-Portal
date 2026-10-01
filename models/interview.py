@@ -20,5 +20,6 @@ class EmployerInterview:
     interviewer_name: Optional[str] = None
     notes: Optional[str] = None
     status: str = "scheduled"
+    outcome: str = "Pending"
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
