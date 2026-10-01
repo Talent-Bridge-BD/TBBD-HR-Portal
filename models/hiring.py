@@ -17,5 +17,7 @@ class HiringApplication:
     workflow_status: str = "Applied"
     hiring_status: Optional[str] = None
     hiring_record_id: Optional[str] = None
+    offer_id: Optional[str] = None
+    offer_status: Optional[str] = None
     applied_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

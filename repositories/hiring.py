@@ -99,6 +99,106 @@ class HiringRepository(ABC):
     ):
         raise NotImplementedError
 
+    @abstractmethod
+    def list_candidate_offers(
+        self,
+        candidate_id: str,
+    ):
+        raise NotImplementedError
+
+    @abstractmethod
+    def accept_candidate_offer(
+        self,
+        candidate_id: str,
+        offer_id: str,
+    ):
+        raise NotImplementedError
+
+    def send_offer(
+        self,
+        organization_id: str,
+        application_id: str,
+        offer_id: str,
+    ):
+        sql = """
+            UPDATE o
+            SET
+                o.status = N'Sent',
+                o.offered_at = COALESCE(
+                    o.offered_at,
+                    SYSUTCDATETIME()
+                ),
+                o.updated_at = SYSUTCDATETIME()
+            FROM dbo.job_offers AS o
+            INNER JOIN dbo.hiring_records AS hr
+                ON hr.id = o.hiring_record_id
+            INNER JOIN dbo.applications AS a
+                ON a.id = o.application_id
+            INNER JOIN dbo.jobs AS j
+                ON j.id = a.job_id
+            WHERE o.id = ?
+              AND o.application_id = ?
+              AND j.organization_id = ?
+              AND o.status = N'Draft';
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                sql,
+                offer_id,
+                application_id,
+                organization_id,
+            )
+
+            if cursor.rowcount == 0:
+                connection.rollback()
+                return None
+
+            cursor.execute(
+                """
+                SELECT
+                    o.id,
+                    o.hiring_record_id,
+                    o.application_id,
+                    o.offer_title,
+                    o.employment_type,
+                    o.salary_amount,
+                    o.salary_currency,
+                    o.start_date,
+                    o.offer_expiry_date,
+                    o.terms_and_conditions,
+                    o.status,
+                    o.offered_at,
+                    o.accepted_at,
+                    o.rejected_at,
+                    o.withdrawn_at,
+                    o.created_at,
+                    o.updated_at
+                FROM dbo.job_offers AS o
+                INNER JOIN dbo.applications AS a
+                    ON a.id = o.application_id
+                INNER JOIN dbo.jobs AS j
+                    ON j.id = a.job_id
+                WHERE o.id = ?
+                  AND o.application_id = ?
+                  AND j.organization_id = ?;
+                """,
+                offer_id,
+                application_id,
+                organization_id,
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                connection.rollback()
+                return None
+
+            connection.commit()
+
+        return self._map_offer_row(row)
+
     def hire(
         self,
         organization_id: str,
@@ -153,6 +253,12 @@ class SqlHiringRepository(HiringRepository):
                 if row.hiring_record_id
                 else None
             ),
+            offer_id=(
+                str(row.offer_id)
+                if row.offer_id
+                else None
+            ),
+            offer_status=row.offer_status,
             applied_at=row.applied_at,
             updated_at=row.updated_at,
         )
@@ -175,6 +281,8 @@ class SqlHiringRepository(HiringRepository):
                 c.workflow_status,
                 hr.status AS hiring_status,
                 hr.id AS hiring_record_id,
+                offer.id AS offer_id,
+                offer.status AS offer_status,
                 a.applied_at,
                 a.updated_at
             FROM dbo.applications AS a
@@ -184,6 +292,18 @@ class SqlHiringRepository(HiringRepository):
                 ON j.id = a.job_id
             LEFT JOIN dbo.hiring_records AS hr
                 ON hr.application_id = a.id
+            OUTER APPLY (
+                SELECT TOP 1
+                    o.id,
+                    o.status
+                FROM dbo.job_offers AS o
+                WHERE o.application_id = a.id
+                  AND (
+                      hr.id IS NULL
+                      OR o.hiring_record_id = hr.id
+                  )
+                ORDER BY o.updated_at DESC, o.created_at DESC
+            ) AS offer
             WHERE j.organization_id = ?
               AND a.status IN (
                   N'submitted',
@@ -223,6 +343,8 @@ class SqlHiringRepository(HiringRepository):
                 c.workflow_status,
                 NULL AS hiring_status,
                 NULL AS hiring_record_id,
+                NULL AS offer_id,
+                NULL AS offer_status,
                 a.applied_at,
                 a.updated_at
             FROM dbo.applications AS a
@@ -285,6 +407,8 @@ class SqlHiringRepository(HiringRepository):
                 c.workflow_status,
                 hr.status AS hiring_status,
                 hr.id AS hiring_record_id,
+                offer.id AS offer_id,
+                offer.status AS offer_status,
                 a.applied_at,
                 a.updated_at
             FROM dbo.applications AS a
@@ -294,6 +418,18 @@ class SqlHiringRepository(HiringRepository):
                 ON j.id = a.job_id
             LEFT JOIN dbo.hiring_records AS hr
                 ON hr.application_id = a.id
+            OUTER APPLY (
+                SELECT TOP 1
+                    o.id,
+                    o.status
+                FROM dbo.job_offers AS o
+                WHERE o.application_id = a.id
+                  AND (
+                      hr.id IS NULL
+                      OR o.hiring_record_id = hr.id
+                  )
+                ORDER BY o.updated_at DESC, o.created_at DESC
+            ) AS offer
             WHERE a.id = ?
               AND j.organization_id = ?;
         """
@@ -797,6 +933,162 @@ class SqlHiringRepository(HiringRepository):
             return None
 
         return self._map_offer_row(row)
+
+    @staticmethod
+    def _map_candidate_offer_row(row):
+        return {
+            "id": str(row[0]),
+            "hiring_record_id": str(row[1]),
+            "application_id": str(row[2]),
+            "offer_title": row[3],
+            "employment_type": row[4],
+            "salary_amount": row[5],
+            "salary_currency": row[6],
+            "start_date": row[7],
+            "offer_expiry_date": row[8],
+            "terms_and_conditions": row[9],
+            "status": row[10],
+            "offered_at": row[11],
+            "accepted_at": row[12],
+            "rejected_at": row[13],
+            "withdrawn_at": row[14],
+            "created_at": row[15],
+            "updated_at": row[16],
+            "job_title": row[17],
+        }
+
+    def list_candidate_offers(
+        self,
+        candidate_id: str,
+    ):
+        sql = """
+            SELECT
+                o.id,
+                o.hiring_record_id,
+                o.application_id,
+                o.offer_title,
+                o.employment_type,
+                o.salary_amount,
+                o.salary_currency,
+                o.start_date,
+                o.offer_expiry_date,
+                o.terms_and_conditions,
+                o.status,
+                o.offered_at,
+                o.accepted_at,
+                o.rejected_at,
+                o.withdrawn_at,
+                o.created_at,
+                o.updated_at,
+                j.title AS job_title
+            FROM dbo.job_offers AS o
+            INNER JOIN dbo.applications AS a
+                ON a.id = o.application_id
+            INNER JOIN dbo.candidates AS c
+                ON c.id = a.candidate_id
+            INNER JOIN dbo.jobs AS j
+                ON j.id = a.job_id
+            WHERE c.id = ?
+              AND o.status IN (
+                  N'Sent',
+                  N'Accepted',
+                  N'Rejected',
+                  N'Withdrawn'
+              )
+            ORDER BY o.updated_at DESC, o.created_at DESC;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, candidate_id)
+            rows = cursor.fetchall()
+
+        return [
+            self._map_candidate_offer_row(row)
+            for row in rows
+        ]
+
+    def accept_candidate_offer(
+        self,
+        candidate_id: str,
+        offer_id: str,
+    ):
+        sql = """
+            UPDATE o
+            SET
+                o.status = N'Accepted',
+                o.accepted_at = COALESCE(
+                    o.accepted_at,
+                    SYSUTCDATETIME()
+                ),
+                o.updated_at = SYSUTCDATETIME()
+            FROM dbo.job_offers AS o
+            INNER JOIN dbo.applications AS a
+                ON a.id = o.application_id
+            INNER JOIN dbo.candidates AS c
+                ON c.id = a.candidate_id
+            WHERE o.id = ?
+              AND c.id = ?
+              AND o.status = N'Sent';
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                sql,
+                offer_id,
+                candidate_id,
+            )
+
+            if cursor.rowcount == 0:
+                connection.rollback()
+                return None
+
+            cursor.execute(
+                """
+                SELECT
+                    o.id,
+                    o.hiring_record_id,
+                    o.application_id,
+                    o.offer_title,
+                    o.employment_type,
+                    o.salary_amount,
+                    o.salary_currency,
+                    o.start_date,
+                    o.offer_expiry_date,
+                    o.terms_and_conditions,
+                    o.status,
+                    o.offered_at,
+                    o.accepted_at,
+                    o.rejected_at,
+                    o.withdrawn_at,
+                    o.created_at,
+                    o.updated_at,
+                    j.title AS job_title
+                FROM dbo.job_offers AS o
+                INNER JOIN dbo.applications AS a
+                    ON a.id = o.application_id
+                INNER JOIN dbo.candidates AS c
+                    ON c.id = a.candidate_id
+                INNER JOIN dbo.jobs AS j
+                    ON j.id = a.job_id
+                WHERE o.id = ?
+                  AND c.id = ?;
+                """,
+                offer_id,
+                candidate_id,
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                connection.rollback()
+                return None
+
+            connection.commit()
+
+        return self._map_candidate_offer_row(row)
 
     def hire(
         self,

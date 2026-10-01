@@ -362,12 +362,94 @@ export default function Hiring() {
     }
   }
 
+  const sendOffer = async (applicationId, offerId) => {
+    setActionLoading(applicationId)
+    setActionError("")
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/hiring/${encodeURIComponent(
+          applicationId,
+        )}/offer/${encodeURIComponent(
+          offerId,
+        )}/send?organization_id=${encodeURIComponent(
+          organizationId,
+        )}`,
+        {
+          method: "POST",
+        },
+      )
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            "Unable to send the offer.",
+        )
+      }
+
+      await loadHiring()
+    } catch (err) {
+      setActionError(
+        err.message ||
+          "Unable to send the offer.",
+      )
+    } finally {
+      setActionLoading("")
+    }
+  }
+
+  const hireCandidate = async (applicationId, offerId) => {
+    setActionLoading(applicationId)
+    setActionError("")
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/hiring/${encodeURIComponent(
+          applicationId,
+        )}/hire?organization_id=${encodeURIComponent(
+          organizationId,
+        )}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            offer_id: offerId,
+          }),
+        },
+      )
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            "Unable to mark candidate as hired.",
+        )
+      }
+
+      await loadHiring()
+    } catch (err) {
+      setActionError(
+        err.message ||
+          "Unable to complete hiring.",
+      )
+    } finally {
+      setActionLoading("")
+    }
+  }
+
   const renderCandidateCard = (
     application,
     {
       readinessSource = null,
+      statusSource = "offer",
       showReadyAction = false,
       showOfferAction = false,
+      showHireAction = false,
     } = {},
   ) => {
     const name = getCandidateName(application)
@@ -429,7 +511,12 @@ export default function Hiring() {
           >
             {readinessSource
               ? getReadinessLabel(readinessSource)
-              : getOfferStatusLabel(application.hiring_status)}
+              : getOfferStatusLabel(
+                  statusSource === "hiring"
+                    ? application.hiring_status
+                    : application.offer_status ||
+                        application.hiring_status,
+                )}
           </span>
         </div>
 
@@ -810,6 +897,115 @@ export default function Hiring() {
             )}
           </div>
         )}
+        {showHireAction &&
+          application.offer_status === "Draft" &&
+          application.offer_id && (
+            <div
+              style={{
+                marginTop: "18px",
+                paddingTop: "15px",
+                borderTop: "1px solid #E2E8F0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    color: "#0F172A",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                  }}
+                >
+                  Draft offer
+                </div>
+                <div
+                  style={{
+                    marginTop: "3px",
+                    color: "#64748B",
+                    fontSize: "12px",
+                  }}
+                >
+                  Review the offer details before sending it to the candidate.
+                </div>
+              </div>
+              <button
+                type="button"
+                className="primary-action"
+                disabled={
+                  actionLoading === application.id
+                }
+                onClick={() =>
+                  sendOffer(
+                    application.id,
+                    application.offer_id,
+                  )
+                }
+              >
+                {actionLoading === application.id
+                  ? "Sending..."
+                  : "Send Offer"}
+              </button>
+            </div>
+          )}
+
+        {showHireAction &&
+          application.offer_status === "Accepted" &&
+          application.offer_id && (
+            <div
+              style={{
+                marginTop: "18px",
+                paddingTop: "15px",
+                borderTop: "1px solid #E2E8F0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    color: "#0F172A",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                  }}
+                >
+                  Offer accepted
+                </div>
+                <div
+                  style={{
+                    marginTop: "3px",
+                    color: "#64748B",
+                    fontSize: "12px",
+                  }}
+                >
+                  This candidate is ready to be marked as hired.
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="primary-action"
+                disabled={
+                  actionLoading === application.id
+                }
+                onClick={() =>
+                  hireCandidate(
+                    application.id,
+                    application.offer_id,
+                  )
+                }
+              >
+                {actionLoading === application.id
+                  ? "Processing..."
+                  : "Mark as Hired"}
+              </button>
+            </div>
+          )}
+
       </article>
     )
   }
@@ -1048,7 +1244,9 @@ export default function Hiring() {
                     </div>
                   ) : (
                     offers.map((application) =>
-                      renderCandidateCard(application)
+                      renderCandidateCard(application, {
+                        showHireAction: true,
+                      })
                     )
                   )}
                 </div>
@@ -1131,7 +1329,9 @@ export default function Hiring() {
                     </div>
                   ) : (
                     hired.map((application) =>
-                      renderCandidateCard(application),
+                      renderCandidateCard(application, {
+                        statusSource: "hiring",
+                      }),
                     )
                   )}
                 </div>

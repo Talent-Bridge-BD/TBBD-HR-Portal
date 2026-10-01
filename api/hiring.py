@@ -440,6 +440,36 @@ async def create_hiring_offer(
     }
 
 
+@router.post("/{application_id}/offer/{offer_id}/send")
+async def send_hiring_offer(
+    application_id: str,
+    offer_id: str,
+    organization_id: str,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        organization_id,
+    )
+
+    offer = _hiring_service.send_offer(
+        organization_id=organization_id,
+        application_id=application_id,
+        offer_id=offer_id,
+    )
+
+    if offer is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Offer could not be sent. It may no longer be a draft or may not belong to this organization.",
+        )
+
+    return {
+        "message": "Offer sent successfully.",
+        "offer": offer,
+    }
+
+
 @router.put("/{application_id}/offer/{offer_id}")
 async def update_hiring_offer(
     application_id: str,

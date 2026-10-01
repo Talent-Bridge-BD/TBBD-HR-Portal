@@ -121,6 +121,27 @@ class HiringService:
             application_id,
         )
 
+    def list_candidate_offers(
+        self,
+        candidate_id: str,
+    ):
+        return self.repository.list_candidate_offers(
+            candidate_id,
+        )
+
+    def accept_candidate_offer(
+        self,
+        candidate_id: str,
+        offer_id: str,
+    ):
+        if not offer_id or not offer_id.strip():
+            raise ValueError("Offer ID is required.")
+
+        return self.repository.accept_candidate_offer(
+            candidate_id,
+            offer_id,
+        )
+
     def create_offer(
         self,
         organization_id: str,
@@ -231,6 +252,21 @@ class HiringService:
             terms_and_conditions=terms_and_conditions.strip()
             if terms_and_conditions is not None
             else None,
+        )
+
+    def send_offer(
+        self,
+        organization_id: str,
+        application_id: str,
+        offer_id: str,
+    ):
+        if not offer_id or not offer_id.strip():
+            raise ValueError("Offer ID is required.")
+
+        return self.repository.send_offer(
+            organization_id=organization_id,
+            application_id=application_id,
+            offer_id=offer_id,
         )
 
     def get_offer(
