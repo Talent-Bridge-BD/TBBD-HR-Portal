@@ -50,7 +50,7 @@ class MedicalExaminationAssessmentRequest(BaseModel):
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 def _claim_values(
@@ -172,6 +172,7 @@ async def create_medical_examination(
 
     try:
         medical_examination = _medical_examination_service.create(
+            organization_id=organization_id,
             application_id=payload.application_id,
             medical_center=payload.medical_center,
             examination_date=payload.examination_date,
@@ -213,6 +214,7 @@ async def list_medical_examinations(
         )
 
     examinations = _medical_examination_service.list_by_application(
+        organization_id,
         application_id,
     )
 
@@ -236,6 +238,7 @@ async def get_medical_examination(
     )
 
     medical_examination = _medical_examination_service.get(
+        organization_id,
         medical_examination_id,
     )
 
@@ -274,6 +277,7 @@ async def update_medical_examination_assessment(
     )
 
     medical_examination = _medical_examination_service.get(
+        organization_id,
         medical_examination_id,
     )
 
@@ -296,6 +300,7 @@ async def update_medical_examination_assessment(
 
     try:
         updated = _medical_examination_service.update_assessment(
+            organization_id=organization_id,
             medical_examination_id=medical_examination_id,
             medical_center=payload.medical_center,
             examination_date=payload.examination_date,

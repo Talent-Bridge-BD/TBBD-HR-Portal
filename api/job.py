@@ -25,7 +25,7 @@ _organization_repository = SqlOrganizationRepository()
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 class JobRequest(BaseModel):
@@ -37,6 +37,8 @@ class JobRequest(BaseModel):
     country: str = ""
     status: str = "draft"
     number_of_positions: int | None = None
+    working_hours: str = ""
+    benefits: str = ""
     published_at: datetime | None = None
     closing_at: datetime | None = None
 
@@ -136,7 +138,7 @@ async def list_jobs(
     context = get_job_authorization_context(request)
 
     if is_global_administrator(context):
-        jobs = _job_service.list_all_active_organization_jobs()
+        jobs = _job_service.list_jobs(organization_id)
     else:
         if organization_id not in context.organization_ids:
             raise HTTPException(
@@ -200,6 +202,8 @@ async def create_job(
         country=payload.country or None,
         status=payload.status,
         number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
         requisition_number=payload.requisition_number or None,
@@ -256,6 +260,8 @@ async def update_job(
         country=payload.country or None,
         status=payload.status,
         number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
         published_at=payload.published_at,
         closing_at=payload.closing_at,
         requisition_number=payload.requisition_number or None,

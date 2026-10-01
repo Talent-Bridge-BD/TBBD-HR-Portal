@@ -2,7 +2,9 @@ import PageHeader from '../components/PageHeader'
 import StatCard from '../components/StatCard'
 import DashboardCard from '../components/DashboardCard'
 import QuickAction from '../components/QuickAction'
-import { candidateDashboard } from '../data/candidateDashboard'
+import { useEffect, useState } from 'react'
+
+import { authenticatedFetch } from '../utils/auth'
 import candidatePortalBanner from '../assets/Candidate-portal-banner.jpeg'
 
 const Icon = ({ name, size = 22 }) => {
@@ -74,12 +76,135 @@ const Icon = ({ name, size = 22 }) => {
 }
 
 export default function CandidateDashboard({ onNavigate }) {
-  const {
-    candidate,
-    stats,
-    applicationOverview,
-    recentApplications,
-  } = candidateDashboard
+  const [applications, setApplications] = useState([])
+  const [interviews, setInterviews] = useState([])
+  const [documents, setDocuments] = useState([])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadDashboard() {
+      try {
+        const [applicationsResponse, interviewsResponse, documentsResponse] =
+          await Promise.all([
+            authenticatedFetch('/api/candidate/applications'),
+            authenticatedFetch('/api/candidate/interviews'),
+            authenticatedFetch('/api/candidate/documents'),
+          ])
+
+        if (!applicationsResponse.ok) {
+          const body = await applicationsResponse.text()
+          throw new Error(
+            body ||
+              `Unable to load applications (${applicationsResponse.status})`,
+          )
+        }
+
+        if (!interviewsResponse.ok) {
+          const body = await interviewsResponse.text()
+          throw new Error(
+            body ||
+              `Unable to load interviews (${interviewsResponse.status})`,
+          )
+        }
+
+        if (!documentsResponse.ok) {
+          const body = await documentsResponse.text()
+          throw new Error(
+            body ||
+              `Unable to load documents (${documentsResponse.status})`,
+          )
+        }
+
+        const [applicationsData, interviewsData, documentsData] =
+          await Promise.all([
+            applicationsResponse.json(),
+            interviewsResponse.json(),
+            documentsResponse.json(),
+          ])
+
+        if (!active) return
+
+        setApplications(
+          Array.isArray(applicationsData.applications)
+            ? applicationsData.applications
+            : [],
+        )
+        setInterviews(
+          Array.isArray(interviewsData.interviews)
+            ? interviewsData.interviews
+            : [],
+        )
+        setDocuments(
+          Array.isArray(documentsData.documents)
+            ? documentsData.documents
+            : [],
+        )
+      } catch (err) {
+        if (active) {
+          console.error('Unable to load candidate dashboard:', err)
+        }
+      }
+    }
+
+    loadDashboard()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const normalizedApplications = applications.map((application) => ({
+    ...application,
+    normalizedStatus: String(
+      application.status || 'submitted',
+    ).toLowerCase(),
+  }))
+
+  const now = Date.now()
+
+  const upcomingInterviews = interviews.filter((interview) => {
+    const status = String(interview.status || '').toLowerCase()
+    const start = new Date(interview.scheduled_start).getTime()
+
+    return (
+      (status === 'scheduled' || status === 'rescheduled') &&
+      !Number.isNaN(start) &&
+      start >= now
+    )
+  })
+
+  const stats = {
+    applications: normalizedApplications.length,
+    activeApplications: normalizedApplications.filter(
+      (application) =>
+        !['rejected', 'withdrawn'].includes(application.normalizedStatus),
+    ).length,
+    upcomingInterviews: upcomingInterviews.length,
+    documents: documents.length,
+  }
+
+  const applicationOverview = {
+    submitted: normalizedApplications.filter(
+      (application) => application.normalizedStatus === 'submitted',
+    ).length,
+    underReview: normalizedApplications.filter(
+      (application) =>
+        ['under_review', 'screening'].includes(application.normalizedStatus),
+    ).length,
+    interviews: upcomingInterviews.length,
+    shortlisted: normalizedApplications.filter(
+      (application) => application.normalizedStatus === 'shortlisted',
+    ).length,
+  }
+
+  const recentApplications = [...normalizedApplications]
+    .sort(
+      (a, b) =>
+        new Date(b.applied_at || 0).getTime() -
+        new Date(a.applied_at || 0).getTime(),
+    )
+    .slice(0, 5)
 
   const overviewItems = [
     {
@@ -127,24 +252,28 @@ export default function CandidateDashboard({ onNavigate }) {
           label="Applications"
           value={stats.applications}
           detail="Total submitted"
+          onClick={() => onNavigate('Candidate My Applications')}
         />
         <StatCard
           icon={<Icon name="active" />}
           label="Active applications"
           value={stats.activeApplications}
           detail="Currently in progress"
+          onClick={() => onNavigate('Candidate My Applications')}
         />
         <StatCard
           icon={<Icon name="interviews" />}
           label="Upcoming interviews"
           value={stats.upcomingInterviews}
           detail="Scheduled interviews"
+          onClick={() => onNavigate('Candidate Interviews')}
         />
         <StatCard
           icon={<Icon name="documents" />}
           label="Documents"
           value={stats.documents}
           detail="Available documents"
+          onClick={() => onNavigate('Candidate Documents')}
         />
       </section>
 
@@ -155,6 +284,25 @@ export default function CandidateDashboard({ onNavigate }) {
               <div
                 className={`candidate-overview-card candidate-overview-card-${item.key}`}
                 key={item.key}
+                onClick={() =>
+                  onNavigate(
+                    item.key === 'interviews'
+                      ? 'Candidate Interviews'
+                      : 'Candidate My Applications',
+                  )
+                }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onNavigate(
+                      item.key === 'interviews'
+                        ? 'Candidate Interviews'
+                        : 'Candidate My Applications',
+                    )
+                  }
+                }}
               >
                 <span className="candidate-overview-icon">
                   <Icon name={item.icon} size={21} />
@@ -187,18 +335,23 @@ export default function CandidateDashboard({ onNavigate }) {
                   className="candidate-application-item"
                   type="button"
                   key={application.id}
+                  onClick={() => onNavigate('Candidate My Applications')}
                 >
                   <span className="candidate-application-icon">
                     <Icon name="applications" size={19} />
                   </span>
 
                   <span className="candidate-application-content">
-                    <strong>{application.title}</strong>
+                    <strong>{application.job_title || 'Job application'}</strong>
                     <small>Recent application</small>
                   </span>
 
                   <span className="candidate-application-status">
-                    {application.status}
+                    {application.normalizedStatus
+                      .replace(/_/g, ' ')
+                      .replace(/\b\w/g, (character) =>
+                        character.toUpperCase(),
+                      )}
                   </span>
 
                   <span className="candidate-application-arrow">

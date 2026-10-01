@@ -12,6 +12,7 @@ class MedicalExaminationRepository(ABC):
     @abstractmethod
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ) -> list[MedicalExamination]:
         raise NotImplementedError
@@ -19,6 +20,7 @@ class MedicalExaminationRepository(ABC):
     @abstractmethod
     def create(
         self,
+        organization_id: str,
         application_id: str,
         medical_center: str | None = None,
         examination_date=None,
@@ -30,6 +32,7 @@ class MedicalExaminationRepository(ABC):
     @abstractmethod
     def get(
         self,
+        organization_id: str,
         medical_examination_id: str,
     ) -> MedicalExamination | None:
         raise NotImplementedError
@@ -37,6 +40,7 @@ class MedicalExaminationRepository(ABC):
     @abstractmethod
     def update_assessment(
         self,
+        organization_id: str,
         medical_examination_id: str,
         medical_center: str | None,
         examination_date,
@@ -110,26 +114,32 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
 
     def list_by_application(
         self,
+        organization_id: str,
         application_id: str,
     ) -> list[MedicalExamination]:
 
         sql = """
         SELECT
-            id,
-            application_id,
-            medical_center,
-            examination_date,
-            doctor_name,
-            medical_type,
-            status,
-            result,
-            report_notes,
-            completed_at,
-            created_at,
-            updated_at
-        FROM dbo.medical_examinations
-        WHERE application_id = ?
-        ORDER BY examination_date DESC, created_at DESC;
+            me.id,
+            me.application_id,
+            me.medical_center,
+            me.examination_date,
+            me.doctor_name,
+            me.medical_type,
+            me.status,
+            me.result,
+            me.report_notes,
+            me.completed_at,
+            me.created_at,
+            me.updated_at
+        FROM dbo.medical_examinations AS me
+        INNER JOIN dbo.applications AS a
+            ON a.id = me.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE j.organization_id = ?
+          AND me.application_id = ?
+        ORDER BY me.examination_date DESC, me.created_at DESC;
         """
 
         with self._connection() as connection:
@@ -137,6 +147,7 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
 
             cursor.execute(
                 sql,
+                organization_id,
                 application_id,
             )
 
@@ -149,6 +160,7 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
 
     def create(
         self,
+        organization_id: str,
         application_id: str,
         medical_center: str | None = None,
         examination_date=None,
@@ -177,7 +189,20 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
             INSERTED.completed_at,
             INSERTED.created_at,
             INSERTED.updated_at
-        VALUES (?, ?, ?, ?, ?);
+        SELECT
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        WHERE EXISTS (
+            SELECT 1
+            FROM dbo.applications AS a
+            INNER JOIN dbo.jobs AS j
+                ON j.id = a.job_id
+            WHERE a.id = ?
+              AND j.organization_id = ?
+        );
         """
 
         with self._connection() as connection:
@@ -190,34 +215,47 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
                 examination_date,
                 doctor_name,
                 medical_type,
+                application_id,
+                organization_id,
             )
 
             row = cursor.fetchone()
+
+            if row is None:
+                connection.rollback()
+                raise ValueError("Application not found for organization")
+
             connection.commit()
 
         return self._map_row(row)
 
     def get(
         self,
+        organization_id: str,
         medical_examination_id: str,
     ) -> MedicalExamination | None:
 
         sql = """
         SELECT
-            id,
-            application_id,
-            medical_center,
-            examination_date,
-            doctor_name,
-            medical_type,
-            status,
-            result,
-            report_notes,
-            completed_at,
-            created_at,
-            updated_at
-        FROM dbo.medical_examinations
-        WHERE id = ?;
+            me.id,
+            me.application_id,
+            me.medical_center,
+            me.examination_date,
+            me.doctor_name,
+            me.medical_type,
+            me.status,
+            me.result,
+            me.report_notes,
+            me.completed_at,
+            me.created_at,
+            me.updated_at
+        FROM dbo.medical_examinations AS me
+        INNER JOIN dbo.applications AS a
+            ON a.id = me.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE me.id = ?
+          AND j.organization_id = ?;
         """
 
         with self._connection() as connection:
@@ -226,6 +264,7 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
             cursor.execute(
                 sql,
                 medical_examination_id,
+                organization_id,
             )
 
             row = cursor.fetchone()
@@ -237,6 +276,7 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
 
     def update_assessment(
         self,
+        organization_id: str,
         medical_examination_id: str,
         medical_center: str | None,
         examination_date,
@@ -249,17 +289,17 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
     ) -> MedicalExamination:
 
         sql = """
-        UPDATE dbo.medical_examinations
+        UPDATE me
         SET
-            medical_center = ?,
-            examination_date = ?,
-            doctor_name = ?,
-            medical_type = ?,
-            status = ?,
-            result = ?,
-            report_notes = ?,
-            completed_at = ?,
-            updated_at = SYSUTCDATETIME()
+            me.medical_center = ?,
+            me.examination_date = ?,
+            me.doctor_name = ?,
+            me.medical_type = ?,
+            me.status = ?,
+            me.result = ?,
+            me.report_notes = ?,
+            me.completed_at = ?,
+            me.updated_at = SYSUTCDATETIME()
         OUTPUT
             INSERTED.id,
             INSERTED.application_id,
@@ -273,7 +313,13 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
             INSERTED.completed_at,
             INSERTED.created_at,
             INSERTED.updated_at
-        WHERE id = ?;
+        FROM dbo.medical_examinations AS me
+        INNER JOIN dbo.applications AS a
+            ON a.id = me.application_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE me.id = ?
+          AND j.organization_id = ?;
         """
 
         with self._connection() as connection:
@@ -290,6 +336,7 @@ class SqlMedicalExaminationRepository(MedicalExaminationRepository):
                 report_notes,
                 completed_at,
                 medical_examination_id,
+                organization_id,
             )
 
             row = cursor.fetchone()

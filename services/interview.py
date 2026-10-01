@@ -18,6 +18,14 @@ class InterviewService:
             organization_id,
         )
 
+    def list_candidate_interviews(
+        self,
+        candidate_id: str,
+    ) -> list[EmployerInterview]:
+        return self.repository.list_candidate_interviews(
+            candidate_id,
+        )
+
     def get_interview(
         self,
         organization_id: str,

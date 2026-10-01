@@ -14,6 +14,7 @@ def test_sql_employer_dashboard_returns_zero_for_no_organizations():
         user_id="user-without-org",
         roles=frozenset({"Employer Manager"}),
         organization_ids=frozenset(),
+        is_global_administrator=False,
     )
 
     result = repository.get_dashboard(

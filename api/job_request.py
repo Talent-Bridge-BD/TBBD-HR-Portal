@@ -37,7 +37,7 @@ _organization_repository = SqlOrganizationRepository()
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 class JobRequestPayload(BaseModel):
@@ -48,6 +48,8 @@ class JobRequestPayload(BaseModel):
     location: str = ""
     country: str = ""
     number_of_positions: int | None = None
+    working_hours: str = ""
+    benefits: str = ""
 
 
 def _claim_values(
@@ -204,6 +206,8 @@ async def create_job_request(
         location=payload.location or None,
         country=payload.country or None,
         number_of_positions=payload.number_of_positions,
+        working_hours=payload.working_hours or None,
+        benefits=payload.benefits or None,
         status="pending",
         requested_at=datetime.utcnow(),
     )
@@ -266,6 +270,8 @@ async def approve_job_request(
         country=job_request.country,
         status="draft",
         number_of_positions=job_request.number_of_positions,
+        working_hours=job_request.working_hours,
+        benefits=job_request.benefits,
         work_location=job_request.location,
         employer_country=job_request.country,
     )
@@ -282,6 +288,8 @@ async def approve_job_request(
         location=job_request.location,
         country=job_request.country,
         number_of_positions=job_request.number_of_positions,
+        working_hours=job_request.working_hours,
+        benefits=job_request.benefits,
         status="approved",
         requested_at=job_request.requested_at,
         reviewed_at=datetime.utcnow(),

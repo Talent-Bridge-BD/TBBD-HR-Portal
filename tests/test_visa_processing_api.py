@@ -8,7 +8,7 @@ from main import app
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 def make_principal(principal_id, name, groups=None, roles=None):
@@ -67,6 +67,18 @@ def test_visa_processing_create_rejects_missing_application_for_organization(
                         },
                     )()
                 ]
+            },
+        )(),
+    )
+
+    monkeypatch.setattr(
+        visa_processing_api,
+        "_application_repository",
+        type(
+            "FakeApplicationRepository",
+            (),
+            {
+                "get_application": lambda self, organization_id, application_id: None
             },
         )(),
     )
@@ -190,7 +202,7 @@ def test_visa_processing_get_by_id_rejects_visa_processing_from_other_organizati
             "FakeVisaProcessingService",
             (),
             {
-                "get": lambda self, visa_processing_id: type(
+                "get": lambda self, organization_id, visa_processing_id: type(
                     "VisaProcessing",
                     (),
                     {
@@ -248,6 +260,7 @@ def test_visa_processing_service_calculates_result_and_completes_assessment():
     service = VisaProcessingService(FakeRepository())
 
     result = service.update_assessment(
+        organization_id=ORGANIZATION_ID,
         visa_processing_id="trade-test-001",
         technical_knowledge_score=80,
         trade_skills_score=90,
@@ -279,6 +292,7 @@ def test_visa_processing_service_rejects_score_outside_valid_range():
 
     try:
         service.update_assessment(
+            organization_id=ORGANIZATION_ID,
             visa_processing_id="trade-test-001",
             technical_knowledge_score=101,
             trade_skills_score=90,

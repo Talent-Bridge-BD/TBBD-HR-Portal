@@ -23,25 +23,29 @@ const recruitmentNavigation = [
 
 const employerNavigation = [
   ['Employer Dashboard', '⌂'],
+  ['Employer My Organization', '◉'],
   ['Employer Job Requests', '＋'],
   ['Employer Job Openings', '▤'],
-  ['Employer Applications', '♙'],
+  ['Employer Candidates', '♙'],
+  ['Employer Interviews / Tests', '◷'],
   ['Employer Hiring', '✓'],
+  ['Employer Notifications', '🔔'],
 ]
 
 const candidateNavigation = [
-  ['Candidate Dashboard', '⌂'],
-  ['Candidate My Profile', '◉'],
-  ['Candidate My Applications', '▤'],
   ['Candidate Available Jobs', '▤'],
+  ['Candidate My Applications', '▤'],
   ['Candidate Interviews', '◷'],
   ['Candidate Documents', '□'],
   ['Candidate Notifications', '🔔'],
 ]
 
+const administrationNavigation = [
+  ['Administration Employers', '♙'],
+]
+
 const toolNavigation = [
   ['Workplace Assistant', '✦'],
-  ['Microsoft 365', '▦', false],
 ]
 
 function hasAnyRole(auth, roles) {
@@ -62,7 +66,6 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     'HR Manager',
     'Administrator',
   ])
-
   const canAccessCandidatePortal =
     !isAdministrator &&
     !isHRManager &&
@@ -74,6 +77,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
       className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
       onClick={() => {
         if (!enabled) return
+
 
         onNavigate(label)
       }}
@@ -94,35 +98,26 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
   return (
     <aside className="sidebar">
       <nav>
-        {/* WORKPLACE HUB */}
         <div className="nav-section">
           <span className="nav-section-title">WORKPLACE HUB</span>
-
           {workplaceNavigation
             .filter(([label]) => {
-              // Administrators, HR Managers, and Candidates
-              // only see Dashboard and My Profile here.
-              if (
-                isAdministrator ||
-                isHRManager ||
-                canAccessCandidatePortal
-              ) {
+              if (canAccessCandidatePortal) {
                 return ['Dashboard', 'My Profile'].includes(label)
               }
 
-              return true
+              return ['Dashboard', 'My Profile'].includes(label)
             })
             .map(([label, icon]) =>
               renderItem([label, icon, true])
             )}
+
         </div>
 
-        {/* RECRUITMENT */}
         {canAccessRecruitment && (
           <>
             <div className="nav-section platform-nav-section">
               <span className="nav-section-title">RECRUITMENT</span>
-
               {recruitmentNavigation
                 .filter(([label]) =>
                   isAdministrator || isHRManager
@@ -139,11 +134,9 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                 .map(renderItem)}
             </div>
 
-            {/* PROCESSING */}
             {(isAdministrator || isHRManager) && (
               <div className="nav-section platform-nav-section">
                 <span className="nav-section-title">PROCESSING</span>
-
                 {recruitmentNavigation
                   .filter(([label]) =>
                     [
@@ -157,48 +150,36 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                   .map(renderItem)}
               </div>
             )}
+
+            {isAdministrator && (
+              <div className="nav-section platform-nav-section">
+                <span className="nav-section-title">ADMINISTRATION</span>
+                {administrationNavigation.map(renderItem)}
+              </div>
+            )}
           </>
         )}
 
-        {/* EMPLOYER PORTAL */}
         {canAccessEmployerPortal && (
           <div className="nav-section platform-nav-section">
             <span className="nav-section-title">EMPLOYER PORTAL</span>
-
             {employerNavigation.map(renderItem)}
           </div>
         )}
-
-        {/* CANDIDATE PORTAL */}
         {canAccessCandidatePortal && (
           <div className="nav-section platform-nav-section">
             <span className="nav-section-title">CANDIDATE PORTAL</span>
-
             {candidateNavigation.map(renderItem)}
           </div>
         )}
 
-        {/* TOOLS */}
-        <div className="nav-section">
-          <span className="nav-section-title">TOOLS</span>
+        {!auth?.roles?.includes('Employer Manager') && (
+          <div className="nav-section">
+            <span className="nav-section-title">TOOLS</span>
+            {toolNavigation.map(renderItem)}
+          </div>
+        )}
 
-          {toolNavigation
-            .filter(([label]) => {
-              // Candidate users only see Workplace Assistant.
-              if (canAccessCandidatePortal) {
-                return label === 'Workplace Assistant'
-              }
-
-              // Administrators and HR Managers also only see
-              // Workplace Assistant.
-              if (isAdministrator || isHRManager) {
-                return label === 'Workplace Assistant'
-              }
-
-              return true
-            })
-            .map(renderItem)}
-        </div>
       </nav>
     </aside>
   )

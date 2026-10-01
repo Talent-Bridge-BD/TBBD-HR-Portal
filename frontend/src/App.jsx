@@ -11,6 +11,7 @@ import Applications from './pages/Applications'
 import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
+import AdministrationEmployers from './pages/AdministrationEmployers'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -27,6 +28,7 @@ import RecruitmentApplications from './pages/RecruitmentApplications'
 import RecruitmentScreening from './pages/RecruitmentScreening'
 import RecruitmentInterviews from './pages/RecruitmentInterviews'
 import RecruitmentTradeTests from './pages/RecruitmentTradeTests'
+import EmployerInterviewsTests from './pages/EmployerInterviewsTests'
 import RecruitmentMedical from './pages/RecruitmentMedical'
 import RecruitmentVisaProcessing from './pages/RecruitmentVisaProcessing'
 import RecruitmentTicketing from './pages/RecruitmentTicketing'
@@ -35,24 +37,13 @@ import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
+import EmployerNotifications from './pages/EmployerNotifications'
+import CandidateHelpSupport from './pages/CandidateHelpSupport'
 import { getCurrentUser, signIn } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
 
-const placeholderPages = {
-
-
-  'Employer Applications': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Candidate Applications',
-    description: 'Review candidates submitted against employer openings.',
-  },
-  'Employer Hiring': {
-    area: 'EMPLOYER PORTAL',
-    title: 'Hiring',
-    description: 'Manage employer hiring decisions and recruitment progress.',
-  },
-}
+const placeholderPages = {}
 
 export default function App() {
   const [activePage, setActivePage] = useState('Dashboard')
@@ -64,16 +55,22 @@ export default function App() {
 
     getCurrentUser()
       .then((data) => {
-        if (mounted) {
-          setAuth(data)
+        if (!mounted) return
 
-          if (data?.roles?.includes('Employer Manager')) {
-            setActivePage('Employer Dashboard')
-          } else if (data?.roles?.includes('Candidate')) {
-            setActivePage('Candidate Dashboard')
-          } else {
-            setActivePage('Dashboard')
-          }
+        setAuth(data)
+
+        const roles = data?.roles || []
+
+        if (roles.includes('Candidate')) {
+          setActivePage('Candidate Dashboard')
+        } else if (
+          roles.includes('Employer Manager') ||
+          roles.includes('Employer.Manager') ||
+          roles.includes('HR Manager')
+        ) {
+          setActivePage('Employer Dashboard')
+        } else {
+          setActivePage('Dashboard')
         }
       })
       .catch((error) => {
@@ -130,24 +127,28 @@ export default function App() {
   }
 
   const pages = {
-    Dashboard: <Dashboard auth={auth} onNavigate={setActivePage} />,
+    Dashboard: auth?.roles?.includes('Candidate') ? (
+      <CandidateDashboard onNavigate={setActivePage} />
+    ) : (
+      <Dashboard auth={auth} onNavigate={setActivePage} />
+    ),
     'My Profile': <MyProfile auth={auth} />,
     Leave: <Leave />,
     Attendance: <Attendance />,
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
-    'Employer Dashboard': (
-      <EmployerDashboard
-        auth={auth}
-        onNavigate={setActivePage}
-      />
-    ),
-    'Employer Organization': <EmployerOrganization />,
-'Employer Job Requests': <EmployerJobRequests auth={auth} />,
+    'Administration Employers': <AdministrationEmployers auth={auth} />,
+    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Employer My Organization': <EmployerOrganization />,
+    'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
+    'Employer Applications': <EmployerApplications auth={auth} />,
     'Employer Candidates': <RecruitmentCandidates auth={auth} />,
-    'Employer Interviews / Tests': <RecruitmentInterviews auth={auth} />,
+    'Employer Interviews / Tests': <EmployerInterviewsTests auth={auth} />,
+    'Employer Hiring': <Hiring auth={auth} />,
+    'Employer Notifications': <EmployerNotifications />,
+
     'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
@@ -171,13 +172,6 @@ export default function App() {
   Object.entries(placeholderPages).forEach(([page, config]) => {
     pages[page] = <PlatformPlaceholder {...config} />
   })
-  pages['Employer Applications'] = (
-    <EmployerApplications auth={auth} />
-  )
-
-  pages['Employer Hiring'] = (
-    <Hiring auth={auth} />
-  )
 
   return (
     <OrganizationProvider auth={auth}>
@@ -206,6 +200,4 @@ export default function App() {
     </OrganizationProvider>
   )
 }
-
-
 

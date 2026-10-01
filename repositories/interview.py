@@ -16,6 +16,13 @@ class InterviewRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_candidate_interviews(
+        self,
+        candidate_id: str,
+    ) -> list[EmployerInterview]:
+        raise NotImplementedError
+
+
     def get_interview(
         self,
         organization_id: str,
@@ -150,6 +157,48 @@ class SqlInterviewRepository(InterviewRepository):
         with self._connection() as connection:
             cursor = connection.cursor()
             cursor.execute(sql, organization_id)
+            rows = cursor.fetchall()
+
+        return [self._map_row(row) for row in rows]
+
+    def list_candidate_interviews(
+        self,
+        candidate_id: str,
+    ) -> list[EmployerInterview]:
+
+        sql = """
+        SELECT
+            i.id,
+            i.application_id,
+            a.candidate_id,
+            a.job_id,
+            c.first_name,
+            c.last_name,
+            c.email,
+            j.title AS job_title,
+            i.scheduled_start,
+            i.scheduled_end,
+            i.interview_type,
+            i.location_or_link,
+            i.interviewer_name,
+            i.notes,
+            i.status,
+            i.created_at,
+            i.updated_at
+        FROM dbo.interviews AS i
+        INNER JOIN dbo.applications AS a
+            ON a.id = i.application_id
+        INNER JOIN dbo.candidates AS c
+            ON c.id = a.candidate_id
+        INNER JOIN dbo.jobs AS j
+            ON j.id = a.job_id
+        WHERE a.candidate_id = ?
+        ORDER BY i.scheduled_start ASC;
+        """
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(sql, candidate_id)
             rows = cursor.fetchall()
 
         return [self._map_row(row) for row in rows]

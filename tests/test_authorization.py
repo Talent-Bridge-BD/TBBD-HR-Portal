@@ -158,24 +158,28 @@ def test_job_repository_lists_jobs_for_global_administrator_scope():
     assert {job.id for job in jobs} == {"job-001", "job-002"}
 
 
-def test_administrator_can_list_jobs_across_organizations(monkeypatch):
+def test_administrator_can_list_jobs_for_selected_organization(monkeypatch):
     import api.job as job_api
     from fastapi.testclient import TestClient
     from main import app
     from models.job import Job
 
-    jobs = [
-        Job(
-            id="job-001",
-            organization_id="org-001",
-            title="Office Executive",
-        ),
-        Job(
-            id="job-002",
-            organization_id="org-002",
-            title="Software Engineer",
-        ),
-    ]
+    jobs_by_organization = {
+        "org-001": [
+            Job(
+                id="job-001",
+                organization_id="org-001",
+                title="Office Executive",
+            ),
+        ],
+        "org-002": [
+            Job(
+                id="job-002",
+                organization_id="org-002",
+                title="Software Engineer",
+            ),
+        ],
+    }
 
     monkeypatch.setattr(
         job_api,
@@ -184,8 +188,9 @@ def test_administrator_can_list_jobs_across_organizations(monkeypatch):
             "FakeJobService",
             (),
             {
-                "list_all_active_organization_jobs": (
-                    lambda self: jobs
+                "list_jobs": (
+                    lambda self, organization_id:
+                    jobs_by_organization[organization_id]
                 ),
             },
         )(),
@@ -213,7 +218,7 @@ def test_administrator_can_list_jobs_across_organizations(monkeypatch):
 
     client = TestClient(app)
     response = client.get(
-        "/api/jobs?organization_id=org-not-assigned",
+        "/api/jobs?organization_id=org-001",
         headers={
             "X-MS-CLIENT-PRINCIPAL-ID": "admin-001",
             "X-MS-CLIENT-PRINCIPAL-NAME": "administrator@example.com",
@@ -223,10 +228,11 @@ def test_administrator_can_list_jobs_across_organizations(monkeypatch):
 
     assert response.status_code == 200
     data = response.json()
-    assert {job["id"] for job in data["jobs"]} == {
-        "job-001",
-        "job-002",
-    }
+    assert {job["id"] for job in data["jobs"]} == {"job-001"}
+    assert all(
+        job["organization_id"] == "org-001"
+        for job in data["jobs"]
+    )
 
 
 def test_employer_manager_cannot_list_jobs_for_another_organization(

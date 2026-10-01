@@ -30,7 +30,7 @@ function getDisplayStatus(status) {
     return 'Applied'
   }
 
-  if (normalized === 'screening') {
+  if (normalized === 'screening' || normalized === 'under_review') {
     return 'Screening'
   }
 
@@ -152,7 +152,7 @@ export default function EmployerApplications({ auth }) {
           },
           body: JSON.stringify({
             organization_id: organizationId,
-            status: 'screening',
+            status: 'under_review',
           }),
         },
       )

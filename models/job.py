@@ -14,6 +14,8 @@ class Job:
     country: Optional[str] = None
     status: str = "draft"
     number_of_positions: Optional[int] = None
+    working_hours: Optional[str] = None
+    benefits: Optional[str] = None
     requisition_number: Optional[str] = None
     employer_name: Optional[str] = None
     employer_country: Optional[str] = None
