@@ -46,6 +46,8 @@ export default function EmployerJobRequests({ auth }) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [reviewRequest, setReviewRequest] = useState(null)
+  const [editingRequest, setEditingRequest] = useState(null)
 
   const organizationId = selectedOrganization?.id || ''
 
@@ -133,8 +135,14 @@ export default function EmployerJobRequests({ auth }) {
     setError('')
 
     try {
-      const response = await authenticatedFetch('/api/job-requests', {
-        method: 'POST',
+      const isEditing = Boolean(editingRequest)
+
+      const endpoint = isEditing
+        ? `/api/job-requests/${encodeURIComponent(editingRequest.id)}`
+        : '/api/job-requests'
+
+      const response = await authenticatedFetch(endpoint, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -153,7 +161,9 @@ export default function EmployerJobRequests({ auth }) {
       })
 
       if (!response.ok) {
-        let message = 'Unable to create job request.'
+        let message = isEditing
+          ? 'Unable to update job request.'
+          : 'Unable to create job request.'
 
         try {
           const data = await response.json()
@@ -166,13 +176,40 @@ export default function EmployerJobRequests({ auth }) {
       }
 
       setForm(emptyForm)
+      setEditingRequest(null)
       setShowForm(false)
+
       await loadRequests()
     } catch (err) {
-      setError(err.message || 'Unable to create job request.')
+      setError(
+        err.message ||
+          (editingRequest
+            ? 'Unable to update job request.'
+            : 'Unable to create job request.'),
+      )
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleEditRequest = (request) => {
+    setError('')
+
+    setEditingRequest(request)
+
+    setForm({
+      title: request.title || '',
+      description: request.description || '',
+      employment_type: request.employment_type || '',
+      location: request.location || '',
+      country: request.country || '',
+      number_of_positions: request.number_of_positions ?? 1,
+      working_hours: request.working_hours || '',
+      benefits: request.benefits || '',
+    })
+
+    setReviewRequest(null)
+    setShowForm(true)
   }
 
   const handleApprove = async (requestId) => {
@@ -202,6 +239,14 @@ export default function EmployerJobRequests({ auth }) {
 
         throw new Error(message)
       }
+
+      setRequests((current) =>
+        current.map((request) =>
+          request.id === requestId
+            ? { ...request, status: 'approved' }
+            : request,
+        ),
+      )
 
       await loadRequests()
     } catch (err) {
@@ -310,11 +355,15 @@ export default function EmployerJobRequests({ auth }) {
           <div className="employer-request-section-heading">
             <div>
               <span className="employer-request-eyebrow">
-                NEW REQUIREMENT
+                {editingRequest ? 'EDIT REQUIREMENT' : 'NEW REQUIREMENT'}
               </span>
-              <h2>Create Job Request</h2>
+              <h2>
+                {editingRequest ? 'Edit Job Request' : 'Create Job Request'}
+              </h2>
               <p>
-                Provide the core recruitment requirement for HR review.
+                {editingRequest
+                  ? 'Update the pending recruitment requirement before HR review.'
+                  : 'Provide the core recruitment requirement for HR review.'}
               </p>
             </div>
           </div>
@@ -448,6 +497,7 @@ export default function EmployerJobRequests({ auth }) {
                 className="employer-request-secondary-button"
                 onClick={() => {
                   setForm(emptyForm)
+                  setEditingRequest(null)
                   setError('')
                   setShowForm(false)
                 }}
@@ -461,7 +511,13 @@ export default function EmployerJobRequests({ auth }) {
                 className="employer-request-primary-button"
                 disabled={saving}
               >
-                {saving ? 'Submitting...' : 'Submit Job Request'}
+                {saving
+                  ? editingRequest
+                    ? 'Saving...'
+                    : 'Submitting...'
+                  : editingRequest
+                    ? 'Save Changes'
+                    : 'Submit Job Request'}
               </button>
             </div>
           </form>
@@ -557,15 +613,42 @@ export default function EmployerJobRequests({ auth }) {
                   )}
                 </div>
 
-                {canReviewRequests && request.status === 'pending' && (
-                  <div className="employer-request-item-action">
+                {request.status === 'pending' && (
+                  <div
+                    className="employer-request-item-action"
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     <button
                       type="button"
-                      className="employer-request-primary-button"
-                      onClick={() => handleApprove(request.id)}
+                      className="employer-request-secondary-button"
+                      onClick={() => handleEditRequest(request)}
                     >
-                      Approve Request
+                      Edit Request
                     </button>
+
+                    {canReviewRequests && (
+                      <>
+                        <button
+                          type="button"
+                          className="employer-request-secondary-button"
+                          onClick={() => setReviewRequest(request)}
+                        >
+                          Review Request
+                        </button>
+
+                        <button
+                          type="button"
+                          className="employer-request-primary-button"
+                          onClick={() => handleApprove(request.id)}
+                        >
+                          Approve Request
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </article>
@@ -573,6 +656,230 @@ export default function EmployerJobRequests({ auth }) {
           </div>
         )}
       </div>
+
+      {reviewRequest && (
+        <div
+          role="presentation"
+          onClick={() => setReviewRequest(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            background: 'rgba(15, 23, 42, 0.45)',
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="job-request-review-title"
+            onClick={(event) => event.stopPropagation()}
+            style={{
+              width: 'min(760px, 100%)',
+              maxHeight: 'calc(100vh - 48px)',
+              overflowY: 'auto',
+              borderRadius: '12px',
+              background: '#fff',
+              padding: '24px',
+              boxShadow: '0 20px 50px rgba(15, 23, 42, 0.20)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <div>
+                <h2
+                  id="job-request-review-title"
+                  style={{
+                    margin: 0,
+                    color: '#0F172A',
+                    fontSize: '20px',
+                    fontWeight: 700,
+                  }}
+                >
+                  Review Job Request
+                </h2>
+                <p
+                  style={{
+                    margin: '6px 0 0',
+                    color: '#64748B',
+                    fontSize: '13px',
+                  }}
+                >
+                  Review the employer-submitted requirements before approval.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setReviewRequest(null)}
+                aria-label="Close review"
+                style={{
+                  border: '1px solid #E2E8F0',
+                  background: '#fff',
+                  color: '#475569',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '14px',
+              }}
+            >
+              {[
+                ['Job Title', reviewRequest.title],
+                ['Employment Type', reviewRequest.employment_type],
+                ['Location', reviewRequest.location],
+                ['Country', reviewRequest.country],
+                ['Number of Positions', reviewRequest.number_of_positions],
+                ['Working Hours', reviewRequest.working_hours],
+                ['Status', reviewRequest.status],
+                ['Requested', formatDate(reviewRequest.requested_at)],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  style={{
+                    padding: '12px 14px',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '8px',
+                    background: '#F8FAFC',
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: '4px',
+                      color: '#64748B',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div
+                    style={{
+                      color: '#0F172A',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {value || '—'}
+                  </div>
+                </div>
+              ))}
+
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  padding: '14px',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    marginBottom: '6px',
+                    color: '#64748B',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                  }}
+                >
+                  Description
+                </div>
+                <div
+                  style={{
+                    color: '#475569',
+                    fontSize: '14px',
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {reviewRequest.description || '—'}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  padding: '14px',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    marginBottom: '6px',
+                    color: '#64748B',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                  }}
+                >
+                  Benefits
+                </div>
+                <div
+                  style={{
+                    color: '#475569',
+                    fontSize: '14px',
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {reviewRequest.benefits || '—'}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+                marginTop: '20px',
+                paddingTop: '16px',
+                borderTop: '1px solid #E2E8F0',
+              }}
+            >
+              <button
+                type="button"
+                className="employer-request-secondary-button"
+                onClick={() => setReviewRequest(null)}
+              >
+                Close Review
+              </button>
+
+              <button
+                type="button"
+                className="employer-request-primary-button"
+                onClick={() => {
+                  setReviewRequest(null)
+                  handleApprove(reviewRequest.id)
+                }}
+              >
+                Approve Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

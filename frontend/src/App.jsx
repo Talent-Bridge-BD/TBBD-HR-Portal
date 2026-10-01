@@ -37,6 +37,7 @@ import RecruitmentOnboarding from './pages/RecruitmentOnboarding'
 import CandidateInterviews from './pages/CandidateInterviews'
 import CandidateDocuments from './pages/CandidateDocuments'
 import CandidateNotifications from './pages/CandidateNotifications'
+import CandidateOffers from './pages/CandidateOffers'
 import EmployerNotifications from './pages/EmployerNotifications'
 import CandidateHelpSupport from './pages/CandidateHelpSupport'
 import { getCurrentUser, signIn } from './utils/auth'
@@ -132,7 +133,9 @@ export default function App() {
     ) : (
       <Dashboard auth={auth} onNavigate={setActivePage} />
     ),
-    'My Profile': <MyProfile auth={auth} />,
+    'My Profile': auth?.roles?.includes('Candidate')
+      ? <CandidateMyProfile />
+      : <MyProfile auth={auth} />,
     Leave: <Leave />,
     Attendance: <Attendance />,
     Applications: <Applications />,
@@ -166,6 +169,7 @@ export default function App() {
     'Candidate Available Jobs': <CandidateAvailableJobs />,
   'Candidate Interviews': <CandidateInterviews />,
   'Candidate Documents': <CandidateDocuments />,
+  'Candidate My Offers': <CandidateOffers />,
   'Candidate Notifications': <CandidateNotifications />,
   }
 

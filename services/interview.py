@@ -69,6 +69,7 @@ class InterviewService:
         interviewer_name: str,
         notes: str,
         status: str,
+        outcome: str,
     ) -> Optional[EmployerInterview]:
         return self.repository.update_interview(
             organization_id,
@@ -80,4 +81,5 @@ class InterviewService:
             interviewer_name,
             notes,
             status,
+            outcome,
         )

@@ -6,6 +6,7 @@ import { authenticatedFetch } from '../utils/auth'
 
 export default function CandidateAvailableJobs() {
   const [jobs, setJobs] = useState([])
+  const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [applyingJobId, setApplyingJobId] = useState('')
@@ -32,6 +33,21 @@ export default function CandidateAvailableJobs() {
         if (!active) return
 
         setJobs(Array.isArray(data.jobs) ? data.jobs : [])
+
+        const applicationsResponse = await authenticatedFetch(
+          '/api/candidate/applications',
+        )
+
+        if (applicationsResponse.ok) {
+          const applicationsData = await applicationsResponse.json()
+          if (active) {
+            setApplications(
+              Array.isArray(applicationsData.applications)
+                ? applicationsData.applications
+                : [],
+            )
+          }
+        }
       } catch (err) {
         if (active) {
           setError(err.message || 'Unable to load available jobs.')
@@ -270,13 +286,21 @@ export default function CandidateAvailableJobs() {
                         </span>
 
                         {!closingState.closed && (
-                          <button
-                            type="button"
-                            onClick={() => handleApply(job.id)}
-                            disabled={applyingJobId === job.id}
-                          >
-                            {applyingJobId === job.id ? 'Applying...' : 'Apply'}
-                          </button>
+                          applications.some(
+                            (application) => application.job_id === job.id,
+                          ) ? (
+                            <button type="button" disabled>
+                              Already Applied
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleApply(job.id)}
+                              disabled={applyingJobId === job.id}
+                            >
+                              {applyingJobId === job.id ? 'Applying...' : 'Apply'}
+                            </button>
+                          )
                         )}
                       </>
                     )

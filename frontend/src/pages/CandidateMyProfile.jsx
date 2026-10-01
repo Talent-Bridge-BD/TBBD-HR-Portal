@@ -1,3 +1,4 @@
+import { authenticatedFetch } from '../utils/auth'
 import { useEffect, useMemo, useState } from 'react'
 
 import PageHeader from '../components/PageHeader'
@@ -142,12 +143,12 @@ export default function CandidateMyProfile() {
           languagesResponse,
           preferencesResponse,
         ] = await Promise.all([
-          fetch('/api/candidate/profile'),
-          fetch('/api/candidate/documents'),
-          fetch('/api/candidate/experience'),
-          fetch('/api/candidate/skills'),
-          fetch('/api/candidate/languages'),
-          fetch('/api/candidate/preferences'),
+          authenticatedFetch('/api/candidate/profile'),
+          authenticatedFetch('/api/candidate/documents'),
+          authenticatedFetch('/api/candidate/experience'),
+          authenticatedFetch('/api/candidate/skills'),
+          authenticatedFetch('/api/candidate/languages'),
+          authenticatedFetch('/api/candidate/preferences'),
         ])
 
         if (!profileResponse.ok) {
@@ -287,7 +288,7 @@ export default function CandidateMyProfile() {
       setError('')
       setMessage('')
 
-      const response = await fetch('/api/candidate/profile', {
+      const response = await authenticatedFetch('/api/candidate/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -341,7 +342,7 @@ export default function CandidateMyProfile() {
   }
 
   async function refreshLanguages() {
-    const response = await fetch('/api/candidate/languages')
+    const response = await authenticatedFetch('/api/candidate/languages')
 
     if (!response.ok) {
       const body = await response.text()
@@ -382,7 +383,7 @@ export default function CandidateMyProfile() {
         ? `/api/candidate/languages/${encodeURIComponent(editingLanguageId)}`
         : '/api/candidate/languages'
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method: editingLanguageId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -429,7 +430,7 @@ export default function CandidateMyProfile() {
     setMessage('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/languages/${encodeURIComponent(languageId)}`,
         {
           method: 'DELETE',
@@ -456,7 +457,7 @@ export default function CandidateMyProfile() {
   }
 
   async function refreshSkills() {
-    const response = await fetch('/api/candidate/skills')
+    const response = await authenticatedFetch('/api/candidate/skills')
 
     if (!response.ok) {
       const body = await response.text()
@@ -481,7 +482,7 @@ export default function CandidateMyProfile() {
         ? `/api/candidate/skills/${encodeURIComponent(editingSkillId)}`
         : '/api/candidate/skills'
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method: editingSkillId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -521,7 +522,7 @@ export default function CandidateMyProfile() {
     setMessage('')
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/skills/${encodeURIComponent(skillId)}`,
         {
           method: 'DELETE',
@@ -548,7 +549,7 @@ export default function CandidateMyProfile() {
   }
 
   async function refreshExperience() {
-    const response = await fetch('/api/candidate/experience')
+    const response = await authenticatedFetch('/api/candidate/experience')
     if (!response.ok) {
       const body = await response.text()
       throw new Error(
@@ -573,7 +574,7 @@ export default function CandidateMyProfile() {
           )}`
         : '/api/candidate/experience'
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -617,7 +618,7 @@ export default function CandidateMyProfile() {
       setError('')
       setMessage('')
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/experience/${encodeURIComponent(experienceId)}`,
         {
           method: 'DELETE',
@@ -646,7 +647,7 @@ export default function CandidateMyProfile() {
   }
 
   async function refreshPreferences() {
-    const response = await fetch('/api/candidate/preferences')
+    const response = await authenticatedFetch('/api/candidate/preferences')
 
     if (!response.ok) {
       const body = await response.text()
@@ -675,7 +676,7 @@ export default function CandidateMyProfile() {
         throw new Error('Expected salary must be a valid number')
       }
 
-      const response = await fetch('/api/candidate/preferences', {
+      const response = await authenticatedFetch('/api/candidate/preferences', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -751,7 +752,7 @@ export default function CandidateMyProfile() {
   }
 
   async function refreshDocuments() {
-    const response = await fetch('/api/candidate/documents')
+    const response = await authenticatedFetch('/api/candidate/documents')
 
     if (!response.ok) {
       const body = await response.text()
@@ -780,7 +781,7 @@ export default function CandidateMyProfile() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/documents?document_type=${encodeURIComponent(
           documentType,
         )}`,
@@ -852,7 +853,7 @@ export default function CandidateMyProfile() {
       setError('')
       setMessage('')
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/documents/${encodeURIComponent(document.id)}`,
         {
           method: 'DELETE',
@@ -905,7 +906,6 @@ export default function CandidateMyProfile() {
   const completionItems = useMemo(
     () => [
       Boolean(profile.first_name.trim()),
-      Boolean(profile.last_name.trim()),
       Boolean(profile.email.trim()),
       Boolean(profile.phone.trim()),
       Boolean(profile.location.trim()),
@@ -1045,12 +1045,11 @@ export default function CandidateMyProfile() {
             </label>
 
             <label className="profile-form-field">
-              <span>Last Name</span>
+              <span>Last Name <small>(Optional)</small></span>
               <input
                 name="last_name"
                 value={profile.last_name}
                 onChange={handleChange}
-                required
               />
             </label>
 
@@ -2273,7 +2272,7 @@ function DocumentCard({
       try {
         setPreviewError('')
 
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `/api/candidate/documents/${encodeURIComponent(document.id)}`,
         )
 

@@ -56,6 +56,7 @@ class InterviewRepository(ABC):
         interviewer_name: str,
         notes: str,
         status: str,
+        outcome: str,
     ) -> EmployerInterview | None:
         raise NotImplementedError
 
@@ -115,6 +116,7 @@ class SqlInterviewRepository(InterviewRepository):
             interviewer_name=row.interviewer_name,
             notes=row.notes,
             status=row.status,
+            outcome=row.outcome,
             created_at=row.created_at,
             updated_at=row.updated_at,
         )
@@ -141,6 +143,7 @@ class SqlInterviewRepository(InterviewRepository):
             i.interviewer_name,
             i.notes,
             i.status,
+            i.outcome,
             i.created_at,
             i.updated_at
         FROM dbo.interviews AS i
@@ -183,6 +186,7 @@ class SqlInterviewRepository(InterviewRepository):
             i.interviewer_name,
             i.notes,
             i.status,
+            i.outcome,
             i.created_at,
             i.updated_at
         FROM dbo.interviews AS i
@@ -226,6 +230,7 @@ class SqlInterviewRepository(InterviewRepository):
             i.interviewer_name,
             i.notes,
             i.status,
+            i.outcome,
             i.created_at,
             i.updated_at
         FROM dbo.interviews AS i
@@ -339,6 +344,7 @@ class SqlInterviewRepository(InterviewRepository):
         interviewer_name: str,
         notes: str,
         status: str,
+        outcome: str,
     ) -> EmployerInterview | None:
 
         sql = """
@@ -351,6 +357,7 @@ class SqlInterviewRepository(InterviewRepository):
             interviewer_name = ?,
             notes = ?,
             status = ?,
+            outcome = ?,
             updated_at = SYSUTCDATETIME()
         FROM dbo.interviews AS i
         INNER JOIN dbo.applications AS a
@@ -372,6 +379,7 @@ class SqlInterviewRepository(InterviewRepository):
                 interviewer_name,
                 notes,
                 status,
+                outcome,
                 interview_id,
                 organization_id,
             )

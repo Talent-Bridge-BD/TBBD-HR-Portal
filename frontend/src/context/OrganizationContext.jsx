@@ -84,12 +84,26 @@ export function OrganizationProvider({ auth, children }) {
 
           const data = await response.json()
 
+          console.log("ORG MATCH DEBUG", {
+          organizationIds,
+          apiOrganizations: data?.organizations,
+         })
+
           const organizations = (data?.organizations || []).filter(
-            (organization) => organizationIds.includes(organization.id),
-          )
+         (organization) => organizationIds.includes(organization.id),
+         )
+
+           console.log("ORG FILTER RESULT", organizations)
 
           if (mounted) {
-            setAvailableOrganizations(organizations)
+
+          console.log("ORG DEBUG", {
+           auth,
+            organizationIds,
+            organizations,
+       })
+
+          setAvailableOrganizations(organizations)
           }
         } catch (error) {
           console.error('Failed to load organizations:', error)

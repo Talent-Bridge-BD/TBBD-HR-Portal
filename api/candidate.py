@@ -5,6 +5,7 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, field_validator
 from models.candidate import CandidateProfile
 from repositories.application import SqlApplicationRepository
+from repositories.hiring import SqlHiringRepository
 from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
 from repositories.job import SqlJobRepository
@@ -15,6 +16,7 @@ from repositories.candidate_language import SqlCandidateLanguageRepository
 from repositories.candidate_experience import SqlCandidateExperienceRepository
 from repositories.candidate_preferences import SqlCandidatePreferencesRepository
 from services.application import ApplicationService
+from services.hiring import HiringService
 from services.interview import InterviewService
 from services.candidate_document import CandidateDocumentService
 from services.candidate_skill import CandidateSkillService
@@ -31,6 +33,10 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _application_repository = SqlApplicationRepository()
 _application_service = ApplicationService(_application_repository)
+
+_hiring_repository = SqlHiringRepository()
+
+_hiring_service = HiringService(_hiring_repository)
 
 _interview_repository = SqlInterviewRepository()
 
@@ -475,6 +481,65 @@ async def get_candidate_applications(request: Request):
             item.__dict__
             for item in applications
         ],
+    }
+
+
+@router.get("/offers")
+async def get_candidate_offers(request: Request):
+    user_id = get_candidate_identity(request)
+
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        return {
+            "offers": [],
+            "message": "Candidate profile has not been created yet",
+        }
+
+    offers = _hiring_service.list_candidate_offers(
+        candidate_id,
+    )
+
+    return {
+        "offers": offers,
+    }
+
+
+@router.post("/offers/{offer_id}/accept")
+async def accept_candidate_offer(
+    offer_id: str,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+
+    candidate_id = _service.get_candidate_id(user_id)
+
+    if candidate_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Candidate profile has not been created yet",
+        )
+
+    try:
+        offer = _hiring_service.accept_candidate_offer(
+            candidate_id,
+            offer_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    if offer is None:
+        raise HTTPException(
+            status_code=409,
+            detail="This offer is no longer available for acceptance.",
+        )
+
+    return {
+        "message": "Offer accepted successfully.",
+        "offer": offer,
     }
 
 

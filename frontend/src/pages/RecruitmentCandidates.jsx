@@ -419,6 +419,47 @@ export default function RecruitmentCandidates({ auth }) {
                           'No cover letter was provided with this application.'}
                       </p>
                     </section>
+
+                    {String(selectedApplication.status || '').toLowerCase() ===
+                      'submitted' && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          gap: '10px',
+                          flexWrap: 'wrap',
+                          marginTop: '24px',
+                          paddingTop: '18px',
+                          borderTop: '1px solid #E2E8F0',
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="primary-action"
+                          onClick={() =>
+                            updateApplicationStatus(
+                              selectedApplication.id,
+                              'under_review',
+                            )
+                          }
+                        >
+                          Move to Screening
+                        </button>
+
+                        <button
+                          type="button"
+                          className="secondary-action"
+                          onClick={() =>
+                            updateApplicationStatus(
+                              selectedApplication.id,
+                              'rejected',
+                            )
+                          }
+                        >
+                          Reject Application
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </aside>

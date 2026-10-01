@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import pyodbc
+
 from azure.identity import DefaultAzureCredential
 
 from models.job import Job
@@ -117,6 +118,7 @@ class SqlJobRepository(JobRepository):
         self.credential = DefaultAzureCredential()
 
     def _connection(self) -> pyodbc.Connection:
+        print(f"[JOB SQL] connecting server={self.server} database={self.database}", flush=True)
         token = self.credential.get_token(self.SQL_SCOPE).token
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
@@ -231,6 +233,8 @@ class SqlJobRepository(JobRepository):
                     country,
                     status,
                     number_of_positions,
+                    working_hours,
+                    benefits,
                     job_reference,
                     employer_name,
                     employer_country,
@@ -382,6 +386,8 @@ class SqlJobRepository(JobRepository):
                     country,
                     status,
                     number_of_positions,
+                    working_hours,
+                    benefits,
                     job_reference,
                     employer_name,
                     employer_country,
@@ -411,7 +417,9 @@ class SqlJobRepository(JobRepository):
             return self._row_to_job(row)
 
     def save_job(self, job: Job) -> Job:
+        print(f"[JOB SQL] save_job START id={job.id} org={job.organization_id} status={job.status}", flush=True)
         with self._connection() as connection:
+            print("[JOB SQL] save_job CONNECTED", flush=True)
             cursor = connection.cursor()
 
             if job.id:
