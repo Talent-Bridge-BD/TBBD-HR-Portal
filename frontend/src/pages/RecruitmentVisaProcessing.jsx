@@ -3,22 +3,45 @@ import { authenticatedFetch } from "../utils/auth";
 
 function formatDate(value) {
   if (!value) return "—";
+
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
   return date.toLocaleDateString();
 }
 
 function getInitials(firstName, lastName) {
-  return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?";
+  return (
+    `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "?"
+  );
 }
 
 function statusClass(status) {
   const value = String(status || "").toLowerCase();
 
-  if (value === "approved") return "status-badge status-approved";
-  if (value === "rejected") return "status-badge status-rejected";
-  if (value === "submitted") return "status-badge status-submitted";
-  if (value === "in progress") return "status-badge status-in-progress";
+  if (value === "approved") {
+    return "status-badge status-approved";
+  }
+
+  if (value === "rejected") {
+    return "status-badge status-rejected";
+  }
+
+  if (value === "submitted") {
+    return "status-badge status-submitted";
+  }
+
+  if (value === "processing") {
+    return "status-badge status-in-progress";
+  }
+
+  if (value === "expired") {
+    return "status-badge status-rejected";
+  }
+
   return "status-badge status-pending";
 }
 
@@ -38,6 +61,7 @@ export default function RecruitmentVisaProcessing() {
         setError("");
 
         const meResponse = await authenticatedFetch("/api/me");
+
         if (!meResponse.ok) {
           throw new Error("Unable to load current user.");
         }
@@ -45,6 +69,7 @@ export default function RecruitmentVisaProcessing() {
         const me = await meResponse.json();
         const roles = me?.roles || [];
         const isAdministrator = roles.includes("Administrator");
+
         const organizationId =
           me?.user?.organization_id ||
           me?.organization_id ||
@@ -56,42 +81,62 @@ export default function RecruitmentVisaProcessing() {
 
         if (!isAdministrator) {
           if (!organizationId) {
-            throw new Error("No organization was found for the current user.");
+            throw new Error(
+              "No organization was found for the current user."
+            );
           }
 
           applicationsUrl =
-            `/api/applications?organization_id=${encodeURIComponent(organizationId)}`;
+            `/api/applications?organization_id=${encodeURIComponent(
+              organizationId
+            )}`;
         }
 
-        const applicationsResponse = await authenticatedFetch(applicationsUrl);
+        const applicationsResponse =
+          await authenticatedFetch(applicationsUrl);
 
         if (!applicationsResponse.ok) {
           throw new Error("Unable to load applications.");
         }
 
         const applicationsData = await applicationsResponse.json();
+
         const applications = Array.isArray(applicationsData)
           ? applicationsData
-          : applicationsData?.items || applicationsData?.applications || [];
+          : applicationsData?.items ||
+            applicationsData?.applications ||
+            [];
 
         const loaded = [];
 
         for (const application of applications) {
+          const applicationOrganizationId =
+            application?.organization_id || organizationId;
+
+          if (!applicationOrganizationId) {
+            continue;
+          }
+
           try {
             const response = await authenticatedFetch(
               `/api/visa-processing/application/${encodeURIComponent(
                 application.id
               )}?organization_id=${encodeURIComponent(
-                application?.organization_id || organizationId
+                applicationOrganizationId
               )}`
             );
 
-            if (!response.ok) continue;
+            if (!response.ok) {
+              continue;
+            }
 
             const data = await response.json();
+
             const visaRecords = Array.isArray(data)
               ? data
-              : data?.items || data?.visa_processings || [];
+              : data?.items ||
+                data?.visa_processings ||
+                [];
 
             visaRecords.forEach((visa) => {
               loaded.push({
@@ -100,7 +145,7 @@ export default function RecruitmentVisaProcessing() {
               });
             });
           } catch {
-            // Continue loading other applications if one visa request fails.
+            // Continue loading the remaining applications.
           }
         }
 
@@ -109,7 +154,10 @@ export default function RecruitmentVisaProcessing() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err.message || "Unable to load Visa Processing records.");
+          setError(
+            err.message ||
+              "Unable to load Visa Processing records."
+          );
         }
       } finally {
         if (!cancelled) {
@@ -128,46 +176,68 @@ export default function RecruitmentVisaProcessing() {
   const filteredRecords = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (!query) return records;
+    if (!query) {
+      return records;
+    }
 
     return records.filter((record) => {
       const application = record.application || {};
+
       const candidateName = [
-        application.first_name,
-        application.last_name,
-        application.candidate_name,
+        application.candidate_first_name,
+        application.candidate_last_name,
       ]
         .filter(Boolean)
         .join(" ");
 
       return [
         candidateName,
-        application.email,
+        application.candidate_email,
         application.job_title,
         record.visa_type,
         record.visa_number,
-        record.country,
+        record.application_number,
         record.status,
-        record.result,
+        record.sponsor_name,
+        record.sponsor_reference,
       ]
         .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(query));
+        .some((value) =>
+          String(value).toLowerCase().includes(query)
+        );
     });
   }, [records, search]);
 
   const counts = useMemo(
     () => ({
       pending: records.filter(
-        (record) => String(record.status).toLowerCase() === "pending"
+        (record) =>
+          String(record.status || "").toLowerCase() === "pending"
       ).length,
+
       submitted: records.filter(
-        (record) => String(record.status).toLowerCase() === "submitted"
+        (record) =>
+          String(record.status || "").toLowerCase() === "submitted"
       ).length,
+
+      processing: records.filter(
+        (record) =>
+          String(record.status || "").toLowerCase() === "processing"
+      ).length,
+
       approved: records.filter(
-        (record) => String(record.status).toLowerCase() === "approved"
+        (record) =>
+          String(record.status || "").toLowerCase() === "approved"
       ).length,
+
       rejected: records.filter(
-        (record) => String(record.status).toLowerCase() === "rejected"
+        (record) =>
+          String(record.status || "").toLowerCase() === "rejected"
+      ).length,
+
+      expired: records.filter(
+        (record) =>
+          String(record.status || "").toLowerCase() === "expired"
       ).length,
     }),
     [records]
@@ -178,7 +248,9 @@ export default function RecruitmentVisaProcessing() {
       <div className="medical-workspace-header">
         <div>
           <h1>Visa Processing</h1>
-          <p>Manage candidate visa applications and approvals.</p>
+          <p>
+            Manage candidate visa applications and approvals.
+          </p>
         </div>
       </div>
 
@@ -196,15 +268,15 @@ export default function RecruitmentVisaProcessing() {
         </div>
 
         <div className="medical-kpi-card">
-          <span>Approved</span>
-          <strong>{counts.approved}</strong>
-          <small>Approved visa applications</small>
+          <span>Processing</span>
+          <strong>{counts.processing}</strong>
+          <small>Applications under processing</small>
         </div>
 
         <div className="medical-kpi-card">
-          <span>Rejected</span>
-          <strong>{counts.rejected}</strong>
-          <small>Rejected applications</small>
+          <span>Approved</span>
+          <strong>{counts.approved}</strong>
+          <small>Approved visa applications</small>
         </div>
       </div>
 
@@ -213,14 +285,16 @@ export default function RecruitmentVisaProcessing() {
           <div>
             <h2>Visa Processing Records</h2>
             <p>
-              Review candidate visa applications, submission status, and
-              approval details.
+              Review candidate visa applications, submission status,
+              and approval details.
             </p>
           </div>
 
           <span className="medical-count">
             {filteredRecords.length}{" "}
-            {filteredRecords.length === 1 ? "record" : "records"}
+            {filteredRecords.length === 1
+              ? "record"
+              : "records"}
           </span>
         </div>
 
@@ -229,111 +303,148 @@ export default function RecruitmentVisaProcessing() {
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search candidates, visa type, country or status"
-            aria-label="Search visa processing records" className="medical-search-input"
+            placeholder="Search candidates, visa type, application number or status"
+            aria-label="Search visa processing records"
+            className="medical-search-input"
           />
         </div>
 
         {loading && (
           <div className="medical-empty-state">
-            <strong>Loading Visa Processing records…</strong>
-            <p>Please wait while the records are loaded.</p>
+            <strong>
+              Loading Visa Processing records…
+            </strong>
+            <p>
+              Please wait while the records are loaded.
+            </p>
           </div>
         )}
 
         {!loading && error && (
           <div className="medical-empty-state">
-            <strong>Unable to load Visa Processing records</strong>
+            <strong>
+              Unable to load Visa Processing records
+            </strong>
             <p>{error}</p>
           </div>
         )}
 
-        {!loading && !error && filteredRecords.length === 0 && (
-          <div className="medical-empty-state">
-            <strong>No visa processing records have been recorded yet.</strong>
-            <p>
-              Visa records will appear here when candidates enter the visa
-              processing stage.
-            </p>
-          </div>
-        )}
+        {!loading &&
+          !error &&
+          filteredRecords.length === 0 && (
+            <div className="medical-empty-state">
+              <strong>
+                No visa processing records have been recorded yet.
+              </strong>
+              <p>
+                Visa records will appear here when candidates
+                enter the visa processing stage.
+              </p>
+            </div>
+          )}
 
-        {!loading && !error && filteredRecords.length > 0 && (
-          <div className="medical-table-wrap">
-            <table className="medical-table">
-              <thead>
-                <tr>
-                  <th>Candidate</th>
-                  <th>Job</th>
-                  <th>Visa Type</th>
-                  <th>Country</th>
-                  <th>Status</th>
-                  <th>Submitted</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+        {!loading &&
+          !error &&
+          filteredRecords.length > 0 && (
+            <div className="medical-table-wrap">
+              <table className="medical-table">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Job</th>
+                    <th>Visa Type</th>
+                    <th>Application No.</th>
+                    <th>Status</th>
+                    <th>Submission Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {filteredRecords.map((record) => {
-                  const application = record.application || {};
-                  const firstName =
-                    application.first_name ||
-                    application.candidate_first_name ||
-                    "";
-                  const lastName =
-                    application.last_name ||
-                    application.candidate_last_name ||
-                    "";
-                  const candidateName =
-                    application.candidate_name ||
-                    `${firstName} ${lastName}`.trim() ||
-                    application.email ||
-                    "Candidate";
+                <tbody>
+                  {filteredRecords.map((record) => {
+                    const application =
+                      record.application || {};
 
-                  return (
-                    <tr key={record.id}>
-                      <td>
-                        <div className="medical-candidate">
-                          <span className="medical-avatar">
-                            {getInitials(firstName, lastName)}
-                          </span>
-                          <div>
-                            <strong>{candidateName}</strong>
-                            <small>
-                              Visa ID: {record.id || "—"}
-                            </small>
+                    const firstName =
+                      application.candidate_first_name || "";
+
+                    const lastName =
+                      application.candidate_last_name || "";
+
+                    const candidateName =
+                      `${firstName} ${lastName}`.trim() ||
+                      application.candidate_email ||
+                      "Candidate";
+
+                    return (
+                      <tr key={record.id}>
+                        <td>
+                          <div className="medical-candidate">
+                            <span className="medical-avatar">
+                              {getInitials(
+                                firstName,
+                                lastName
+                              )}
+                            </span>
+
+                            <div>
+                              <strong>
+                                {candidateName}
+                              </strong>
+
+                              <small>
+                                Visa ID: {record.id || "—"}
+                              </small>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td>{application.job_title || "—"}</td>
-                      <td>{record.visa_type || "—"}</td>
-                      <td>{record.country || "—"}</td>
+                        <td>
+                          {application.job_title || "—"}
+                        </td>
 
-                      <td>
-                        <span className={statusClass(record.status)}>
-                          {record.status || "Pending"}
-                        </span>
-                      </td>
+                        <td>
+                          {record.visa_type || "—"}
+                        </td>
 
-                      <td>{formatDate(record.submitted_at)}</td>
+                        <td>
+                          {record.application_number || "—"}
+                        </td>
 
-                      <td>
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() => setSelected(record)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        <td>
+                          <span
+                            className={statusClass(
+                              record.status
+                            )}
+                          >
+                            {record.status || "Pending"}
+                          </span>
+                        </td>
+
+                        <td>
+                          {formatDate(
+                            record.submission_date
+                          )}
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              setSelected(record)
+                            }
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
       </section>
 
       {selected && (
@@ -347,17 +458,27 @@ export default function RecruitmentVisaProcessing() {
             role="dialog"
             aria-modal="true"
             aria-label="Visa processing details"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
             <div className="medical-detail-header">
               <div>
-                <span>VISA PROCESSING DETAILS</span>
+                <span>
+                  VISA PROCESSING DETAILS
+                </span>
+
                 <h2>
-                  {selected.application?.candidate_name ||
-                    `${selected.application?.first_name || ""} ${
-                      selected.application?.last_name || ""
-                    }`.trim() ||
-                    selected.application?.email ||
+                  {[
+                    selected.application
+                      ?.candidate_first_name,
+                    selected.application
+                      ?.candidate_last_name,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") ||
+                    selected.application
+                      ?.candidate_email ||
                     "Candidate"}
                 </h2>
               </div>
@@ -373,57 +494,106 @@ export default function RecruitmentVisaProcessing() {
             </div>
 
             <div className="medical-detail-status">
-              <span className={statusClass(selected.status)}>
+              <span
+                className={statusClass(
+                  selected.status
+                )}
+              >
                 {selected.status || "Pending"}
               </span>
-              {selected.visa_type && <span>{selected.visa_type}</span>}
+
+              {selected.visa_type && (
+                <span>{selected.visa_type}</span>
+              )}
             </div>
 
             <div className="medical-detail-grid">
               <div>
                 <span>Email</span>
-                <strong>{selected.application?.email || "—"}</strong>
+                <strong>
+                  {selected.application
+                    ?.candidate_email || "—"}
+                </strong>
               </div>
 
               <div>
                 <span>Job</span>
-                <strong>{selected.application?.job_title || "—"}</strong>
+                <strong>
+                  {selected.application?.job_title ||
+                    "—"}
+                </strong>
               </div>
 
               <div>
                 <span>Visa Type</span>
-                <strong>{selected.visa_type || "—"}</strong>
-              </div>
-
-              <div>
-                <span>Country</span>
-                <strong>{selected.country || "—"}</strong>
+                <strong>
+                  {selected.visa_type || "—"}
+                </strong>
               </div>
 
               <div>
                 <span>Visa Number</span>
-                <strong>{selected.visa_number || "—"}</strong>
+                <strong>
+                  {selected.visa_number || "—"}
+                </strong>
               </div>
 
               <div>
-                <span>Submitted</span>
-                <strong>{formatDate(selected.submitted_at)}</strong>
+                <span>Application Number</span>
+                <strong>
+                  {selected.application_number ||
+                    "—"}
+                </strong>
               </div>
 
               <div>
-                <span>Approved</span>
-                <strong>{formatDate(selected.approved_at)}</strong>
+                <span>Submission Date</span>
+                <strong>
+                  {formatDate(
+                    selected.submission_date
+                  )}
+                </strong>
               </div>
 
               <div>
-                <span>Rejected</span>
-                <strong>{formatDate(selected.rejected_at)}</strong>
+                <span>Approval Date</span>
+                <strong>
+                  {formatDate(
+                    selected.approval_date
+                  )}
+                </strong>
+              </div>
+
+              <div>
+                <span>Expiry Date</span>
+                <strong>
+                  {formatDate(
+                    selected.expiry_date
+                  )}
+                </strong>
+              </div>
+
+              <div>
+                <span>Sponsor Name</span>
+                <strong>
+                  {selected.sponsor_name || "—"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Sponsor Reference</span>
+                <strong>
+                  {selected.sponsor_reference || "—"}
+                </strong>
               </div>
             </div>
 
             <div className="medical-notes">
               <span>Notes</span>
-              <p>{selected.notes || "No additional notes provided."}</p>
+              <p>
+                {selected.notes ||
+                  "No additional notes provided."}
+              </p>
             </div>
           </aside>
         </div>

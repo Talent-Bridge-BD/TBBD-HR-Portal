@@ -1,104 +1,98 @@
-from repositories.visa_processing import SqlVisaProcessingRepository
+from repositories.visa_processing import (
+    ALLOWED_STATUSES,
+    SqlVisaProcessingRepository,
+)
 
 
 class VisaProcessingService:
-    def __init__(
-        self,
-        repository: SqlVisaProcessingRepository,
-    ):
+    def __init__(self, repository: SqlVisaProcessingRepository):
         self.repository = repository
 
     def list_by_application(
         self,
-        organization_id: str,
         application_id: str,
+        organization_id: str | None = None,
     ):
         return self.repository.list_by_application(
-            organization_id,
-            application_id,
-        )
-
-    def create(
-        self,
-        organization_id: str,
-        application_id: str,
-        test_type: str | None = None,
-        scheduled_at=None,
-        location: str | None = None,
-        assessor_name: str | None = None,
-    ):
-        return self.repository.create(
-            organization_id=organization_id,
             application_id=application_id,
-            test_type=test_type,
-            scheduled_at=scheduled_at,
-            location=location,
-            assessor_name=assessor_name,
+            organization_id=organization_id,
         )
 
     def get(
         self,
-        organization_id: str,
         visa_processing_id: str,
+        organization_id: str | None = None,
     ):
         return self.repository.get(
-            organization_id,
-            visa_processing_id,
-        )
-
-    PASSING_SCORE = 70
-
-    def update_assessment(
-        self,
-        organization_id: str,
-        visa_processing_id: str,
-        technical_knowledge_score: int,
-        trade_skills_score: int,
-        safety_awareness_score: int,
-        tool_handling_score: int,
-        communication_score: int,
-        problem_solving_score: int,
-        teamwork_score: int,
-        assessment_notes: str | None = None,
-    ):
-        scores = {
-            "technical_knowledge_score": technical_knowledge_score,
-            "trade_skills_score": trade_skills_score,
-            "safety_awareness_score": safety_awareness_score,
-            "tool_handling_score": tool_handling_score,
-            "communication_score": communication_score,
-            "problem_solving_score": problem_solving_score,
-            "teamwork_score": teamwork_score,
-        }
-
-        for field, score in scores.items():
-            if not isinstance(score, int) or isinstance(score, bool):
-                raise ValueError(f"{field} must be an integer")
-
-            if score < 0 or score > 100:
-                raise ValueError(f"{field} must be between 0 and 100")
-
-        total_score = round(sum(scores.values()) / len(scores))
-
-        result = (
-            "Pass"
-            if total_score >= self.PASSING_SCORE
-            else "Fail"
-        )
-
-        return self.repository.update_assessment(
-            organization_id=organization_id,
             visa_processing_id=visa_processing_id,
-            technical_knowledge_score=technical_knowledge_score,
-            trade_skills_score=trade_skills_score,
-            safety_awareness_score=safety_awareness_score,
-            tool_handling_score=tool_handling_score,
-            communication_score=communication_score,
-            problem_solving_score=problem_solving_score,
-            teamwork_score=teamwork_score,
-            total_score=total_score,
-            result=result,
-            status="Completed",
-            assessment_notes=assessment_notes,
+            organization_id=organization_id,
         )
 
+    def create(
+        self,
+        application_id: str,
+        visa_type: str | None = None,
+        visa_number: str | None = None,
+        application_number: str | None = None,
+        submission_date=None,
+        approval_date=None,
+        expiry_date=None,
+        status: str = "Pending",
+        sponsor_name: str | None = None,
+        sponsor_reference: str | None = None,
+        notes: str | None = None,
+    ):
+        self._validate_status(status)
+
+        return self.repository.create(
+            application_id=application_id,
+            visa_type=visa_type,
+            visa_number=visa_number,
+            application_number=application_number,
+            submission_date=submission_date,
+            approval_date=approval_date,
+            expiry_date=expiry_date,
+            status=status,
+            sponsor_name=sponsor_name,
+            sponsor_reference=sponsor_reference,
+            notes=notes,
+        )
+
+    def update(
+        self,
+        visa_processing_id: str,
+        visa_type: str | None = None,
+        visa_number: str | None = None,
+        application_number: str | None = None,
+        submission_date=None,
+        approval_date=None,
+        expiry_date=None,
+        status: str | None = None,
+        sponsor_name: str | None = None,
+        sponsor_reference: str | None = None,
+        notes: str | None = None,
+    ):
+        if status is not None:
+            self._validate_status(status)
+
+        return self.repository.update(
+            visa_processing_id=visa_processing_id,
+            visa_type=visa_type,
+            visa_number=visa_number,
+            application_number=application_number,
+            submission_date=submission_date,
+            approval_date=approval_date,
+            expiry_date=expiry_date,
+            status=status,
+            sponsor_name=sponsor_name,
+            sponsor_reference=sponsor_reference,
+            notes=notes,
+        )
+
+    @staticmethod
+    def _validate_status(status: str):
+        if status not in ALLOWED_STATUSES:
+            raise ValueError(
+                "Invalid visa processing status. "
+                f"Allowed values: {', '.join(sorted(ALLOWED_STATUSES))}"
+            )
