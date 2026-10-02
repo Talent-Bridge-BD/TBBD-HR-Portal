@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import requests
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -150,7 +150,6 @@ async def list_organizations(request: Request):
     principal = get_request_principal(request)
 
     if not principal:
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
@@ -204,7 +203,6 @@ async def list_organizations(request: Request):
             if organization.id in authorization_context.organization_ids
         ]
     else:
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=403,
             detail="Organization access is required",
@@ -228,7 +226,6 @@ async def get_organization(organization_id: str, request: Request):
     principal = get_request_principal(request)
 
     if not principal:
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
@@ -405,8 +402,8 @@ Important rules:
 - If the question asks who is responsible for each process step, map a
   role to a step only when the supplied sources explicitly connect that role
   to that specific step.
-- A broad responsibility such as "HR → Plan and manage training" must be
-  reported only as "HR → Plan and manage training". Do not add, explain, or
+- A broad responsibility such as "HR â†’ Plan and manage training" must be
+  reported only as "HR â†’ Plan and manage training". Do not add, explain, or
   interpret it as ownership of approval, assignment, monitoring, evaluation,
   or any other individual process step unless the source explicitly says so.
 - Keep documented process steps and documented role responsibilities separate.
@@ -527,3 +524,4 @@ async def handle_mcp(request: Request):
             "id": body.get("id", 1) if "body" in locals() else 1,
             "error": str(e),
         }
+

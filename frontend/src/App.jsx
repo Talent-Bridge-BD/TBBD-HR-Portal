@@ -66,7 +66,8 @@ export default function App() {
           setActivePage('Candidate Dashboard')
         } else if (
           roles.includes('Employer Manager') ||
-          roles.includes('Employer.Manager')
+          roles.includes('Employer.Manager') ||
+          roles.includes('HR Manager')
         ) {
           setActivePage('Employer Dashboard')
         } else {
@@ -203,3 +204,4 @@ export default function App() {
     </OrganizationProvider>
   )
 }
+
