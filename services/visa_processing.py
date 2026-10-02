@@ -1,7 +1,19 @@
+from datetime import date
+
 from repositories.visa_processing import SqlVisaProcessingRepository
 
 
 class VisaProcessingService:
+
+    ALLOWED_STATUSES = {
+        "Pending",
+        "Submitted",
+        "Processing",
+        "Approved",
+        "Rejected",
+        "Expired",
+    }
+
     def __init__(
         self,
         repository: SqlVisaProcessingRepository,
@@ -22,18 +34,32 @@ class VisaProcessingService:
         self,
         organization_id: str,
         application_id: str,
-        test_type: str | None = None,
-        scheduled_at=None,
-        location: str | None = None,
-        assessor_name: str | None = None,
+        visa_type: str | None = None,
+        visa_number: str | None = None,
+        application_number: str | None = None,
+        submission_date: date | None = None,
+        approval_date: date | None = None,
+        expiry_date: date | None = None,
+        status: str = "Pending",
+        sponsor_name: str | None = None,
+        sponsor_reference: str | None = None,
+        notes: str | None = None,
     ):
+        self._validate_status(status)
+
         return self.repository.create(
             organization_id=organization_id,
             application_id=application_id,
-            test_type=test_type,
-            scheduled_at=scheduled_at,
-            location=location,
-            assessor_name=assessor_name,
+            visa_type=visa_type,
+            visa_number=visa_number,
+            application_number=application_number,
+            submission_date=submission_date,
+            approval_date=approval_date,
+            expiry_date=expiry_date,
+            status=status,
+            sponsor_name=sponsor_name,
+            sponsor_reference=sponsor_reference,
+            notes=notes,
         )
 
     def get(
@@ -46,59 +72,53 @@ class VisaProcessingService:
             visa_processing_id,
         )
 
-    PASSING_SCORE = 70
-
-    def update_assessment(
+    def update(
         self,
         organization_id: str,
         visa_processing_id: str,
-        technical_knowledge_score: int,
-        trade_skills_score: int,
-        safety_awareness_score: int,
-        tool_handling_score: int,
-        communication_score: int,
-        problem_solving_score: int,
-        teamwork_score: int,
-        assessment_notes: str | None = None,
+        visa_type: str | None = None,
+        visa_number: str | None = None,
+        application_number: str | None = None,
+        submission_date: date | None = None,
+        approval_date: date | None = None,
+        expiry_date: date | None = None,
+        status: str | None = None,
+        sponsor_name: str | None = None,
+        sponsor_reference: str | None = None,
+        notes: str | None = None,
     ):
-        scores = {
-            "technical_knowledge_score": technical_knowledge_score,
-            "trade_skills_score": trade_skills_score,
-            "safety_awareness_score": safety_awareness_score,
-            "tool_handling_score": tool_handling_score,
-            "communication_score": communication_score,
-            "problem_solving_score": problem_solving_score,
-            "teamwork_score": teamwork_score,
-        }
+        if status is not None:
+            self._validate_status(status)
 
-        for field, score in scores.items():
-            if not isinstance(score, int) or isinstance(score, bool):
-                raise ValueError(f"{field} must be an integer")
+        if approval_date is not None and submission_date is not None:
+            if approval_date < submission_date:
+                raise ValueError(
+                    "Approval date cannot be earlier than submission date"
+                )
 
-            if score < 0 or score > 100:
-                raise ValueError(f"{field} must be between 0 and 100")
+        if expiry_date is not None and approval_date is not None:
+            if expiry_date < approval_date:
+                raise ValueError(
+                    "Expiry date cannot be earlier than approval date"
+                )
 
-        total_score = round(sum(scores.values()) / len(scores))
-
-        result = (
-            "Pass"
-            if total_score >= self.PASSING_SCORE
-            else "Fail"
-        )
-
-        return self.repository.update_assessment(
+        return self.repository.update(
             organization_id=organization_id,
             visa_processing_id=visa_processing_id,
-            technical_knowledge_score=technical_knowledge_score,
-            trade_skills_score=trade_skills_score,
-            safety_awareness_score=safety_awareness_score,
-            tool_handling_score=tool_handling_score,
-            communication_score=communication_score,
-            problem_solving_score=problem_solving_score,
-            teamwork_score=teamwork_score,
-            total_score=total_score,
-            result=result,
-            status="Completed",
-            assessment_notes=assessment_notes,
+            visa_type=visa_type,
+            visa_number=visa_number,
+            application_number=application_number,
+            submission_date=submission_date,
+            approval_date=approval_date,
+            expiry_date=expiry_date,
+            status=status,
+            sponsor_name=sponsor_name,
+            sponsor_reference=sponsor_reference,
+            notes=notes,
         )
 
+    def _validate_status(self, status: str):
+        if status not in self.ALLOWED_STATUSES:
+            raise ValueError(
+                "Invalid visa processing status"
+            )

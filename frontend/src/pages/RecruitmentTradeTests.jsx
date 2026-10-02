@@ -277,6 +277,14 @@ export default function RecruitmentTradeTests({ auth }) {
         )
       );
 
+      setTradeTests((current) =>
+        current.map((tradeTest) =>
+          tradeTest.id === tradeTestId
+            ? data.trade_test
+            : tradeTest
+        )
+      );
+
       setAssessmentScores({
         technical_knowledge_score: "",
         trade_skills_score: "",
@@ -365,394 +373,558 @@ export default function RecruitmentTradeTests({ auth }) {
     <>
       <PageHeader
         title="Trade Tests"
-        subtitle="Manage trade testing and practical skill assessments."
+        subtitle="Manage practical skill assessments from scheduling through final results."
       />
 
-      <div className="trade-test-kpi-grid">
-        <section className="dashboard-card trade-test-kpi-card">
-          <span className="trade-test-kpi-label">Scheduled Tests</span>
-          <strong>{tradeTests.filter((tradeTest) => tradeTest.status === "Scheduled").length}</strong>
-          <small>Upcoming assessments</small>
-        </section>
-
-        <section className="dashboard-card trade-test-kpi-card">
-          <span className="trade-test-kpi-label">Completed Tests</span>
-          <strong>{tradeTests.filter((tradeTest) => tradeTest.status === "Completed").length}</strong>
-          <small>Assessments completed</small>
-        </section>
-
-        <section className="dashboard-card trade-test-kpi-card trade-test-kpi-success">
-          <span className="trade-test-kpi-label">Passed</span>
-          <strong>{tradeTests.filter((tradeTest) => tradeTest.result === "Pass").length}</strong>
-          <small>Successful assessments</small>
-        </section>
-
-        <section className="dashboard-card trade-test-kpi-card trade-test-kpi-danger">
-          <span className="trade-test-kpi-label">Failed</span>
-          <strong>{tradeTests.filter((tradeTest) => tradeTest.result === "Fail").length}</strong>
-          <small>Unsuccessful assessments</small>
-        </section>
-      </div>
-
-      <section className="dashboard-card trade-test-workspace">
-        <div className="trade-test-workspace-header">
-          <div>
-            <h2>Candidate Trade Tests</h2>
-            <p>Review scheduled practical assessments and their results.</p>
-          </div>
-
-          <div className="trade-test-count">
-            {filteredTradeTests.length} test(s)
-          </div>
-        </div>
-
-        <div className="trade-test-toolbar">
-          <label className="trade-test-search">
-            <span className="sr-only">Search trade tests</span>
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search test type, location, assessor or status..."
-            />
-          </label>
-        </div>
-      </section>
-
-      {!organizationId ? (
-        <section className="placeholder-card">
-          <h2>Organization access required</h2>
-          <p>
-            Your account is not currently assigned to an organization.
-          </p>
-        </section>
-      ) : loading ? (
-        <section className="placeholder-card">
-          <p>Loading applications...</p>
-        </section>
-      ) : error ? (
-        <section className="placeholder-card">
-          <h2>Unable to load applications</h2>
-          <p>{error}</p>
-        </section>
-      ) : applications.length === 0 ? (
-        <section className="placeholder-card">
-          <h2>No applications available</h2>
-          <p>
-            Candidate applications will appear here when they are available
-            for trade testing.
-          </p>
-        </section>
-      ) : (
-        <section className="dashboard-card">
-          <div className="flex items-center justify-between mb-4">
+      <div className="trade-test-page">
+        <div className="trade-test-kpi-grid">
+          <section className="trade-test-kpi-card">
+            <div className="trade-test-kpi-icon" aria-hidden="true">◷</div>
             <div>
-              <h2>Trade Test Schedule</h2>
+              <span className="trade-test-kpi-label">Scheduled Tests</span>
+              <strong>
+                {
+                  tradeTests.filter(
+                    (tradeTest) =>
+                      String(tradeTest.status || "").toLowerCase() ===
+                      "scheduled"
+                  ).length
+                }
+              </strong>
+              <small>Upcoming assessments</small>
+            </div>
+          </section>
+
+          <section className="trade-test-kpi-card">
+            <div className="trade-test-kpi-icon" aria-hidden="true">✓</div>
+            <div>
+              <span className="trade-test-kpi-label">Completed Tests</span>
+              <strong>
+                {
+                  tradeTests.filter(
+                    (tradeTest) =>
+                      String(tradeTest.status || "").toLowerCase() ===
+                      "completed"
+                  ).length
+                }
+              </strong>
+              <small>Assessments completed</small>
+            </div>
+          </section>
+
+          <section className="trade-test-kpi-card trade-test-kpi-success">
+            <div className="trade-test-kpi-icon" aria-hidden="true">✓</div>
+            <div>
+              <span className="trade-test-kpi-label">Passed</span>
+              <strong>
+                {
+                  tradeTests.filter(
+                    (tradeTest) =>
+                      String(tradeTest.result || "").toLowerCase() === "pass"
+                  ).length
+                }
+              </strong>
+              <small>Successful assessments</small>
+            </div>
+          </section>
+
+          <section className="trade-test-kpi-card trade-test-kpi-danger">
+            <div className="trade-test-kpi-icon" aria-hidden="true">×</div>
+            <div>
+              <span className="trade-test-kpi-label">Failed</span>
+              <strong>
+                {
+                  tradeTests.filter(
+                    (tradeTest) =>
+                      String(tradeTest.result || "").toLowerCase() === "fail"
+                  ).length
+                }
+              </strong>
+              <small>Unsuccessful assessments</small>
+            </div>
+          </section>
+        </div>
+
+        <section className="trade-test-workspace">
+          <div className="trade-test-workspace-header">
+            <div>
+              <span className="trade-test-eyebrow">PRACTICAL ASSESSMENT</span>
+              <h2>Candidate Trade Tests</h2>
               <p>
-                {applications.length} application
-                {applications.length === 1 ? "" : "s"} available for trade testing.
+                Schedule, assess and review practical skill tests for shortlisted
+                candidates.
               </p>
             </div>
 
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => setShowScheduleForm(true)}
-            >
-              Schedule Trade Test
-            </button>
+            <div className="trade-test-header-actions">
+              <span className="trade-test-count">
+                {filteredTradeTests.length}{" "}
+                {filteredTradeTests.length === 1 ? "test" : "tests"}
+              </span>
+
+              {applications.length > 0 && (
+                <button
+                  type="button"
+                  className="trade-test-primary-button"
+                  onClick={() => setShowScheduleForm(true)}
+                >
+                  <span>+</span>
+                  Schedule Test
+                </button>
+              )}
+            </div>
           </div>
 
-          {showScheduleForm && (
-            <div className="dashboard-card mb-6">
-              <h3 className="mb-4">Schedule a Trade Test</h3>
+          <div className="trade-test-toolbar">
+            <label className="trade-test-search">
+              <span className="trade-test-search-icon">⌕</span>
+              <span className="sr-only">Search trade tests</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search by test type, location, assessor or status..."
+              />
+            </label>
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <label>
-                  <span className="block mb-1">Candidate</span>
-                  <select
-                    value={selectedApplicationId}
-                    onChange={(event) =>
-                      setSelectedApplicationId(event.target.value)
-                    }
-                  >
-                    <option value="">Select candidate</option>
-                    {applications.map((application) => (
-                      <option key={application.id} value={application.id}>
-                        {application.candidate_first_name}{" "}
-                        {application.candidate_last_name} —{" "}
-                        {application.job_title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span className="block mb-1">Trade Test Type</span>
-                  <input
-                    type="text"
-                    value={testType}
-                    onChange={(event) => setTestType(event.target.value)}
-                    placeholder="e.g. Welding"
-                  />
-                </label>
-
-                <label>
-                  <span className="block mb-1">Scheduled Date & Time</span>
-                  <input
-                    type="datetime-local"
-                    value={scheduledAt}
-                    onChange={(event) => setScheduledAt(event.target.value)}
-                  />
-                </label>
-              </div>
-
-              <div className="flex gap-2 mt-4">
-                <button
-                  type="button"
-                  className="btn-primary"
-                  onClick={handleSaveSchedule}
-                >
-                  Save Schedule
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowScheduleForm(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+          {error && (
+            <div className="trade-test-error" role="alert">
+              {error}
             </div>
           )}
 
-          {selectedTradeTests.length > 0 && (
-            <section className="dashboard-card mb-6">
-              <h3 className="mb-4">Scheduled Trade Test</h3>
+          {!organizationId ? (
+            <div className="trade-test-state">
+              <div className="trade-test-state-icon">!</div>
+              <strong>Organization access required</strong>
+              <span>
+                Your account is not currently assigned to an organization.
+              </span>
+            </div>
+          ) : loading ? (
+            <div className="trade-test-state">
+              <div className="trade-test-state-icon">…</div>
+              <strong>Loading trade tests</strong>
+              <span>Retrieving candidates and assessment records.</span>
+            </div>
+          ) : applications.length === 0 ? (
+            <div className="trade-test-state">
+              <div className="trade-test-state-icon">✓</div>
+              <strong>No candidates ready for trade testing</strong>
+              <span>
+                Shortlisted candidate applications will appear here when they
+                become eligible for a practical assessment.
+              </span>
+            </div>
+          ) : (
+            <>
+              <section className="trade-test-ready-panel">
+                <div className="trade-test-ready-copy">
+                  <div className="trade-test-ready-icon" aria-hidden="true">✓</div>
 
-              {selectedTradeTests.map((tradeTest) => (
-                <Fragment key={tradeTest.id}>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div>
-                    <strong>Test Type</strong>
-                    <p>{tradeTest.test_type || "Practical Assessment"}</p>
-                  </div>
+                    <span className="trade-test-eyebrow">READY FOR TESTING</span>
 
-                  <div>
-                    <strong>Scheduled</strong>
+                    <h3>
+                      {applications.length}{" "}
+                      {applications.length === 1 ? "candidate" : "candidates"}{" "}
+                      ready for trade testing
+                    </h3>
+
                     <p>
-                      {tradeTest.scheduled_at
-                        ? new Date(
-                            tradeTest.scheduled_at
-                          ).toLocaleString()
-                        : "—"}
+                      These candidates have reached the shortlisted stage and
+                      can now be scheduled for a practical assessment.
                     </p>
-                  </div>
-
-                  <div>
-                    <strong>Status</strong>
-                    <p>{tradeTest.status || "—"}</p>
-                  </div>
-
-                  <div>
-                    <strong>Result</strong>
-                    <p>{tradeTest.result || "Pending"}</p>
-                  </div>
-
-                  <div>
-                    <strong>Total Score</strong>
-                    <p>
-                      {tradeTest.total_score !== null &&
-                      tradeTest.total_score !== undefined
-                        ? tradeTest.total_score
-                        : "—"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <strong>Action</strong>
-                    <button
-                      type="button"
-                      className="btn-primary mt-2"
-                      onClick={() => {
-                        setSelectedTradeTestId(tradeTest.id);
-                        setAssessmentScores({
-                          technical_knowledge_score:
-                            tradeTest.technical_knowledge_score ?? "",
-                          trade_skills_score:
-                            tradeTest.trade_skills_score ?? "",
-                          safety_awareness_score:
-                            tradeTest.safety_awareness_score ?? "",
-                          tool_handling_score:
-                            tradeTest.tool_handling_score ?? "",
-                          communication_score:
-                            tradeTest.communication_score ?? "",
-                          problem_solving_score:
-                            tradeTest.problem_solving_score ?? "",
-                          teamwork_score:
-                            tradeTest.teamwork_score ?? "",
-                        });
-                        setAssessmentNotes(
-                          tradeTest.assessment_notes ?? ""
-                        );
-                      }}
-                    >
-                      Assess
-                    </button>
                   </div>
                 </div>
 
-                {selectedTradeTestId === tradeTest.id && (
-                <div className="mt-6">
-                  <h4 className="mb-4">Trade Test Assessment</h4>
+                <div className="trade-test-ready-candidates">
+                  {applications.map((application) => (
+                    <div
+                      key={application.id}
+                      className="trade-test-ready-candidate"
+                    >
+                      <div className="trade-test-ready-candidate-avatar">
+                        {`${application.candidate_first_name?.[0] || ""}${
+                          application.candidate_last_name?.[0] || ""
+                        }`}
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[
-                      ["technical_knowledge_score", "Technical Knowledge"],
-                      ["trade_skills_score", "Trade Skills"],
-                      ["safety_awareness_score", "Safety Awareness"],
-                      ["tool_handling_score", "Tool Handling"],
-                      ["communication_score", "Communication"],
-                      ["problem_solving_score", "Problem Solving"],
-                      ["teamwork_score", "Teamwork"],
-                    ].map(([field, label]) => (
-                      <label key={field}>
-                        <span className="block mb-1">{label}</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={assessmentScores[field]}
-                          onChange={(event) =>
-                            setAssessmentScores((current) => ({
-                              ...current,
-                              [field]: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-                    ))}
+                      <div className="trade-test-ready-candidate-info">
+                        <strong>
+                          {application.candidate_first_name}{" "}
+                          {application.candidate_last_name}
+                        </strong>
+
+                        <span>{application.job_title}</span>
+
+                        {application.candidate_email && (
+                          <span>{application.candidate_email}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="trade-test-secondary-button"
+                  onClick={() => setShowScheduleForm(true)}
+                >
+                  Schedule a Test
+                </button>
+              </section>
+
+              {showScheduleForm && (
+                <section className="trade-test-form-card">
+                  <div className="trade-test-form-header">
+                    <div>
+                      <span className="trade-test-eyebrow">NEW ASSESSMENT</span>
+                      <h3>Schedule a Trade Test</h3>
+                      <p>
+                        Select a shortlisted candidate and set the assessment
+                        details.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="trade-test-close-button"
+                      aria-label="Close schedule form"
+                      onClick={() => setShowScheduleForm(false)}
+                    >
+                      ×
+                    </button>
                   </div>
 
-                  <label className="block mt-4">
-                    <span className="block mb-1">Assessment Notes</span>
-                    <textarea
-                      value={assessmentNotes}
-                      onChange={(event) =>
-                        setAssessmentNotes(event.target.value)
-                      }
-                      rows="4"
-                    />
-                  </label>
+                  <div className="trade-test-form-grid">
+                    <label className="trade-test-field trade-test-field-wide">
+                      <span>Candidate</span>
+                      <select
+                        value={selectedApplicationId}
+                        onChange={(event) =>
+                          setSelectedApplicationId(event.target.value)
+                        }
+                      >
+                        <option value="">Select candidate</option>
+                        {applications.map((application) => (
+                          <option key={application.id} value={application.id}>
+                            {application.candidate_first_name}{" "}
+                            {application.candidate_last_name} —{" "}
+                            {application.job_title}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
 
-                  <div className="flex gap-2 mt-4">
+                    <label className="trade-test-field">
+                      <span>Trade Test Type</span>
+                      <input
+                        type="text"
+                        value={testType}
+                        onChange={(event) => setTestType(event.target.value)}
+                        placeholder="e.g. Welding"
+                      />
+                    </label>
+
+                    <label className="trade-test-field">
+                      <span>Scheduled Date &amp; Time</span>
+                      <input
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(event) => setScheduledAt(event.target.value)}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="trade-test-form-footer">
                     <button
                       type="button"
-                      className="btn-primary"
-                      onClick={() => handleSaveAssessment(tradeTest.id)}
-                    >
-                      Save Assessment
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedTradeTestId("");
-                        setAssessmentScores({
-                          technical_knowledge_score: "",
-                          trade_skills_score: "",
-                          safety_awareness_score: "",
-                          tool_handling_score: "",
-                          communication_score: "",
-                          problem_solving_score: "",
-                          teamwork_score: "",
-                        });
-                        setAssessmentNotes("");
-                      }}
+                      className="trade-test-secondary-button"
+                      onClick={() => setShowScheduleForm(false)}
                     >
                       Cancel
                     </button>
+                    <button
+                      type="button"
+                      className="trade-test-primary-button"
+                      onClick={handleSaveSchedule}
+                    >
+                      Save Schedule
+                    </button>
                   </div>
-                </div>
-                )}
-                </Fragment>
-              ))}
-            </section>
-          )}
+                </section>
+              )}
 
-          {!loading &&
-            !error &&
-            tradeTests.length === 0 && (
-              <div className="trade-test-empty-state">
-                <strong>No trade tests found</strong>
-                <span>
-                  Schedule a trade test for a candidate application to begin
-                  the practical assessment stage.
-                </span>
-              </div>
-            )}
+              {selectedTradeTests.length > 0 && (
+                <section className="trade-test-assessment-card">
+                  <div className="trade-test-section-heading">
+                    <div>
+                      <span className="trade-test-eyebrow">SELECTED CANDIDATE</span>
+                      <h3>Scheduled Trade Tests</h3>
+                    </div>
+                  </div>
 
-          {!loading &&
-            !error &&
-            tradeTests.length > 0 &&
-            filteredTradeTests.length === 0 && (
-              <div className="trade-test-empty-state">
-                <strong>No matching trade tests</strong>
-                <span>Try a different search term.</span>
-              </div>
-            )}
+                  {selectedTradeTests.map((tradeTest) => (
+                    <Fragment key={tradeTest.id}>
+                      <div className="trade-test-summary">
+                        <div className="trade-test-summary-main">
+                          <div className="trade-test-test-icon" aria-hidden="true">▣</div>
+                          <div>
+                            <strong>
+                              {tradeTest.test_type || "Practical Assessment"}
+                            </strong>
+                            <span>
+                              {tradeTest.scheduled_at
+                                ? new Date(
+                                    tradeTest.scheduled_at
+                                  ).toLocaleString()
+                                : "No schedule set"}
+                            </span>
+                          </div>
+                        </div>
 
-          {!loading &&
-            !error &&
-            filteredTradeTests.length > 0 && (
-              <div className="trade-test-table-wrap">
-                <table className="trade-test-table">
-                  <thead>
-                    <tr>
-                      <th>Test Type</th>
-                      <th>Scheduled</th>
-                      <th>Location</th>
-                      <th>Assessor</th>
-                      <th>Status</th>
-                      <th>Result</th>
-                      <th>Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTradeTests.map((tradeTest) => (
-                      <tr key={tradeTest.id}>
-                        <td>
-                          <strong>
-                            {tradeTest.test_type || "Practical Assessment"}
-                          </strong>
-                        </td>
-                        <td className="trade-test-date">
-                          {formatDate(tradeTest.scheduled_at)}
-                        </td>
-                        <td>{tradeTest.location || "—"}</td>
-                        <td>{tradeTest.assessor_name || "—"}</td>
-                        <td>
-                          <span className={getStatusClass(tradeTest.status)}>
+                        <div className="trade-test-summary-item">
+                          <span>Status</span>
+                          <span
+                            className={getStatusClass(tradeTest.status)}
+                          >
                             {tradeTest.status || "—"}
                           </span>
-                        </td>
-                        <td>
+                        </div>
+
+                        <div className="trade-test-summary-item">
+                          <span>Result</span>
                           <span className={getResultClass(tradeTest.result)}>
                             {tradeTest.result || "Pending"}
                           </span>
-                        </td>
-                        <td className="trade-test-score">
-                          {tradeTest.total_score ?? "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        </div>
 
+                        <div className="trade-test-score-box">
+                          <span>Total Score</span>
+                          <strong>
+                            {tradeTest.total_score !== null &&
+                            tradeTest.total_score !== undefined
+                              ? tradeTest.total_score
+                              : "—"}
+                          </strong>
+                          <small>/ 100</small>
+                        </div>
+
+                        {String(tradeTest.status || "").toLowerCase() !==
+                          "completed" && (
+                          <button
+                            type="button"
+                            className="trade-test-assess-button"
+                            onClick={() => {
+                              setSelectedTradeTestId(tradeTest.id);
+                              setAssessmentScores({
+                                technical_knowledge_score:
+                                  tradeTest.technical_knowledge_score ?? "",
+                                trade_skills_score:
+                                  tradeTest.trade_skills_score ?? "",
+                                safety_awareness_score:
+                                  tradeTest.safety_awareness_score ?? "",
+                                tool_handling_score:
+                                  tradeTest.tool_handling_score ?? "",
+                                communication_score:
+                                  tradeTest.communication_score ?? "",
+                                problem_solving_score:
+                                  tradeTest.problem_solving_score ?? "",
+                                teamwork_score:
+                                  tradeTest.teamwork_score ?? "",
+                              });
+                              setAssessmentNotes(
+                                tradeTest.assessment_notes ?? ""
+                              );
+                            }}
+                          >
+                            Assess
+                          </button>
+                        )}
+                      </div>
+
+                      {selectedTradeTestId === tradeTest.id &&
+                        String(tradeTest.status || "").toLowerCase() !==
+                          "completed" && (
+                          <div className="trade-test-assessment-form">
+                            <div className="trade-test-assessment-heading">
+                              <div>
+                                <span className="trade-test-eyebrow">
+                                  ASSESSMENT
+                                </span>
+                                <h4>Record Practical Skills</h4>
+                              </div>
+                              <span>Each category is scored 0–100</span>
+                            </div>
+
+                            <div className="trade-test-score-grid">
+                              {[
+                                [
+                                  "technical_knowledge_score",
+                                  "Technical Knowledge",
+                                ],
+                                ["trade_skills_score", "Trade Skills"],
+                                ["safety_awareness_score", "Safety Awareness"],
+                                ["tool_handling_score", "Tool Handling"],
+                                ["communication_score", "Communication"],
+                                ["problem_solving_score", "Problem Solving"],
+                                ["teamwork_score", "Teamwork"],
+                              ].map(([field, label]) => (
+                                <label
+                                  className="trade-test-score-field"
+                                  key={field}
+                                >
+                                  <span>{label}</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={assessmentScores[field]}
+                                    onChange={(event) =>
+                                      setAssessmentScores((current) => ({
+                                        ...current,
+                                        [field]: event.target.value,
+                                      }))
+                                    }
+                                  />
+                                </label>
+                              ))}
+                            </div>
+
+                            <label className="trade-test-field trade-test-notes-field">
+                              <span>Assessment Notes</span>
+                              <textarea
+                                value={assessmentNotes}
+                                onChange={(event) =>
+                                  setAssessmentNotes(event.target.value)
+                                }
+                                rows="4"
+                                placeholder="Add practical observations, strengths or areas requiring attention..."
+                              />
+                            </label>
+
+                            <div className="trade-test-form-footer">
+                              <button
+                                type="button"
+                                className="trade-test-secondary-button"
+                                onClick={() => {
+                                  setSelectedTradeTestId("");
+                                  setAssessmentScores({
+                                    technical_knowledge_score: "",
+                                    trade_skills_score: "",
+                                    safety_awareness_score: "",
+                                    tool_handling_score: "",
+                                    communication_score: "",
+                                    problem_solving_score: "",
+                                    teamwork_score: "",
+                                  });
+                                  setAssessmentNotes("");
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                className="trade-test-primary-button"
+                                onClick={() => handleSaveAssessment(tradeTest.id)}
+                              >
+                                Save Assessment
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                    </Fragment>
+                  ))}
+                </section>
+              )}
+
+              {!loading &&
+                !error &&
+                tradeTests.length === 0 && (
+                  <div className="trade-test-state trade-test-empty-state">
+                    <div className="trade-test-state-icon">TT</div>
+                    <strong>No trade tests scheduled yet</strong>
+                    <span>
+                      Schedule a trade test above to begin the practical
+                      assessment stage.
+                    </span>
+                  </div>
+                )}
+
+              {!loading &&
+                !error &&
+                tradeTests.length > 0 &&
+                filteredTradeTests.length === 0 && (
+                  <div className="trade-test-state trade-test-empty-state">
+                    <div className="trade-test-state-icon">⌕</div>
+                    <strong>No matching trade tests</strong>
+                    <span>Try a different search term.</span>
+                  </div>
+                )}
+
+              {!loading &&
+                !error &&
+                filteredTradeTests.length > 0 && (
+                  <div className="trade-test-table-wrap">
+                    <table className="trade-test-table">
+                      <thead>
+                        <tr>
+                          <th>Test Type</th>
+                          <th>Scheduled</th>
+                          <th>Location</th>
+                          <th>Assessor</th>
+                          <th>Status</th>
+                          <th>Result</th>
+                          <th>Score</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredTradeTests.map((tradeTest) => (
+                          <tr key={tradeTest.id}>
+                            <td>
+                              <div className="trade-test-table-primary">
+                                <strong>
+                                  {tradeTest.test_type ||
+                                    "Practical Assessment"}
+                                </strong>
+                                <span>Trade assessment</span>
+                              </div>
+                            </td>
+                            <td className="trade-test-date">
+                              {formatDate(tradeTest.scheduled_at)}
+                            </td>
+                            <td>{tradeTest.location || "—"}</td>
+                            <td>{tradeTest.assessor_name || "—"}</td>
+                            <td>
+                              <span
+                                className={getStatusClass(tradeTest.status)}
+                              >
+                                {tradeTest.status || "—"}
+                              </span>
+                            </td>
+                            <td>
+                              <span
+                                className={getResultClass(tradeTest.result)}
+                              >
+                                {tradeTest.result || "Pending"}
+                              </span>
+                            </td>
+                            <td className="trade-test-score">
+                              {tradeTest.total_score ?? "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+            </>
+          )}
         </section>
-      )}
+      </div>
     </>
   );
+
 }

@@ -174,11 +174,17 @@ export default function CandidateDashboard({ onNavigate }) {
     )
   })
 
+  const interviewApplicationIds = new Set(
+    upcomingInterviews.map((interview) => String(interview.application_id)),
+  )
+
   const stats = {
     applications: normalizedApplications.length,
     activeApplications: normalizedApplications.filter(
       (application) =>
-        !['rejected', 'withdrawn'].includes(application.normalizedStatus),
+        !['rejected', 'hired', 'withdrawn'].includes(
+          application.normalizedStatus,
+        ),
     ).length,
     upcomingInterviews: upcomingInterviews.length,
     documents: documents.length,
@@ -190,11 +196,18 @@ export default function CandidateDashboard({ onNavigate }) {
     ).length,
     underReview: normalizedApplications.filter(
       (application) =>
-        ['under_review', 'screening'].includes(application.normalizedStatus),
+        application.normalizedStatus === 'under_review',
     ).length,
-    interviews: upcomingInterviews.length,
+    interviews: normalizedApplications.filter(
+      (application) =>
+        application.normalizedStatus === 'interview' ||
+        interviewApplicationIds.has(String(application.id)),
+    ).length,
     shortlisted: normalizedApplications.filter(
       (application) => application.normalizedStatus === 'shortlisted',
+    ).length,
+    hired: normalizedApplications.filter(
+      (application) => application.normalizedStatus === 'hired',
     ).length,
   }
 
@@ -235,6 +248,13 @@ export default function CandidateDashboard({ onNavigate }) {
       detail: 'applications',
       icon: 'shortlisted',
     },
+    {
+      key: 'hired',
+      label: 'Hired',
+      value: applicationOverview.hired,
+      detail: 'applications',
+      icon: 'hired',
+    },
   ]
 
   return (
@@ -251,7 +271,7 @@ export default function CandidateDashboard({ onNavigate }) {
           icon={<Icon name="applications" />}
           label="Applications"
           value={stats.applications}
-          detail="Total submitted"
+          detail="Total applications"
           onClick={() => onNavigate('Candidate My Applications')}
         />
         <StatCard

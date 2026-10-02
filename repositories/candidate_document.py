@@ -26,6 +26,14 @@ class CandidateDocumentRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_documents_for_application(
+        self,
+        organization_id: str,
+        application_id: str,
+    ) -> list[CandidateDocument]:
+        raise NotImplementedError
+
+    @abstractmethod
     def create_document(
         self,
         candidate_id: str,
@@ -163,6 +171,43 @@ class SqlCandidateDocumentRepository(CandidateDocumentRepository):
                 candidate_id,
             )
 
+            rows = cursor.fetchall()
+
+        return [self._map_row(row) for row in rows]
+
+    def list_documents_for_application(
+        self,
+        organization_id: str,
+        application_id: str,
+    ) -> list[CandidateDocument]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                f"""
+                SELECT
+                    d.id,
+                    d.candidate_id,
+                    d.document_type,
+                    d.file_name,
+                    d.blob_container,
+                    d.blob_name,
+                    d.content_type,
+                    d.file_size,
+                    d.status,
+                    d.uploaded_at
+                FROM dbo.documents AS d
+                INNER JOIN dbo.applications AS a
+                    ON a.candidate_id = d.candidate_id
+                INNER JOIN dbo.jobs AS j
+                    ON j.id = a.job_id
+                WHERE a.id = ?
+                  AND j.organization_id = ?
+                  AND d.application_id IS NULL
+                ORDER BY d.created_at DESC
+                """,
+                application_id,
+                organization_id,
+            )
             rows = cursor.fetchall()
 
         return [self._map_row(row) for row in rows]

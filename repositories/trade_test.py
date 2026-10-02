@@ -318,6 +318,7 @@ class SqlTradeTestRepository(TradeTestRepository):
         communication_score: int,
         problem_solving_score: int,
         teamwork_score: int,
+        total_score: int,
         result: str,
         status: str,
         assessment_notes: str | None = None,

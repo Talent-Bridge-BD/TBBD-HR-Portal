@@ -199,6 +199,15 @@ async def create_interview(
         organization_id,
     )
 
+    if (
+        payload.scheduled_end is not None
+        and payload.scheduled_end <= payload.scheduled_start
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="Interview end time must be later than the start time",
+        )
+
     try:
         interview = _interview_service.create_interview(
             organization_id=organization_id,
@@ -233,6 +242,15 @@ async def update_interview(
         organization_id,
     )
 
+    if (
+        payload.scheduled_end is not None
+        and payload.scheduled_end <= payload.scheduled_start
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="Interview end time must be later than the start time",
+        )
+
     allowed_statuses = {
         "scheduled",
         "completed",
@@ -257,6 +275,15 @@ async def update_interview(
         raise HTTPException(
             status_code=400,
             detail="Invalid interview outcome",
+        )
+
+    if (
+        payload.status != "completed"
+        and payload.outcome != "Pending"
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="Interview outcome can only be recorded when the interview is completed",
         )
 
     interview = _interview_service.update_interview(

@@ -12,6 +12,8 @@ export default function CandidateAvailableJobs() {
   const [applyingJobId, setApplyingJobId] = useState('')
   const [applicationError, setApplicationError] = useState('')
   const [applicationSuccess, setApplicationSuccess] = useState('')
+  const [selectedJobId, setSelectedJobId] = useState('')
+  const [coverLetter, setCoverLetter] = useState('')
 
   useEffect(() => {
     let active = true
@@ -148,11 +150,28 @@ export default function CandidateAvailableJobs() {
     }
   }
 
-  async function handleApply(jobId) {
+  function openApplicationForm(jobId) {
+    setSelectedJobId(jobId)
+    setCoverLetter('')
+    setApplicationError('')
+    setApplicationSuccess('')
+  }
+
+  function closeApplicationForm() {
+    if (applyingJobId) return
+    setSelectedJobId('')
+    setCoverLetter('')
+  }
+
+  async function handleApply() {
+    if (!selectedJobId) return
+
     try {
-      setApplyingJobId(jobId)
+      setApplyingJobId(selectedJobId)
       setApplicationError('')
       setApplicationSuccess('')
+
+      const trimmedCoverLetter = coverLetter.trim()
 
       const response = await authenticatedFetch('/api/candidate/applications', {
         method: 'POST',
@@ -160,7 +179,8 @@ export default function CandidateAvailableJobs() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          job_id: jobId,
+          job_id: selectedJobId,
+          cover_letter: trimmedCoverLetter || null,
         }),
       })
 
@@ -174,9 +194,23 @@ export default function CandidateAvailableJobs() {
         )
       }
 
+      setApplications((current) => [
+        ...current,
+        {
+          id: data.application?.id || `submitted-${selectedJobId}`,
+          job_id: selectedJobId,
+          cover_letter: trimmedCoverLetter || null,
+        },
+      ])
+
       setApplicationSuccess(
-        data.message || 'Application submitted successfully.',
+        trimmedCoverLetter
+          ? 'Application submitted successfully. Cover letter submitted ✓'
+          : 'Application submitted successfully. No cover letter provided.',
       )
+
+      setSelectedJobId('')
+      setCoverLetter('')
     } catch (err) {
       setApplicationError(
         err.message || 'Unable to submit your application.',
@@ -295,10 +329,10 @@ export default function CandidateAvailableJobs() {
                           ) : (
                             <button
                               type="button"
-                              onClick={() => handleApply(job.id)}
+                              onClick={() => openApplicationForm(job.id)}
                               disabled={applyingJobId === job.id}
                             >
-                              {applyingJobId === job.id ? 'Applying...' : 'Apply'}
+                              Apply
                             </button>
                           )
                         )}
@@ -311,6 +345,167 @@ export default function CandidateAvailableJobs() {
           </div>
         )}
       </DashboardCard>
+
+      {selectedJobId && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="application-dialog-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            background: 'rgba(15, 23, 42, 0.45)',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '680px',
+              background: '#FFFFFF',
+              borderRadius: '14px',
+              padding: '24px',
+              boxShadow: '0 20px 50px rgba(15, 23, 42, 0.2)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: '16px',
+                marginBottom: '20px',
+              }}
+            >
+              <div>
+                <h2
+                  id="application-dialog-title"
+                  style={{
+                    margin: 0,
+                    color: '#0F172A',
+                    fontSize: '20px',
+                  }}
+                >
+                  Submit Application
+                </h2>
+                <p
+                  style={{
+                    margin: '6px 0 0',
+                    color: '#64748B',
+                    fontSize: '14px',
+                  }}
+                >
+                  Add an optional cover letter before submitting your
+                  application.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeApplicationForm}
+                disabled={Boolean(applyingJobId)}
+                aria-label="Close application form"
+              >
+                ×
+              </button>
+            </div>
+
+            <label
+              htmlFor="candidate-cover-letter"
+              style={{
+                display: 'block',
+                color: '#0F172A',
+                fontWeight: 600,
+                marginBottom: '8px',
+              }}
+            >
+              Cover Letter{' '}
+              <span style={{ color: '#64748B', fontWeight: 400 }}>
+                (Optional)
+              </span>
+            </label>
+
+            <textarea
+              id="candidate-cover-letter"
+              value={coverLetter}
+              onChange={(event) => setCoverLetter(event.target.value)}
+              placeholder="Briefly explain why you are interested in this position and why your experience is relevant."
+              rows={8}
+              maxLength={5000}
+              disabled={Boolean(applyingJobId)}
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                resize: 'vertical',
+                minHeight: '180px',
+                padding: '12px',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                color: '#0F172A',
+                fontSize: '14px',
+                lineHeight: 1.5,
+              }}
+            />
+
+            <div
+              style={{
+                marginTop: '6px',
+                color: '#64748B',
+                fontSize: '12px',
+              }}
+            >
+              {coverLetter.length}/5000 characters
+            </div>
+
+            {applicationError && (
+              <div
+                style={{
+                  marginTop: '14px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: '#FEF2F2',
+                  color: '#991B1B',
+                  fontSize: '14px',
+                }}
+              >
+                {applicationError}
+              </div>
+            )}
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+                marginTop: '20px',
+              }}
+            >
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={closeApplicationForm}
+                disabled={Boolean(applyingJobId)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="primary-action"
+                onClick={handleApply}
+                disabled={Boolean(applyingJobId)}
+              >
+                {applyingJobId ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <section className="dashboard-card">
         <div className="card-heading">

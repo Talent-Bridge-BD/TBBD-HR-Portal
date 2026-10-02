@@ -4,6 +4,8 @@ import json
 from fastapi import APIRouter, HTTPException, Request
 
 from repositories.application import SqlApplicationRepository
+from repositories.candidate_document import SqlCandidateDocumentRepository
+from repositories.blob_storage import BlobStorageRepository
 from repositories.organization import SqlOrganizationRepository
 from services.application import ApplicationService
 from services.authorization import (
@@ -23,6 +25,8 @@ _application_service = ApplicationService(
     _application_repository,
 )
 _organization_repository = SqlOrganizationRepository()
+_candidate_document_repository = SqlCandidateDocumentRepository()
+_blob_repository = BlobStorageRepository()
 
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
@@ -194,6 +198,93 @@ async def update_application_status(
         "application": application.__dict__,
         "message": "Application status updated successfully",
     }
+
+
+
+@router.get("/{application_id}/documents")
+async def list_application_documents(
+    application_id: str,
+    organization_id: str,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        organization_id,
+    )
+
+    application = _application_service.get_application(
+        organization_id,
+        application_id,
+    )
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    documents = _candidate_document_repository.list_documents_for_application(
+        organization_id,
+        application_id,
+    )
+
+    return {
+        "documents": [document.__dict__ for document in documents],
+    }
+
+@router.get("/{application_id}/documents/{document_id}")
+async def view_application_document(
+    application_id: str,
+    document_id: str,
+    organization_id: str,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        organization_id,
+    )
+
+    application = _application_service.get_application(
+        organization_id,
+        application_id,
+    )
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    document = _candidate_document_repository.get_document(
+        application.candidate_id,
+        document_id,
+    )
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found",
+        )
+
+    try:
+        file_bytes = _blob_repository.download(document.blob_name)
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Document file could not be retrieved",
+        )
+
+    from fastapi.responses import Response
+
+    return Response(
+        content=file_bytes,
+        media_type=document.content_type or "application/octet-stream",
+        headers={
+            "Content-Disposition": (
+                f'inline; filename="{document.file_name}"'
+            )
+        },
+    )
 
 
 @router.get("/{application_id}")

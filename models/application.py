@@ -18,3 +18,5 @@ class EmployerApplication:
     cover_letter: Optional[str] = None
     applied_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    candidate_passport_number: Optional[str] = None
+    destination_country: Optional[str] = None

@@ -168,7 +168,7 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
                 INNER JOIN dbo.jobs AS j
                     ON j.id = a.job_id
                 WHERE j.organization_id IN ({placeholders})
-                  AND a.status NOT IN (N'rejected', N'withdrawn')
+                  AND a.status NOT IN (N'rejected', N'withdrawn', N'hired')
                 """,
                 *organization_ids,
             )
