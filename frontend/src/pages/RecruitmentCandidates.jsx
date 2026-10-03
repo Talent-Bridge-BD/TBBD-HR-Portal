@@ -53,18 +53,42 @@ export default function RecruitmentCandidates({ auth }) {
       })
   }, [organizationId, organizationLoading])
 
-  const candidates = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          applications.map((application) => [
-            application.candidate_id,
-            application,
-          ])
-        ).values()
-      ),
-    [applications]
-  )
+  const candidates = useMemo(() => {
+    const byCandidate = new Map()
+
+    applications.forEach((application) => {
+      const existing = byCandidate.get(application.candidate_id)
+
+      if (!existing) {
+        byCandidate.set(application.candidate_id, application)
+        return
+      }
+
+      const existingDate = existing.applied_at
+        ? new Date(existing.applied_at).getTime()
+        : 0
+
+      const currentDate = application.applied_at
+        ? new Date(application.applied_at).getTime()
+        : 0
+
+      if (currentDate > existingDate) {
+        byCandidate.set(application.candidate_id, application)
+      }
+    })
+
+    return Array.from(byCandidate.values()).sort((a, b) => {
+      const aDate = a.applied_at
+        ? new Date(a.applied_at).getTime()
+        : 0
+
+      const bDate = b.applied_at
+        ? new Date(b.applied_at).getTime()
+        : 0
+
+      return bDate - aDate
+    })
+  }, [applications])
 
   const filteredCandidates = useMemo(() => {
     const query = search.trim().toLowerCase()

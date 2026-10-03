@@ -52,12 +52,13 @@ export default function Dashboard({ auth, onNavigate }) {
   }, [isAdministrator, isHRManager])
 
   useEffect(() => {
+    if (!isAdministrator && !isHRManager) return
+
     authenticatedFetch('/api/recruitment/pipeline')
       .then((response) => response.json())
       .then((data) => setPipeline(data))
       .catch((error) => console.error(error))
-  }, [])
-
+  }, [isAdministrator, isHRManager])
   const employeeName =
     employeeDashboard.employee.name || getEmployeeDisplayName()
 
@@ -142,6 +143,7 @@ export default function Dashboard({ auth, onNavigate }) {
       </section>
 
       <PageHeader
+        className="workplace-dashboard-header"
         title={
           isAdministrator || isHRManager
             ? `Welcome back, ${employeeName} 👋`
@@ -631,3 +633,4 @@ export default function Dashboard({ auth, onNavigate }) {
     </>
   )
 }
+

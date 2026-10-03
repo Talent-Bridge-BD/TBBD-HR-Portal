@@ -30,6 +30,7 @@ from api.hiring import router as hiring_router
 from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
 from api.organization import router as organization_router
+from api.notifications import router as notifications_router
 
 app = FastAPI()
 
@@ -73,6 +74,7 @@ app.include_router(hiring_router)
 app.include_router(user_profile_router)
 app.include_router(recruitment_pipeline_router)
 app.include_router(organization_router)
+app.include_router(notifications_router)
 
 _organization_repository = SqlOrganizationRepository()
 
@@ -524,4 +526,6 @@ async def handle_mcp(request: Request):
             "id": body.get("id", 1) if "body" in locals() else 1,
             "error": str(e),
         }
+
+
 

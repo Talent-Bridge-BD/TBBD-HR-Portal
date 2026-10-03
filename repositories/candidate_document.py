@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import pyodbc
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential, DefaultAzureCredential
 
 from models.candidate_document import CandidateDocument
 
@@ -84,7 +84,10 @@ class SqlCandidateDocumentRepository(CandidateDocumentRepository):
             "SQL_DATABASE",
             "tbbd-hr-db",
         )
-        self.credential = DefaultAzureCredential()
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            self.credential = DefaultAzureCredential()
+        else:
+            self.credential = AzureCliCredential()
 
     def _connection(self) -> pyodbc.Connection:
         token = self.credential.get_token(self.SQL_SCOPE).token

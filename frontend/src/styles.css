@@ -193,7 +193,7 @@ button {
 }
 
 .nav-item.active {
-  background: var(--tbbd-blue);
+  background: #0B5CAD;
   color: #ffffff;
   font-weight: 700;
 }
@@ -254,6 +254,7 @@ button {
   margin-bottom: 26px;
   background: #14233d;
   border: 1px solid #dce3ea;
+  border-top: 2px solid #0067b8;
   box-shadow: 0 5px 18px rgba(24, 39, 75, 0.06);
 }
 
@@ -314,6 +315,9 @@ button {
   margin-bottom: 20px;
 }
 
+.workplace-dashboard-header h1 {
+  color: #0B2545;
+}
 .page-header h1 {
   margin: 0 0 5px;
   font-size: 28px;
@@ -322,7 +326,6 @@ button {
   letter-spacing: -0.4px;
   color: var(--tbbd-text-primary);
 }
-
 .page-header p {
   margin: 0;
   color: var(--tbbd-text-body);
@@ -355,6 +358,7 @@ button {
   gap: 15px;
   align-items: center;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border-color: #D1D9E6;
 }
 
 .stat-card:hover,
@@ -1296,7 +1300,8 @@ button {
   line-height: 1.2;
 }
 
-.employer-job-requests-page .page-header p {
+.employer-job-requests-page 
+.page-header p {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
@@ -3558,7 +3563,8 @@ button {
   font-size: clamp(28px, 3vw, 34px);
 }
 
-.candidate-portal-page .page-header p {
+.candidate-portal-page 
+.page-header p {
   font-size: 15px;
   line-height: 1.5;
 }
@@ -3648,7 +3654,8 @@ button {
 }
 
 /* Candidate Portal typography standard */
-.candidate-portal-page .page-header p {
+.candidate-portal-page 
+.page-header p {
   font-size: 15px;
   line-height: 1.5;
 }
@@ -4977,7 +4984,7 @@ button {
 }
 
 .journey-stage-content strong {
-  color: #0f172a;
+  color: #0067b8;
   font-size: 21px;
   line-height: 1.1;
   font-weight: 700;
@@ -6646,3 +6653,11 @@ button {
     font-size: 28px;
   }
 }
+
+
+
+
+
+
+
+

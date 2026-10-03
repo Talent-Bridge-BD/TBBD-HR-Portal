@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+import os
 import struct
 
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential, DefaultAzureCredential
 
 from models.interview import EmployerInterview
 
@@ -69,7 +70,10 @@ class SqlInterviewRepository(InterviewRepository):
     def __init__(self):
         self.server = "tbbd-sql-sea.database.windows.net"
         self.database = "tbbd-hr-db"
-        self.credential = DefaultAzureCredential()
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            self.credential = DefaultAzureCredential()
+        else:
+            self.credential = AzureCliCredential()
 
     def _connection(self):
         import pyodbc
@@ -394,3 +398,4 @@ class SqlInterviewRepository(InterviewRepository):
             organization_id,
             interview_id,
         )
+
