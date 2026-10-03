@@ -191,6 +191,16 @@ export default function RecruitmentInterviews({ auth }) {
       return
     }
 
+    if (
+      form.scheduled_end &&
+      new Date(form.scheduled_end) <= new Date(form.scheduled_start)
+    ) {
+      setError(
+        'Interview end time must be later than the start time.'
+      )
+      return
+    }
+
     setSaving(true)
     setError('')
 
@@ -525,13 +535,19 @@ export default function RecruitmentInterviews({ auth }) {
 
                   <select
                     value={interview.status || 'scheduled'}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      const nextStatus = event.target.value
+                      const nextOutcome =
+                        nextStatus === 'completed'
+                          ? interview.outcome || 'Pending'
+                          : 'Pending'
+
                       updateInterview(
                         interview,
-                        event.target.value,
-                        interview.outcome || 'Pending'
+                        nextStatus,
+                        nextOutcome
                       )
-                    }
+                    }}
                     aria-label={`Interview status for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
                   >
 
@@ -558,6 +574,10 @@ export default function RecruitmentInterviews({ auth }) {
                         interview.status || 'scheduled',
                         event.target.value
                       )
+                    }
+                    disabled={
+                      String(interview.status || 'scheduled').toLowerCase() !==
+                      'completed'
                     }
                     aria-label={`Interview outcome for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
                   >

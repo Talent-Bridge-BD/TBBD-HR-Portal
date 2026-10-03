@@ -27,6 +27,7 @@ const employerNavigation = [
   ['Employer Job Requests', '＋'],
   ['Employer Job Openings', '▤'],
   ['Employer Candidates', '♙'],
+  ['Employer Applications', '▣'],
   ['Employer Interviews / Tests', '◷'],
   ['Employer Hiring', '✓'],
   ['Employer Notifications', '🔔'],

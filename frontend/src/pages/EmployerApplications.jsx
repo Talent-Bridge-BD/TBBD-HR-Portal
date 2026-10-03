@@ -102,6 +102,10 @@ export default function EmployerApplications({ auth }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [actionApplicationId, setActionApplicationId] = useState('')
+  const [selectedApplication, setSelectedApplication] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [applicationDocuments, setApplicationDocuments] = useState([])
+  const [documentsLoading, setDocumentsLoading] = useState(false)
 
   useEffect(() => {
     if (organizationLoading || !organizationId) {
@@ -144,16 +148,11 @@ export default function EmployerApplications({ auth }) {
 
     try {
       const response = await authenticatedFetch(
-        `/api/applications/${application.id}`,
+        `/api/applications/${application.id}/status?organization_id=${encodeURIComponent(
+          organizationId
+        )}&status=under_review`,
         {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            organization_id: organizationId,
-            status: 'under_review',
-          }),
         },
       )
 
@@ -177,6 +176,136 @@ export default function EmployerApplications({ auth }) {
       setError(err.message || 'Unable to start screening.')
     } finally {
       setActionApplicationId('')
+    }
+  }
+
+  async function updateApplicationStatus(application, status) {
+    if (!application?.id || !organizationId) return
+
+    setActionApplicationId(application.id)
+    setError('')
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/applications/${application.id}/status?organization_id=${encodeURIComponent(
+          organizationId
+        )}&status=${encodeURIComponent(status)}`,
+        {
+          method: 'PUT',
+        },
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to update application status.',
+        )
+      }
+
+      setApplications((current) =>
+        current.map((item) =>
+          item.id === application.id
+            ? { ...item, ...data.application }
+            : item,
+        ),
+      )
+
+      setSelectedApplication((current) =>
+        current?.id === application.id
+          ? { ...current, ...data.application }
+          : current,
+      )
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to update application status.')
+    } finally {
+      setActionApplicationId('')
+    }
+  }
+
+  async function viewApplicationDocument(document) {
+    if (!document?.id || !selectedApplication?.id || !organizationId) return
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/applications/${selectedApplication.id}/documents/${document.id}?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+      )
+
+      if (!response.ok) {
+        let message = 'Unable to view candidate document.'
+        try {
+          const data = await response.json()
+          message = data.detail || message
+        } catch {
+          // Keep the default message when the response is not JSON.
+        }
+        throw new Error(message)
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank', 'noopener,noreferrer')
+
+      window.setTimeout(() => {
+        URL.revokeObjectURL(url)
+      }, 60000)
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Unable to view candidate document.')
+    }
+  }
+
+  async function viewApplication(application) {
+    if (!application?.id || !organizationId) return
+
+    setDetailLoading(true)
+    setDocumentsLoading(true)
+    setApplicationDocuments([])
+    setError('')
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/applications/${application.id}?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to load application details.',
+        )
+      }
+
+      setSelectedApplication(data.application || null)
+
+      const documentsResponse = await authenticatedFetch(
+        `/api/applications/${application.id}/documents?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+      )
+
+      const documentsData = await documentsResponse.json()
+
+      if (!documentsResponse.ok) {
+        throw new Error(
+          documentsData.detail || 'Unable to load candidate documents.',
+        )
+      }
+
+      setApplicationDocuments(documentsData.documents || [])
+    } catch (err) {
+      console.error(err)
+      setError(
+        err.message || 'Unable to load application details.',
+      )
+    } finally {
+      setDetailLoading(false)
+      setDocumentsLoading(false)
     }
   }
 
@@ -521,20 +650,41 @@ export default function EmployerApplications({ auth }) {
                           {status}
                         </span>
 
-                        {status === 'Applied' && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'flex-end',
+                            gap: '8px',
+                          }}
+                        >
                           <button
-                            className="primary-action"
+                            className="secondary-action"
                             type="button"
-                            onClick={() => startScreening(application)}
-                            disabled={
-                              actionApplicationId === application.id
-                            }
+                            onClick={() => viewApplication(application)}
+                            disabled={detailLoading}
                           >
-                            {actionApplicationId === application.id
-                              ? 'Starting...'
-                              : 'Start Screening'}
+                            {detailLoading &&
+                            selectedApplication?.id === application.id
+                              ? 'Loading...'
+                              : 'View Application'}
                           </button>
-                        )}
+
+                          {status === 'Applied' && (
+                            <button
+                              className="primary-action"
+                              type="button"
+                              onClick={() => startScreening(application)}
+                              disabled={
+                                actionApplicationId === application.id
+                              }
+                            >
+                              {actionApplicationId === application.id
+                                ? 'Starting...'
+                                : 'Start Screening'}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </article>
                   )
@@ -542,6 +692,346 @@ export default function EmployerApplications({ auth }) {
               </div>
             )}
           </section>
+
+          {selectedApplication && (
+            <section
+              style={{
+                marginTop: '20px',
+                padding: '22px',
+                border: '1px solid #E2E8F0',
+                borderRadius: '14px',
+                background: '#FFFFFF',
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '16px',
+                  marginBottom: '20px',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      color: '#0F172A',
+                    }}
+                  >
+                    Application Details
+                  </div>
+                  <div
+                    style={{
+                      marginTop: '4px',
+                      color: '#64748B',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {getCandidateName(selectedApplication)}
+                  </div>
+                </div>
+
+                <button
+                  className="secondary-action"
+                  type="button"
+                  onClick={() => setSelectedApplication(null)}
+                >
+                  Close
+                </button>
+              </div>
+
+              {detailLoading ? (
+                <div style={{ color: '#64748B' }}>
+                  Loading application details...
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                      'repeat(auto-fit, minmax(220px, 1fr))',
+                    gap: '16px',
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Candidate
+                    </div>
+                    <div style={{ color: '#0F172A', fontWeight: 600 }}>
+                      {getCandidateName(selectedApplication)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Email
+                    </div>
+                    <div style={{ color: '#334155' }}>
+                      {selectedApplication.candidate_email || '—'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Phone
+                    </div>
+                    <div style={{ color: '#334155' }}>
+                      {selectedApplication.candidate_phone || '—'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Position
+                    </div>
+                    <div style={{ color: '#334155' }}>
+                      {selectedApplication.job_title || '—'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Status
+                    </div>
+                    <div style={{ color: '#334155', fontWeight: 600 }}>
+                      {getDisplayStatus(selectedApplication.status)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Applied
+                    </div>
+                    <div style={{ color: '#334155' }}>
+                      {formatDate(selectedApplication.applied_at)}
+                    </div>
+                  </div>
+
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '5px',
+                      }}
+                    >
+                      Cover Letter
+                    </div>
+                    <div
+                      style={{
+                        color: '#334155',
+                        whiteSpace: 'pre-wrap',
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {selectedApplication.cover_letter ||
+                        'No cover letter was provided with this application.'}
+                    </div>
+                  </div>
+
+                  {getDisplayStatus(selectedApplication.status) ===
+                    'Screening' && (
+                    <div
+                      style={{
+                        gridColumn: '1 / -1',
+                        marginTop: '8px',
+                        paddingTop: '18px',
+                        borderTop: '1px solid #E2E8F0',
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: '#64748B',
+                          fontSize: '13px',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        Recruitment Actions
+                      </div>
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '10px',
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="primary-action"
+                          onClick={() =>
+                            updateApplicationStatus(
+                              selectedApplication,
+                              'shortlisted',
+                            )
+                          }
+                          disabled={
+                            actionApplicationId === selectedApplication.id
+                          }
+                        >
+                          {actionApplicationId === selectedApplication.id
+                            ? 'Updating...'
+                            : 'Shortlist'}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="secondary-action"
+                          onClick={() =>
+                            updateApplicationStatus(
+                              selectedApplication,
+                              'rejected',
+                            )
+                          }
+                          disabled={
+                            actionApplicationId === selectedApplication.id
+                          }
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      gridColumn: '1 / -1',
+                      marginTop: '8px',
+                      paddingTop: '18px',
+                      borderTop: '1px solid #E2E8F0',
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: '#64748B',
+                        fontSize: '13px',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      Candidate Documents
+                    </div>
+
+                    {documentsLoading ? (
+                      <div style={{ color: '#64748B' }}>
+                        Loading candidate documents...
+                      </div>
+                    ) : applicationDocuments.length === 0 ? (
+                      <div
+                        style={{
+                          padding: '14px',
+                          border: '1px dashed #CBD5E1',
+                          borderRadius: '10px',
+                          color: '#64748B',
+                          background: '#F8FAFC',
+                        }}
+                      >
+                        No candidate documents are available.
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: 'grid',
+                          gap: '8px',
+                        }}
+                      >
+                        {applicationDocuments.map((document) => (
+                          <div
+                            key={document.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '12px',
+                              padding: '12px 14px',
+                              border: '1px solid #E2E8F0',
+                              borderRadius: '10px',
+                              background: '#FFFFFF',
+                            }}
+                          >
+                            <div style={{ minWidth: 0 }}>
+                              <div
+                                style={{
+                                  color: '#0F172A',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {document.file_name || 'Unnamed document'}
+                              </div>
+                              <div
+                                style={{
+                                  marginTop: '3px',
+                                  color: '#64748B',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                {document.document_type || 'Document'}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => viewApplicationDocument(document)}
+                              style={{
+                                flexShrink: 0,
+                                padding: '7px 12px',
+                                border: '1px solid #0067B8',
+                                borderRadius: '7px',
+                                background: '#FFFFFF',
+                                color: '#0067B8',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              View
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
         </>
       )}
     </>

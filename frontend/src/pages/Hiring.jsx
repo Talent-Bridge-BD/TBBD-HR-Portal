@@ -60,6 +60,7 @@ export default function Hiring() {
   const organizationId = selectedOrganizationId || ""
 
   const [applications, setApplications] = useState([])
+  const [readyCandidates, setReadyCandidates] = useState([])
   const [loading, setLoading] = useState(false)
   const [readinessLoading, setReadinessLoading] = useState(false)
   const [error, setError] = useState("")
@@ -156,6 +157,8 @@ export default function Hiring() {
         }
       }
 
+      setReadyCandidates(candidateApplications)
+
 
     } catch (err) {
       setError(err.message || "Unable to load hiring records.")
@@ -185,23 +188,6 @@ export default function Hiring() {
       cancelled = true
     }
   }, [organizationId, organizationLoading])
-
-  const readyCandidates = useMemo(
-    () =>
-      applications
-        .filter(
-          (application) =>
-            application.hiring_status === "ready_for_hiring",
-        )
-        .map((application) => ({
-          application,
-          readiness: {
-            readiness_source: "waived",
-            hiring_record_id: application.id,
-          },
-        })),
-    [applications],
-  )
 
   const offers = useMemo(
     () =>

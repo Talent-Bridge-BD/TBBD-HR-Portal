@@ -62,6 +62,13 @@ class TradeTestService:
         teamwork_score: int,
         assessment_notes: str | None = None,
     ):
+        existing_trade_test = self.repository.get(trade_test_id)
+        if existing_trade_test is None:
+            raise ValueError("Trade test not found")
+
+        if str(existing_trade_test.status or "").strip().lower() == "completed":
+            raise ValueError("Completed trade tests cannot be reassessed")
+
         scores = {
             "technical_knowledge_score": technical_knowledge_score,
             "trade_skills_score": trade_skills_score,

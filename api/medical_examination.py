@@ -6,12 +6,15 @@ from pydantic import BaseModel
 from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.medical_examination import SqlMedicalExaminationRepository
+from repositories.visa_processing import SqlVisaProcessingRepository
+
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
 from services.local_auth import get_request_principal
 from services.medical_examination import MedicalExaminationService
+from services.visa_processing import VisaProcessingService
 
 
 router = APIRouter(
@@ -20,9 +23,13 @@ router = APIRouter(
 )
 
 _medical_examination_repository = SqlMedicalExaminationRepository()
-
 _medical_examination_service = MedicalExaminationService(
     _medical_examination_repository,
+)
+
+_visa_processing_repository = SqlVisaProcessingRepository()
+_visa_processing_service = VisaProcessingService(
+    _visa_processing_repository,
 )
 
 _application_repository = SqlApplicationRepository()
@@ -49,7 +56,9 @@ class MedicalExaminationAssessmentRequest(BaseModel):
 
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
+
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
+
 ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
@@ -179,7 +188,6 @@ async def create_medical_examination(
             doctor_name=payload.doctor_name,
             medical_type=payload.medical_type,
         )
-
     except ValueError as exc:
         raise HTTPException(
             status_code=404,
@@ -311,13 +319,40 @@ async def update_medical_examination_assessment(
             report_notes=payload.report_notes,
             completed_at=payload.completed_at,
         )
-
     except ValueError as exc:
         raise HTTPException(
             status_code=400,
             detail=str(exc),
         )
 
+    visa_created = False
+
+    if (
+        payload.status == "Completed"
+        and payload.result == "Fit"
+    ):
+        existing_visa_records = (
+            _visa_processing_service.list_by_application(
+                organization_id,
+                medical_examination.application_id,
+            )
+        )
+
+        if not existing_visa_records:
+            try:
+                _visa_processing_service.create(
+                    organization_id=organization_id,
+                    application_id=medical_examination.application_id,
+                    status="Pending",
+                )
+                visa_created = True
+            except ValueError as exc:
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(exc),
+                )
+
     return {
-        "medical_examination": updated.__dict__
+        "medical_examination": updated.__dict__,
+        "visa_processing_created": visa_created,
     }

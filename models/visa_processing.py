@@ -20,7 +20,6 @@ class VisaProcessing:
 
     sponsor_name: Optional[str] = None
     sponsor_reference: Optional[str] = None
-
     notes: Optional[str] = None
 
     created_at: Optional[datetime] = None

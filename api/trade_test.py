@@ -185,6 +185,12 @@ async def create_trade_test(
             detail="Application not found for this organization",
         )
 
+    if str(application.status or "").strip().lower() != "shortlisted":
+        raise HTTPException(
+            status_code=409,
+            detail="Trade tests can only be scheduled for shortlisted applications",
+        )
+
     try:
         trade_test = _trade_test_service.create(
             application_id=payload.application_id,
@@ -307,17 +313,23 @@ async def update_trade_test_assessment(
             detail="Trade test not found",
         )
 
-    updated = _trade_test_service.update_assessment(
-        trade_test_id=trade_test_id,
-        technical_knowledge_score=payload.technical_knowledge_score,
-        trade_skills_score=payload.trade_skills_score,
-        safety_awareness_score=payload.safety_awareness_score,
-        tool_handling_score=payload.tool_handling_score,
-        communication_score=payload.communication_score,
-        problem_solving_score=payload.problem_solving_score,
-        teamwork_score=payload.teamwork_score,
-        assessment_notes=payload.assessment_notes,
-    )
+    try:
+        updated = _trade_test_service.update_assessment(
+            trade_test_id=trade_test_id,
+            technical_knowledge_score=payload.technical_knowledge_score,
+            trade_skills_score=payload.trade_skills_score,
+            safety_awareness_score=payload.safety_awareness_score,
+            tool_handling_score=payload.tool_handling_score,
+            communication_score=payload.communication_score,
+            problem_solving_score=payload.problem_solving_score,
+            teamwork_score=payload.teamwork_score,
+            assessment_notes=payload.assessment_notes,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail=str(exc),
+        )
 
     return {
         "trade_test": updated.__dict__

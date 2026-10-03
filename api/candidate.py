@@ -466,6 +466,11 @@ async def get_candidate_applications(request: Request):
 
     candidate_id = _service.get_candidate_id(user_id)
 
+    print(
+        f"[CANDIDATE DEBUG] user_id={user_id} "
+        f"candidate_id={candidate_id}"
+    )
+
     if candidate_id is None:
         return {
             "applications": [],
@@ -547,6 +552,10 @@ async def accept_candidate_offer(
 async def get_candidate_interviews(request: Request):
     user_id = get_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
+    print(
+        f"[CANDIDATE DEBUG] user_id={user_id} "
+        f"candidate_id={candidate_id}"
+    )
     if candidate_id is None:
         return {
             "interviews": [],

@@ -1,18 +1,18 @@
 from datetime import date
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from services.local_auth import get_request_principal
 from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.visa_processing import SqlVisaProcessingRepository
-from services.visa_processing import VisaProcessingService
+
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
+from services.local_auth import get_request_principal
+from services.visa_processing import VisaProcessingService
 
 
 router = APIRouter(
@@ -20,55 +20,53 @@ router = APIRouter(
     tags=["visa-processing"],
 )
 
-
-_organization_repository = SqlOrganizationRepository()
-_application_repository = SqlApplicationRepository()
 _visa_processing_repository = SqlVisaProcessingRepository()
-
 _visa_processing_service = VisaProcessingService(
-    _visa_processing_repository
+    _visa_processing_repository,
 )
+
+_application_repository = SqlApplicationRepository()
+_organization_repository = SqlOrganizationRepository()
 
 
 class VisaProcessingCreateRequest(BaseModel):
     application_id: str
-
-    visa_type: Optional[str] = None
-    visa_number: Optional[str] = None
-    application_number: Optional[str] = None
-
-    submission_date: Optional[date] = None
-    approval_date: Optional[date] = None
-    expiry_date: Optional[date] = None
-
+    visa_type: str | None = None
+    visa_number: str | None = None
+    application_number: str | None = None
+    submission_date: date | None = None
+    approval_date: date | None = None
+    expiry_date: date | None = None
     status: str = "Pending"
-
-    sponsor_name: Optional[str] = None
-    sponsor_reference: Optional[str] = None
-
-    notes: Optional[str] = None
+    sponsor_name: str | None = None
+    sponsor_reference: str | None = None
+    notes: str | None = None
 
 
 class VisaProcessingUpdateRequest(BaseModel):
-    visa_type: Optional[str] = None
-    visa_number: Optional[str] = None
-    application_number: Optional[str] = None
-
-    submission_date: Optional[date] = None
-    approval_date: Optional[date] = None
-    expiry_date: Optional[date] = None
-
-    status: Optional[str] = None
-
-    sponsor_name: Optional[str] = None
-    sponsor_reference: Optional[str] = None
-
-    notes: Optional[str] = None
+    visa_type: str | None = None
+    visa_number: str | None = None
+    application_number: str | None = None
+    submission_date: date | None = None
+    approval_date: date | None = None
+    expiry_date: date | None = None
+    status: str | None = None
+    sponsor_name: str | None = None
+    sponsor_reference: str | None = None
+    notes: str | None = None
 
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
-HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+EMPLOYER_MANAGER_GROUP_ID = (
+    "7088ce1f-8e01-4c7c-88fd-a257721a35df"
+)
+
+HR_MANAGER_GROUP_ID = (
+    "9a977cf0-7c9f-4024-9415-357a8a4292bc"
+)
+
+ADMINISTRATOR_GROUP_ID = (
+    "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+)
 
 
 def _claim_values(
@@ -103,6 +101,7 @@ def _get_authorization_context(
         )
 
     claims = principal.get("claims", [])
+
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
@@ -158,52 +157,31 @@ def _require_organization_access(
     return context
 
 
-def _get_authorized_application(
-    request: Request,
+@router.post("")
+async def create_visa_processing(
+    payload: VisaProcessingCreateRequest,
     organization_id: str,
-    application_id: str,
+    request: Request,
 ):
-    context = _require_organization_access(
+    _require_organization_access(
         request,
         organization_id,
     )
 
     application = _application_repository.get_application(
-        organization_id=organization_id,
-        application_id=application_id,
+        organization_id,
+        payload.application_id,
     )
 
-    if application is not None:
-        return context, application
-
-    if is_global_administrator(context):
-        application = _application_repository.get_application_by_id(
-            application_id,
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found for this organization",
         )
-
-        if application is not None:
-            return context, application
-
-    raise HTTPException(
-        status_code=404,
-        detail="Application not found",
-    )
-
-
-@router.post("")
-async def create_visa_processing(
-    payload: VisaProcessingCreateRequest,
-    request: Request,
-    organization_id: str,
-):
-    _get_authorized_application(
-        request=request,
-        organization_id=organization_id,
-        application_id=payload.application_id,
-    )
 
     try:
         visa_processing = _visa_processing_service.create(
+            organization_id=organization_id,
             application_id=payload.application_id,
             visa_type=payload.visa_type,
             visa_number=payload.visa_number,
@@ -220,7 +198,7 @@ async def create_visa_processing(
         raise HTTPException(
             status_code=400,
             detail=str(exc),
-        ) from exc
+        )
 
     return {
         "visa_processing": visa_processing.__dict__
@@ -230,24 +208,34 @@ async def create_visa_processing(
 @router.get("/application/{application_id}")
 async def list_visa_processings(
     application_id: str,
-    request: Request,
     organization_id: str,
+    request: Request,
 ):
-    _get_authorized_application(
-        request=request,
-        organization_id=organization_id,
-        application_id=application_id,
+    _require_organization_access(
+        request,
+        organization_id,
     )
 
+    application = _application_repository.get_application(
+        organization_id,
+        application_id,
+    )
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found for this organization",
+        )
+
     records = _visa_processing_service.list_by_application(
-        application_id=application_id,
-        organization_id=organization_id,
+        organization_id,
+        application_id,
     )
 
     return {
         "visa_processings": [
-            record.__dict__
-            for record in records
+            item.__dict__
+            for item in records
         ]
     }
 
@@ -255,8 +243,8 @@ async def list_visa_processings(
 @router.get("/{visa_processing_id}")
 async def get_visa_processing(
     visa_processing_id: str,
-    request: Request,
     organization_id: str,
+    request: Request,
 ):
     _require_organization_access(
         request,
@@ -264,11 +252,22 @@ async def get_visa_processing(
     )
 
     visa_processing = _visa_processing_service.get(
-        visa_processing_id=visa_processing_id,
-        organization_id=organization_id,
+        organization_id,
+        visa_processing_id,
     )
 
     if visa_processing is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Visa processing record not found",
+        )
+
+    application = _application_repository.get_application(
+        organization_id,
+        visa_processing.application_id,
+    )
+
+    if application is None:
         raise HTTPException(
             status_code=404,
             detail="Visa processing record not found",
@@ -283,8 +282,8 @@ async def get_visa_processing(
 async def update_visa_processing(
     visa_processing_id: str,
     payload: VisaProcessingUpdateRequest,
-    request: Request,
     organization_id: str,
+    request: Request,
 ):
     _require_organization_access(
         request,
@@ -292,8 +291,8 @@ async def update_visa_processing(
     )
 
     existing = _visa_processing_service.get(
-        visa_processing_id=visa_processing_id,
-        organization_id=organization_id,
+        organization_id,
+        visa_processing_id,
     )
 
     if existing is None:
@@ -304,6 +303,7 @@ async def update_visa_processing(
 
     try:
         updated = _visa_processing_service.update(
+            organization_id=organization_id,
             visa_processing_id=visa_processing_id,
             visa_type=payload.visa_type,
             visa_number=payload.visa_number,
@@ -320,12 +320,6 @@ async def update_visa_processing(
         raise HTTPException(
             status_code=400,
             detail=str(exc),
-        ) from exc
-
-    if updated is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Visa processing record not found",
         )
 
     return {
