@@ -14,7 +14,19 @@ export default function Header() {
         />
       </div>
 
+      <div className="header-center">
+        <div className="header-welcome">
+          <span>Welcome to</span>
+          <strong>Workplace Hub</strong>
+        </div>
+      </div>
+
       <div className="header-actions">
+        <div className="header-user-info">
+          <span>Employer Portal</span>
+          <strong>Talent Bridge BD</strong>
+        </div>
+
         <details className="user-menu">
           <summary className="user-menu-trigger">
             <span className="avatar">•</span>

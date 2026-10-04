@@ -7,6 +7,7 @@ import {
   loginRequest,
 } from './msal'
 
+
 export async function initializeMsal() {
   await msalInstance.initialize()
 
@@ -19,20 +20,26 @@ export async function initializeMsal() {
 
   const accounts = msalInstance.getAllAccounts()
 
-  if (!msalInstance.getActiveAccount() && accounts.length > 0) {
+  if (!msalInstance.getActiveAccount() && accounts.length === 1) {
     msalInstance.setActiveAccount(accounts[0])
   }
 
   return msalInstance.getActiveAccount()
 }
 
+
 export async function signIn() {
-  await msalInstance.loginRedirect(loginRequest)
+  await msalInstance.loginRedirect({
+    ...loginRequest,
+    prompt: "select_account",
+  })
 }
+
 
 export async function signOut() {
   await msalInstance.logoutRedirect()
 }
+
 
 export async function getAccessToken() {
   const account = msalInstance.getActiveAccount()
@@ -48,7 +55,9 @@ export async function getAccessToken() {
     })
 
     return result.accessToken
+
   } catch (error) {
+
     if (error instanceof InteractionRequiredAuthError) {
       await msalInstance.acquireTokenRedirect(loginRequest)
       return null
@@ -57,6 +66,7 @@ export async function getAccessToken() {
     throw error
   }
 }
+
 
 export async function getCurrentUser() {
   const accessToken = await getAccessToken()
@@ -78,11 +88,16 @@ export async function getCurrentUser() {
   return response.json()
 }
 
+
 export async function authenticatedFetch(url, options = {}) {
   const accessToken = await getAccessToken()
 
   const headers = new Headers(options.headers || {})
-  headers.set('Authorization', `Bearer ${accessToken}`)
+
+  headers.set(
+    'Authorization',
+    `Bearer ${accessToken}`
+  )
 
   return fetch(url, {
     ...options,

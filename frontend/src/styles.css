@@ -442,9 +442,9 @@ button {
 .employer-dashboard-banner img {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1600 / 400;
-  object-fit: contain;
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
 }
 
 .employer-dashboard-banner-content {
@@ -454,7 +454,7 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 32px 42px;
+  padding: 24px 36px;
   color: #ffffff;
   background: linear-gradient(
     90deg,
@@ -6653,6 +6653,54 @@ button {
     font-size: 28px;
   }
 }
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.header-welcome {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.header-welcome span {
+  font-size: 12px;
+  color: var(--tbbd-text-secondary);
+}
+
+.header-welcome strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tbbd-text-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.header-user-info span {
+  font-size: 12px;
+  color: var(--tbbd-text-secondary);
+}
+
+.header-user-info strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tbbd-text-primary);
+}
+}
+
 
 
 
