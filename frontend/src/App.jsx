@@ -12,6 +12,7 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import AdministrationEmployers from './pages/AdministrationEmployers'
+import UserManagement from './pages/UserManagement'
 import OrganizationManagement from './pages/OrganizationManagement'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
@@ -144,7 +145,7 @@ export default function App() {
     'Administration Employers': <AdministrationEmployers auth={auth} />,
     organizations: <OrganizationManagement onNavigate={setActivePage} />,
 
-    users: <AdministrationEmployers auth={auth} />,
+ users: <UserManagement auth={auth} />,
 
     roles: (
       <PlatformPlaceholder
