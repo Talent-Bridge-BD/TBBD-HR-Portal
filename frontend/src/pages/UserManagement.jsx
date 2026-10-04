@@ -101,7 +101,7 @@ export default function UserManagement({ auth }) {
 
 
   return (
-    <section className="page-section">
+    <section className="page-section user-management-page">
 
       <div className="page-header">
         <div>
