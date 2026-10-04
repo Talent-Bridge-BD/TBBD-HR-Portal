@@ -9,6 +9,7 @@ import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
+import AdministratorDashboard from './AdministratorDashboard'
 
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
@@ -119,6 +120,10 @@ export default function Dashboard({ auth, onNavigate }) {
       page: 'Recruitment Deployment',
     },
   ]
+
+  if (isAdministrator) {
+    return <AdministratorDashboard onNavigate={onNavigate} />
+  }
 
   if (isEmployerManager) {
     return <EmployerDashboard onNavigate={onNavigate} />
