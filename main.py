@@ -212,16 +212,20 @@ async def list_organizations(request: Request):
 
 
     return {
-        "organizations": [
-            {
-                "id": organization.id,
-                "name": organization.name,
-                "status": organization.status,
-            }
-            for organization in organizations
-        ]
-    }
-
+    "organizations": [
+        {
+            "id": organization.id,
+            "name": organization.name,
+            "status": organization.status,
+            "member_count": len(
+                _organization_repository.list_members(
+                    organization.id
+                )
+            ),
+        }
+        for organization in organizations
+    ]
+}
 
 @app.get("/api/organizations/{organization_id}")
 async def get_organization(organization_id: str, request: Request):

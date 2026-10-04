@@ -142,7 +142,38 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
-    organizations: <OrganizationManagement />,
+    organizations: <OrganizationManagement onNavigate={setActivePage} />,
+
+    users: <AdministrationEmployers auth={auth} />,
+
+    roles: (
+      <PlatformPlaceholder
+        title="Roles & Permissions"
+        description="Manage application roles and access permissions."
+      />
+    ),
+
+    notifications: (
+      <PlatformPlaceholder
+        title="Notification Settings"
+        description="Configure notification templates and delivery logs."
+      />
+    ),
+
+    settings: (
+      <PlatformPlaceholder
+        title="System Configuration"
+        description="Manage portal settings and integrations."
+      />
+    ),
+
+    activity: (
+      <PlatformPlaceholder
+        title="System Activity"
+        description="Monitor audit logs and system events."
+      />
+    ),
+
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
