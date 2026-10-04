@@ -1,92 +1,143 @@
-import PageHeader from '../components/PageHeader'
-import DashboardCard from '../components/DashboardCard'
+import React from "react";
+import "./AdministratorDashboard.css";
 
 export default function AdministratorDashboard({ onNavigate }) {
+
+  const adminModules = [
+    {
+      title: "Organization Management",
+      description: "Manage organizations and tenant structure.",
+      metrics: [
+        ["Organizations", "0"],
+        ["Active Organizations", "0"],
+      ],
+      action: "organizations",
+      button: "Manage Organizations →",
+    },
+    {
+      title: "User Management",
+      description: "Manage users, access, and memberships.",
+      metrics: [
+        ["Total Users", "0"],
+        ["Active Users", "0"],
+      ],
+      action: "users",
+      button: "Manage Users →",
+    },
+    {
+      title: "Roles & Permissions",
+      description: "Control roles and access permissions.",
+      metrics: [
+        ["Roles", "4"],
+        ["Permission Sets", "0"],
+      ],
+      action: "roles",
+      button: "Manage Access →",
+    },
+    {
+      title: "Notification System",
+      description: "Configure email and notification delivery.",
+      metrics: [
+        ["Templates", "0"],
+        ["Delivery Status", "0"],
+      ],
+      action: "notifications",
+      button: "Configure →",
+    },
+    {
+      title: "System Configuration",
+      description: "Manage portal settings and integrations.",
+      metrics: [
+        ["Settings", "—"],
+        ["Integrations", "—"],
+      ],
+      action: "settings",
+      button: "Manage Settings →",
+    },
+    {
+      title: "System Activity",
+      description: "Monitor system events and audit history.",
+      metrics: [
+        ["Recent Actions", "0"],
+        ["Failed Events", "0"],
+      ],
+      action: "activity",
+      button: "View Audit Logs →",
+    },
+  ];
+
+
   return (
-    <>
-      <PageHeader
-        className="administrator-dashboard-header"
-        title="Welcome back, Administrator 👋"
-        subtitle="Manage organization, users, permissions, notifications, and system settings."
-      />
+    <div className="administrator-dashboard">
 
-      <section className="workplace-dashboard-card-grid">
+      <div className="administrator-header">
 
-        <DashboardCard title="Organization Management">
-          <p>
-            Manage organizations, company settings, and business structure.
-          </p>
+        <h1>
+          Administration Dashboard
+        </h1>
 
-          <button
-            className="card-link"
-            type="button"
-            onClick={() => onNavigate('Organization Management')}
+        <p>
+          Manage organizations, users, access, notifications, and system configuration.
+        </p>
+
+      </div>
+
+
+      <div className="administrator-card-grid">
+
+        {adminModules.map((module) => (
+
+          <div
+            key={module.title}
+            className="administrator-card"
           >
-            Manage organizations →
-          </button>
-        </DashboardCard>
+
+            <h2>
+              {module.title}
+            </h2>
+
+            <p>
+              {module.description}
+            </p>
 
 
-        <DashboardCard title="User Management">
-          <p>
-            Manage users, invitations, and account access.
-          </p>
+            <div className="administrator-metrics">
 
-          <button
-            className="card-link"
-            type="button"
-            onClick={() => onNavigate('User Management')}
-          >
-            Manage users →
-          </button>
-        </DashboardCard>
+              {module.metrics.map(([label, value]) => (
 
+                <div
+                  key={label}
+                  className="administrator-metric"
+                >
 
-        <DashboardCard title="Roles & Permissions">
-          <p>
-            Configure security roles and application permissions.
-          </p>
+                  <span>
+                    {label}
+                  </span>
 
-          <button
-            className="card-link"
-            type="button"
-            onClick={() => onNavigate('Roles & Permissions')}
-          >
-            Manage permissions →
-          </button>
-        </DashboardCard>
+                  <strong>
+                    {value}
+                  </strong>
+
+                </div>
+
+              ))}
+
+            </div>
 
 
-        <DashboardCard title="Notification Settings">
-          <p>
-            Configure email providers, templates, and delivery tracking.
-          </p>
-
-          <button
-            className="card-link"
-            type="button"
-            onClick={() => onNavigate('Notification Settings')}
-          >
-            Configure notifications →
-          </button>
-        </DashboardCard>
+            <button
+              onClick={() => onNavigate(module.action)}
+            >
+              {module.button}
+            </button>
 
 
-        <DashboardCard title="System Settings">
-          <p>
-            Manage system configuration, security, integrations, and audit logs.
-          </p>
+          </div>
 
-          <button
-            className="card-link"
-            type="button"
-            onClick={() => onNavigate('System Settings')}
-          >
-            Open settings →
-          </button>
-        </DashboardCard>
+        ))}
 
-      </section>
-    </>
-  )
+      </div>
+
+    </div>
+  );
 }
