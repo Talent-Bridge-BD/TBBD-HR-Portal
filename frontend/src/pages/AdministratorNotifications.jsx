@@ -16,7 +16,7 @@ export default function AdministratorNotifications() {
     )
       .then((response) => response.json())
       .then((data) => setTemplates(data))
-      .catch((error) => console.error(error))
+      .catch(console.error)
 
 
     authenticatedFetch(
@@ -24,30 +24,86 @@ export default function AdministratorNotifications() {
     )
       .then((response) => response.json())
       .then((data) => setDeliveryLogs(data))
-      .catch((error) => console.error(error))
+      .catch(console.error)
 
   }, [])
 
 
   return (
+
     <div className="administrator-notifications">
 
-      <h1>Notification Management</h1>
+      <h1>
+        Notification Management
+      </h1>
 
       <p>
         Manage notification templates and delivery monitoring.
       </p>
 
-      <section>
-        <h2>Templates</h2>
-        <p>{templates.length} templates configured</p>
-      </section>
 
       <section>
-        <h2>Delivery Logs</h2>
-        <p>{deliveryLogs.length} delivery records</p>
+
+        <h2>
+          Templates ({templates.length})
+        </h2>
+
+
+        {templates.map((template) => (
+
+          <div
+            key={template.id}
+            className="notification-template-card"
+          >
+
+            <strong>
+              {template.name}
+            </strong>
+
+            <span>
+              {template.event_type}
+            </span>
+
+            <p>
+              {template.subject}
+            </p>
+
+          </div>
+
+        ))}
+
+      </section>
+
+
+      <section>
+
+        <h2>
+          Delivery Logs ({deliveryLogs.length})
+        </h2>
+
+
+        {deliveryLogs.length === 0 ? (
+
+          <p>
+            No delivery records available.
+          </p>
+
+        ) : (
+
+          deliveryLogs.map((log) => (
+
+            <div key={log.id}>
+              {log.recipient} - {log.status}
+            </div>
+
+          ))
+
+        )}
+
       </section>
 
     </div>
+
   )
+
 }
