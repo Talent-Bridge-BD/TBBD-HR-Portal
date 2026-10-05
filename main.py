@@ -1,4 +1,9 @@
+from api.administrator import router as administrator_router
+from api.administrator_organizations import router as administrator_organizations_router
+
 import os
+from fastapi import FastAPI
+...
 from pathlib import Path
 
 import requests
@@ -56,7 +61,8 @@ _azure_openai_client = AzureOpenAI(
     azure_ad_token_provider=_azure_openai_token_provider,
     api_version="2024-10-21",
 )
-
+app.include_router(administrator_router)
+app.include_router(administrator_organizations_router)
 app.include_router(candidate_router)
 app.include_router(employer_router)
 app.include_router(job_router)

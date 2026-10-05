@@ -17,7 +17,7 @@ export default function UserManagement({ auth }) {
 
     try {
       const orgResponse = await authenticatedFetch(
-        "/api/organizations"
+        "/api/administrator/organizations"
       );
 
       const orgData = await orgResponse.json();

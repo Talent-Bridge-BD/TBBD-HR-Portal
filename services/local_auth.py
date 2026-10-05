@@ -70,6 +70,8 @@ def _get_bearer_token(request: Request) -> Optional[str]:
 
 def _get_entra_principal(request: Request) -> Optional[dict]:
     token = _get_bearer_token(request)
+    print("DEBUG AUTH HEADER:", request.headers.get("Authorization", "")[:80])
+    print("DEBUG TOKEN FOUND:", bool(token))
 
     if not token:
         return None
@@ -90,7 +92,8 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
         jwt.PyJWTError,
         requests.RequestException,
         ValueError,
-    ):
+    ) as error:
+        print("ENTRA TOKEN VALIDATION ERROR:", repr(error))
         return None
 
     principal_id = claims.get("oid")
@@ -137,9 +140,17 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
         ]
     )
 
+    print("DEBUG ENTRA CLAIMS:")
+    print("oid:", principal_id)
+    print("email:", email)
+    print("roles:", claims.get("roles"))
+    print("groups count:", len(claims.get("groups", [])))
+
     principal = {
         "id": principal_id,
         "email": email,
+        "groups": claims.get("groups", []),
+        "roles": claims.get("roles", []),
         "claims": principal_claims,
     }
     if name:

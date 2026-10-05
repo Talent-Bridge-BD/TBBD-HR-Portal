@@ -14,6 +14,10 @@ import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import AdministrationEmployers from './pages/AdministrationEmployers'
 import UserManagement from './pages/UserManagement'
 import OrganizationManagement from './pages/OrganizationManagement'
+import RolesManagement from './pages/RolesManagement'
+import SystemConfiguration from './pages/SystemConfiguration'
+import SystemActivity from './pages/SystemActivity'
+import NotificationSettings from './pages/NotificationSettings'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -147,33 +151,13 @@ export default function App() {
 
  users: <UserManagement auth={auth} />,
 
-    roles: (
-      <PlatformPlaceholder
-        title="Roles & Permissions"
-        description="Manage application roles and access permissions."
-      />
-    ),
+    roles: <RolesManagement />,
 
-    notifications: (
-      <PlatformPlaceholder
-        title="Notification Settings"
-        description="Configure notification templates and delivery logs."
-      />
-    ),
+    notifications: <NotificationSettings />,
 
-    settings: (
-      <PlatformPlaceholder
-        title="System Configuration"
-        description="Manage portal settings and integrations."
-      />
-    ),
+    settings: <SystemConfiguration />,
 
-    activity: (
-      <PlatformPlaceholder
-        title="System Activity"
-        description="Monitor audit logs and system events."
-      />
-    ),
+    activity: <SystemActivity />,
 
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,

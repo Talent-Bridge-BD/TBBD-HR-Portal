@@ -10,6 +10,7 @@ import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
 import AdministratorDashboard from './AdministratorDashboard'
+import AdministratorOrganizations from './AdministratorOrganizations'
 
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')

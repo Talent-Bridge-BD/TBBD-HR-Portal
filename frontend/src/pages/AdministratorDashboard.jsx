@@ -1,16 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { authenticatedFetch } from "../utils/auth";
 import "./AdministratorDashboard.css";
 
 export default function AdministratorDashboard({ onNavigate }) {
+ const [dashboard, setDashboard] = useState(null);
+const [organizationStats, setOrganizationStats] = useState({
+  total: 0,
+  active: 0,
+});
 
+useEffect(() => {
+  async function loadDashboard() {
+    const response = await authenticatedFetch(
+      "/api/administrator/dashboard"
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      setDashboard(data);
+    }
+  }
+
+  async function loadOrganizations() {
+    const response = await authenticatedFetch(
+      "/api/organizations"
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      const organizations = data.organizations || [];
+
+      setOrganizationStats({
+        total: organizations.length,
+        active: organizations.filter(
+          (organization) =>
+            organization.status === "Active"
+        ).length,
+      });
+    }
+  }
+
+  loadDashboard();
+  loadOrganizations();
+}, []);
   const adminModules = [
     {
       title: "Organization Management",
       description: "Manage organizations and tenant structure.",
-      metrics: [
-        ["Organizations", "0"],
-        ["Active Organizations", "0"],
-      ],
+metrics: [
+  ["Organizations", organizationStats.total],
+  [
+    "Active Organizations",
+    organizationStats.active,
+  ],
+],
       action: "organizations",
       button: "Manage Organizations →",
     },
