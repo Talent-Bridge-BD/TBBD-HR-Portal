@@ -200,6 +200,7 @@ class AdministratorNotificationRepository:
                     channel,
                     status
                 )
+                OUTPUT INSERTED.id
                 VALUES
                 (?, ?, ?, ?)
                 """,
@@ -211,9 +212,45 @@ class AdministratorNotificationRepository:
                 ),
             )
 
+            delivery_id = cursor.fetchone()[0]
+
             connection.commit()
 
             return {
+                "id": str(delivery_id),
                 "status": "created",
                 "recipient": recipient,
             }
+
+
+    def update_delivery_status(
+        self,
+        delivery_id,
+        status,
+        error_message=None,
+    ):
+        with self._connection() as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                """
+                UPDATE dbo.notification_delivery_logs
+                SET
+                    status = ?,
+                    error_message = ?,
+                    sent_at = CASE
+                        WHEN ? = 'SENT'
+                        THEN SYSUTCDATETIME()
+                        ELSE sent_at
+                    END
+                WHERE id = ?
+                """,
+                (
+                    status,
+                    error_message,
+                    status,
+                    delivery_id,
+                ),
+            )
+
+            connection.commit()

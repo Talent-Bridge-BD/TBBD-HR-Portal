@@ -144,3 +144,33 @@ VALUES
 );
 
 END;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.notification_templates
+    WHERE template_code = 'OFFER_SENT'
+)
+
+BEGIN
+
+INSERT INTO dbo.notification_templates
+(
+    template_code,
+    name,
+    event_type,
+    subject,
+    html_body,
+    is_active
+)
+
+VALUES
+(
+    'OFFER_SENT',
+    'Employment Offer Sent',
+    'OFFER_SENT',
+    'Employment Offer Sent - {{offer_id}}',
+    '<p>Your employment offer has been sent successfully.</p>',
+    1
+);
+
+END;
