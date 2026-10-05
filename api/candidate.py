@@ -25,6 +25,7 @@ from services.candidate_experience import CandidateExperienceService
 from services.candidate_preferences import CandidatePreferencesService
 from services.candidate import CandidateService
 from services.job import JobService
+from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 _repository = SqlCandidateRepository()
@@ -33,6 +34,8 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _application_repository = SqlApplicationRepository()
 _application_service = ApplicationService(_application_repository)
+
+_notification_service = NotificationService()
 
 _hiring_repository = SqlHiringRepository()
 
@@ -616,6 +619,25 @@ async def create_candidate_application(
             job_id=payload.job_id,
             cover_letter=payload.cover_letter,
         )
+
+        try:
+            candidate_profile = _service.get_profile(user_id)
+
+            _notification_service.send_notification(
+                event_type="APPLICATION_RECEIVED",
+                recipient=(
+                    candidate_profile.email
+                    if candidate_profile and candidate_profile.email
+                    else user_id
+                ),
+                subject_data={
+                    "job_title": job.title,
+                },
+            )
+        except Exception as notification_error:
+            print(
+                f"[NOTIFICATION ERROR] {notification_error}"
+            )
     except Exception as exc:
         message = str(exc)
 

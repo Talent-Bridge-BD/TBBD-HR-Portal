@@ -180,3 +180,40 @@ class AdministratorNotificationRepository:
                 }
                 for row in rows
             ]
+
+    def create_delivery_log(
+        self,
+        recipient: str,
+        channel: str,
+        status: str,
+        notification_id=None,
+    ):
+        with self._connection() as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                """
+                INSERT INTO dbo.notification_delivery_logs
+                (
+                    notification_id,
+                    recipient,
+                    channel,
+                    status
+                )
+                VALUES
+                (?, ?, ?, ?)
+                """,
+                (
+                    notification_id,
+                    recipient,
+                    channel,
+                    status,
+                ),
+            )
+
+            connection.commit()
+
+            return {
+                "status": "created",
+                "recipient": recipient,
+            }

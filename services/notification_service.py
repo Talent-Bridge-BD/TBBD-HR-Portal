@@ -1,31 +1,51 @@
-from services.email_service import EmailService
+from repositories.administrator_notifications import (
+    AdministratorNotificationRepository,
+)
 
 
-email_service = EmailService()
+class NotificationService:
+
+    def __init__(self):
+        self.repository = AdministratorNotificationRepository()
 
 
-def send_candidate_application_received(
-    candidate_email,
-    candidate_name,
-    job_title
-):
+    def send_notification(
+        self,
+        event_type: str,
+        recipient: str,
+        subject_data: dict | None = None,
+    ):
 
-    html = f"""
-    <h2>Hello {candidate_name}</h2>
+        templates = self.repository.list_templates()
 
-    <p>
-    Your application for
-    <strong>{job_title}</strong>
-    has been received.
-    </p>
+        template = next(
+            (
+                item
+                for item in templates
+                if item["event_type"] == event_type
+            ),
+            None,
+        )
 
-    <p>
-    Talent Bridge BD Recruitment Team
-    </p>
-    """
+        if not template:
+            raise ValueError(
+                f"No notification template found for {event_type}"
+            )
 
-    return email_service.send_email(
-        recipient=candidate_email,
-        subject="Application Received - Talent Bridge BD",
-        html_content=html
-    )
+
+        subject = template["subject"]
+
+        if subject_data:
+            for key, value in subject_data.items():
+                subject = subject.replace(
+                    "{{" + key + "}}",
+                    str(value),
+                )
+
+
+        return self.repository.create_delivery_log(
+            recipient=recipient,
+            channel="EMAIL",
+            status="PENDING",
+            notification_id=None,
+        )
