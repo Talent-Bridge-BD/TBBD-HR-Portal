@@ -36,6 +36,9 @@ from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
 from api.organization import router as organization_router
 from api.notifications import router as notifications_router
+from api.administrator_notifications import (
+    router as administrator_notifications_router
+)
 
 app = FastAPI()
 
@@ -81,6 +84,7 @@ app.include_router(user_profile_router)
 app.include_router(recruitment_pipeline_router)
 app.include_router(organization_router)
 app.include_router(notifications_router)
+app.include_router(administrator_notifications_router)
 
 _organization_repository = SqlOrganizationRepository()
 
