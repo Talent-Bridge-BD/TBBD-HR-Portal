@@ -97,6 +97,8 @@ export default function EmployerJobOpenings({ auth }) {
   const [statusFilter, setStatusFilter] = useState('All')
   const [actionJobId, setActionJobId] = useState('')
   const [editingJobId, setEditingJobId] = useState('')
+  const [extendingJobId, setExtendingJobId] = useState('')
+  const [extensionDate, setExtensionDate] = useState('')
   const [openingForm, setOpeningForm] = useState(emptyOpeningForm)
 
   const roles = auth?.roles || []
@@ -234,6 +236,60 @@ export default function EmployerJobOpenings({ auth }) {
     } catch (err) {
       console.error(err)
       setError(err.message || 'Unable to save job opening.')
+    } finally {
+      setActionJobId('')
+    }
+  }
+
+  function startExtendingDeadline(job) {
+    if (!job?.id || !job?.closing_at) return
+
+    setExtendingJobId(job.id)
+    setExtensionDate(String(job.closing_at).slice(0, 10))
+    setError('')
+  }
+
+  function cancelExtendingDeadline() {
+    setExtendingJobId('')
+    setExtensionDate('')
+  }
+
+  async function extendApplicationDeadline(job) {
+    if (!organizationId || !job?.id || !extensionDate) return
+
+    setActionJobId(job.id)
+    setError('')
+
+    try {
+      const response = await authenticatedFetch(
+        `/api/jobs/${job.id}/application-deadline`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            organization_id: organizationId,
+            closing_at: `${extensionDate}T23:59:59`,
+          }),
+        },
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to extend application date.',
+        )
+      }
+
+      await loadJobs(false)
+      cancelExtendingDeadline()
+    } catch (err) {
+      console.error(err)
+      setError(
+        err.message || 'Unable to extend application date.',
+      )
     } finally {
       setActionJobId('')
     }
@@ -702,6 +758,72 @@ export default function EmployerJobOpenings({ auth }) {
                           {String(job.status || '').toLowerCase() ===
                             'open' && (
                             <>
+                              {canManageOpenings && (
+                                <>
+                                  {extendingJobId === job.id ? (
+                                    <div className="job-opening-extension">
+                                      <label>
+                                        <span>New Application Date</span>
+                                        <input
+                                          type="date"
+                                          value={extensionDate}
+                                          min={String(
+                                            job.closing_at || '',
+                                          ).slice(0, 10)}
+                                          onChange={(event) =>
+                                            setExtensionDate(
+                                              event.target.value,
+                                            )
+                                          }
+                                        />
+                                      </label>
+
+                                      <button
+                                        className="primary-action"
+                                        type="button"
+                                        onClick={() =>
+                                          extendApplicationDeadline(job)
+                                        }
+                                        disabled={
+                                          actionJobId === job.id ||
+                                          !extensionDate
+                                        }
+                                      >
+                                        {actionJobId === job.id
+                                          ? 'Extending...'
+                                          : 'Extend Date'}
+                                      </button>
+
+                                      <button
+                                        className="secondary-action"
+                                        type="button"
+                                        onClick={
+                                          cancelExtendingDeadline
+                                        }
+                                        disabled={
+                                          actionJobId === job.id
+                                        }
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      className="secondary-action"
+                                      type="button"
+                                      onClick={() =>
+                                        startExtendingDeadline(job)
+                                      }
+                                      disabled={
+                                        actionJobId === job.id
+                                      }
+                                    >
+                                      Extend Application Date
+                                    </button>
+                                  )}
+                                </>
+                              )}
+
                               <button
                                 className="secondary-action"
                                 type="button"

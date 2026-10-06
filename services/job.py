@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from models.job import Job
@@ -29,6 +30,18 @@ class JobService:
         return self.repository.get_job(
             organization_id,
             job_id,
+        )
+
+    def extend_application_deadline(
+        self,
+        organization_id: str,
+        job_id: str,
+        closing_at: datetime,
+    ) -> Optional[Job]:
+        return self.repository.extend_application_deadline(
+            organization_id,
+            job_id,
+            closing_at,
         )
 
     def save_job(self, job: Job) -> Job:

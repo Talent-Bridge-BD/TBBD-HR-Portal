@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import struct
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional
 
 import pyodbc
@@ -36,6 +37,15 @@ class JobRepository(ABC):
         self,
         organization_id: str,
         job_id: str,
+    ) -> Optional[Job]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def extend_application_deadline(
+        self,
+        organization_id: str,
+        job_id: str,
+        closing_at: datetime,
     ) -> Optional[Job]:
         raise NotImplementedError
 
@@ -86,6 +96,25 @@ class InMemoryJobRepository(JobRepository):
         if job is None or job.organization_id != organization_id:
             return None
         return job
+
+    def extend_application_deadline(
+        self,
+        organization_id: str,
+        job_id: str,
+        closing_at: datetime,
+    ) -> Optional[Job]:
+        job = self.get_job(organization_id, job_id)
+        if job is None:
+            return None
+
+        updated_job = Job(
+            **{
+                **job.__dict__,
+                "closing_at": closing_at,
+            }
+        )
+        self._jobs[job_id] = updated_job
+        return updated_job
 
     def save_job(self, job: Job) -> Job:
         self._jobs[job.id] = job
@@ -414,6 +443,64 @@ class SqlJobRepository(JobRepository):
             row = cursor.fetchone()
             if row is None:
                 return None
+            return self._row_to_job(row)
+
+    def extend_application_deadline(
+        self,
+        organization_id: str,
+        job_id: str,
+        closing_at: datetime,
+    ) -> Optional[Job]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                UPDATE dbo.jobs
+                SET
+                    closing_at = ?,
+                    updated_at = SYSUTCDATETIME()
+                OUTPUT
+                    INSERTED.id,
+                    INSERTED.organization_id,
+                    INSERTED.title,
+                    INSERTED.description,
+                    INSERTED.employment_type,
+                    INSERTED.location,
+                    INSERTED.country,
+                    INSERTED.status,
+                    INSERTED.number_of_positions,
+                    INSERTED.working_hours,
+                    INSERTED.benefits,
+                    INSERTED.job_reference,
+                    INSERTED.employer_name,
+                    INSERTED.employer_country,
+                    INSERTED.employer_city,
+                    INSERTED.job_category,
+                    INSERTED.industry_sector,
+                    INSERTED.gender_requirement,
+                    INSERTED.minimum_age,
+                    INSERTED.maximum_age,
+                    INSERTED.contract_duration,
+                    INSERTED.work_location,
+                    INSERTED.project_name,
+                    INSERTED.published_at,
+                    INSERTED.closing_at,
+                    INSERTED.created_at,
+                    INSERTED.updated_at
+                WHERE id = ?
+                  AND organization_id = ?
+                  AND status = 'open'
+                """,
+                closing_at,
+                job_id,
+                organization_id,
+            )
+            row = cursor.fetchone()
+
+            if row is None:
+                return None
+
+            connection.commit()
             return self._row_to_job(row)
 
     def save_job(self, job: Job) -> Job:
