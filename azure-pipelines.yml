@@ -1,0 +1,278 @@
+
+# TBBD HR Portal
+# Azure DevOps CI Pipeline
+#
+# Purpose:
+#   - Validate the GitHub repository
+#   - Install backend dependencies
+#   - Validate Python backend syntax
+#   - Install frontend dependencies
+#   - Build the React/Vite frontend
+#
+# Deployment, Docker, ACR and App Service are intentionally
+# not included at this stage.
+
+trigger:
+- main
+
+pr:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.14'
+  nodeVersion: '20.x'
+
+steps:
+
+# ------------------------------------------------------------
+# Source
+# ------------------------------------------------------------
+
+- checkout: self
+  displayName: 'Checkout TBBD HR Portal repository'
+
+# ------------------------------------------------------------
+# Repository information
+# ------------------------------------------------------------
+
+- script: |
+    echo "=============================================="
+    echo "TBBD HR Portal - Azure DevOps CI"
+    echo "=============================================="
+    echo "Repository : $(Build.Repository.Name)"
+    echo "Branch     : $(Build.SourceBranch)"
+    echo "Commit     : $(Build.SourceVersion)"
+    echo "Build ID   : $(Build.BuildId)"
+    echo "=============================================="
+  displayName: 'Display build information'
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
+
+- task: UsePythonVersion@0
+  displayName: 'Set Python version'
+  inputs:
+    versionSpec: '$(pythonVersion)'
+
+- script: |
+    python --version
+    python -m pip --version
+  displayName: 'Verify Python environment'
+
+# ------------------------------------------------------------
+# Python dependency validation
+# ------------------------------------------------------------
+
+- script: |
+    if [ -f requirements.txt ]; then
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+    else
+      echo "requirements.txt not found."
+      echo "Skipping Python dependency installation."
+    fi
+  displayName: 'Install backend dependencies'
+
+# ------------------------------------------------------------
+# Python syntax validation
+# ------------------------------------------------------------
+
+- script: |
+    python -m compileall -q .
+  displayName: 'Validate Python source'
+
+# ------------------------------------------------------------
+# Node.js
+# ------------------------------------------------------------
+
+- task: NodeTool@0
+  displayName: 'Set Node.js version'
+  inputs:
+    versionSpec: '$(nodeVersion)'
+
+- script: |
+    node --version
+    npm --version
+  displayName: 'Verify Node.js environment'
+
+# ------------------------------------------------------------
+# Frontend dependencies
+# ------------------------------------------------------------
+
+- script: |
+    cd frontend
+
+    if [ -f package-lock.json ]; then
+      npm ci
+    else
+      npm install
+    fi
+  displayName: 'Install frontend dependencies'
+
+# ------------------------------------------------------------
+# Frontend build
+# ------------------------------------------------------------
+
+- script: |
+    cd frontend
+    npm run build
+  displayName: 'Build React frontend'
+
+# ------------------------------------------------------------
+# Build summary
+# ------------------------------------------------------------
+
+- script: |
+    echo "=============================================="
+    echo "TBBD HR Portal CI validation completed."
+    echo "=============================================="
+    echo "Backend Python syntax: PASSED"
+    echo "Frontend build:        PASSED"
+    echo "Docker/ACR:            NOT CONFIGURED"
+    echo "Azure App Service:     NOT CONFIGURED"
+    echo "=============================================="
+  displayName: 'CI build summary'
+```
+
+# TBBD HR Portal
+# Azure DevOps CI Pipeline
+#
+# Purpose:
+#   - Validate the GitHub repository
+#   - Install backend dependencies
+#   - Validate Python backend syntax
+#   - Install frontend dependencies
+#   - Build the React/Vite frontend
+#
+# Deployment, Docker, ACR and App Service are intentionally
+# not included at this stage.
+
+trigger:
+- main
+
+pr:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.14'
+  nodeVersion: '20.x'
+
+steps:
+
+# ------------------------------------------------------------
+# Source
+# ------------------------------------------------------------
+
+- checkout: self
+  displayName: 'Checkout TBBD HR Portal repository'
+
+# ------------------------------------------------------------
+# Repository information
+# ------------------------------------------------------------
+
+- script: |
+    echo "=============================================="
+    echo "TBBD HR Portal - Azure DevOps CI"
+    echo "=============================================="
+    echo "Repository : $(Build.Repository.Name)"
+    echo "Branch     : $(Build.SourceBranch)"
+    echo "Commit     : $(Build.SourceVersion)"
+    echo "Build ID   : $(Build.BuildId)"
+    echo "=============================================="
+  displayName: 'Display build information'
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
+
+- task: UsePythonVersion@0
+  displayName: 'Set Python version'
+  inputs:
+    versionSpec: '$(pythonVersion)'
+
+- script: |
+    python --version
+    python -m pip --version
+  displayName: 'Verify Python environment'
+
+# ------------------------------------------------------------
+# Python dependency validation
+# ------------------------------------------------------------
+
+- script: |
+    if [ -f requirements.txt ]; then
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+    else
+      echo "requirements.txt not found."
+      echo "Skipping Python dependency installation."
+    fi
+  displayName: 'Install backend dependencies'
+
+# ------------------------------------------------------------
+# Python syntax validation
+# ------------------------------------------------------------
+
+- script: |
+    python -m compileall -q .
+  displayName: 'Validate Python source'
+
+# ------------------------------------------------------------
+# Node.js
+# ------------------------------------------------------------
+
+- task: NodeTool@0
+  displayName: 'Set Node.js version'
+  inputs:
+    versionSpec: '$(nodeVersion)'
+
+- script: |
+    node --version
+    npm --version
+  displayName: 'Verify Node.js environment'
+
+# ------------------------------------------------------------
+# Frontend dependencies
+# ------------------------------------------------------------
+
+- script: |
+    cd frontend
+
+    if [ -f package-lock.json ]; then
+      npm ci
+    else
+      npm install
+    fi
+  displayName: 'Install frontend dependencies'
+
+# ------------------------------------------------------------
+# Frontend build
+# ------------------------------------------------------------
+
+- script: |
+    cd frontend
+    npm run build
+  displayName: 'Build React frontend'
+
+# ------------------------------------------------------------
+# Build summary
+# ------------------------------------------------------------
+
+- script: |
+    echo "=============================================="
+    echo "TBBD HR Portal CI validation completed."
+    echo "=============================================="
+    echo "Backend Python syntax: PASSED"
+    echo "Frontend build:        PASSED"
+    echo "Docker/ACR:            NOT CONFIGURED"
+    echo "Azure App Service:     NOT CONFIGURED"
+    echo "=============================================="
+  displayName: 'CI build summary'
+```
