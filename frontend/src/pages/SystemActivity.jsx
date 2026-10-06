@@ -1,25 +1,37 @@
+import React, { useEffect, useState } from "react";
+import { authenticatedFetch } from "../utils/auth";
 import "./SystemActivity.css";
 
 export default function SystemActivity() {
+  const [activities, setActivities] = useState([]);
+  const [failedEvents, setFailedEvents] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const activities = [
-    {
-      event: "User authentication",
-      description: "Microsoft Entra ID sign-in events",
-    },
-    {
-      event: "Organization changes",
-      description: "Organization and membership updates",
-    },
-    {
-      event: "Role changes",
-      description: "Role and permission updates",
-    },
-    {
-      event: "System events",
-      description: "Portal configuration activities",
-    },
-  ];
+  useEffect(() => {
+    async function loadActivity() {
+      try {
+        const response = await authenticatedFetch(
+          "/api/administrator/activity"
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
+          setActivities(data.activities || []);
+          setFailedEvents(data.failedEvents || 0);
+        } else {
+          setError("Unable to load system activity.");
+        }
+      } catch (err) {
+        setError("Unable to load system activity.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadActivity();
+  }, []);
 
   return (
     <section className="system-activity-page">
@@ -32,12 +44,53 @@ export default function SystemActivity() {
       </div>
 
       <div className="activity-card">
-        {activities.map((activity) => (
-          <div className="activity-row" key={activity.event}>
-            <h3>{activity.event}</h3>
-            <p>{activity.description}</p>
+
+        {loading && (
+          <div className="activity-row">
+            <p>Loading system activity...</p>
           </div>
-        ))}
+        )}
+
+        {!loading && error && (
+          <div className="activity-row">
+            <h3>Unable to load activity</h3>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && activities.length === 0 && (
+          <div className="activity-row">
+            <h3>No activity recorded</h3>
+            <p>
+              System audit events will appear here as activity occurs.
+            </p>
+          </div>
+        )}
+
+        {!loading &&
+          !error &&
+          activities.map((activity) => (
+            <div className="activity-row" key={activity.id}>
+              <h3>
+                {activity.event_type || activity.action}
+              </h3>
+
+              <p>
+                {activity.details ||
+                  `${activity.action} — ${activity.status}`}
+              </p>
+            </div>
+          ))}
+
+        {!loading && !error && (
+          <div className="activity-row">
+            <h3>Failed Events</h3>
+            <p>
+              {failedEvents} failed audit events recorded.
+            </p>
+          </div>
+        )}
+
       </div>
 
     </section>
