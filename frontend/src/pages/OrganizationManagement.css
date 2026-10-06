@@ -1,0 +1,64 @@
+.organization-management-page {
+  padding: 24px;
+  background: #F8FAFC;
+  min-height: 100%;
+}
+
+.organization-header h1 {
+  color: #0F172A;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.organization-header p {
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+.organization-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.organization-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.organization-card h2 {
+  color: #0F172A;
+  margin-bottom: 16px;
+}
+
+.organization-details {
+  display: grid;
+  gap: 12px;
+}
+
+.organization-details span {
+  display: block;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.organization-details strong {
+  color: #0067B8;
+}
+
+.organization-card button {
+  margin-top: 20px;
+  background: #0067B8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+@media (max-width: 900px) {
+  .organization-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

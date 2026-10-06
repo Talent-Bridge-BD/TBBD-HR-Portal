@@ -12,6 +12,13 @@ import Schedule from './pages/Schedule'
 import WorkplaceAssistantPage from './pages/WorkplaceAssistantPage'
 import PlatformPlaceholder from './pages/PlatformPlaceholder'
 import AdministrationEmployers from './pages/AdministrationEmployers'
+import UserManagement from './pages/UserManagement'
+import OrganizationManagement from './pages/OrganizationManagement'
+import RolesManagement from './pages/RolesManagement'
+import SystemConfiguration from './pages/SystemConfiguration'
+import SystemActivity from './pages/SystemActivity'
+import NotificationSettings from './pages/NotificationSettings'
+import AdministratorNotifications from './pages/AdministratorNotifications'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -141,6 +148,18 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
+    organizations: <OrganizationManagement onNavigate={setActivePage} />,
+
+ users: <UserManagement auth={auth} />,
+
+    roles: <RolesManagement />,
+
+    notifications: <AdministratorNotifications />,
+
+    settings: <SystemConfiguration />,
+
+    activity: <SystemActivity />,
+
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,

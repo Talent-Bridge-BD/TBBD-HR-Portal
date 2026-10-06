@@ -1,4 +1,9 @@
+from api.administrator import router as administrator_router
+from api.administrator_organizations import router as administrator_organizations_router
+
 import os
+from fastapi import FastAPI
+...
 from pathlib import Path
 
 import requests
@@ -31,6 +36,9 @@ from api.user_profile import router as user_profile_router
 from api.recruitment_pipeline import router as recruitment_pipeline_router
 from api.organization import router as organization_router
 from api.notifications import router as notifications_router
+from api.administrator_notifications import (
+    router as administrator_notifications_router
+)
 
 app = FastAPI()
 
@@ -56,7 +64,8 @@ _azure_openai_client = AzureOpenAI(
     azure_ad_token_provider=_azure_openai_token_provider,
     api_version="2024-10-21",
 )
-
+app.include_router(administrator_router)
+app.include_router(administrator_organizations_router)
 app.include_router(candidate_router)
 app.include_router(employer_router)
 app.include_router(job_router)
@@ -75,6 +84,7 @@ app.include_router(user_profile_router)
 app.include_router(recruitment_pipeline_router)
 app.include_router(organization_router)
 app.include_router(notifications_router)
+app.include_router(administrator_notifications_router)
 
 _organization_repository = SqlOrganizationRepository()
 
@@ -212,16 +222,20 @@ async def list_organizations(request: Request):
 
 
     return {
-        "organizations": [
-            {
-                "id": organization.id,
-                "name": organization.name,
-                "status": organization.status,
-            }
-            for organization in organizations
-        ]
-    }
-
+    "organizations": [
+        {
+            "id": organization.id,
+            "name": organization.name,
+            "status": organization.status,
+            "member_count": len(
+                _organization_repository.list_members(
+                    organization.id
+                )
+            ),
+        }
+        for organization in organizations
+    ]
+}
 
 @app.get("/api/organizations/{organization_id}")
 async def get_organization(organization_id: str, request: Request):

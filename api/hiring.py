@@ -11,6 +11,7 @@ from services.authorization import (
     is_global_administrator,
 )
 from services.hiring import HiringService
+from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
 from services.offer_letter import generate_offer_letter
 
@@ -434,6 +435,19 @@ async def create_hiring_offer(
             detail="Hiring record not found or candidate is not Ready for Hiring.",
         )
 
+    try:
+        NotificationService().send_notification(
+            event_type="OFFER_CREATED",
+            recipient="offers@talentbridgebd.com",
+            subject_data={
+                "job_title": payload.offer_title,
+            },
+        )
+    except Exception as notification_error:
+        print(
+            f"[OFFER NOTIFICATION ERROR] {notification_error}"
+        )
+
     return {
         "message": "Offer created successfully.",
         "offer": offer,
@@ -462,6 +476,26 @@ async def send_hiring_offer(
         raise HTTPException(
             status_code=409,
             detail="Offer could not be sent. It may no longer be a draft or may not belong to this organization.",
+        )
+
+    try:
+        application = _hiring_service.get_hiring_application(
+            organization_id,
+            application_id,
+        )
+
+        if application and application.candidate_email:
+            NotificationService().send_notification(
+                event_type="OFFER_SENT",
+                recipient=application.candidate_email,
+                subject_data={
+                    "offer_id": offer_id,
+                },
+            )
+
+    except Exception as notification_error:
+        print(
+            f"[OFFER SENT NOTIFICATION ERROR] {notification_error}"
         )
 
     return {
