@@ -373,6 +373,9 @@ def test_trade_test_service_calculates_result_and_completes_assessment():
     from services.trade_test import TradeTestService
 
     class FakeRepository:
+        def get(self, trade_test_id):
+            return type("TradeTest", (), {"status": "Scheduled"})()
+
         def update_assessment(self, **kwargs):
             return kwargs
 
@@ -401,6 +404,9 @@ def test_trade_test_service_rejects_score_outside_valid_range():
     from services.trade_test import TradeTestService
 
     class FakeRepository:
+        def get(self, trade_test_id):
+            return type("TradeTest", (), {"status": "Scheduled"})()
+
         def update_assessment(self, **kwargs):
             raise AssertionError(
                 "Repository must not be called for invalid scores"

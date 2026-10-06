@@ -114,7 +114,7 @@ def test_visa_processing_create_rejects_missing_application_for_organization(
     )
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Application not found"
+    assert response.json()["detail"] == "Application not found for this organization"
 
 
 def test_visa_processing_get_by_application_requires_organization_owned_application(
@@ -157,7 +157,7 @@ def test_visa_processing_get_by_application_requires_organization_owned_applicat
     )
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Application not found"
+    assert response.json()["detail"] == "Application not found for this organization"
 
 
 def test_visa_processing_get_by_id_rejects_record_from_other_organization(
@@ -215,13 +215,12 @@ def test_visa_processing_service_rejects_invalid_status():
 
     try:
         service.update(
+            organization_id="organization-001",
             visa_processing_id="visa-processing-001",
             status="UnknownStatus",
         )
     except ValueError as exc:
-        assert str(exc).startswith(
-            "Invalid visa processing status."
-        )
+        assert str(exc) == "Invalid visa processing status"
     else:
         raise AssertionError("Expected ValueError")
 
@@ -249,6 +248,7 @@ def test_visa_processing_service_accepts_valid_status():
     service = VisaProcessingService(FakeRepository())
 
     result = service.update(
+        organization_id="organization-001",
         visa_processing_id="visa-processing-001",
         status="Processing",
     )
@@ -296,6 +296,7 @@ def test_visa_processing_service_create_passes_real_fields_to_repository():
     service = VisaProcessingService(FakeRepository())
 
     result = service.create(
+        organization_id="organization-001",
         application_id="application-001",
         visa_type="Employment Visa",
         visa_number="VISA-12345",

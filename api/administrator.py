@@ -81,6 +81,10 @@ def get_administrator_dashboard(
         _organization_repository.list_active_organizations()
     )
 
+    members = (
+        _organization_repository.list_all_members()
+    )
+
     return {
         "organizations": {
             "total": len(organizations),
@@ -94,8 +98,19 @@ def get_administrator_dashboard(
         },
 
         "users": {
-            "total": 0,
-            "active": 0,
+            "total": len(
+                set(
+                    member.user_id
+                    for member in members
+                )
+            ),
+            "active": len(
+                set(
+                    member.user_id
+                    for member in members
+                    if member.status == "active"
+                )
+            ),
         },
 
         "roles": {

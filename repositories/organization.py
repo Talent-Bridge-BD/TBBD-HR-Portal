@@ -24,6 +24,9 @@ class OrganizationRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_all_members(self) -> list[OrganizationMembership]:
+        raise NotImplementedError
+
     def list_members(self, organization_id: str) -> list[OrganizationMembership]:
         raise NotImplementedError
 
@@ -70,6 +73,9 @@ class InMemoryOrganizationRepository(OrganizationRepository):
             for organization in self._organizations
             if organization.status == "active"
         ]
+
+    def list_all_members(self) -> list[OrganizationMembership]:
+        return list(self._memberships)
 
     def list_members(self, organization_id: str) -> list[OrganizationMembership]:
         return [
@@ -206,6 +212,36 @@ class SqlOrganizationRepository(OrganizationRepository):
                 """,
                 user_id,
             )
+            rows = cursor.fetchall()
+
+            return [
+                OrganizationMembership(
+                    id=str(row.id),
+                    organization_id=str(row.organization_id),
+                    user_id=str(row.user_id),
+                    role=str(row.role),
+                    status=str(row.status),
+                )
+                for row in rows
+            ]
+
+    def list_all_members(self) -> list[OrganizationMembership]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                """
+                SELECT
+                    CONVERT(nvarchar(36), id) AS id,
+                    CONVERT(nvarchar(36), organization_id) AS organization_id,
+                    user_id,
+                    role,
+                    status
+                FROM dbo.organization_memberships
+                ORDER BY user_id
+                """
+            )
+
             rows = cursor.fetchall()
 
             return [

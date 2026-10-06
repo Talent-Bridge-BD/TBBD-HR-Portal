@@ -23,7 +23,7 @@ class NotificationService:
         self.repository = AdministratorNotificationRepository()
 
         self.email_client = EmailClient.from_connection_string(
-            os.environ["ACS_EMAIL_CONNECTION_STRING"]
+            os.environ["AZURE_COMMUNICATION_CONNECTION_STRING"]
         )
 
 
