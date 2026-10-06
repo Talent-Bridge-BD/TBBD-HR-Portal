@@ -35,7 +35,7 @@ useEffect(() => {
         total: organizations.length,
         active: organizations.filter(
           (organization) =>
-            organization.status === "Active"
+            organization.status === "active"
         ).length,
       });
     }
@@ -62,8 +62,8 @@ metrics: [
       title: "User Management",
       description: "Manage users, access, and memberships.",
       metrics: [
-        ["Total Users", "0"],
-        ["Active Users", "0"],
+        ["Total Users", dashboard?.users?.total ?? 0],
+        ["Active Users", dashboard?.users?.active ?? 0],
       ],
       action: "users",
       button: "Manage Users →",
