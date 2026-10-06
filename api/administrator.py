@@ -40,13 +40,26 @@ def _get_administrator_context(request: Request):
 
     principal_id = principal["id"]
 
-    groups = principal.get("groups") or []
-    roles_claim = principal.get("roles") or []
+    claims = principal.get("claims", [])
+
+    group_ids = {
+        str(claim.get("val"))
+        for claim in claims
+        if claim.get("typ") == "groups"
+        and claim.get("val")
+    }
+
+    roles_claim = {
+        str(claim.get("val"))
+        for claim in claims
+        if claim.get("typ") == "roles"
+        and claim.get("val")
+    }
 
     roles = set(roles_claim)
 
     for role_name, group_id in AUTHORIZATION_GROUPS.items():
-        if group_id in groups:
+        if group_id in group_ids:
             roles.add(role_name)
 
     memberships = (
