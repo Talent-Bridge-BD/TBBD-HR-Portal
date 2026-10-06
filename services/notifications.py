@@ -62,7 +62,7 @@ class NotificationService:
     def create(
         self,
         *,
-        candidate_id: str,
+        candidate_id: str | None = None,
         recipient_user_id: str,
         recipient_type: str,
         title: str,
