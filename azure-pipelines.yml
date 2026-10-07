@@ -8,7 +8,7 @@ pr:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'TBBD-Agent-Pool'
 
 variables:
   pythonVersion: '3.14'
