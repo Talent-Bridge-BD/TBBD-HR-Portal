@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.ticketing import SqlTicketingRepository
 from services.authorization import build_authorization_context, is_global_administrator
@@ -21,6 +22,7 @@ _repository = SqlTicketingRepository()
 _service = TicketingService(_repository)
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 def _claim_values(claims, claim_type: str) -> set[str]:
@@ -179,7 +181,7 @@ def create_ticketing(
     _require_application_access(http_request, request.application_id)
 
     try:
-        return _service.create(
+        ticketing = _service.create(
             application_id=request.application_id,
             airline_name=request.airline_name,
             flight_number=request.flight_number,
@@ -190,6 +192,25 @@ def create_ticketing(
             departure_datetime=request.departure_datetime,
             arrival_datetime=request.arrival_datetime,
         )
+
+        principal = get_request_principal(http_request) or {}
+
+        _audit_log_repository.create_log(
+            user_id=principal.get("id"),
+            user_email=principal.get("email"),
+            user_name=principal.get("name"),
+            organization_id=None,
+            event_type="ticketing",
+            action="create",
+            entity_type="ticketing",
+            entity_id=str(ticketing.id),
+            status="success",
+            details={
+                "application_id": str(request.application_id),
+            },
+        )
+
+        return ticketing
     except Exception as exc:
         raise HTTPException(
             status_code=500,
@@ -233,7 +254,7 @@ def update_ticketing(
     _require_application_access(http_request, ticketing.application_id)
 
     try:
-        return _service.update(
+        updated = _service.update(
             ticketing_id=ticketing_id,
             airline_name=request.airline_name,
             flight_number=request.flight_number,
@@ -247,6 +268,27 @@ def update_ticketing(
             ticket_document_reference=request.ticket_document_reference,
             notes=request.notes,
         )
+
+        principal = get_request_principal(http_request) or {}
+
+        _audit_log_repository.create_log(
+            user_id=principal.get("id"),
+            user_email=principal.get("email"),
+            user_name=principal.get("name"),
+            organization_id=None,
+            event_type="ticketing",
+            action="update",
+            entity_type="ticketing",
+            entity_id=str(ticketing_id),
+            status="success",
+            details={
+                "application_id": str(ticketing.application_id),
+                "previous_status": getattr(ticketing, "status", None),
+                "new_status": request.status,
+            },
+        )
+
+        return updated
     except ValueError as exc:
         if str(exc) == "Ticketing record not found":
             raise HTTPException(
