@@ -9,6 +9,11 @@ const [organizationStats, setOrganizationStats] = useState({
   active: 0,
 });
 
+const [activityStats, setActivityStats] = useState({
+  total: 0,
+  failed: 0,
+});
+
 useEffect(() => {
   async function loadDashboard() {
     const response = await authenticatedFetch(
@@ -41,8 +46,24 @@ useEffect(() => {
     }
   }
 
+  async function loadActivity() {
+    const response = await authenticatedFetch(
+      "/api/administrator/activity"
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      setActivityStats({
+        total: (data.activities || []).length,
+        failed: data.failedEvents || 0,
+      });
+    }
+  }
+
   loadDashboard();
   loadOrganizations();
+  loadActivity();
 }, []);
   const adminModules = [
     {
@@ -102,8 +123,8 @@ metrics: [
       title: "System Activity",
       description: "Monitor system events and audit history.",
       metrics: [
-        ["Recent Actions", "0"],
-        ["Failed Events", "0"],
+        ["Recent Actions", activityStats.total],
+        ["Failed Events", activityStats.failed],
       ],
       action: "activity",
       button: "View Audit Logs →",
