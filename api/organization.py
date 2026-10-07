@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     build_authorization_context_from_principal,
@@ -13,6 +14,7 @@ from services.local_auth import get_request_principal
 
 router = APIRouter(prefix="/api/organizations", tags=["organizations"])
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 class CreateMembershipRequest(BaseModel):
@@ -96,7 +98,7 @@ async def add_organization_member(
     payload: CreateMembershipRequest,
     request: Request,
 ):
-    _get_administrator(request)
+    principal = _get_administrator(request)
 
     organizations = _organization_repository.list_active_organizations()
     organization = next(
@@ -149,6 +151,26 @@ async def add_organization_member(
                 status="active",
                 role=role,
             )
+
+            _audit_log_repository.create_log(
+                user_id=principal.get("id"),
+                user_email=principal.get("email"),
+                user_name=principal.get("name"),
+                organization_id=organization_id,
+                event_type="organization_membership",
+                action="reactivate",
+                entity_type="organization_membership",
+                entity_id=str(member.id),
+                status="success",
+                details={
+                    "organization_name": organization.name,
+                    "target_user_id": user_id,
+                    "role": role,
+                    "previous_status": existing.status,
+                    "new_status": "active",
+                },
+            )
+
             return {
                 "membership": {
                     "id": member.id,
@@ -171,6 +193,23 @@ async def add_organization_member(
         role=role,
     )
 
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="organization_membership",
+        action="create",
+        entity_type="organization_membership",
+        entity_id=str(member.id),
+        status="success",
+        details={
+            "organization_name": organization.name,
+            "target_user_id": user_id,
+            "role": role,
+        },
+    )
+
     return {
         "membership": {
             "id": member.id,
@@ -190,7 +229,7 @@ async def update_organization_member(
     payload: UpdateMembershipRequest,
     request: Request,
 ):
-    _get_administrator(request)
+    principal = _get_administrator(request)
 
     status = payload.status.strip().lower()
     if status not in {"active", "inactive", "revoked"}:
@@ -212,10 +251,47 @@ async def update_organization_member(
         )
 
     try:
+        existing_members = _organization_repository.list_members(
+            organization_id
+        )
+
+        existing_member = next(
+            (
+                existing
+                for existing in existing_members
+                if existing.user_id == user_id
+            ),
+            None,
+        )
+
+        previous_status = (
+            existing_member.status
+            if existing_member is not None
+            else None
+        )
+
         member = _organization_repository.update_membership_status(
             organization_id=organization_id,
             user_id=user_id,
             status=status,
+        )
+
+        _audit_log_repository.create_log(
+            user_id=principal.get("id"),
+            user_email=principal.get("email"),
+            user_name=principal.get("name"),
+            organization_id=organization_id,
+            event_type="organization_membership",
+            action="status_change",
+            entity_type="organization_membership",
+            entity_id=str(member.id),
+            status="success",
+            details={
+                "organization_name": organization.name,
+                "target_user_id": user_id,
+                "previous_status": previous_status,
+                "new_status": status,
+            },
         )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
