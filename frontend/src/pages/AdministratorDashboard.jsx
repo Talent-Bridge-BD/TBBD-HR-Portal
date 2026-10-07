@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { authenticatedFetch } from "../utils/auth";
 import "./AdministratorDashboard.css";
+import { roles } from "./RolesManagement";
 
 export default function AdministratorDashboard({ onNavigate }) {
  const [dashboard, setDashboard] = useState(null);
@@ -130,8 +131,14 @@ metrics: [
       title: "Roles & Permissions",
       description: "Control roles and access permissions.",
       metrics: [
-        ["Roles", "4"],
-        ["Permission Sets", "0"],
+        ["Roles", roles.length],
+        [
+          "Permission Sets",
+          roles.reduce(
+            (total, role) => total + role.permissions.length,
+            0
+          ),
+        ],
       ],
       action: "roles",
       button: "Manage Access →",
