@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.medical_examination import SqlMedicalExaminationRepository
 from repositories.visa_processing import SqlVisaProcessingRepository
@@ -34,6 +35,7 @@ _visa_processing_service = VisaProcessingService(
 
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 class MedicalExaminationCreateRequest(BaseModel):
@@ -194,6 +196,23 @@ async def create_medical_examination(
             detail=str(exc),
         )
 
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="medical_examination",
+        action="create",
+        entity_type="medical_examination",
+        entity_id=str(medical_examination.id),
+        status="success",
+        details={
+            "application_id": str(payload.application_id),
+        },
+    )
+
     return {
         "medical_examination": medical_examination.__dict__
     }
@@ -351,6 +370,26 @@ async def update_medical_examination_assessment(
                     status_code=400,
                     detail=str(exc),
                 )
+
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="medical_examination",
+        action="assessment_update",
+        entity_type="medical_examination",
+        entity_id=str(medical_examination_id),
+        status="success",
+        details={
+            "application_id": str(medical_examination.application_id),
+            "status": payload.status,
+            "result": payload.result,
+            "visa_processing_created": visa_created,
+        },
+    )
 
     return {
         "medical_examination": updated.__dict__,
