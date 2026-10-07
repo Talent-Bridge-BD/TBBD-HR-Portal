@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.visa_processing import SqlVisaProcessingRepository
 
@@ -27,6 +28,7 @@ _visa_processing_service = VisaProcessingService(
 
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 class VisaProcessingCreateRequest(BaseModel):
@@ -200,6 +202,24 @@ async def create_visa_processing(
             detail=str(exc),
         )
 
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="visa_processing",
+        action="create",
+        entity_type="visa_processing",
+        entity_id=str(visa_processing.id),
+        status="success",
+        details={
+            "application_id": str(payload.application_id),
+            "status": payload.status,
+        },
+    )
+
     return {
         "visa_processing": visa_processing.__dict__
     }
@@ -321,6 +341,29 @@ async def update_visa_processing(
             status_code=400,
             detail=str(exc),
         )
+
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="visa_processing",
+        action="update",
+        entity_type="visa_processing",
+        entity_id=str(visa_processing_id),
+        status="success",
+        details={
+            "application_id": str(existing.application_id),
+            "previous_status": existing.status,
+            "new_status": (
+                payload.status
+                if payload.status is not None
+                else existing.status
+            ),
+        },
+    )
 
     return {
         "visa_processing": updated.__dict__
