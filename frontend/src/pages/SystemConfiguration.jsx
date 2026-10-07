@@ -1,7 +1,6 @@
 import "./SystemConfiguration.css";
 
-export default function SystemConfiguration() {
-  const settings = [
+export const settings = [
     {
       title: "Tenant Configuration",
       items: [
@@ -26,8 +25,9 @@ export default function SystemConfiguration() {
         "External integrations",
       ],
     },
-  ];
+];
 
+export default function SystemConfiguration() {
   return (
     <section className="system-configuration-page">
 

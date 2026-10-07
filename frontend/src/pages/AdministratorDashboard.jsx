@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { authenticatedFetch } from "../utils/auth";
 import "./AdministratorDashboard.css";
 import { roles } from "./RolesManagement";
+import { settings } from "./SystemConfiguration";
 
 export default function AdministratorDashboard({ onNavigate }) {
  const [dashboard, setDashboard] = useState(null);
@@ -157,8 +158,19 @@ metrics: [
       title: "System Configuration",
       description: "Manage portal settings and integrations.",
       metrics: [
-        ["Settings", "—"],
-        ["Integrations", "—"],
+        [
+          "Settings",
+          settings.reduce(
+            (total, section) => total + section.items.length,
+            0
+          ),
+        ],
+        [
+          "Integrations",
+          settings.find(
+            (section) => section.title === "Integration Settings"
+          )?.items.length || 0,
+        ],
       ],
       action: "settings",
       button: "Manage Settings →",
