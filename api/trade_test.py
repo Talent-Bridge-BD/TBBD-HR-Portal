@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Request
 from datetime import datetime
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.trade_test import SqlTradeTestRepository
 from services.authorization import (
@@ -25,6 +26,7 @@ _trade_test_service = TradeTestService(
 _application_repository = SqlApplicationRepository()
 
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 from pydantic import BaseModel
@@ -205,6 +207,31 @@ async def create_trade_test(
             detail=str(exc),
         )
 
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="trade_test",
+        action="create",
+        entity_type="trade_test",
+        entity_id=str(trade_test.id),
+        status="success",
+        details={
+            "application_id": str(payload.application_id),
+            "test_type": payload.test_type,
+            "scheduled_at": (
+                payload.scheduled_at.isoformat()
+                if payload.scheduled_at
+                else None
+            ),
+            "location": payload.location,
+            "assessor_name": payload.assessor_name,
+        },
+    )
+
     return {
         "trade_test": trade_test.__dict__
     }
@@ -330,6 +357,31 @@ async def update_trade_test_assessment(
             status_code=409,
             detail=str(exc),
         )
+
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="trade_test",
+        action="assessment_update",
+        entity_type="trade_test",
+        entity_id=str(trade_test_id),
+        status="success",
+        details={
+            "application_id": str(trade_test.application_id),
+            "technical_knowledge_score": payload.technical_knowledge_score,
+            "trade_skills_score": payload.trade_skills_score,
+            "safety_awareness_score": payload.safety_awareness_score,
+            "tool_handling_score": payload.tool_handling_score,
+            "communication_score": payload.communication_score,
+            "problem_solving_score": payload.problem_solving_score,
+            "teamwork_score": payload.teamwork_score,
+            "assessment_notes": payload.assessment_notes,
+        },
+    )
 
     return {
         "trade_test": updated.__dict__
