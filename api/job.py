@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from models.job import Job
 from repositories.job import SqlJobRepository
 from repositories.organization import SqlOrganizationRepository
+from repositories.audit_logs import AuditLogRepository
 from services.authorization import (
     AUTHORIZATION_GROUPS,
     build_authorization_context,
@@ -22,6 +23,7 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
@@ -193,10 +195,11 @@ async def extend_application_deadline(
     payload: ApplicationDeadlineUpdate,
     request: Request,
 ):
-    _require_organization_access(
+    context = _require_organization_access(
         request,
         payload.organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     existing = _job_service.get_job(
         payload.organization_id,
@@ -259,6 +262,31 @@ async def extend_application_deadline(
             detail="Application deadline could not be extended",
         )
 
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=payload.organization_id,
+        event_type="job_opening",
+        action="deadline_update",
+        entity_type="job_opening",
+        entity_id=str(updated.id),
+        status="success",
+        details={
+            "title": updated.title,
+            "previous_closing_at": (
+                existing.closing_at.isoformat()
+                if existing.closing_at
+                else None
+            ),
+            "new_closing_at": (
+                updated.closing_at.isoformat()
+                if updated.closing_at
+                else None
+            ),
+        },
+    )
+
     return {
         "job": updated.__dict__,
         "message": "Application date extended",
@@ -270,10 +298,11 @@ async def create_job(
     payload: JobRequest,
     request: Request,
 ):
-    _require_organization_access(
+    context = _require_organization_access(
         request,
         payload.organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     job = Job(
         id="",
@@ -313,6 +342,27 @@ async def create_job(
         print("=== END JOB UPDATE ERROR ===\n")
         raise
 
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=payload.organization_id,
+        event_type="job_opening",
+        action="create",
+        entity_type="job_opening",
+        entity_id=str(saved.id),
+        status="success",
+        details={
+            "title": saved.title,
+            "status": saved.status,
+            "employment_type": saved.employment_type,
+            "location": saved.location,
+            "country": saved.country,
+            "number_of_positions": saved.number_of_positions,
+            "requisition_number": saved.requisition_number,
+        },
+    )
+
     return {
         "job": saved.__dict__,
         "message": "Job created",
@@ -325,10 +375,11 @@ async def update_job(
     payload: JobRequest,
     request: Request,
 ):
-    _require_organization_access(
+    context = _require_organization_access(
         request,
         payload.organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     existing = _job_service.get_job(
         payload.organization_id,
@@ -380,6 +431,27 @@ async def update_job(
         traceback.print_exc()
         print("=====================================\n")
         raise
+
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=payload.organization_id,
+        event_type="job_opening",
+        action="update",
+        entity_type="job_opening",
+        entity_id=str(saved.id),
+        status="success",
+        details={
+            "title": saved.title,
+            "status": saved.status,
+            "employment_type": saved.employment_type,
+            "location": saved.location,
+            "country": saved.country,
+            "number_of_positions": saved.number_of_positions,
+            "requisition_number": saved.requisition_number,
+        },
+    )
 
     return {
         "job": saved.__dict__,
