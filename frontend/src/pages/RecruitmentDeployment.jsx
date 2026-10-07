@@ -3,9 +3,9 @@ import PageHeader from "../components/PageHeader";
 import { authenticatedFetch } from "../utils/auth";
 
 const STATUS_OPTIONS = [
-  "Ready",
-  "Scheduled",
-  "In Transit",
+  "Pending",
+  "In Progress",
+  "Completed",
   "Cancelled",
 ];
 
@@ -296,7 +296,7 @@ export default function RecruitmentDeployment({ auth }) {
       employer_name: "",
       job_title: application.job_title || "",
       joining_date: "",
-      status: "Ready",
+      status: "Pending",
       contract_signed: false,
       documents_verified: false,
       orientation_completed: false,
@@ -383,9 +383,12 @@ export default function RecruitmentDeployment({ auth }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.detail || "Unable to save onboarding record."
-        );
+        const detail =
+          typeof data.detail === "string"
+            ? data.detail
+            : data.detail?.message || "Unable to save onboarding record.";
+
+        throw new Error(detail);
       }
 
       closeEditor();

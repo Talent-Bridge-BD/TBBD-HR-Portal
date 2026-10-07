@@ -5,12 +5,16 @@ from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
 from repositories.audit_logs import AuditLogRepository
+from repositories.medical_examination import SqlMedicalExaminationRepository
 from repositories.onboarding import SqlOnboardingRepository
+from repositories.ticketing import SqlTicketingRepository
+from repositories.visa_processing import SqlVisaProcessingRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
+from services.deployment_readiness import DeploymentReadinessService
 from services.local_auth import get_request_principal
 from services.onboarding import OnboardingService
 
@@ -27,6 +31,15 @@ _onboarding_service = OnboardingService(
 
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_medical_repository = SqlMedicalExaminationRepository()
+_visa_repository = SqlVisaProcessingRepository()
+_ticketing_repository = SqlTicketingRepository()
+_deployment_readiness_service = DeploymentReadinessService(
+    onboarding_repository=_onboarding_repository,
+    medical_repository=_medical_repository,
+    visa_repository=_visa_repository,
+    ticketing_repository=_ticketing_repository,
+)
 _audit_log_repository = AuditLogRepository()
 
 
@@ -189,6 +202,29 @@ async def create_onboarding(
             detail="Application not found for this organization",
         )
 
+    if payload.status == "Completed":
+        readiness = _deployment_readiness_service.check(
+            organization_id=organization_id,
+            application_id=payload.application_id,
+            destination_country=application.destination_country,
+            target_onboarding_status="Completed",
+        )
+
+        if not readiness["ready"]:
+            next_step = readiness["next_step"] or "Complete the required workflow steps."
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "DEPLOYMENT_NOT_READY",
+                    "message": (
+                        "Onboarding cannot be marked as Completed yet. "
+                        f"Next step: {next_step}."
+                    ),
+                    "prerequisites": readiness["prerequisites"],
+                    "next_step": next_step,
+                },
+            )
+
     try:
         onboarding = _onboarding_service.create(
             application_id=payload.application_id,
@@ -334,6 +370,29 @@ async def update_onboarding(
             status_code=404,
             detail="Onboarding record not found",
         )
+
+    if payload.status == "Completed":
+        readiness = _deployment_readiness_service.check(
+            organization_id=organization_id,
+            application_id=onboarding.application_id,
+            destination_country=application.destination_country,
+            target_onboarding_status="Completed",
+        )
+
+        if not readiness["ready"]:
+            next_step = readiness["next_step"] or "Complete the required workflow steps."
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "DEPLOYMENT_NOT_READY",
+                    "message": (
+                        "Onboarding cannot be marked as Completed yet. "
+                        f"Next step: {next_step}."
+                    ),
+                    "prerequisites": readiness["prerequisites"],
+                    "next_step": next_step,
+                },
+            )
 
     try:
         updated = _onboarding_service.update(
