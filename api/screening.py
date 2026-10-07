@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.screening import SqlScreeningRepository
 from services.authorization import (
@@ -24,6 +25,7 @@ _screening_service = ScreeningService(
 
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 class ScreeningAssessmentRequest(BaseModel):
@@ -174,6 +176,7 @@ async def save_screening_assessment(
         request,
         organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     application = _application_repository.get_application(
         organization_id,
@@ -244,6 +247,31 @@ async def save_screening_assessment(
         availability=payload.availability,
         screening_notes=payload.screening_notes,
         recommendation=payload.recommendation,
+    )
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="screening",
+        action="assessment_update",
+        entity_type="application",
+        entity_id=str(application_id),
+        status="success",
+        details={
+            "candidate_id": application.candidate_id,
+            "candidate_email": application.candidate_email,
+            "job_id": application.job_id,
+            "job_title": application.job_title,
+            "basic_eligibility": screening.basic_eligibility,
+            "relevant_experience": screening.relevant_experience,
+            "education": screening.education,
+            "communication": screening.communication,
+            "availability": screening.availability,
+            "recommendation": screening.recommendation,
+            "screening_notes": screening.screening_notes,
+        },
     )
 
     return {
