@@ -12,6 +12,7 @@ from repositories.job import SqlJobRepository
 
 from repositories.job_request import SqlJobRequestRepository
 from repositories.organization import SqlOrganizationRepository
+from repositories.audit_logs import AuditLogRepository
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
@@ -34,6 +35,7 @@ _job_repository = SqlJobRepository()
 
 _job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
@@ -195,6 +197,7 @@ async def create_job_request(
         request,
         payload.organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     job_request = JobRequest(
         id="",
@@ -216,6 +219,25 @@ async def create_job_request(
         job_request,
     )
 
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=payload.organization_id,
+        event_type="job_request",
+        action="create",
+        entity_type="job_request",
+        entity_id=str(saved.id),
+        status="success",
+        details={
+            "title": saved.title,
+            "employment_type": saved.employment_type,
+            "location": saved.location,
+            "country": saved.country,
+            "number_of_positions": saved.number_of_positions,
+        },
+    )
+
     return {
         "request": saved.__dict__,
         "message": "Job request created",
@@ -231,6 +253,7 @@ async def update_job_request(
         request,
         payload.organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     existing = _job_request_service.get_request(
         payload.organization_id,
@@ -274,6 +297,25 @@ async def update_job_request(
 
     saved = _job_request_service.save_request(updated_request)
 
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=payload.organization_id,
+        event_type="job_request",
+        action="update",
+        entity_type="job_request",
+        entity_id=str(saved.id),
+        status="success",
+        details={
+            "title": saved.title,
+            "employment_type": saved.employment_type,
+            "location": saved.location,
+            "country": saved.country,
+            "number_of_positions": saved.number_of_positions,
+        },
+    )
+
     return {
         "request": saved.__dict__,
         "message": "Job request updated",
@@ -290,6 +332,7 @@ async def approve_job_request(
         request,
         organization_id,
     )
+    principal = get_request_principal(request) or {}
 
     if not context.roles.intersection(
         {"HR Manager", "Administrator"}
@@ -359,6 +402,25 @@ async def approve_job_request(
 
     saved_request = _job_request_service.save_request(
         approved_request,
+    )
+
+    _audit_log_repository.create_log(
+        user_id=context.user_id,
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="job_request",
+        action="approve",
+        entity_type="job_request",
+        entity_id=str(saved_request.id),
+        status="success",
+        details={
+            "title": saved_request.title,
+            "job_id": str(saved_job.id),
+            "job_status": saved_job.status,
+            "previous_status": job_request.status,
+            "new_status": saved_request.status,
+        },
     )
 
     return {
