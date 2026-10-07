@@ -14,6 +14,11 @@ const [activityStats, setActivityStats] = useState({
   failed: 0,
 });
 
+const [notificationStats, setNotificationStats] = useState({
+  templates: 0,
+  delivery: 0,
+});
+
 useEffect(() => {
   async function loadDashboard() {
     const response = await authenticatedFetch(
@@ -61,9 +66,41 @@ useEffect(() => {
     }
   }
 
+  async function loadNotifications() {
+    const [templatesResponse, deliveryResponse] =
+      await Promise.all([
+        authenticatedFetch(
+          "/api/administrator/notifications/templates"
+        ),
+        authenticatedFetch(
+          "/api/administrator/notifications/delivery-logs"
+        ),
+      ]);
+
+    const templates =
+      templatesResponse.ok
+        ? await templatesResponse.json()
+        : [];
+
+    const deliveryLogs =
+      deliveryResponse.ok
+        ? await deliveryResponse.json()
+        : [];
+
+    setNotificationStats({
+      templates: Array.isArray(templates)
+        ? templates.length
+        : 0,
+      delivery: Array.isArray(deliveryLogs)
+        ? deliveryLogs.length
+        : 0,
+    });
+  }
+
   loadDashboard();
   loadOrganizations();
   loadActivity();
+  loadNotifications();
 }, []);
   const adminModules = [
     {
@@ -103,8 +140,8 @@ metrics: [
       title: "Notification System",
       description: "Configure email and notification delivery.",
       metrics: [
-        ["Templates", "0"],
-        ["Delivery Status", "0"],
+        ["Templates", notificationStats.templates],
+        ["Delivery Status", notificationStats.delivery],
       ],
       action: "notifications",
       button: "Configure →",
