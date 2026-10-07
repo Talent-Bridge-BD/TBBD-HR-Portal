@@ -4,6 +4,7 @@ import json
 from fastapi import APIRouter, HTTPException, Request
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
 from repositories.blob_storage import BlobStorageRepository
 from repositories.organization import SqlOrganizationRepository
@@ -27,6 +28,7 @@ _application_service = ApplicationService(
 _organization_repository = SqlOrganizationRepository()
 _candidate_document_repository = SqlCandidateDocumentRepository()
 _blob_repository = BlobStorageRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
@@ -164,6 +166,8 @@ async def update_application_status(
         request,
         organization_id,
     )
+    principal = get_request_principal(request) or {}
+
     allowed_statuses = {
         "submitted",
         "under_review",
@@ -182,6 +186,19 @@ async def update_application_status(
             detail=f"Invalid application status: {status}",
         )
 
+    existing_application = _application_service.get_application(
+        organization_id,
+        application_id,
+    )
+
+    if existing_application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    previous_status = existing_application.status
+
     application = _application_service.update_status(
         organization_id,
         application_id,
@@ -194,11 +211,30 @@ async def update_application_status(
             detail="Application not found",
         )
 
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="application",
+        action="status_update",
+        entity_type="application",
+        entity_id=str(application.id),
+        status="success",
+        details={
+            "candidate_id": application.candidate_id,
+            "candidate_email": application.candidate_email,
+            "job_id": application.job_id,
+            "job_title": application.job_title,
+            "previous_status": previous_status,
+            "new_status": application.status,
+        },
+    )
+
     return {
         "application": application.__dict__,
         "message": "Application status updated successfully",
     }
-
 
 
 @router.get("/{application_id}/documents")
