@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel
 
+from repositories.audit_logs import AuditLogRepository
 from repositories.hiring import SqlHiringRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
@@ -26,6 +27,7 @@ _hiring_service = HiringService(
     _hiring_repository,
 )
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
@@ -378,6 +380,8 @@ async def mark_ready_for_hiring(
         organization_id,
     )
 
+    principal = get_request_principal(request) or {}
+
     try:
         hiring_record = _hiring_service.create_hiring_record(
             organization_id=organization_id,
@@ -387,6 +391,23 @@ async def mark_ready_for_hiring(
         )
     except ValueError as error:
         _handle_service_error(error)
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="hiring",
+        action="ready_for_hiring",
+        entity_type="application",
+        entity_id=str(application_id),
+        status="success",
+        details={
+            "readiness_source": payload.readiness_source,
+            "waiver_reason": payload.waiver_reason,
+            "hiring_status": hiring_record.get("status"),
+        },
+    )
 
     return {
         "message": "Candidate is now Ready for Hiring.",
@@ -405,6 +426,8 @@ async def create_hiring_offer(
         request,
         organization_id,
     )
+
+    principal = get_request_principal(request) or {}
 
     try:
         offer = _hiring_service.create_offer(
@@ -448,6 +471,27 @@ async def create_hiring_offer(
             f"[OFFER NOTIFICATION ERROR] {notification_error}"
         )
 
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="hiring",
+        action="offer_create",
+        entity_type="offer",
+        entity_id=str(offer.get("id")),
+        status="success",
+        details={
+            "application_id": str(application_id),
+            "offer_title": offer.get("offer_title"),
+            "status": offer.get("status"),
+            "employment_type": offer.get("employment_type"),
+            "salary_currency": offer.get("salary_currency"),
+            "start_date": offer.get("start_date"),
+            "offer_expiry_date": offer.get("offer_expiry_date"),
+        },
+    )
+
     return {
         "message": "Offer created successfully.",
         "offer": offer,
@@ -465,6 +509,8 @@ async def send_hiring_offer(
         request,
         organization_id,
     )
+
+    principal = get_request_principal(request) or {}
 
     offer = _hiring_service.send_offer(
         organization_id=organization_id,
@@ -498,6 +544,22 @@ async def send_hiring_offer(
             f"[OFFER SENT NOTIFICATION ERROR] {notification_error}"
         )
 
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="hiring",
+        action="offer_send",
+        entity_type="offer",
+        entity_id=str(offer.get("id")),
+        status="success",
+        details={
+            "application_id": str(application_id),
+            "status": offer.get("status"),
+        },
+    )
+
     return {
         "message": "Offer sent successfully.",
         "offer": offer,
@@ -516,6 +578,22 @@ async def update_hiring_offer(
         request,
         organization_id,
     )
+
+    principal = get_request_principal(request) or {}
+
+    previous_offer = _hiring_service.get_offer(
+        organization_id,
+        application_id,
+        offer_id,
+    )
+
+    if previous_offer is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Offer not found.",
+        )
+
+    previous_status = previous_offer.get("status")
 
     try:
         offer = _hiring_service.update_offer(
@@ -548,6 +626,24 @@ async def update_hiring_offer(
             detail="Offer not found.",
         )
 
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="hiring",
+        action="offer_update",
+        entity_type="offer",
+        entity_id=str(offer.get("id")),
+        status="success",
+        details={
+            "application_id": str(application_id),
+            "previous_status": previous_status,
+            "new_status": offer.get("status"),
+            "offer_title": offer.get("offer_title"),
+        },
+    )
+
     return {
         "message": "Offer updated successfully.",
         "offer": offer,
@@ -570,6 +666,8 @@ async def hire_candidate(
         organization_id,
     )
 
+    principal = get_request_principal(request) or {}
+
     try:
         hiring_record = _hiring_service.hire(
             organization_id,
@@ -584,6 +682,24 @@ async def hire_candidate(
             status_code=404,
             detail="Candidate could not be hired.",
         )
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="hiring",
+        action="hire",
+        entity_type="application",
+        entity_id=str(application_id),
+        status="success",
+        details={
+            "offer_id": str(payload.offer_id),
+            "previous_hiring_status": "offered",
+            "new_hiring_status": hiring_record.get("status"),
+            "application_status": "hired",
+        },
+    )
 
     return {
         "message": "Candidate marked as hired.",
