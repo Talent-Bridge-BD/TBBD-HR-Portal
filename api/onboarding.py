@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
+from repositories.audit_logs import AuditLogRepository
 from repositories.onboarding import SqlOnboardingRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
@@ -26,6 +27,7 @@ _onboarding_service = OnboardingService(
 
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
+_audit_log_repository = AuditLogRepository()
 
 
 class OnboardingCreateRequest(BaseModel):
@@ -207,6 +209,23 @@ async def create_onboarding(
             detail=str(exc),
         )
 
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="onboarding",
+        action="create",
+        entity_type="onboarding",
+        entity_id=str(onboarding.id),
+        status="success",
+        details={
+            "application_id": str(payload.application_id),
+        },
+    )
+
     return {
         "onboarding": onboarding.__dict__
     }
@@ -336,6 +355,29 @@ async def update_onboarding(
             status_code=400,
             detail=str(exc),
         )
+
+    principal = get_request_principal(request) or {}
+
+    _audit_log_repository.create_log(
+        user_id=principal.get("id"),
+        user_email=principal.get("email"),
+        user_name=principal.get("name"),
+        organization_id=organization_id,
+        event_type="onboarding",
+        action="update",
+        entity_type="onboarding",
+        entity_id=str(onboarding_id),
+        status="success",
+        details={
+            "application_id": str(onboarding.application_id),
+            "previous_status": getattr(onboarding, "status", None),
+            "new_status": (
+                payload.status
+                if payload.status is not None
+                else getattr(onboarding, "status", None)
+            ),
+        },
+    )
 
     return {
         "onboarding": updated.__dict__
