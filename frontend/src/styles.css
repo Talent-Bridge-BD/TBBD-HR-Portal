@@ -6870,3 +6870,90 @@ button {
     display: inline;
   }
 }
+
+/* ============================================================
+   Employer & Administrator Dashboard — Main 4 KPI Cards
+   Scoped only to the primary dashboard KPI grids
+   ============================================================ */
+
+.employer-dashboard .stats-grid .stat-card:nth-child(1),
+.admin-kpi-grid .stat-card:nth-child(1) {
+  border-color: #0F6CBD;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(1) .stat-icon,
+.employer-dashboard .stats-grid .stat-card:nth-child(1) .stat-value,
+.admin-kpi-grid .stat-card:nth-child(1) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(1) .stat-value {
+  color: #0F6CBD;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(1) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(1) .stat-icon {
+  background: #EAF4FE;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(2),
+.admin-kpi-grid .stat-card:nth-child(2) {
+  border-color: #22C55E;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(2) .stat-icon,
+.employer-dashboard .stats-grid .stat-card:nth-child(2) .stat-value,
+.admin-kpi-grid .stat-card:nth-child(2) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(2) .stat-value {
+  color: #22C55E;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(2) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(2) .stat-icon {
+  background: #F0FDF4;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(3),
+.admin-kpi-grid .stat-card:nth-child(3) {
+  border-color: #8B5CF6;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(3) .stat-icon,
+.employer-dashboard .stats-grid .stat-card:nth-child(3) .stat-value,
+.admin-kpi-grid .stat-card:nth-child(3) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(3) .stat-value {
+  color: #8B5CF6;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(3) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(3) .stat-icon {
+  background: #F5F3FF;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(4),
+.admin-kpi-grid .stat-card:nth-child(4) {
+  border-color: #F59E0B;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(4) .stat-icon,
+.employer-dashboard .stats-grid .stat-card:nth-child(4) .stat-value,
+.admin-kpi-grid .stat-card:nth-child(4) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(4) .stat-value {
+  color: #F59E0B;
+}
+
+.employer-dashboard .stats-grid .stat-card:nth-child(4) .stat-icon,
+.admin-kpi-grid .stat-card:nth-child(4) .stat-icon {
+  background: #FFFBEB;
+}
+
+/* Employer Dashboard — Recruitment Pipeline value visibility */
+.employer-dashboard .overview-item > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.employer-dashboard .overview-item > div > span {
+  display: block;
+  white-space: nowrap;
+  overflow: visible;
+  visibility: visible;
+  opacity: 1;
+}

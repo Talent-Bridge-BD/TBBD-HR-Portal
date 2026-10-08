@@ -147,12 +147,16 @@ const emptyDashboard = {
     interviews_upcoming: 0,
   },
   pipeline: {
-    new: 0,
+    applied: 0,
     screening: 0,
-    shortlisted: 0,
     interview: 0,
-    offer: 0,
-    hired: 0,
+    trade_test: 0,
+    medical: 0,
+    visa_processing: 0,
+    ticketing: 0,
+    onboarding: 0,
+    deployment: 0,
+    completed: 0,
   },
 }
 
