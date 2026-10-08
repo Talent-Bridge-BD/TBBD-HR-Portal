@@ -38,7 +38,6 @@ const candidateNavigation = [
   ['Candidate My Applications', '▤'],
   ['Candidate Interviews', '◷'],
   ['Candidate My Offers', '📄'],
-  ['Candidate Documents', '□'],
   ['Candidate Notifications', '🔔'],
 ]
 

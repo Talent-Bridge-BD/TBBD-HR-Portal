@@ -59,6 +59,12 @@ const Icon = ({ name, size = 22 }) => {
         <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
       </>
     ),
+    hired: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="m8.5 12 2.3 2.3 4.8-5" />
+      </>
+    ),
     jobs: (
       <>
         <rect x="3" y="6" width="18" height="14" rx="2" />
@@ -293,7 +299,7 @@ export default function CandidateDashboard({ onNavigate }) {
           label="Documents"
           value={stats.documents}
           detail="Available documents"
-          onClick={() => onNavigate('Candidate Documents')}
+          onClick={() => onNavigate('Candidate My Profile')}
         />
       </section>
 
@@ -366,7 +372,9 @@ export default function CandidateDashboard({ onNavigate }) {
                     <small>Recent application</small>
                   </span>
 
-                  <span className="candidate-application-status">
+                  <span
+                    className={`candidate-application-status candidate-application-status-${application.normalizedStatus}`}
+                  >
                     {application.normalizedStatus
                       .replace(/_/g, ' ')
                       .replace(/\b\w/g, (character) =>
@@ -412,8 +420,8 @@ export default function CandidateDashboard({ onNavigate }) {
           />
           <QuickAction
             icon={<Icon name="documents" />}
-            label="My Documents"
-            onClick={() => onNavigate('Candidate Documents')}
+            label="My Profile"
+            onClick={() => onNavigate('Candidate My Profile')}
           />
         </div>
       </section>

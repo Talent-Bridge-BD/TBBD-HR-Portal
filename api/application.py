@@ -176,6 +176,7 @@ async def update_application_status(
         "offered",
         "hired",
         "rejected",
+        "withdrawn",
     }
 
     normalized_status = status.strip().lower()

@@ -17,6 +17,10 @@ class CandidateRepository(ABC):
     def get_candidate_id(self, user_id: str) -> Optional[str]:
         raise NotImplementedError
 
+    @abstractmethod
+    def get_user_id(self, candidate_id: str) -> Optional[str]:
+        raise NotImplementedError
+
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         raise NotImplementedError
 
@@ -40,6 +44,12 @@ class InMemoryCandidateRepository(CandidateRepository):
     def get_candidate_id(self, user_id: str) -> Optional[str]:
         profile = self._profiles.get(user_id)
         return profile.user_id if profile else None
+
+    def get_user_id(self, candidate_id: str) -> Optional[str]:
+        for profile in self._profiles.values():
+            if profile.user_id == candidate_id:
+                return profile.user_id
+        return None
 
 
 class SqlCandidateRepository(CandidateRepository):
@@ -162,6 +172,24 @@ class SqlCandidateRepository(CandidateRepository):
             return None
 
         return str(row.id)
+
+    def get_user_id(self, candidate_id: str) -> Optional[str]:
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT entra_object_id
+                FROM dbo.candidates
+                WHERE id = ?
+                """,
+                candidate_id,
+            )
+            row = cursor.fetchone()
+
+        if row is None:
+            return None
+
+        return row.entra_object_id
 
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         with self._connection() as connection:

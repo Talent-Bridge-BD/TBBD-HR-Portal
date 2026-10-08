@@ -5,15 +5,19 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel
 
 from repositories.audit_logs import AuditLogRepository
+from repositories.candidate import SqlCandidateRepository
 from repositories.hiring import SqlHiringRepository
+from repositories.notifications import SqlNotificationRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
+from services.candidate import CandidateService
 from services.hiring import HiringService
 from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
+from services.notifications import NotificationService as PortalNotificationService
 from services.offer_letter import generate_offer_letter
 
 
@@ -22,9 +26,17 @@ router = APIRouter(
     tags=["hiring"],
 )
 
+_candidate_repository = SqlCandidateRepository()
+_candidate_service = CandidateService(
+    _candidate_repository,
+)
 _hiring_repository = SqlHiringRepository()
 _hiring_service = HiringService(
     _hiring_repository,
+)
+_notification_repository = SqlNotificationRepository()
+_portal_notification_service = PortalNotificationService(
+    _notification_repository,
 )
 _organization_repository = SqlOrganizationRepository()
 _audit_log_repository = AuditLogRepository()
@@ -538,6 +550,29 @@ async def send_hiring_offer(
                     "offer_id": offer_id,
                 },
             )
+
+        if application and application.candidate_id:
+            candidate_user_id = _candidate_service.get_user_id(
+                application.candidate_id,
+            )
+
+            if candidate_user_id:
+                _portal_notification_service.create(
+                    candidate_id=application.candidate_id,
+                    recipient_user_id=candidate_user_id,
+                    recipient_type="candidate",
+                    title="Employment Offer",
+                    message=(
+                        "You have received an employment offer for "
+                        f"{offer.get('offer_title') or 'your application'}."
+                    ),
+                    notification_type="job",
+                    event_type="OFFER_SENT",
+                    organization_id=organization_id,
+                    application_id=application_id,
+                    related_entity_type="offer",
+                    related_entity_id=offer_id,
+                )
 
     except Exception as notification_error:
         print(

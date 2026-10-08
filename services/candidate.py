@@ -16,3 +16,6 @@ class CandidateService:
 
     def get_candidate_id(self, user_id: str) -> Optional[str]:
         return self.repository.get_candidate_id(user_id)
+
+    def get_user_id(self, candidate_id: str) -> Optional[str]:
+        return self.repository.get_user_id(candidate_id)
