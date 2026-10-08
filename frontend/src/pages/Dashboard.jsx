@@ -36,6 +36,9 @@ export default function Dashboard({ auth, onNavigate }) {
     Completed: 0,
   })
 
+  const [workplaceNotifications, setWorkplaceNotifications] = useState([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
+
   useEffect(() => {
     if (!isAdministrator && !isHRManager) return
 
@@ -60,6 +63,50 @@ export default function Dashboard({ auth, onNavigate }) {
       .then((data) => setPipeline(data))
       .catch((error) => console.error(error))
   }, [isAdministrator, isHRManager])
+
+  useEffect(() => {
+    if (isEmployerManager) return
+
+    let cancelled = false
+
+    async function loadNotifications() {
+      try {
+        setNotificationsLoading(true)
+
+        const response = await authenticatedFetch(
+          '/api/notifications?limit=3'
+        )
+
+        if (!response.ok) {
+          throw new Error(
+            `Unable to load notifications: ${response.status}`
+          )
+        }
+
+        const data = await response.json()
+
+        if (!cancelled) {
+          setWorkplaceNotifications(Array.isArray(data) ? data : [])
+        }
+      } catch (error) {
+        console.error(error)
+
+        if (!cancelled) {
+          setWorkplaceNotifications([])
+        }
+      } finally {
+        if (!cancelled) {
+          setNotificationsLoading(false)
+        }
+      }
+    }
+
+    loadNotifications()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isEmployerManager])
   const employeeName =
     employeeDashboard.employee.name || getEmployeeDisplayName()
 
@@ -352,20 +399,42 @@ export default function Dashboard({ auth, onNavigate }) {
 
             <DashboardCard title="Notifications">
               <div className="workplace-notification-summary">
-                {notifications.slice(0, 3).map((notification) => (
-                  <button
-                    className="workplace-notification-item"
-                    type="button"
-                    key={notification.id}
-                    onClick={() => onNavigate('Notifications')}
-                  >
-                    <span className="workplace-notification-dot" />
-                    <span>
-                      <strong>{notification.title}</strong>
-                      <small>{notification.message}</small>
-                    </span>
-                  </button>
-                ))}
+                {notificationsLoading ? (
+                  <div className="workplace-empty-card">
+                    <strong>Loading notifications</strong>
+                    <p>
+                      Please wait while your latest workplace notifications
+                      are loaded.
+                    </p>
+                  </div>
+                ) : workplaceNotifications.length > 0 ? (
+                  workplaceNotifications.map((notification) => (
+                    <button
+                      className="workplace-notification-item"
+                      type="button"
+                      key={notification.id}
+                      onClick={() => onNavigate('Notifications')}
+                    >
+                      <span
+                        className={`workplace-notification-dot ${
+                          notification.is_read ? 'read' : ''
+                        }`}
+                      />
+                      <span>
+                        <strong>{notification.title}</strong>
+                        <small>{notification.message}</small>
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="workplace-empty-card">
+                    <strong>No notifications</strong>
+                    <p>
+                      Important workplace and recruitment notifications will
+                      appear here when available.
+                    </p>
+                  </div>
+                )}
               </div>
               <button
                 className="card-link"
