@@ -11,6 +11,82 @@ import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
 import AdministratorOrganizations from './AdministratorOrganizations'
 
+function formatWorkplaceActivity(activity) {
+  const action = String(activity?.action || '').toLowerCase()
+
+  let details = activity?.details || {}
+
+  if (typeof details === 'string') {
+    try {
+      details = JSON.parse(details)
+    } catch {
+      details = {}
+    }
+  }
+
+  const candidateLabel =
+    details.candidate_email ||
+    details.candidate_name ||
+    'Candidate'
+
+  const jobTitle = details.job_title || ''
+
+  if (action === 'status_update') {
+    const newStatus = String(details.new_status || '').toLowerCase()
+
+    if (newStatus === 'shortlisted') {
+      return {
+        title: 'Candidate shortlisted',
+        detail: jobTitle
+          ? `${jobTitle} · ${candidateLabel}`
+          : candidateLabel,
+      }
+    }
+
+    if (newStatus === 'under_review') {
+      return {
+        title: 'Candidate moved to review',
+        detail: jobTitle
+          ? `${jobTitle} · ${candidateLabel}`
+          : candidateLabel,
+      }
+    }
+
+    if (newStatus) {
+      return {
+        title: 'Candidate status updated',
+        detail: jobTitle
+          ? `${jobTitle} · ${candidateLabel} · ${newStatus.replace(/_/g, ' ')}`
+          : `${candidateLabel} · ${newStatus.replace(/_/g, ' ')}`,
+      }
+    }
+  }
+
+  if (action === 'ready_for_hiring') {
+    return {
+      title: 'Candidate ready for hiring',
+      detail:
+        details.readiness_source === 'interview_pass'
+          ? 'Readiness confirmed after interview'
+          : 'Hiring readiness confirmed',
+    }
+  }
+
+  const fallbackAction =
+    activity?.event_type ||
+    activity?.action ||
+    'Workplace activity'
+
+  return {
+    title: String(fallbackAction)
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b\w/g, (letter) => letter.toUpperCase()),
+    detail: jobTitle
+      ? `${jobTitle} · ${candidateLabel}`
+      : 'Recent workplace activity',
+  }
+}
+
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
@@ -512,25 +588,22 @@ export default function Dashboard({ auth, onNavigate }) {
                     <p>Recent workplace activity is being loaded.</p>
                   </div>
                 ) : workplaceActivity.length > 0 ? (
-                  workplaceActivity.map((activity) => (
-                    <article
-                      className="workplace-activity-item"
-                      key={activity.id}
-                    >
-                      <span className="workplace-activity-icon">•</span>
-                      <div>
-                        <strong>
-                          {activity.action ||
-                            activity.event_type ||
-                            'Workplace activity'}
-                        </strong>
-                        <small>
-                          {activity.details ||
-                            `${activity.entity_type || 'Record'} updated`}
-                        </small>
-                      </div>
-                    </article>
-                  ))
+                  workplaceActivity.map((activity) => {
+                    const formatted = formatWorkplaceActivity(activity)
+
+                    return (
+                      <article
+                        className="workplace-activity-item"
+                        key={activity.id}
+                      >
+                        <span className="workplace-activity-icon">•</span>
+                        <div>
+                          <strong>{formatted.title}</strong>
+                          <small>{formatted.detail}</small>
+                        </div>
+                      </article>
+                    )
+                  })
                 ) : (
                   <div className="workplace-empty-card">
                     <strong>No recent activity</strong>
@@ -542,6 +615,7 @@ export default function Dashboard({ auth, onNavigate }) {
                 )}
               </div>
             </DashboardCard>
+
           </section>
 
           <section className="admin-dashboard-full-width admin-dashboard-actions">
