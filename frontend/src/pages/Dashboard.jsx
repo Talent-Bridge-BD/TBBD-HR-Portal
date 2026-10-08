@@ -38,6 +38,8 @@ export default function Dashboard({ auth, onNavigate }) {
 
   const [workplaceNotifications, setWorkplaceNotifications] = useState([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
+  const [workplaceActivity, setWorkplaceActivity] = useState([])
+  const [activityLoading, setActivityLoading] = useState(true)
 
   useEffect(() => {
     if (!isAdministrator && !isHRManager) return
@@ -107,6 +109,50 @@ export default function Dashboard({ auth, onNavigate }) {
       cancelled = true
     }
   }, [isEmployerManager])
+  useEffect(() => {
+    if (isEmployerManager) return
+
+    let cancelled = false
+
+    async function loadActivity() {
+      try {
+        setActivityLoading(true)
+
+        const response = await authenticatedFetch('/api/activity?limit=3')
+
+        if (!response.ok) {
+          throw new Error(
+            `Unable to load workplace activity: ${response.status}`
+          )
+        }
+
+        const data = await response.json()
+
+        if (!cancelled) {
+          setWorkplaceActivity(
+            Array.isArray(data?.activities) ? data.activities : []
+          )
+        }
+      } catch (error) {
+        console.error(error)
+
+        if (!cancelled) {
+          setWorkplaceActivity([])
+        }
+      } finally {
+        if (!cancelled) {
+          setActivityLoading(false)
+        }
+      }
+    }
+
+    loadActivity()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isEmployerManager])
+
   const employeeName =
     employeeDashboard.employee.name || getEmployeeDisplayName()
 
@@ -460,18 +506,40 @@ export default function Dashboard({ auth, onNavigate }) {
 
             <DashboardCard title="Recent Activity">
               <div className="workplace-activity-list">
-                {announcements.slice(0, 3).map((announcement) => (
-                  <article
-                    className="workplace-activity-item"
-                    key={announcement.id}
-                  >
-                    <span className="workplace-activity-icon">•</span>
-                    <div>
-                      <strong>{announcement.title}</strong>
-                      <small>{announcement.message}</small>
-                    </div>
-                  </article>
-                ))}
+                {activityLoading ? (
+                  <div className="workplace-empty-card">
+                    <strong>Loading activity…</strong>
+                    <p>Recent workplace activity is being loaded.</p>
+                  </div>
+                ) : workplaceActivity.length > 0 ? (
+                  workplaceActivity.map((activity) => (
+                    <article
+                      className="workplace-activity-item"
+                      key={activity.id}
+                    >
+                      <span className="workplace-activity-icon">•</span>
+                      <div>
+                        <strong>
+                          {activity.action ||
+                            activity.event_type ||
+                            'Workplace activity'}
+                        </strong>
+                        <small>
+                          {activity.details ||
+                            `${activity.entity_type || 'Record'} updated`}
+                        </small>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="workplace-empty-card">
+                    <strong>No recent activity</strong>
+                    <p>
+                      Recent workplace and recruitment activity will appear
+                      here when available.
+                    </p>
+                  </div>
+                )}
               </div>
             </DashboardCard>
           </section>

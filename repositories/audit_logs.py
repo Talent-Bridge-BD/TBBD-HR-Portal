@@ -178,6 +178,68 @@ class AuditLogRepository:
                 for row in rows
             ]
 
+    def list_recent_for_organizations(
+        self,
+        organization_ids: set[str],
+        limit: int = 3,
+    ):
+        limit = max(1, min(limit, 50))
+
+        if not organization_ids:
+            return []
+
+        placeholders = ", ".join("?" for _ in organization_ids)
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+
+            cursor.execute(
+                f"""
+                SELECT TOP (?)
+                    id,
+                    user_id,
+                    user_email,
+                    user_name,
+                    organization_id,
+                    event_type,
+                    action,
+                    entity_type,
+                    entity_id,
+                    status,
+                    details,
+                    created_at
+                FROM dbo.audit_logs
+                WHERE organization_id IN ({placeholders})
+                ORDER BY created_at DESC
+                """,
+                limit,
+                *organization_ids,
+            )
+
+            rows = cursor.fetchall()
+
+            return [
+                {
+                    "id": str(row.id),
+                    "user_id": row.user_id,
+                    "user_email": row.user_email,
+                    "user_name": row.user_name,
+                    "organization_id": (
+                        str(row.organization_id)
+                        if row.organization_id
+                        else None
+                    ),
+                    "event_type": row.event_type,
+                    "action": row.action,
+                    "entity_type": row.entity_type,
+                    "entity_id": row.entity_id,
+                    "status": row.status,
+                    "details": row.details,
+                    "created_at": row.created_at,
+                }
+                for row in rows
+            ]
+
     def count_recent_failures(self) -> int:
 
         with self._connection() as connection:

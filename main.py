@@ -1,5 +1,6 @@
 from api.administrator import router as administrator_router
 from api.administrator_activity import router as administrator_activity_router
+from api.activity import router as activity_router
 from api.administrator_organizations import router as administrator_organizations_router
 
 import os
@@ -67,6 +68,7 @@ _azure_openai_client = AzureOpenAI(
 )
 app.include_router(administrator_router)
 app.include_router(administrator_activity_router)
+app.include_router(activity_router)
 app.include_router(administrator_organizations_router)
 app.include_router(candidate_router)
 app.include_router(employer_router)
