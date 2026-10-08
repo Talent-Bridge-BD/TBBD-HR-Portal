@@ -33,7 +33,7 @@ export default function AdministrationEmployers({ auth }) {
     setError('')
 
     try {
-      const response = await authenticatedFetch('/api/organizations')
+      const response = await authenticatedFetch('/api/administrator/organizations')
 
       const data = await response.json()
 
