@@ -42,7 +42,12 @@ const candidateNavigation = [
 ]
 
 const administrationNavigation = [
-  ['Administration Employers', '♙'],
+  ['Organization Management', '▣', 'organizations'],
+  ['User Management', '♙', 'users'],
+  ['Roles & Permissions', '⚙', 'roles'],
+  ['Notification System', '🔔', 'notifications'],
+  ['System Configuration', '⚙', 'settings'],
+  ['System Activity', '◷', 'activity'],
 ]
 
 const toolNavigation = [
@@ -72,15 +77,15 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     !isHRManager &&
     hasAnyRole(auth, ['Candidate'])
 
-  const renderItem = ([label, icon, enabled = true]) => (
+  const renderItem = ([label, icon, pageKey = label, enabled = true]) => (
     <button
       key={label}
-      className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
+      className={`nav-item ${activePage === pageKey ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
       onClick={() => {
         if (!enabled) return
 
 
-        onNavigate(label)
+        onNavigate(pageKey)
       }}
       disabled={!enabled}
       title={!enabled ? `${label} — Coming Soon` : label}
@@ -110,7 +115,7 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
               return ['Dashboard', 'My Profile'].includes(label)
             })
             .map(([label, icon]) =>
-              renderItem([label, icon, true])
+              renderItem([label, icon, label, true])
             )}
 
         </div>
