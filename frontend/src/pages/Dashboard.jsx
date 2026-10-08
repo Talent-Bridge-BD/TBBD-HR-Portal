@@ -9,7 +9,6 @@ import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
-import AdministratorDashboard from './AdministratorDashboard'
 import AdministratorOrganizations from './AdministratorOrganizations'
 
 export default function Dashboard({ auth, onNavigate }) {
@@ -121,10 +120,6 @@ export default function Dashboard({ auth, onNavigate }) {
       page: 'Recruitment Deployment',
     },
   ]
-
-  if (isAdministrator) {
-    return <AdministratorDashboard onNavigate={onNavigate} />
-  }
 
   if (isEmployerManager) {
     return <EmployerDashboard onNavigate={onNavigate} />
@@ -293,23 +288,67 @@ export default function Dashboard({ auth, onNavigate }) {
             </div>
           </section>
 
-          <section className="workplace-dashboard-card-grid">
-            <DashboardCard title="My Tasks">
-              <div className="workplace-summary-card">
-                <div>
-                  <strong>{tasks.pending}</strong>
-                  <span>Pending tasks</span>
-                  <small>Tasks that may need your attention</small>
-                </div>
-                <button
-                  className="card-link"
-                  type="button"
-                  onClick={() => onNavigate('My Tasks')}
-                >
-                  View tasks →
-                </button>
+          <section className="admin-dashboard-full-width">
+            <DashboardCard title="Action Required">
+              <div className="action-required-list">
+                {pipeline.Applied > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Applications')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Applied}</strong>
+                      <small>Applications require review</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Screening > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Screening')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Screening}</strong>
+                      <small>Candidates in screening</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Interview > 0 ? (
+                  <button
+                    className="action-required-item"
+                    type="button"
+                    onClick={() => onNavigate('Recruitment Interviews')}
+                  >
+                    <span className="action-required-icon">!</span>
+                    <span>
+                      <strong>{pipeline.Interview}</strong>
+                      <small>Interview-stage candidates</small>
+                    </span>
+                    <span className="action-required-arrow">→</span>
+                  </button>
+                ) : null}
+
+                {pipeline.Applied === 0 &&
+                pipeline.Screening === 0 &&
+                pipeline.Interview === 0 ? (
+                  <div className="action-required-empty">
+                    No actions required.
+                  </div>
+                ) : null}
               </div>
             </DashboardCard>
+          </section>
+
+          <section className="admin-dashboard-full-width">
+
 
             <DashboardCard title="Notifications">
               <div className="workplace-notification-summary">
@@ -368,7 +407,7 @@ export default function Dashboard({ auth, onNavigate }) {
             </DashboardCard>
           </section>
 
-          <section className="dashboard-two-column admin-dashboard-actions">
+          <section className="admin-dashboard-full-width admin-dashboard-actions">
             <DashboardCard title="Quick Actions">
               <div className="quick-actions">
                 <QuickAction
@@ -396,63 +435,6 @@ export default function Dashboard({ auth, onNavigate }) {
                   label="Schedule Interview"
                   onClick={() => onNavigate('Recruitment Interviews')}
                 />
-              </div>
-            </DashboardCard>
-
-            <DashboardCard title="Action Required">
-              <div className="action-required-list">
-                {pipeline.Applied > 0 ? (
-                  <button
-                    className="action-required-item"
-                    type="button"
-                    onClick={() => onNavigate('Recruitment Applications')}
-                  >
-                    <span className="action-required-icon">!</span>
-                    <span>
-                      <strong>{pipeline.Applied}</strong>
-                      <small>Applications require review</small>
-                    </span>
-                    <span className="action-required-arrow">→</span>
-                  </button>
-                ) : null}
-
-                {pipeline.Screening > 0 ? (
-                  <button
-                    className="action-required-item"
-                    type="button"
-                    onClick={() => onNavigate('Recruitment Screening')}
-                  >
-                    <span className="action-required-icon">!</span>
-                    <span>
-                      <strong>{pipeline.Screening}</strong>
-                      <small>Candidates in screening</small>
-                    </span>
-                    <span className="action-required-arrow">→</span>
-                  </button>
-                ) : null}
-
-                {pipeline.Interview > 0 ? (
-                  <button
-                    className="action-required-item"
-                    type="button"
-                    onClick={() => onNavigate('Recruitment Interviews')}
-                  >
-                    <span className="action-required-icon">!</span>
-                    <span>
-                      <strong>{pipeline.Interview}</strong>
-                      <small>Interview-stage candidates</small>
-                    </span>
-                    <span className="action-required-arrow">→</span>
-                  </button>
-                ) : null}
-
-                {pipeline.Applied === 0 &&
-                pipeline.Screening === 0 &&
-                pipeline.Interview === 0 ? (
-                  <div className="action-required-empty">
-                    No actions required.
-                  </div>
-                ) : null}
               </div>
             </DashboardCard>
           </section>

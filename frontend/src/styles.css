@@ -7082,3 +7082,137 @@ button {
 .employer-dashboard .overview-grid > .overview-item:nth-child(10) .overview-icon {
   background: #F0FDF4;
 }
+
+/* ============================================================
+   Workplace Dashboard — Recruitment Lifecycle Stage Accents
+   ============================================================ */
+
+.lifecycle-stage:nth-child(1) {
+  border-color: #0067B8;
+}
+.lifecycle-stage:nth-child(1) .lifecycle-stage-count {
+  color: #0067B8;
+}
+
+.lifecycle-stage:nth-child(2) {
+  border-color: #0891B2;
+}
+.lifecycle-stage:nth-child(2) .lifecycle-stage-count {
+  color: #0891B2;
+}
+
+.lifecycle-stage:nth-child(3) {
+  border-color: #7C3AED;
+}
+.lifecycle-stage:nth-child(3) .lifecycle-stage-count {
+  color: #7C3AED;
+}
+
+.lifecycle-stage:nth-child(4) {
+  border-color: #EA580C;
+}
+.lifecycle-stage:nth-child(4) .lifecycle-stage-count {
+  color: #EA580C;
+}
+
+.lifecycle-stage:nth-child(5) {
+  border-color: #16A34A;
+}
+.lifecycle-stage:nth-child(5) .lifecycle-stage-count {
+  color: #16A34A;
+}
+
+.lifecycle-stage:nth-child(6) {
+  border-color: #D97706;
+}
+.lifecycle-stage:nth-child(6) .lifecycle-stage-count {
+  color: #D97706;
+}
+
+.lifecycle-stage:nth-child(7) {
+  border-color: #4F46E5;
+}
+.lifecycle-stage:nth-child(7) .lifecycle-stage-count {
+  color: #4F46E5;
+}
+
+.lifecycle-stage:nth-child(8) {
+  border-color: #0D9488;
+}
+.lifecycle-stage:nth-child(8) .lifecycle-stage-count {
+  color: #0D9488;
+}
+
+.lifecycle-stage:nth-child(9) {
+  border-color: #059669;
+}
+.lifecycle-stage:nth-child(9) .lifecycle-stage-count {
+  color: #059669;
+}
+
+/* =========================================================
+   Administrator / HR Workplace Hub dashboard layout
+   ========================================================= */
+
+.admin-dashboard-full-width {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.admin-dashboard-full-width .dashboard-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-dashboard-full-width .action-required-list {
+  width: 100%;
+}
+
+.workplace-dashboard-card-grid {
+  width: 100%;
+}
+
+.admin-dashboard-actions {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.admin-dashboard-actions .quick-actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.admin-dashboard-actions .quick-action {
+  min-width: 0;
+  min-height: 82px;
+}
+
+@media (max-width: 1100px) {
+  .admin-dashboard-actions .quick-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-dashboard-actions .quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-dashboard-full-width,
+  .admin-dashboard-actions {
+    margin-top: 16px;
+  }
+
+  .admin-dashboard-actions .quick-actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .admin-dashboard-actions .quick-action {
+    min-height: 64px;
+  }
+}
