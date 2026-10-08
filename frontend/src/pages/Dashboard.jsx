@@ -595,6 +595,15 @@ export default function Dashboard({ auth, onNavigate }) {
                       <article
                         className="workplace-activity-item"
                         key={activity.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onNavigate('Recruitment Candidates')}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            onNavigate('Recruitment Candidates')
+                          }
+                        }}
                       >
                         <span className="workplace-activity-icon">•</span>
                         <div>
