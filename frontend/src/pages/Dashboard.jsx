@@ -300,7 +300,7 @@ export default function Dashboard({ auth, onNavigate }) {
                     <span className="action-required-icon">!</span>
                     <span>
                       <strong>{pipeline.Applied}</strong>
-                      <small>Applications require review</small>
+                      <small>Candidates awaiting application review</small>
                     </span>
                     <span className="action-required-arrow">→</span>
                   </button>
