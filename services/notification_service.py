@@ -41,24 +41,39 @@ class NotificationService:
                 item
                 for item in templates
                 if item["event_type"] == event_type
+                and item["is_active"]
             ),
             None,
         )
 
         if not template:
             raise ValueError(
-                f"No notification template found for {event_type}"
+                f"No active notification template found for {event_type}"
             )
 
+        import html as html_module
+        import re
 
         subject = template["subject"]
+        html_body = template.get("html_body") or ""
 
         if subject_data:
             for key, value in subject_data.items():
-                subject = subject.replace(
-                    "{{" + key + "}}",
-                    str(value),
+                placeholder = "{{" + key + "}}"
+                value_text = str(value)
+                subject = subject.replace(placeholder, value_text)
+                html_body = html_body.replace(
+                    placeholder,
+                    html_module.escape(value_text),
                 )
+
+        plain_text = re.sub(
+            r"\s+",
+            " ",
+            html_module.unescape(
+                re.sub(r"<[^>]+>", " ", html_body)
+            ),
+        ).strip() or subject
 
 
         delivery_log = self.repository.create_delivery_log(
@@ -67,6 +82,8 @@ class NotificationService:
             status="PENDING",
             notification_id=None,
         )
+
+        final_status = "PENDING"
 
         try:
             sender = EMAIL_SENDERS.get(
@@ -86,7 +103,8 @@ class NotificationService:
                     },
                     "content": {
                         "subject": subject,
-                        "plainText": subject,
+                        "plainText": plain_text,
+                        "html": html_body,
                     },
                 }
             )
@@ -96,11 +114,13 @@ class NotificationService:
             print(f"[ACS EMAIL] {result}")
 
             if result["status"] == "Succeeded":
+                final_status = "SENT"
                 self.repository.update_delivery_status(
                     delivery_log["id"],
                     "SENT",
                 )
             else:
+                final_status = "FAILED"
                 self.repository.update_delivery_status(
                     delivery_log["id"],
                     "FAILED",
@@ -108,6 +128,7 @@ class NotificationService:
                 )
 
         except Exception as email_error:
+            final_status = "FAILED"
             print(f"[ACS EMAIL ERROR] {email_error}")
 
             self.repository.update_delivery_status(
@@ -116,4 +137,7 @@ class NotificationService:
                 str(email_error),
             )
 
-        return delivery_log
+        return {
+            **delivery_log,
+            "status": final_status,
+        }

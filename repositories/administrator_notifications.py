@@ -113,6 +113,7 @@ class AdministratorNotificationRepository:
                     name,
                     event_type,
                     subject,
+                    html_body,
                     is_active,
                     created_at,
                     updated_at
@@ -130,6 +131,7 @@ class AdministratorNotificationRepository:
                     "name": row.name,
                     "event_type": row.event_type,
                     "subject": row.subject,
+                    "html_body": row.html_body,
                     "is_active": bool(row.is_active),
                     "created_at": row.created_at,
                     "updated_at": row.updated_at,
