@@ -251,7 +251,7 @@ export default function EmployerDashboard({ onNavigate }) {
           icon={<DashboardIcon name="users" />}
           label="Candidates pipeline"
           value={loading ? '—' : stats.candidates_pipeline}
-          detail="Active applications"
+          detail="Candidates in active recruitment"
           onClick={() => onNavigate('Employer Applications')}
         />
 

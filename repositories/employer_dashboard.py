@@ -167,11 +167,17 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
             cursor.execute(
                 f"""
                 SELECT COUNT(*)
-                FROM dbo.applications AS a
-                INNER JOIN dbo.jobs AS j
-                    ON j.id = a.job_id
-                WHERE j.organization_id IN ({placeholders})
-                  AND a.status NOT IN (N'rejected', N'withdrawn', N'hired')
+                FROM dbo.candidates AS c
+                WHERE c.workflow_status NOT IN (N'Completed')
+                  AND EXISTS (
+                    SELECT 1
+                    FROM dbo.applications AS a
+                    INNER JOIN dbo.jobs AS j
+                        ON j.id = a.job_id
+                    WHERE a.candidate_id = c.id
+                      AND j.organization_id IN ({placeholders})
+                      AND a.status NOT IN (N'rejected', N'withdrawn')
+                  )
                 """,
                 *organization_ids,
             )
@@ -198,13 +204,16 @@ class SqlEmployerDashboardRepository(EmployerDashboardRepository):
                 SELECT
                     c.workflow_status AS status,
                     COUNT(*) AS status_count
-                FROM dbo.applications AS a
-                INNER JOIN dbo.jobs AS j
-                    ON j.id = a.job_id
-                INNER JOIN dbo.candidates AS c
-                    ON c.id = a.candidate_id
-                WHERE j.organization_id IN ({placeholders})
-                  AND a.status NOT IN (N'rejected', N'withdrawn')
+                FROM dbo.candidates AS c
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM dbo.applications AS a
+                    INNER JOIN dbo.jobs AS j
+                        ON j.id = a.job_id
+                    WHERE a.candidate_id = c.id
+                      AND j.organization_id IN ({placeholders})
+                      AND a.status NOT IN (N'rejected', N'withdrawn')
+                )
                 GROUP BY c.workflow_status
                 """,
                 *organization_ids,
