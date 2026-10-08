@@ -6957,3 +6957,128 @@ button {
   visibility: visible;
   opacity: 1;
 }
+
+/* ============================================================
+   Employer Dashboard — Recruitment Pipeline Stage Accents
+   Scoped to the Recruitment Pipeline overview grid only
+   ============================================================ */
+
+/* Applied — Blue */
+.employer-dashboard .overview-grid > .overview-item:nth-child(1) {
+  border-color: #0F6CBD;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(1) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(1) strong {
+  color: #0F6CBD;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(1) .overview-icon {
+  background: #EAF4FE;
+}
+
+/* Screening — Cyan */
+.employer-dashboard .overview-grid > .overview-item:nth-child(2) {
+  border-color: #0891B2;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(2) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(2) strong {
+  color: #0891B2;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(2) .overview-icon {
+  background: #ECFEFF;
+}
+
+/* Interview — Purple */
+.employer-dashboard .overview-grid > .overview-item:nth-child(3) {
+  border-color: #8B5CF6;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(3) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(3) strong {
+  color: #8B5CF6;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(3) .overview-icon {
+  background: #F5F3FF;
+}
+
+/* Trade Test — Orange */
+.employer-dashboard .overview-grid > .overview-item:nth-child(4) {
+  border-color: #F97316;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(4) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(4) strong {
+  color: #F97316;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(4) .overview-icon {
+  background: #FFF7ED;
+}
+
+/* Medical — Green */
+.employer-dashboard .overview-grid > .overview-item:nth-child(5) {
+  border-color: #22C55E;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(5) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(5) strong {
+  color: #22C55E;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(5) .overview-icon {
+  background: #F0FDF4;
+}
+
+/* Visa Processing — Amber */
+.employer-dashboard .overview-grid > .overview-item:nth-child(6) {
+  border-color: #F59E0B;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(6) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(6) strong {
+  color: #F59E0B;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(6) .overview-icon {
+  background: #FFFBEB;
+}
+
+/* Ticketing — Teal */
+.employer-dashboard .overview-grid > .overview-item:nth-child(7) {
+  border-color: #0D9488;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(7) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(7) strong {
+  color: #0D9488;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(7) .overview-icon {
+  background: #F0FDFA;
+}
+
+/* Onboarding — Indigo */
+.employer-dashboard .overview-grid > .overview-item:nth-child(8) {
+  border-color: #6366F1;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(8) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(8) strong {
+  color: #6366F1;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(8) .overview-icon {
+  background: #EEF2FF;
+}
+
+/* Deployment — Emerald */
+.employer-dashboard .overview-grid > .overview-item:nth-child(9) {
+  border-color: #059669;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(9) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(9) strong {
+  color: #059669;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(9) .overview-icon {
+  background: #ECFDF5;
+}
+
+/* Completed — Green */
+.employer-dashboard .overview-grid > .overview-item:nth-child(10) {
+  border-color: #16A34A;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(10) .overview-icon,
+.employer-dashboard .overview-grid > .overview-item:nth-child(10) strong {
+  color: #16A34A;
+}
+.employer-dashboard .overview-grid > .overview-item:nth-child(10) .overview-icon {
+  background: #F0FDF4;
+}
