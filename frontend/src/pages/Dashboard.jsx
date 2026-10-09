@@ -7,6 +7,7 @@ import WorkplaceAssistant from '../components/WorkplaceAssistant'
 import banner from '../assets/images/tbbd-workplace-hub.jpg'
 import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
 import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
 import AdministratorOrganizations from './AdministratorOrganizations'
@@ -87,10 +88,46 @@ function formatWorkplaceActivity(activity) {
   }
 }
 
+
+function formatCalendarDate(value) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
+}
+
+function formatCalendarTime(value) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date)
+}
+
+function getInterviewCandidateLabel(interview) {
+  const name = [
+    interview.candidate_first_name,
+    interview.candidate_last_name,
+  ].filter(Boolean).join(' ')
+
+  return name || interview.candidate_email || 'Candidate'
+}
+
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
   const isEmployerManager = auth?.roles?.includes('Employer Manager')
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+    requiresOrganizationSelection,
+  } = useOrganization()
 
   const [operations, setOperations] = useState({
     active_jobs: 0,
@@ -116,6 +153,9 @@ export default function Dashboard({ auth, onNavigate }) {
   const [notificationsLoading, setNotificationsLoading] = useState(true)
   const [workplaceActivity, setWorkplaceActivity] = useState([])
   const [activityLoading, setActivityLoading] = useState(true)
+  const [calendarEvents, setCalendarEvents] = useState([])
+  const [calendarLoading, setCalendarLoading] = useState(true)
+  const [calendarError, setCalendarError] = useState('')
 
   useEffect(() => {
     if (!isAdministrator && !isHRManager) return
@@ -229,6 +269,138 @@ export default function Dashboard({ auth, onNavigate }) {
     }
   }, [isEmployerManager])
 
+
+  useEffect(() => {
+    if (!isAdministrator && !isHRManager) {
+      setCalendarEvents([])
+      setCalendarLoading(false)
+      setCalendarError('')
+      return
+    }
+
+    if (organizationLoading) return
+
+    if (!selectedOrganizationId) {
+      setCalendarEvents([])
+      setCalendarLoading(false)
+      setCalendarError('')
+      return
+    }
+
+    let cancelled = false
+
+    async function loadCalendarEvents() {
+      setCalendarLoading(true)
+      setCalendarError('')
+
+      try {
+        const organizationId = encodeURIComponent(selectedOrganizationId)
+
+        const [interviewsResponse, testsResponse] = await Promise.all([
+          authenticatedFetch(
+            `/api/interviews?organization_id=${organizationId}`
+          ),
+          authenticatedFetch(
+            `/api/trade-tests?organization_id=${organizationId}`
+          ),
+        ])
+
+        if (!interviewsResponse.ok) {
+          throw new Error(
+            `Unable to load interviews (${interviewsResponse.status}).`
+          )
+        }
+
+        if (!testsResponse.ok) {
+          throw new Error(
+            `Unable to load trade tests (${testsResponse.status}).`
+          )
+        }
+
+        const [interviewsData, testsData] = await Promise.all([
+          interviewsResponse.json(),
+          testsResponse.json(),
+        ])
+
+        const now = Date.now()
+
+        const interviews = (Array.isArray(interviewsData?.interviews)
+          ? interviewsData.interviews
+          : [])
+          .filter((item) => {
+            const date = new Date(item.scheduled_start).getTime()
+            const status = String(item.status || '').toLowerCase()
+
+            return (
+              Number.isFinite(date) &&
+              date >= now &&
+              ['scheduled', 'rescheduled'].includes(status)
+            )
+          })
+          .map((item) => ({
+            id: `interview-${item.id}`,
+            type: 'Interview',
+            scheduledAt: item.scheduled_start,
+            title: `Interview · ${item.job_title || 'Recruitment interview'}`,
+            detail: getInterviewCandidateLabel(item),
+            destination: 'Recruitment Interviews',
+          }))
+
+        const tests = (Array.isArray(testsData?.trade_tests)
+          ? testsData.trade_tests
+          : [])
+          .filter((item) => {
+            const date = new Date(item.scheduled_at).getTime()
+            const status = String(item.status || '').toLowerCase()
+
+            return (
+              Number.isFinite(date) &&
+              date >= now &&
+              status === 'scheduled'
+            )
+          })
+          .map((item) => ({
+            id: `trade-test-${item.id}`,
+            type: 'Trade test',
+            scheduledAt: item.scheduled_at,
+            title: `Trade test · ${item.test_type || 'Assessment'}`,
+            detail: item.location || item.assessor_name || 'Scheduled assessment',
+            destination: 'Recruitment Trade Tests',
+          }))
+
+        const events = [...interviews, ...tests].sort(
+          (a, b) =>
+            new Date(a.scheduledAt).getTime() -
+            new Date(b.scheduledAt).getTime()
+        )
+
+        if (!cancelled) setCalendarEvents(events)
+      } catch (error) {
+        console.error('Failed to load workplace calendar:', error)
+
+        if (!cancelled) {
+          setCalendarEvents([])
+          setCalendarError(
+            'Upcoming events could not be loaded. Please try again later.'
+          )
+        }
+      } finally {
+        if (!cancelled) setCalendarLoading(false)
+      }
+    }
+
+    loadCalendarEvents()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    isAdministrator,
+    isHRManager,
+    organizationLoading,
+    selectedOrganizationId,
+  ])
+
   const employeeName =
     employeeDashboard.employee.name || getEmployeeDisplayName()
 
@@ -241,6 +413,76 @@ export default function Dashboard({ auth, onNavigate }) {
     applications,
     announcements,
   } = employeeDashboard
+
+
+  const calendarContent = (
+    <div className="workplace-activity-list">
+      {organizationLoading && (isAdministrator || isHRManager) ? (
+        <div className="workplace-empty-card">
+          <strong>Loading organization…</strong>
+          <p>Preparing calendar events for your organization.</p>
+        </div>
+      ) : (isAdministrator || isHRManager) && calendarLoading ? (
+        <div className="workplace-empty-card">
+          <strong>Loading upcoming events…</strong>
+          <p>Retrieving scheduled interviews and trade tests.</p>
+        </div>
+      ) : calendarError ? (
+        <div className="workplace-empty-card" role="alert">
+          <strong>Calendar unavailable</strong>
+          <p>{calendarError}</p>
+        </div>
+      ) : (isAdministrator || isHRManager) && !selectedOrganizationId ? (
+        <div className="workplace-empty-card">
+          <strong>
+            {requiresOrganizationSelection
+              ? 'Select an organization'
+              : 'No organization available'}
+          </strong>
+          <p>
+            {requiresOrganizationSelection
+              ? 'Choose an organization to view its upcoming recruitment events.'
+              : 'Your account does not currently have an available organization to display.'}
+          </p>
+        </div>
+      ) : !(isAdministrator || isHRManager) ? (
+        <div className="workplace-empty-card">
+          <span className="workplace-empty-icon">◷</span>
+          <strong>No calendar events available</strong>
+          <p>
+            Upcoming events are not connected to this dashboard yet.
+          </p>
+        </div>
+      ) : calendarEvents.length === 0 ? (
+        <div className="workplace-empty-card">
+          <span className="workplace-empty-icon">◷</span>
+          <strong>No upcoming events</strong>
+          <p>Scheduled interviews and trade tests will appear here.</p>
+        </div>
+      ) : (
+        calendarEvents.slice(0, 5).map((event) => (
+          <button
+            className="workplace-notification-item"
+            type="button"
+            key={event.id}
+            onClick={() => onNavigate(event.destination)}
+          >
+            <span className="workplace-notification-dot" />
+            <span>
+              <strong>{event.title}</strong>
+              <small>
+                {formatCalendarDate(event.scheduledAt)}
+                {' · '}
+                {formatCalendarTime(event.scheduledAt)}
+                {' · '}
+                {event.detail}
+              </small>
+            </span>
+          </button>
+        ))
+      )}
+    </div>
+  )
 
   const recruitmentJourney = [
     {
@@ -570,14 +812,7 @@ export default function Dashboard({ auth, onNavigate }) {
 
           <section className="workplace-dashboard-card-grid">
             <DashboardCard title="Upcoming Calendar">
-              <div className="workplace-empty-card">
-                <span className="workplace-empty-icon">◷</span>
-                <strong>Calendar coming soon</strong>
-                <p>
-                  Upcoming events will appear here when the workplace calendar
-                  data source is connected.
-                </p>
-              </div>
+              {calendarContent}
             </DashboardCard>
 
             <DashboardCard title="Recent Activity">
@@ -729,14 +964,7 @@ export default function Dashboard({ auth, onNavigate }) {
 
           <section className="workplace-dashboard-card-grid">
             <DashboardCard title="Upcoming Calendar">
-              <div className="workplace-empty-card">
-                <span className="workplace-empty-icon">◷</span>
-                <strong>Calendar coming soon</strong>
-                <p>
-                  Upcoming events will appear here when the workplace calendar
-                  data source is connected.
-                </p>
-              </div>
+              {calendarContent}
             </DashboardCard>
 
             <DashboardCard title="Recent Activity">
