@@ -2,6 +2,26 @@ import React, { useEffect, useState } from "react";
 import { authenticatedFetch } from "../utils/auth";
 import "./SystemActivity.css";
 
+function formatActivityDetails(details, action, status) {
+  if (details === null || details === undefined || details === "") {
+    return `${action || "Activity"} — ${status || "Recorded"}`;
+  }
+
+  if (typeof details === "string") {
+    try {
+      return JSON.stringify(JSON.parse(details), null, 2);
+    } catch {
+      return details;
+    }
+  }
+
+  try {
+    return JSON.stringify(details, null, 2);
+  } catch {
+    return String(details);
+  }
+}
+
 export default function SystemActivity() {
   const [activities, setActivities] = useState([]);
   const [failedEvents, setFailedEvents] = useState(0);
@@ -75,10 +95,13 @@ export default function SystemActivity() {
                 {activity.event_type || activity.action}
               </h3>
 
-              <p>
-                {activity.details ||
-                  `${activity.action} — ${activity.status}`}
-              </p>
+              <pre className="activity-details">
+                {formatActivityDetails(
+                  activity.details,
+                  activity.action,
+                  activity.status
+                )}
+              </pre>
             </div>
           ))}
 
