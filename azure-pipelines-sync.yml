@@ -28,6 +28,6 @@ steps:
 
       git -c http.extraheader="AUTHORIZATION: Basic $AUTH" push "$AZURE_REPO_URL" "HEAD:refs/heads/$BRANCH"
         displayName: "Sync GitHub branch to Azure Repos"
-    env:
+        env:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
       AZURE_REPO_URL: "https://dev.azure.com/Loyal-Trade-BD/Talent%20Bridge%20BD/_git/TBBD-HR-Portal"
