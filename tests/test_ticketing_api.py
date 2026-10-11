@@ -104,6 +104,12 @@ def client(monkeypatch):
         fake_organization_repository(),
     )
 
+    monkeypatch.setattr(
+        ticketing_api,
+        "_audit_log_repository",
+        MagicMock(),
+    )
+
     return TestClient(app)
 
 
