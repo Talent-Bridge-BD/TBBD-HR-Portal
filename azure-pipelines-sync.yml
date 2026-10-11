@@ -1,0 +1,33 @@
+trigger:
+  branches:
+    include:
+      - feature/workplace-hub-recovery
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+    fetchDepth: 0
+
+  - bash: |
+      set -euo pipefail
+
+      case "$BUILD_SOURCEBRANCH" in
+        refs/heads/*) ;;
+        *)
+          echo "Only branch builds are supported."
+          exit 1
+          ;;
+      esac
+
+      BRANCH="${BUILD_SOURCEBRANCH#refs/heads/}"
+      AUTH="$(printf ':%s' "$SYSTEM_ACCESSTOKEN" | base64 -w 0)"
+
+      git -c http.extraheader="AUTHORIZATION: Basic $AUTH" push "$AZURE_REPO_URL" "HEAD:refs/heads/$BRANCH"
+    displayName: "Sync GitHub branch to Azure Repos"
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      AZURE_REPO_URL: "https://dev.azure.com/Loyal-Trade-BD/Talent%20Bridge%20BD/_git/TBBD-HR-Portal"
