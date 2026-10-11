@@ -6,7 +6,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: ubuntu-latest
+  name: TBBD-Agent-Pool
 
 steps:
   - checkout: self
@@ -26,7 +26,8 @@ steps:
       BRANCH="${BUILD_SOURCEBRANCH#refs/heads/}"
       AUTH="$(printf ':%s' "$SYSTEM_ACCESSTOKEN" | base64 -w 0)"
 
-      git -c http.extraheader="AUTHORIZATION: Basic $AUTH" push "$AZURE_REPO_URL" "HEAD:refs/heads/$BRANCH"
+      git -c http.extraheader="AUTHORIZATION: Basic $AUTH" 
+        push "$AZURE_REPO_URL" "HEAD:refs/heads/$BRANCH"
     displayName: "Sync GitHub branch to Azure Repos"
     env:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
