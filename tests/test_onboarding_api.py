@@ -176,6 +176,12 @@ def test_onboarding_create_returns_created_record(
         fake_application_repository(application),
     )
 
+    monkeypatch.setattr(
+        onboarding_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
+
     created = fake_onboarding()
 
     monkeypatch.setattr(

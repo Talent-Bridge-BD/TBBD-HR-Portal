@@ -153,7 +153,21 @@ export default function AdministratorNotifications() {
               <p>No delivery records available.</p>
             ) : (
               deliveryLogs.map((log) => (
-                <div key={log.id}>{log.recipient} - {log.status}</div>
+                <div key={log.id} className="notification-delivery-log">
+                  <strong>{log.recipient}</strong>
+                  <p>Status: {log.status}</p>
+                  {log.sent_at && (
+                    <p>Sent at: {new Date(log.sent_at).toLocaleString()}</p>
+                  )}
+                  {log.status === "FAILED" && (
+                    <p role="alert">
+                      Failure reason: {log.error_message || "No error details recorded."}
+                    </p>
+                  )}
+                  {log.status === "PENDING" && (
+                    <p>Delivery is pending; a final result has not been recorded.</p>
+                  )}
+                </div>
               ))
             )}
           </section>
