@@ -389,7 +389,33 @@ def test_onboarding_get_returns_record(
 def test_onboarding_update_returns_updated_record(
     monkeypatch,
 ):
-    application = object()
+    application = type(
+        "FakeApplication",
+        (),
+        {"destination_country": "Saudi Arabia"},
+    )()
+
+    monkeypatch.setattr(
+        onboarding_api,
+        "_deployment_readiness_service",
+        type(
+            "FakeReadinessService",
+            (),
+            {
+                "check": lambda self, **kwargs: {
+                    "ready": True,
+                    "next_step": None,
+                    "prerequisites": [],
+                },
+            },
+        )(),
+    )
+    monkeypatch.setattr(
+        onboarding_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
+
     onboarding = fake_onboarding()
 
     updated = fake_onboarding()

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from repositories.administrator_notifications import (
     AdministratorNotificationRepository,
@@ -77,6 +78,11 @@ def _require_administrator(request: Request):
     return context
 
 
+class NotificationTemplateUpdateRequest(BaseModel):
+    subject: str = Field(min_length=1, max_length=500)
+    html_body: str = Field(max_length=100000)
+
+
 @router.get("/email-settings")
 def get_email_settings(
     request: Request,
@@ -108,3 +114,14 @@ def list_delivery_logs(
     return _service.list_delivery_logs(
         limit=limit
     )
+
+@router.put("/templates/{template_id}")
+def update_template(template_id: str, payload: NotificationTemplateUpdateRequest, request: Request):
+    _require_administrator(request)
+    subject = payload.subject.strip()
+    if not subject:
+        raise HTTPException(status_code=422, detail="Subject cannot be blank")
+    updated_id = _service.update_template(template_id, subject, payload.html_body)
+    if updated_id is None:
+        raise HTTPException(status_code=404, detail="Notification template not found")
+    return {"id": updated_id, "status": "updated"}

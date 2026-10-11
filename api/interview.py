@@ -5,14 +5,20 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from repositories.application import SqlApplicationRepository
+from repositories.candidate import SqlCandidateRepository
 from repositories.interview import SqlInterviewRepository
+from repositories.notifications import SqlNotificationRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
+from services.application import ApplicationService
+from services.candidate import CandidateService
 from services.interview import InterviewService
 from services.notification_service import NotificationService
+from services.notifications import NotificationService as PortalNotificationService
 from services.local_auth import get_request_principal
 
 
@@ -24,6 +30,14 @@ router = APIRouter(
 _interview_repository = SqlInterviewRepository()
 _interview_service = InterviewService(
     _interview_repository,
+)
+_application_repository = SqlApplicationRepository()
+_application_service = ApplicationService(_application_repository)
+_candidate_repository = SqlCandidateRepository()
+_candidate_service = CandidateService(_candidate_repository)
+_notification_repository = SqlNotificationRepository()
+_portal_notification_service = PortalNotificationService(
+    _notification_repository,
 )
 _organization_repository = SqlOrganizationRepository()
 
@@ -184,18 +198,6 @@ async def get_interview(
             detail="Interview not found",
         )
 
-    try:
-        NotificationService().send_notification(
-            event_type="INTERVIEW_SCHEDULED",
-            recipient="interviews@talentbridgebd.com",
-            subject_data={
-                "interview_type": payload.interview_type,
-            },
-        )
-    except Exception as notification_error:
-        print(
-            f"[INTERVIEW NOTIFICATION ERROR] {notification_error}"
-        )
 
     return {
         "interview": interview.__dict__
@@ -239,6 +241,81 @@ async def create_interview(
             detail=str(exc),
         )
 
+    try:
+        application = _application_service.get_application(
+            organization_id,
+            payload.application_id,
+        )
+    except Exception as lookup_error:
+        application = None
+        print(
+            f"[INTERVIEW APPLICATION LOOKUP ERROR] {lookup_error}"
+        )
+
+    if application and application.candidate_email:
+        try:
+            NotificationService().send_notification(
+                event_type="INTERVIEW_SCHEDULED",
+                recipient=application.candidate_email,
+                subject_data={
+                    "candidate_name": (
+                        " ".join(
+                            part
+                            for part in (
+                                application.candidate_first_name,
+                                application.candidate_last_name,
+                            )
+                            if part
+                        ).strip()
+                        or "Candidate"
+                    ),
+                    "interview_type": payload.interview_type or "Interview",
+                    "scheduled_start": payload.scheduled_start.isoformat(),
+                    "scheduled_end": (
+                        payload.scheduled_end.isoformat()
+                        if payload.scheduled_end
+                        else "Not specified"
+                    ),
+                    "location_or_link": (
+                        payload.location_or_link or "To be confirmed"
+                    ),
+                    "interviewer_name": (
+                        payload.interviewer_name or "To be confirmed"
+                    ),
+                },
+            )
+        except Exception as notification_error:
+            print(
+                f"[INTERVIEW EMAIL NOTIFICATION ERROR] {notification_error}"
+            )
+
+    if application and application.candidate_id:
+        try:
+            candidate_user_id = _candidate_service.get_user_id(
+                application.candidate_id,
+            )
+
+            if candidate_user_id:
+                _portal_notification_service.create(
+                    candidate_id=application.candidate_id,
+                    recipient_user_id=candidate_user_id,
+                    recipient_type="candidate",
+                    title="Interview Scheduled",
+                    message=(
+                        f"Your {payload.interview_type or 'interview'} "
+                        f"is scheduled for {payload.scheduled_start.isoformat()}."
+                    ),
+                    notification_type="job",
+                    event_type="INTERVIEW_SCHEDULED",
+                    organization_id=organization_id,
+                    application_id=payload.application_id,
+                    related_entity_type="application",
+                    related_entity_id=payload.application_id,
+                )
+        except Exception as notification_error:
+            print(
+                f"[INTERVIEW PORTAL NOTIFICATION ERROR] {notification_error}"
+            )
     return {
         "interview": interview.__dict__
     }

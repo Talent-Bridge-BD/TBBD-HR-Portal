@@ -21,10 +21,7 @@ class NotificationService:
 
     def __init__(self):
         self.repository = AdministratorNotificationRepository()
-
-        self.email_client = EmailClient.from_connection_string(
-            os.environ["AZURE_COMMUNICATION_CONNECTION_STRING"]
-        )
+        self.email_client = None
 
 
     def send_notification(
@@ -90,6 +87,18 @@ class NotificationService:
                 event_type,
                 EMAIL_SENDERS["DEFAULT"],
             )
+
+            if self.email_client is None:
+                connection_string = os.getenv(
+                    "AZURE_COMMUNICATION_CONNECTION_STRING"
+                )
+                if not connection_string:
+                    raise ValueError(
+                        "AZURE_COMMUNICATION_CONNECTION_STRING missing"
+                    )
+                self.email_client = EmailClient.from_connection_string(
+                    connection_string
+                )
 
             poller = self.email_client.begin_send(
                 {

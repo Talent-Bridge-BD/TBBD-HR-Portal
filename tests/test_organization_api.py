@@ -191,6 +191,12 @@ def test_unknown_or_inactive_organization_returns_404(monkeypatch):
 def test_administrator_can_create_membership(monkeypatch):
     import api.organization as organization_api
 
+    monkeypatch.setattr(
+        organization_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
+
     repository = make_repository()
     monkeypatch.setattr(
         organization_api,
@@ -253,6 +259,12 @@ def test_duplicate_active_membership_returns_409(monkeypatch):
 def test_inactive_membership_can_be_reactivated(monkeypatch):
     import api.organization as organization_api
 
+    monkeypatch.setattr(
+        organization_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
+
     repository = make_repository()
     repository._memberships = [
         OrganizationMembership(
@@ -288,6 +300,12 @@ def test_inactive_membership_can_be_reactivated(monkeypatch):
 def test_patch_can_revoke_membership(monkeypatch):
     import api.organization as organization_api
 
+    monkeypatch.setattr(
+        organization_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
+
     repository = make_repository()
     repository._memberships = [
         OrganizationMembership(
@@ -317,6 +335,12 @@ def test_patch_can_revoke_membership(monkeypatch):
 
 def test_patch_preserves_membership_role(monkeypatch):
     import api.organization as organization_api
+
+    monkeypatch.setattr(
+        organization_api._audit_log_repository,
+        "create_log",
+        lambda **kwargs: None,
+    )
 
     repository = make_repository()
     repository._memberships = [

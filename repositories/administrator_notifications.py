@@ -140,6 +140,17 @@ class AdministratorNotificationRepository:
             ]
 
 
+    def update_template(self, template_id, subject: str, html_body: str):
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                "UPDATE dbo.notification_templates SET subject = ?, html_body = ?, updated_at = SYSUTCDATETIME() OUTPUT INSERTED.id WHERE id = ?",
+                (subject, html_body, template_id),
+            )
+            row = cursor.fetchone()
+            connection.commit()
+            return str(row.id) if row else None
+
     def list_delivery_logs(self, limit: int = 100):
 
         with self._connection() as connection:
