@@ -351,6 +351,22 @@ def employer_access_request_page():
     return FileResponse(page)
 
 
+@app.get("/employer-access-request.html", include_in_schema=False)
+def employer_access_request_html_page():
+    page = DIST_DIR / "employer-access-request.html"
+    if not page.is_file():
+        page = BASE_DIR / "frontend" / "dist" / "employer-access-request.html"
+    return FileResponse(page)
+
+
+@app.get("/employer-access.html", include_in_schema=False)
+def employer_access_legacy_page():
+    page = DIST_DIR / "employer-access-request.html"
+    if not page.is_file():
+        page = BASE_DIR / "frontend" / "dist" / "employer-access-request.html"
+    return FileResponse(page)
+
+
 @app.get("/redirect.html")
 def redirect_page():
     return FileResponse(DIST_DIR / "redirect.html")
