@@ -2,6 +2,10 @@ from api.administrator import router as administrator_router
 from api.administrator_activity import router as administrator_activity_router
 from api.activity import router as activity_router
 from api.administrator_organizations import router as administrator_organizations_router
+from api.employer_access_requests import (
+    router as employer_access_requests_router,
+    public_router as public_employer_access_requests_router,
+)
 
 import os
 from fastapi import FastAPI
@@ -70,6 +74,8 @@ app.include_router(administrator_router)
 app.include_router(administrator_activity_router)
 app.include_router(activity_router)
 app.include_router(administrator_organizations_router)
+app.include_router(employer_access_requests_router)
+app.include_router(public_employer_access_requests_router)
 app.include_router(candidate_router)
 app.include_router(employer_router)
 app.include_router(job_router)
@@ -303,9 +309,31 @@ def healthz():
 BASE_DIR = Path(__file__).resolve().parent
 DIST_DIR = BASE_DIR / "dist"
 
+class FrontendAssets(StaticFiles):
+    def __init__(self):
+        super().__init__(directory=DIST_DIR / "assets", check_dir=False)
+        self.fallback_directory = BASE_DIR / "frontend" / "dist" / "assets"
+
+    async def get_response(self, path, scope):
+        try:
+            return await super().get_response(path, scope)
+        except Exception as error:
+            from starlette.exceptions import HTTPException as StarletteHTTPException
+
+            if not isinstance(error, StarletteHTTPException) or error.status_code != 404:
+                raise
+
+            fallback_root = self.fallback_directory.resolve()
+            fallback_file = (fallback_root / path).resolve()
+            if not fallback_file.is_relative_to(fallback_root) or not fallback_file.is_file():
+                raise
+
+            return FileResponse(fallback_file)
+
+
 app.mount(
     "/assets",
-    StaticFiles(directory=DIST_DIR / "assets"),
+    FrontendAssets(),
     name="assets",
 )
 
@@ -313,6 +341,14 @@ app.mount(
 @app.get("/")
 def home():
     return FileResponse(DIST_DIR / "index.html")
+
+
+@app.get("/employer-access-request")
+def employer_access_request_page():
+    page = DIST_DIR / "employer-access-request.html"
+    if not page.is_file():
+        page = BASE_DIR / "frontend" / "dist" / "employer-access-request.html"
+    return FileResponse(page)
 
 
 @app.get("/redirect.html")

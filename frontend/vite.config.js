@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: resolve(__dirname, 'index.html'),
           redirect: resolve(__dirname, 'redirect.html'),
+          employer_access_request: resolve(__dirname, 'employer-access-request.html'),
         },
       },
     },

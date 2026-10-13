@@ -48,6 +48,7 @@ const administrationNavigation = [
   ['Notification System', '🔔', 'notifications'],
   ['System Configuration', '⚙', 'settings'],
   ['System Activity', '◷', 'activity'],
+  ['Employer Access Requests', '▤', 'employer-access-requests'],
 ]
 
 const toolNavigation = [

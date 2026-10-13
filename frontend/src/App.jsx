@@ -19,6 +19,7 @@ import SystemConfiguration from './pages/SystemConfiguration'
 import SystemActivity from './pages/SystemActivity'
 import NotificationSettings from './pages/NotificationSettings'
 import AdministratorNotifications from './pages/AdministratorNotifications'
+import EmployerAccessRequests from './pages/EmployerAccessRequests'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -159,6 +160,7 @@ export default function App() {
     settings: <SystemConfiguration />,
 
     activity: <SystemActivity />,
+    'employer-access-requests': <EmployerAccessRequests auth={auth} />,
 
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,
