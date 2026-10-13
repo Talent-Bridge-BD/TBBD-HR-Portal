@@ -145,3 +145,126 @@ def test_review_requires_administrator_identity(monkeypatch):
     )
 
     assert response.status_code == 401
+
+
+def test_approved_request_sends_employer_email(monkeypatch):
+    import api.employer_access_requests as api
+    import services.local_auth as local_auth
+
+    captured = {}
+
+    class FakeEmailService:
+        def send_email(self, **kwargs):
+            captured.update(kwargs)
+            return {"status": "Succeeded"}
+
+    record = {
+        "id": "request-001",
+        "status": "Approved",
+        "company_name": "ABC Construction Test Ltd.",
+        "representative_name": "Rahim Ahmed",
+        "email": "employer@example.com",
+    }
+
+    monkeypatch.setattr(api, "require_admin", lambda request: {})
+    monkeypatch.setattr(
+        local_auth,
+        "get_request_principal",
+        lambda request: {
+            "id": "admin-001",
+            "email": "admin@example.com",
+        },
+    )
+    monkeypatch.setattr(
+        api._repository, "review_request", lambda *args, **kwargs: record
+    )
+    monkeypatch.setattr(api, "EmailService", FakeEmailService)
+    log_events = []
+
+    class FakeDeliveryLogRepository:
+        def create_delivery_log(self, **kwargs):
+            log_events.append(("create", kwargs))
+            return {"id": "delivery-test-001"}
+
+        def update_delivery_status(
+            self, delivery_id, status, error_message=None
+        ):
+            log_events.append(
+                ("update", delivery_id, status, error_message)
+            )
+
+    monkeypatch.setattr(
+        api, "_delivery_log_repository", FakeDeliveryLogRepository()
+    )
+
+    response = TestClient(app).patch(
+        f"{BASE}/request-001/review",
+        json={"status": "Approved"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["request"]["status"] == "Approved"
+    assert response.json()["notification_status"] == "SENT"
+    assert ("update", "delivery-test-001", "SENT", None) in log_events
+    assert captured["recipient"] == "employer@example.com"
+    assert "ABC Construction Test Ltd." in captured["plain_text"]
+    assert "does not create an account" in captured["plain_text"]
+
+
+def test_rejection_is_preserved_when_email_fails(monkeypatch):
+    import api.employer_access_requests as api
+    import services.local_auth as local_auth
+
+    class FailingEmailService:
+        def send_email(self, **kwargs):
+            raise RuntimeError("simulated email failure")
+
+    record = {
+        "id": "request-002",
+        "status": "Rejected",
+        "company_name": "Example Trading Ltd.",
+        "representative_name": "Test Representative",
+        "email": "employer@example.com",
+    }
+
+    monkeypatch.setattr(api, "require_admin", lambda request: {})
+    monkeypatch.setattr(
+        local_auth,
+        "get_request_principal",
+        lambda request: {
+            "id": "admin-001",
+            "email": "admin@example.com",
+        },
+    )
+    monkeypatch.setattr(
+        api._repository, "review_request", lambda *args, **kwargs: record
+    )
+    monkeypatch.setattr(api, "EmailService", FailingEmailService)
+    log_events = []
+
+    class FakeDeliveryLogRepository:
+        def create_delivery_log(self, **kwargs):
+            log_events.append(("create", kwargs))
+            return {"id": "delivery-test-001"}
+
+        def update_delivery_status(
+            self, delivery_id, status, error_message=None
+        ):
+            log_events.append(
+                ("update", delivery_id, status, error_message)
+            )
+
+    monkeypatch.setattr(
+        api, "_delivery_log_repository", FakeDeliveryLogRepository()
+    )
+
+    response = TestClient(app).patch(
+        f"{BASE}/request-002/review",
+        json={"status": "Rejected"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["request"]["status"] == "Rejected"
+    assert response.json()["notification_status"] == "FAILED"
+    assert any(e[0] == "update" and e[2] == "FAILED" for e in log_events)
+    assert "could not be confirmed as sent" in response.json()["message"]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import re
 from typing import Literal
 
@@ -10,6 +11,9 @@ from api.administrator_organizations import require_admin
 from repositories.employer_access_requests import (
     EmployerAccessRequestRepository,
 )
+
+from services.email_service import EmailService
+from repositories.administrator_notifications import AdministratorNotificationRepository
 
 router = APIRouter(
     prefix="/api/employer-access-requests",
@@ -23,6 +27,7 @@ public_router = APIRouter(
 
 
 _repository = EmployerAccessRequestRepository()
+_delivery_log_repository = AdministratorNotificationRepository()
 
 
 class EmployerAccessRequestCreate(BaseModel):
@@ -156,9 +161,117 @@ def review_employer_access_request(
             detail="Pending request not found; it may already have been reviewed.",
         )
 
-    # This decision records the request review only. It deliberately does
-    # not create a user, role assignment, login, or organization membership.
+    # The review decision is saved. Logging or email failures must not undo it.
+    notification_status = "FAILED"
+    failure_reason = "Email provider did not confirm success."
+    delivery_log_id = None
+
+    company_name = str(record.get("company_name") or "your organization")
+    representative_name = str(
+        record.get("representative_name") or "Employer"
+    )
+    recipient = record.get("email")
+
+    if recipient:
+        try:
+            log = _delivery_log_repository.create_delivery_log(
+                recipient=str(recipient),
+                channel="EMAIL",
+                status="PENDING",
+                notification_id=None,
+            )
+            delivery_log_id = log.get("id") if log else None
+        except Exception:
+            delivery_log_id = None
+
+        try:
+            if payload.status == "Approved":
+                subject = (
+                    "Your Talent Bridge BD Employer Access Request - Approved"
+                )
+                plain_text = (
+                    f"Dear {representative_name},\n\n"
+                    "Thank you for submitting an employer access request "
+                    "to Talent Bridge BD. Your request for "
+                    f"{company_name} has been reviewed and approved.\n\n"
+                    "Our team will complete the necessary organization "
+                    "verification and employer account-access setup. "
+                    "Approval does not create an account or grant portal "
+                    "access. You will receive further instructions once "
+                    "your access setup is complete.\n\n"
+                    "Kind regards,\nTalent Bridge BD\n"
+                    "A Loyal Trade Management Ltd. initiative"
+                )
+            else:
+                subject = (
+                    "Update on Your Talent Bridge BD Employer Access Request"
+                )
+                plain_text = (
+                    f"Dear {representative_name},\n\n"
+                    "Thank you for your interest in Talent Bridge BD. "
+                    "After review, your employer access request for "
+                    f"{company_name} has not been approved at this time.\n\n"
+                    "If you have questions or believe further information "
+                    "may help, please contact the Talent Bridge BD team "
+                    "through our official contact channel.\n\n"
+                    "Kind regards,\nTalent Bridge BD\n"
+                    "A Loyal Trade Management Ltd. initiative"
+                )
+
+            safe_plain_text = html.escape(plain_text).replace("\n", "<br>")
+            html_content = (
+                '<div style="font-family:Arial,sans-serif;line-height:1.6">'
+                f"<p>{safe_plain_text}</p>"
+                "</div>"
+            )
+
+            delivery_result = EmailService().send_email(
+                recipient=str(recipient),
+                subject=subject,
+                html_content=html_content,
+                plain_text=plain_text,
+            )
+            delivery_status = (
+                delivery_result.get("status")
+                if isinstance(delivery_result, dict)
+                else getattr(delivery_result, "status", None)
+            )
+
+            if delivery_status == "Succeeded":
+                notification_status = "SENT"
+                failure_reason = None
+            else:
+                failure_reason = "Email provider did not confirm success."
+        except Exception as exc:
+            notification_status = "FAILED"
+            failure_reason = f"Email send failed ({type(exc).__name__})."
+
+        if delivery_log_id is not None:
+            try:
+                _delivery_log_repository.update_delivery_status(
+                    delivery_log_id,
+                    notification_status,
+                    failure_reason,
+                )
+            except Exception:
+                pass
+
+    if notification_status == "SENT":
+        message = (
+            f"Employer access request {payload.status.lower()}; "
+            "notification email sent."
+        )
+    else:
+        message = (
+            f"Employer access request {payload.status.lower()}, but the "
+            "notification email could not be confirmed as sent. "
+            "Please contact the employer separately."
+        )
+
+    # This decision does not create a user, role assignment, login,
+    # or organization membership.
     return {
-        "message": f"Employer access request {payload.status.lower()}.",
+        "message": message,
+        "notification_status": notification_status,
         "request": record,
     }
