@@ -54,6 +54,7 @@ import OrganizationSelector from './components/OrganizationSelector'
 const placeholderPages = {}
 
 export default function App() {
+  const isCandidateMode = new URLSearchParams(window.location.search).get('authMode') === 'candidate'
   const [activePage, setActivePage] = useState('Dashboard')
   const [auth, setAuth] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
@@ -109,24 +110,57 @@ export default function App() {
       <div className="app-shell">
         <main className="main-content">
           <div className="empty-state">
-            <strong>Sign in required</strong>
-            <p>
-              Sign in with your Microsoft account to access Talent Bridge BD.
-            </p>
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() => {
-                signIn().catch((error) => {
-                  console.error(
-                    'Microsoft Entra sign-in failed:',
-                    error,
-                  )
-                })
-              }}
-            >
-              Sign in with Microsoft
-            </button>
+            {isCandidateMode ? (
+              <>
+                <strong>Welcome to Talent Bridge BD Candidates Portal</strong>
+                <p>Your journey to the right opportunity starts here.</p>
+                <p><strong>Are you applying for a job?</strong></p>
+                <p>
+                  Sign in to access your candidate dashboard, manage your profile,
+                  and follow your job applications.
+                </p>
+                <a
+                  className="primary-button"
+                  href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
+                >
+                  Candidate sign in
+                </a>
+                <p>
+                  No account?{' '}
+                  <a href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate">
+                    Register
+                  </a>
+                </p>
+              </>
+            ) : (
+              <>
+                <strong>Sign in required</strong>
+                <p>
+                  Staff and administrators can sign in with their Microsoft work account.
+                </p>
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => {
+                    signIn().catch((error) => {
+                      console.error(
+                        'Microsoft Entra sign-in failed:',
+                        error,
+                      )
+                    })
+                  }}
+                >
+                  Staff and administrator sign in
+                </button>
+                <p>Are you a candidate?</p>
+                <a
+                  className="primary-button"
+                  href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
+                >
+                  Candidate sign in
+                </a>
+              </>
+            )}
           </div>
         </main>
       </div>
@@ -222,4 +256,3 @@ export default function App() {
     </OrganizationProvider>
   )
 }
-
