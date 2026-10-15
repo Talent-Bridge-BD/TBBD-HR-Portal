@@ -59,6 +59,9 @@ export default function App() {
   const [auth, setAuth] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
 
+  const isCandidateMode =
+    new URLSearchParams(window.location.search).get('authMode') === 'candidate'
+
   useEffect(() => {
     let mounted = true
 
@@ -110,24 +113,82 @@ export default function App() {
       <div className="app-shell">
         <main className="main-content">
           <div className="empty-state">
-            <strong>Sign in required</strong>
-            <p>
-              Sign in with your Microsoft account to access Talent Bridge BD.
-            </p>
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() => {
-                signIn().catch((error) => {
-                  console.error(
-                    'Microsoft Entra sign-in failed:',
-                    error,
-                  )
-                })
-              }}
-            >
-              Sign in with Microsoft
-            </button>
+            <strong>Welcome to Talent Bridge BD</strong>
+
+
+{isCandidateMode ? (
+              <>
+                <p>
+                  Sign in to your candidate account, or register if you are new.
+                </p>
+
+                <p>
+                  <strong>Are you applying for a job?</strong>
+                </p>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    width: '100%',
+                    overflow: 'hidden',
+                    border: '1px solid #0067B8',
+                    borderRadius: '6px',
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="primary-button"
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      border: 0,
+                      borderRadius: 0,
+                      borderRight: '1px solid #FFFFFF',
+                    }}
+                    onClick={() => {
+                      window.location.assign(
+                        '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=login'
+                      )
+                    }}
+                  >
+                    Candidate Sign in
+                  </button>
+
+                  <button
+                    type="button"
+                    className="primary-button"
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      border: 0,
+                      borderRadius: 0,
+                    }}
+                    onClick={() => {
+                      window.location.assign(
+                        '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=create'
+                      )
+                    }}
+                  >
+                    No Account? Register
+                  </button>
+                </div>
+              </>
+) : (
+
+              <>
+                <p>
+                  Staff and administrators can continue with Microsoft.
+                </p>
+
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => signIn()}
+                >
+                  Sign in with Microsoft
+                </button>
+              </>
+            )}
           </div>
         </main>
       </div>
@@ -135,11 +196,11 @@ export default function App() {
   }
 
   const pages = {
-    Dashboard: auth?.roles?.includes('Candidate') ? (
-      <CandidateDashboard onNavigate={setActivePage} />
-    ) : (
-      <Dashboard auth={auth} onNavigate={setActivePage} />
-    ),
+Dashboard: auth?.roles?.includes('Candidate') ? (
+  <CandidateDashboard onNavigate={setActivePage} />
+) : (
+  <Dashboard auth={auth} onNavigate={setActivePage} />
+),
     'My Profile': auth?.roles?.includes('Candidate')
       ? <CandidateMyProfile />
       : <MyProfile auth={auth} />,
