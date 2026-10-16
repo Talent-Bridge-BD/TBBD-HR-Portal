@@ -8,6 +8,7 @@ from repositories.application import SqlApplicationRepository
 from repositories.hiring import SqlHiringRepository
 from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
+from repositories.candidate_approvals import SqlCandidateApprovalRepository
 from repositories.job import SqlJobRepository
 from repositories.blob_storage import BlobStorageRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
@@ -29,6 +30,7 @@ from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 _repository = SqlCandidateRepository()
+_approval_repository = SqlCandidateApprovalRepository()
 _service = CandidateService(_repository)
 _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
@@ -420,12 +422,44 @@ def get_candidate_identity(request: Request) -> str:
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
-    if CANDIDATE_GROUP_ID not in group_ids and "Candidate" not in token_roles:
+    # These provider signals must originate from the trusted authenticated
+    # principal supplied by the configured External ID authentication flow.
+    external_candidate = (
+        principal.get("provider_name") == "TBBDCandidateExternalID"
+        or principal.get("app_displayname") == "TBBD Candidate Portal"
+    )
+
+    if (
+        CANDIDATE_GROUP_ID not in group_ids
+        and "Candidate" not in token_roles
+        and not external_candidate
+    ):
         raise HTTPException(
             status_code=403,
             detail="Candidate role is required",
         )
 
+
+    approval = _approval_repository.ensure_candidate(str(principal_id))
+    approval_status = approval.get("approval_status")
+
+    if approval_status != "approved":
+        if approval_status == "pending":
+            raise HTTPException(
+                status_code=403,
+                detail="Candidate account is awaiting administrator approval",
+            )
+
+        if approval_status == "rejected":
+            raise HTTPException(
+                status_code=403,
+                detail="Candidate account has not been approved",
+            )
+
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate approval status is invalid",
+        )
     return str(principal_id)
 
 @router.get("/profile")

@@ -27,6 +27,7 @@ import EmployerApplications from './pages/EmployerApplications'
 import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
+import CandidateApprovals from './pages/CandidateApprovals'
 import CandidateMyApplications from './pages/CandidateMyApplications'
 import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
 import Jobs from './pages/Jobs'
@@ -56,6 +57,7 @@ const placeholderPages = {}
 export default function App() {
   const isCandidateMode = new URLSearchParams(window.location.search).get('authMode') === 'candidate'
   const [activePage, setActivePage] = useState('Dashboard')
+  const [workplaceHubOpened, setWorkplaceHubOpened] = useState(false)
   const [auth, setAuth] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
 
@@ -109,29 +111,65 @@ export default function App() {
     return (
       <div className="app-shell">
         <main className="main-content">
-          <div className="empty-state">
+          <div className={`empty-state${isCandidateMode ? "" : " staff-signin-state"}`}>
             {isCandidateMode ? (
-              <>
-                <strong>Welcome to Talent Bridge BD Candidates Portal</strong>
-                <p>Your journey to the right opportunity starts here.</p>
-                <p><strong>Are you applying for a job?</strong></p>
-                <p>
-                  Sign in to access your candidate dashboard, manage your profile,
-                  and follow your job applications.
-                </p>
-                <a
-                  className="primary-button"
-                  href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
-                >
-                  Candidate sign in
-                </a>
-                <p>
-                  No account?{' '}
-                  <a href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate">
-                    Register
-                  </a>
-                </p>
-              </>
+              <section className="candidate-landing">
+                <header className="candidate-brand">
+                  <div className="candidate-brand-mark" aria-hidden="true">TB</div>
+                  <div className="candidate-brand-copy">
+                    <strong>TALENT BRIDGE BD</strong>
+                    <span>Candidate Portal</span>
+                  </div>
+                </header>
+
+                <div className="candidate-welcome">
+                  <span className="candidate-eyebrow">YOUR NEXT CHAPTER STARTS HERE</span>
+                  <h1>Welcome to Talent Bridge BD Candidate Portal</h1>
+                  <p>Your journey to the right opportunity starts here.</p>
+                  <h2>Are you applying for a job?</h2>
+                </div>
+
+                <div className="candidate-access-grid">
+                  <article className="candidate-access-card">
+                    <div className="candidate-card-icon candidate-signin-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M10 16l4-4-4-4M14 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <h3>Already have an account?</h3>
+                    <p>Sign in to access your candidate profile and follow your job applications.</p>
+                    <a
+                      className="candidate-action candidate-action-signin"
+                      href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
+                    >
+                      Sign in
+                      <span aria-hidden="true">â†’</span>
+                    </a>
+                  </article>
+
+                  <article className="candidate-access-card">
+                    <div className="candidate-card-icon candidate-register-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M15 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-4A4.5 4.5 0 0 0 2 18.5V20M8.5 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M16 11h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <h3>No account yet?</h3>
+                    <p>Create your candidate account to get started with new employment opportunities.</p>
+                    <a
+                      className="candidate-action candidate-action-register"
+                      href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
+                    >
+                      Register
+                      <span aria-hidden="true">â†’</span>
+                    </a>
+                  </article>
+                </div>
+
+                <footer className="candidate-welcome-footer">
+                  <span className="candidate-footer-rule" aria-hidden="true"></span>
+                  <p>Connecting Bangladeshi Talent with Global Employment Opportunities.</p>
+                </footer>
+              </section>
             ) : (
               <>
                 <strong>Sign in required</strong>
@@ -152,13 +190,7 @@ export default function App() {
                 >
                   Staff and administrator sign in
                 </button>
-                <p>Are you a candidate?</p>
-                <a
-                  className="primary-button"
-                  href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
-                >
-                  Candidate sign in
-                </a>
+
               </>
             )}
           </div>
@@ -167,6 +199,39 @@ export default function App() {
     )
   }
 
+  if (!isCandidateMode && !auth?.roles?.includes('Candidate') && !workplaceHubOpened) {
+    return (
+      <div className="app-shell" style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <main className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
+          <section style={{ width: '100%', maxWidth: '680px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ height: '8px', background: '#0067B8' }} />
+            <div style={{ padding: '40px 32px', textAlign: 'center' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '58px', borderRadius: '14px', background: '#EAF4FC', color: '#0067B8', fontSize: '20px', fontWeight: 800, marginBottom: '22px' }}>
+                TB
+              </div>
+              <p style={{ color: '#0067B8', fontSize: '13px', fontWeight: 700, letterSpacing: '1.8px', margin: '0 0 12px' }}>
+                WORKPLACE HUB
+              </p>
+              <h1 style={{ color: '#0F172A', fontSize: '28px', lineHeight: 1.3, margin: '0 0 16px' }}>
+                Administrator &amp; HR Manager Operations
+              </h1>
+              <p style={{ color: '#475569', fontSize: '16px', lineHeight: 1.7, margin: '0 auto 28px', maxWidth: '510px' }}>
+                Access TBBD workplace tools and HR operations with role-based access and permission controls.
+              </p>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => setWorkplaceHubOpened(true)}
+                style={{ minHeight: '46px', padding: '12px 26px' }}
+              >
+                Continue to Dashboard
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+    )
+  }
   const pages = {
     Dashboard: auth?.roles?.includes('Candidate') ? (
       <CandidateDashboard onNavigate={setActivePage} />
@@ -182,6 +247,7 @@ export default function App() {
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
+    'Candidate Approvals': <CandidateApprovals />, 
     organizations: <OrganizationManagement onNavigate={setActivePage} />,
 
  users: <UserManagement auth={auth} />,

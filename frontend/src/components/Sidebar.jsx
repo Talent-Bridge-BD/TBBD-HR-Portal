@@ -44,6 +44,7 @@ const candidateNavigation = [
 
 const administrationNavigation = [
   ['Administration Employers', '♙'],
+  ['Candidate Approvals', '♙'],
 ]
 
 const toolNavigation = [

@@ -22,8 +22,18 @@ class NotificationService:
     def __init__(self):
         self.repository = AdministratorNotificationRepository()
 
+        connection_string = (
+            os.getenv("AZURE_COMMUNICATION_CONNECTION_STRING")
+            or os.getenv("ACS_EMAIL_CONNECTION_STRING")
+        )
+        if not connection_string:
+            raise ValueError(
+                "AZURE_COMMUNICATION_CONNECTION_STRING or "
+                "ACS_EMAIL_CONNECTION_STRING is required"
+            )
+
         self.email_client = EmailClient.from_connection_string(
-            os.environ["ACS_EMAIL_CONNECTION_STRING"]
+            connection_string
         )
 
 

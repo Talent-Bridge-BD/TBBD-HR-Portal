@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   /* TBBD Workplace Hub Design System */
   --tbbd-blue: #0067B8;
   --tbbd-blue-hover: #005A9E;
@@ -1267,7 +1267,7 @@ button {
 }
 
 /* =========================================================
-   Workplace Hub ΓÇö Dashboard Layout
+   Workplace Hub Î“Ã‡Ã¶ Dashboard Layout
    ========================================================= */
 
 .dashboard-two-column {
@@ -2077,7 +2077,7 @@ button {
 }
 
 /* =========================================================
-   TBBD Platform Shell ΓÇö Step 3
+   TBBD Platform Shell Î“Ã‡Ã¶ Step 3
    Future Recruitment and Employer Portal placeholder views
    ========================================================= */
 
@@ -3303,7 +3303,7 @@ button {
 }
 
 .job-request-meta span:not(:last-child)::after {
-  content: "•";
+  content: "â€¢";
   position: absolute;
   right: -11px;
   color: #cbd5e1;
@@ -3733,7 +3733,7 @@ button {
   max-height: 280px;
   object-fit: cover;
 }
-/* Candidate Available Jobs ΓÇö job card layout */
+/* Candidate Available Jobs Î“Ã‡Ã¶ job card layout */
 .candidate-jobs-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3933,7 +3933,7 @@ button {
 }
 
 /* =========================================================
-   TBBD Workplace Hub ΓÇö Dashboard 10/10 Refresh
+   TBBD Workplace Hub Î“Ã‡Ã¶ Dashboard 10/10 Refresh
    ========================================================= */
 
 .dashboard-kpi-strip {
@@ -4280,7 +4280,7 @@ button {
 }
 
 .dashboard-action-list .quick-action::after {
-  content: "ΓåÆ";
+  content: "Î“Ã¥Ã†";
   margin-left: auto;
   color: #94A3B8;
   font-size: 17px;
@@ -4391,7 +4391,7 @@ button {
 }
 
 
-/* TBBD Workplace Hub ΓÇö Dashboard 10/10 Assistant Prompts */
+/* TBBD Workplace Hub Î“Ã‡Ã¶ Dashboard 10/10 Assistant Prompts */
 
 .assistant-prompts {
   display: flex;
@@ -4441,7 +4441,7 @@ button {
 
 
 /* ============================================================
-   TBBD Dashboard ΓÇö Recruitment Pipeline Grid Restoration
+   TBBD Dashboard Î“Ã‡Ã¶ Recruitment Pipeline Grid Restoration
    Restored from approved Dashboard 10/10 layout
    ============================================================ */
 
@@ -4550,7 +4550,7 @@ button {
 
 /* =========================================================
    FINAL RECRUITMENT PORTAL
-   Compact action strip ΓÇö intentionally distinct from
+   Compact action strip Î“Ã‡Ã¶ intentionally distinct from
    the Recruitment Pipeline KPI cards.
    ========================================================= */
 
@@ -4774,7 +4774,7 @@ button {
   font-weight: 600;
 }
 
-/* Refined Quick Access ΓÇö horizontal action tiles, not KPI cards. */
+/* Refined Quick Access Î“Ã‡Ã¶ horizontal action tiles, not KPI cards. */
 .quick-access-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4819,7 +4819,7 @@ button {
 }
 
 .quick-access-row .quick-action::after {
-  content: "ΓåÆ";
+  content: "Î“Ã¥Ã†";
   position: absolute;
   right: 16px;
   top: 50%;
@@ -5239,7 +5239,7 @@ button {
   color: #dc2626;
 }
 
-/* Administrator KPI cards — dashboard-specific refinement */
+/* Administrator KPI cards â€” dashboard-specific refinement */
 .admin-kpi-grid {
   gap: 18px;
   margin-bottom: 28px;
@@ -5372,7 +5372,7 @@ button {
 }
 
 
-/* Administrator Dashboard — Workplace Assistant */
+/* Administrator Dashboard â€” Workplace Assistant */
 .admin-assistant-section {
   margin-bottom: 24px;
 }
@@ -5436,7 +5436,7 @@ button {
 }
 
 /* ============================================================
-   Candidate Portal Dashboard — visual upgrade
+   Candidate Portal Dashboard â€” visual upgrade
    Scoped to Candidate Dashboard only
    ============================================================ */
 
@@ -5846,7 +5846,7 @@ button {
   }
 }
 
-/* Employer Dashboard — compact typography */
+/* Employer Dashboard â€” compact typography */
 .employer-dashboard .stat-label {
   font-size: 13px;
 }
@@ -5964,7 +5964,7 @@ button {
 }
 
 /* =========================================================
-   Employer Job Requests — Workforce Planning UI
+   Employer Job Requests â€” Workforce Planning UI
    ========================================================= */
 
 .employer-job-requests-page {
@@ -6698,4 +6698,414 @@ button {
   font-size: 14px;
   font-weight: 600;
   color: var(--tbbd-text-primary);
+}
+
+/* TBBD Candidate Welcome Page */
+.candidate-landing {
+  --candidate-navy: #0B2545;
+  --candidate-blue: #0067B8;
+  --candidate-teal: #0D9488;
+  width: 100%;
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 34px;
+  overflow: hidden;
+  color: #0F172A;
+  background: #F4F8FC;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  box-shadow: 0 16px 45px rgba(15, 37, 69, 0.09);
+}
+
+.candidate-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: -34px -34px 0;
+  padding: 24px 34px;
+  color: #FFFFFF;
+  background: var(--candidate-navy);
+}
+
+.candidate-brand-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  place-items: center;
+  color: var(--candidate-blue);
+  background: #FFFFFF;
+  border-radius: 11px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.candidate-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candidate-brand-copy strong {
+  color: #FFFFFF;
+  font-size: 15px;
+  letter-spacing: 1.1px;
+}
+
+.candidate-brand-copy span {
+  color: #C9D9EA;
+  font-size: 12px;
+}
+
+.candidate-welcome {
+  padding: 40px 10px 28px;
+  text-align: center;
+}
+
+.candidate-eyebrow {
+  color: var(--candidate-blue);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.candidate-welcome h1 {
+  max-width: 720px;
+  margin: 13px auto 12px;
+  color: var(--candidate-navy);
+  font-size: clamp(25px, 3.5vw, 36px);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+}
+
+.candidate-welcome > p {
+  margin: 0;
+  color: #64748B;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.candidate-welcome h2 {
+  margin: 27px 0 0;
+  color: #1E293B;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.candidate-access-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.candidate-access-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 26px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 15px;
+  box-shadow: 0 5px 18px rgba(15, 37, 69, 0.045);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.candidate-access-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(15, 37, 69, 0.09);
+}
+
+.candidate-card-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 13px;
+}
+
+.candidate-card-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.candidate-signin-icon {
+  color: var(--candidate-blue);
+  background: #EAF4FF;
+}
+
+.candidate-register-icon {
+  color: var(--candidate-teal);
+  background: #E6F8F5;
+}
+
+.candidate-access-card h3 {
+  margin: 20px 0 9px;
+  color: #0F172A;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.candidate-access-card p {
+  flex: 1;
+  margin: 0 0 24px;
+  color: #64748B;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.candidate-action {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #FFFFFF !important;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+
+.candidate-action-signin {
+  background: var(--candidate-blue);
+}
+
+.candidate-action-signin:hover {
+  background: #00569B;
+  box-shadow: 0 5px 12px rgba(0, 103, 184, 0.2);
+}
+
+.candidate-action-register {
+  background: var(--candidate-teal);
+}
+
+.candidate-action-register:hover {
+  background: #0A7C72;
+  box-shadow: 0 5px 12px rgba(13, 148, 136, 0.2);
+}
+
+.candidate-action:focus-visible {
+  outline: 3px solid #93C5FD;
+  outline-offset: 3px;
+}
+
+.candidate-welcome-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 29px;
+  padding-top: 22px;
+  border-top: 1px solid #DCE5EF;
+  text-align: center;
+}
+
+.candidate-footer-rule {
+  width: 25px;
+  height: 3px;
+  flex-shrink: 0;
+  background: var(--candidate-teal);
+  border-radius: 5px;
+}
+
+.candidate-welcome-footer p {
+  margin: 0;
+  color: #52657A;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.6;
+  letter-spacing: 0.1px;
+}
+
+@media (max-width: 640px) {
+  .candidate-landing {
+    margin: 8px auto;
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .candidate-brand {
+    margin: -20px -20px 0;
+    padding: 20px;
+  }
+
+  .candidate-welcome {
+    padding: 32px 0 24px;
+  }
+
+  .candidate-welcome h1 {
+    font-size: 27px;
+  }
+
+  .candidate-access-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .candidate-access-card {
+    padding: 22px;
+  }
+
+  .candidate-welcome-footer {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .candidate-footer-rule {
+    margin-top: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate-access-card,
+  .candidate-action {
+    transition: none;
+  }
+
+  .candidate-access-card:hover {
+    transform: none;
+  }
+}
+/* Candidate page alignment refinement */
+.candidate-landing {
+  min-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.candidate-brand,
+.candidate-welcome,
+.candidate-access-grid,
+.candidate-welcome-footer {
+  width: 100%;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.candidate-welcome {
+  text-align: center;
+}
+
+.candidate-access-grid {
+  align-items: stretch;
+  justify-content: center;
+}
+
+.candidate-access-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.candidate-access-card h3,
+.candidate-access-card p {
+  width: 100%;
+  text-align: center;
+}
+
+.candidate-access-card p {
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.candidate-action {
+  align-self: center;
+  justify-content: center;
+}
+
+.candidate-welcome-footer {
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .candidate-landing {
+    min-height: 100vh;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .candidate-access-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Staff/Admin sign-in positioning — isolated from authenticated pages */
+.app-shell:has(.staff-signin-state) {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell:has(.staff-signin-state) > .main-content {
+  width: 100%;
+  max-width: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.staff-signin-state {
+  width: 100%;
+  min-height: 220px;
+  margin: auto;
+}
+
+@media (max-width: 640px) {
+  .app-shell:has(.staff-signin-state) > .main-content {
+    padding: 20px 16px;
+  }
+
+  .staff-signin-state {
+    padding: 20px 16px;
+  }
+}
+
+/* Candidate viewport positioning refinement */
+.app-shell:has(.candidate-landing) {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell:has(.candidate-landing) > .main-content {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.app-shell:has(.candidate-landing) .empty-state {
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.app-shell:has(.candidate-landing) .candidate-landing {
+  margin: auto;
+}
+
+@media (max-width: 640px) {
+  .app-shell:has(.candidate-landing) > .main-content {
+    padding: 12px;
+  }
 }
