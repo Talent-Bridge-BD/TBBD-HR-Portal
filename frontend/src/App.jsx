@@ -20,6 +20,7 @@ import SystemActivity from './pages/SystemActivity'
 import NotificationSettings from './pages/NotificationSettings'
 import AdministratorNotifications from './pages/AdministratorNotifications'
 import EmployerAccessRequests from './pages/EmployerAccessRequests'
+import CandidateApprovals from './pages/CandidateApprovals'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -222,6 +223,7 @@ Dashboard: auth?.roles?.includes('Candidate') ? (
 
     activity: <SystemActivity />,
     'employer-access-requests': <EmployerAccessRequests auth={auth} />,
+    'candidate-approvals': <CandidateApprovals />,
 
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,

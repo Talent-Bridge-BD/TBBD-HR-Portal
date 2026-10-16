@@ -102,6 +102,7 @@ export default function CandidateMyProfile() {
   const [skills, setSkills] = useState([])
   const [languages, setLanguages] = useState([])
   const [preferences, setPreferences] = useState(null)
+  const [approvalStatus, setApprovalStatus] = useState('')
   const [preferenceForm, setPreferenceForm] = useState({
     preferred_job_title: '',
     preferred_location: '',
@@ -134,6 +135,17 @@ export default function CandidateMyProfile() {
       try {
         setLoading(true)
         setError('')
+
+        authenticatedFetch('/api/candidate/approval-status')
+          .then((response) => (response.ok ? response.json() : null))
+          .then((data) => {
+            if (active && data) {
+              setApprovalStatus(data.approval_status || '')
+            }
+          })
+          .catch(() => {
+            // A status-check failure must not block profile loading.
+          })
 
         const [
           profileResponse,
@@ -1014,7 +1026,24 @@ export default function CandidateMyProfile() {
         </div>
       </section>
 
-      {error && (
+      {approvalStatus === 'pending' && (
+          <section className="dashboard-card" role="status">
+            <strong>
+              {completionPercent < 100
+                ? 'Your profile is incomplete. Continue where you left off.'
+                : 'Your profile is complete and awaiting administrator approval.'}
+            </strong>
+            {completionPercent < 100 && (
+              <p>
+                You can return later to continue completing your profile.
+                Recruitment features remain unavailable until an administrator
+                approves your account.
+              </p>
+            )}
+          </section>
+        )}
+
+        {error && (
         <div className="profile-error-message" role="alert">
           {error}
         </div>

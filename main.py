@@ -2,6 +2,7 @@ from api.administrator import router as administrator_router
 from api.administrator_activity import router as administrator_activity_router
 from api.activity import router as activity_router
 from api.administrator_organizations import router as administrator_organizations_router
+from api.administrator_candidate_approvals import router as administrator_candidate_approvals_router
 from api.employer_access_requests import (
     router as employer_access_requests_router,
     public_router as public_employer_access_requests_router,
@@ -22,7 +23,7 @@ from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
-from services.local_auth import get_request_principal
+from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principal
 from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
@@ -74,6 +75,7 @@ app.include_router(administrator_router)
 app.include_router(administrator_activity_router)
 app.include_router(activity_router)
 app.include_router(administrator_organizations_router)
+app.include_router(administrator_candidate_approvals_router)
 app.include_router(employer_access_requests_router)
 app.include_router(public_employer_access_requests_router)
 app.include_router(candidate_router)
@@ -131,14 +133,26 @@ async def get_current_user(request: Request):
         "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
     }
 
-    roles = set(token_roles)
+    provider_name = principal.get("provider_name", "")
+    app_display_name = principal.get("app_displayname", "")
 
-    for role, group_id in authorization_groups.items():
-        if group_id in group_ids:
-            roles.add(role)
+    is_candidate_identity = (
+        principal.get("tenant_id") == TBBD_EXTERNAL_ID_TENANT_ID
+        or provider_name == "TBBDCandidateExternalID"
+        or app_display_name == "TBBD Candidate Portal"
+    )
 
-    if not roles:
-        roles.add("Employee")
+    if is_candidate_identity:
+        roles = {"Candidate"}
+    else:
+        roles = set(token_roles)
+
+        for role, group_id in authorization_groups.items():
+            if group_id in group_ids:
+                roles.add(role)
+
+        if not roles:
+            roles.add("Employee")
 
     memberships = _organization_repository.get_active_memberships(
         principal_id

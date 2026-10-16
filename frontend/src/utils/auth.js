@@ -8,7 +8,41 @@ import {
 } from './msal'
 
 
+const CANDIDATE_TOKEN_KEY = 'tbbd_candidate_auth_token'
+
+const CANDIDATE_MODE_KEY = 'tbbd_candidate_auth_mode'
+
+function isCandidateMode() {
+  return new URLSearchParams(window.location.search).get('authMode') === 'candidate'
+    || sessionStorage.getItem(CANDIDATE_MODE_KEY) === 'true'
+}
+
+function captureCandidateToken() {
+  const fragment = window.location.hash.startsWith('#')
+    ? window.location.hash.slice(1)
+    : window.location.hash
+  const encoded = new URLSearchParams(fragment).get('token')
+
+  if (encoded) {
+    try {
+      const payload = JSON.parse(encoded)
+      if (payload.authenticationToken) {
+        sessionStorage.setItem(CANDIDATE_TOKEN_KEY, payload.authenticationToken)
+      }
+    } catch {
+      console.error('Could not parse candidate authentication response.')
+    }
+
+    window.history.replaceState(
+      null, document.title, window.location.pathname + window.location.search
+    )
+  }
+
+  return sessionStorage.getItem(CANDIDATE_TOKEN_KEY)
+}
+
 export async function initializeMsal() {
+  captureCandidateToken()
   await msalInstance.initialize()
 
   const redirectResult =
@@ -69,39 +103,32 @@ export async function getAccessToken() {
 
 
 export async function getCurrentUser() {
-  const accessToken = await getAccessToken()
-
-  if (!accessToken) {
-    return null
-  }
-
-  const response = await fetch('/api/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
+  const response = await authenticatedFetch('/api/me')
 
   if (!response.ok) {
     throw new Error(`Authentication request failed: ${response.status}`)
   }
 
-  return response.json()
+  const user = await response.json()
+
+  if (isCandidateMode() &&
+      (!user?.authenticated || !user?.roles?.includes('Candidate'))) {
+    throw new Error('Candidate session is not authenticated. Please sign in again.')
+  }
+
+  return user
 }
 
-
 export async function authenticatedFetch(url, options = {}) {
-  const accessToken = await getAccessToken()
-
   const headers = new Headers(options.headers || {})
 
-  headers.set(
-    'Authorization',
-    `Bearer ${accessToken}`
-  )
+  if (isCandidateMode()) {
+    headers.delete('Authorization')
+    headers.delete('X-ZUMO-AUTH')
+    return fetch(url, { ...options, credentials: 'include', headers })
+  }
 
-  return fetch(url, {
-    ...options,
-    credentials: 'include',
-    headers,
-  })
+  const accessToken = await getAccessToken()
+  headers.set('Authorization', `Bearer ${accessToken}`)
+  return fetch(url, { ...options, credentials: 'include', headers })
 }

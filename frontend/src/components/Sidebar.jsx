@@ -49,6 +49,7 @@ const administrationNavigation = [
   ['System Configuration', '⚙', 'settings'],
   ['System Activity', '◷', 'activity'],
   ['Employer Access Requests', '▤', 'employer-access-requests'],
+  ['Candidate Approvals', '✓', 'candidate-approvals'],
 ]
 
 const toolNavigation = [

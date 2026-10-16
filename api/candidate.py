@@ -8,6 +8,7 @@ from repositories.application import SqlApplicationRepository
 from repositories.hiring import SqlHiringRepository
 from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
+from repositories.candidate_approvals import SqlCandidateApprovalRepository
 from repositories.job import SqlJobRepository
 from repositories.blob_storage import BlobStorageRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
@@ -26,9 +27,10 @@ from services.candidate_preferences import CandidatePreferencesService
 from services.candidate import CandidateService
 from services.job import JobService
 from services.notification_service import NotificationService
-from services.local_auth import get_request_principal
+from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principal
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 _repository = SqlCandidateRepository()
+_approval_repository = SqlCandidateApprovalRepository()
 _service = CandidateService(_repository)
 _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
@@ -420,7 +422,19 @@ def get_candidate_identity(request: Request) -> str:
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
-    if CANDIDATE_GROUP_ID not in group_ids and "Candidate" not in token_roles:
+    provider_name = principal.get("provider_name", "")
+    app_display_name = principal.get("app_displayname", "")
+    is_candidate_identity = (
+        principal.get("tenant_id") == TBBD_EXTERNAL_ID_TENANT_ID
+        or provider_name == "TBBDCandidateExternalID"
+        or app_display_name == "TBBD Candidate Portal"
+    )
+
+    if (
+        CANDIDATE_GROUP_ID not in group_ids
+        and "Candidate" not in token_roles
+        and not is_candidate_identity
+    ):
         raise HTTPException(
             status_code=403,
             detail="Candidate role is required",
@@ -428,9 +442,51 @@ def get_candidate_identity(request: Request) -> str:
 
     return str(principal_id)
 
+
+def require_approved_candidate_identity(request: Request) -> str:
+    user_id = get_candidate_identity(request)
+    record = _approval_repository.ensure_candidate(user_id)
+    status = record["approval_status"]
+
+    if status != "approved":
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                f"Candidate approval is {status}. "
+                "Administrator approval is required to access this feature."
+            ),
+        )
+
+    return user_id
+
+def require_candidate_profile_access(request: Request) -> str:
+    """Allow pending candidates to maintain their own profile, but not rejected candidates."""
+    user_id = get_candidate_identity(request)
+    record = _approval_repository.ensure_candidate(user_id)
+
+    if record["approval_status"] == "rejected":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate approval was rejected. Profile-completion access is unavailable.",
+        )
+
+    return user_id
+
+
+@router.get("/approval-status")
+async def get_candidate_approval_status(request: Request):
+    user_id = get_candidate_identity(request)
+    record = _approval_repository.ensure_candidate(user_id)
+    return {
+        "approval_status": record["approval_status"],
+        "reviewed_at": record.get("reviewed_at"),
+        "approval_notes": record.get("approval_notes"),
+    }
+
+
 @router.get("/profile")
 async def get_candidate_profile(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     profile = _service.get_profile(user_id)
     if profile is None:
         return {
@@ -443,7 +499,7 @@ async def update_candidate_profile(
     payload: CandidateProfileRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     saved = _service.save_profile(
         CandidateProfile(
             user_id=user_id,
@@ -456,7 +512,7 @@ async def update_candidate_profile(
     }
 @router.get("/jobs")
 async def get_candidate_jobs(request: Request):
-    get_candidate_identity(request)
+    require_approved_candidate_identity(request)
     jobs = _job_service.list_published_jobs()
     return {
         "jobs": [job.__dict__ for job in jobs],
@@ -465,7 +521,7 @@ async def get_candidate_jobs(request: Request):
 
 @router.get("/applications")
 async def get_candidate_applications(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_approved_candidate_identity(request)
 
     candidate_id = _service.get_candidate_id(user_id)
 
@@ -494,7 +550,7 @@ async def get_candidate_applications(request: Request):
 
 @router.get("/offers")
 async def get_candidate_offers(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_approved_candidate_identity(request)
 
     candidate_id = _service.get_candidate_id(user_id)
 
@@ -518,7 +574,7 @@ async def accept_candidate_offer(
     offer_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_approved_candidate_identity(request)
 
     candidate_id = _service.get_candidate_id(user_id)
 
@@ -553,7 +609,7 @@ async def accept_candidate_offer(
 
 @router.get("/interviews")
 async def get_candidate_interviews(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
     print(
         f"[CANDIDATE DEBUG] user_id={user_id} "
@@ -582,7 +638,7 @@ async def create_candidate_application(
     payload: CandidateApplicationRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_approved_candidate_identity(request)
 
     candidate_id = _service.get_candidate_id(user_id)
 
@@ -658,7 +714,7 @@ async def create_candidate_application(
 @router.get("/experience")
 def list_candidate_experience(request: Request):
 
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     experience = _experience_service.list_experience(user_id)
     return [item.__dict__ for item in experience]
 
@@ -669,7 +725,7 @@ def create_candidate_experience(
     request: Request,
 ):
 
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     try:
         payload.validate_date_range()
@@ -704,7 +760,7 @@ def update_candidate_experience(
     request: Request,
 ):
 
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     try:
         payload.validate_date_range()
@@ -745,7 +801,7 @@ def delete_candidate_experience(
     request: Request,
 ):
 
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     deleted = _experience_service.delete_experience(
         user_id,
@@ -761,7 +817,7 @@ def delete_candidate_experience(
 
 @router.get("/languages")
 def list_candidate_languages(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     languages = _language_service.list_languages(user_id)
     return [language.__dict__ for language in languages]
 
@@ -771,7 +827,7 @@ def create_candidate_language(
     payload: CandidateLanguageRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     try:
         language = _language_service.create_language(
             user_id,
@@ -791,7 +847,7 @@ def update_candidate_language(
     payload: CandidateLanguageRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     try:
         language = _language_service.update_language(
             user_id,
@@ -815,7 +871,7 @@ def delete_candidate_language(
     language_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     deleted = _language_service.delete_language(
         user_id,
         language_id,
@@ -827,7 +883,7 @@ def delete_candidate_language(
 
 @router.get("/skills")
 def list_candidate_skills(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     skills = _skill_service.list_skills(user_id)
     return [skill.__dict__ for skill in skills]
 
@@ -837,7 +893,7 @@ def create_candidate_skill(
     payload: CandidateSkillRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     try:
         skill = _skill_service.create_skill(
@@ -858,7 +914,7 @@ def update_candidate_skill(
     payload: CandidateSkillRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     try:
         skill = _skill_service.update_skill(
@@ -882,7 +938,7 @@ def delete_candidate_skill(
     skill_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     deleted = _skill_service.delete_skill(
         user_id,
@@ -895,7 +951,7 @@ def delete_candidate_skill(
 
 @router.get("/preferences")
 def get_candidate_preferences(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     preferences = _preferences_service.get_preferences(user_id)
 
@@ -914,7 +970,7 @@ def save_candidate_preferences(
     payload: CandidatePreferencesRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
 
     try:
         preferences = _preferences_service.save_preferences(
@@ -944,7 +1000,7 @@ def save_candidate_preferences(
 
 @router.get("/documents")
 async def get_candidate_documents(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -966,7 +1022,7 @@ async def upload_candidate_document(
     document_type: str,
     file: UploadFile = File(...),
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -1009,7 +1065,7 @@ async def download_candidate_document(
     document_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -1055,7 +1111,7 @@ async def delete_candidate_document(
     document_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
+    user_id = require_candidate_profile_access(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
