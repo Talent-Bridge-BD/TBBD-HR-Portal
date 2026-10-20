@@ -9,12 +9,18 @@ const EMPTY_PROFILE = {
   email: '',
   phone: '',
   location: '',
+  date_of_birth: '',
+  gender: '',
+  nationality: 'Bangladeshi',
+  nid_number: '',
+  full_address: '',
   professional_title: '',
   summary: '',
   career_level: '',
   years_experience: '',
   passport_number: '',
   passport_country: '',
+  passport_issue_date: '',
   passport_expiry_date: '',
   passport_status: '',
   international_travel_readiness: '',
@@ -22,6 +28,15 @@ const EMPTY_PROFILE = {
 }
 
 const EMPTY_DOCUMENTS = []
+
+const EMPTY_EDUCATION_FORM = {
+  degree_qualification: '',
+  institution: '',
+  field_of_study: '',
+  start_date: '',
+  end_date: '',
+  description: '',
+}
 
 const CAREER_LEVELS = [
   'Entry Level',
@@ -99,6 +114,10 @@ export default function CandidateMyProfile() {
   const [countryOfResidence, setCountryOfResidence] = useState('')
   const [documents, setDocuments] = useState(EMPTY_DOCUMENTS)
   const [experience, setExperience] = useState([])
+  const [education, setEducation] = useState([])
+  const [educationForm, setEducationForm] = useState(EMPTY_EDUCATION_FORM)
+  const [educationSaving, setEducationSaving] = useState(false)
+  const [editingEducationId, setEditingEducationId] = useState(null)
   const [skills, setSkills] = useState([])
   const [languages, setLanguages] = useState([])
   const [preferences, setPreferences] = useState(null)
@@ -139,6 +158,7 @@ export default function CandidateMyProfile() {
           profileResponse,
           documentsResponse,
           experienceResponse,
+          educationResponse,
           skillsResponse,
           languagesResponse,
           preferencesResponse,
@@ -146,6 +166,7 @@ export default function CandidateMyProfile() {
           authenticatedFetch('/api/candidate/profile'),
           authenticatedFetch('/api/candidate/documents'),
           authenticatedFetch('/api/candidate/experience'),
+          authenticatedFetch('/api/candidate/education'),
           authenticatedFetch('/api/candidate/skills'),
           authenticatedFetch('/api/candidate/languages'),
           authenticatedFetch('/api/candidate/preferences'),
@@ -171,6 +192,13 @@ export default function CandidateMyProfile() {
               `Unable to load experience (${experienceResponse.status})`,
           )
         }
+        if (!educationResponse.ok) {
+          const body = await educationResponse.text()
+          throw new Error(
+            body || `Unable to load education (${educationResponse.status})`,
+          )
+        }
+
         if (!skillsResponse.ok) {
           const body = await skillsResponse.text()
           throw new Error(
@@ -196,6 +224,7 @@ export default function CandidateMyProfile() {
         const profileData = await profileResponse.json()
         const documentsData = await documentsResponse.json()
         const experienceData = await experienceResponse.json()
+        const educationData = await educationResponse.json()
         const skillsData = await skillsResponse.json()
         const languagesData = await languagesResponse.json()
         const preferencesData = await preferencesResponse.json()
@@ -222,6 +251,7 @@ export default function CandidateMyProfile() {
 
         setDocuments(documentsData.documents || [])
         setExperience(experienceData.experience || [])
+        setEducation(Array.isArray(educationData) ? educationData : (educationData.education || []))
         setSkills(Array.isArray(skillsData) ? skillsData : [])
         setLanguages(Array.isArray(languagesData) ? languagesData : [])
 
@@ -299,6 +329,11 @@ export default function CandidateMyProfile() {
           email: profile.email.trim(),
           phone: profile.phone.trim(),
           location: profile.location.trim(),
+          date_of_birth: profile.date_of_birth || null,
+          gender: profile.gender.trim(),
+          nationality: profile.nationality.trim(),
+          nid_number: profile.nid_number.trim(),
+          full_address: profile.full_address.trim(),
           professional_title: profile.professional_title.trim(),
           summary: profile.summary.trim(),
           career_level: profile.career_level.trim(),
@@ -308,6 +343,7 @@ export default function CandidateMyProfile() {
               : Number(profile.years_experience),
           passport_number: profile.passport_number.trim().toUpperCase(),
           passport_country: profile.passport_country.trim(),
+          passport_issue_date: profile.passport_issue_date || null,
           passport_expiry_date: profile.passport_expiry_date || null,
           passport_status: profile.passport_status.trim(),
           international_travel_readiness:
@@ -548,6 +584,110 @@ export default function CandidateMyProfile() {
     }
   }
 
+  async function refreshEducation() {
+    const response = await authenticatedFetch('/api/candidate/education')
+    if (!response.ok) {
+      const body = await response.text()
+      throw new Error(body || `Unable to load education (${response.status})`)
+    }
+    const data = await response.json()
+    const records = Array.isArray(data) ? data : (data.education || [])
+    setEducation(records)
+    return records
+  }
+
+  function startEditingEducation(item) {
+    setEditingEducationId(item.id)
+    setEducationForm({
+      degree_qualification: item.degree_qualification || '',
+      institution: item.institution || '',
+      field_of_study: item.field_of_study || '',
+      start_date: item.start_date || '',
+      end_date: item.end_date || '',
+      description: item.description || '',
+    })
+    setError('')
+    setMessage('')
+  }
+
+  function resetEducationForm() {
+    setEditingEducationId(null)
+    setEducationForm(EMPTY_EDUCATION_FORM)
+  }
+
+  async function saveEducation(event) {
+    event.preventDefault()
+    try {
+      setEducationSaving(true)
+      setError('')
+      setMessage('')
+
+      const isEditing = Boolean(editingEducationId)
+      const url = isEditing
+        ? `/api/candidate/education/${encodeURIComponent(editingEducationId)}`
+        : '/api/candidate/education'
+
+      const payload = {
+        degree_qualification: educationForm.degree_qualification.trim(),
+        institution: educationForm.institution.trim(),
+        field_of_study: educationForm.field_of_study.trim() || null,
+        start_date: educationForm.start_date || null,
+        end_date: educationForm.end_date || null,
+        description: educationForm.description.trim() || null,
+      }
+
+      const response = await authenticatedFetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || data.message ||
+          `Unable to save education (${response.status})`,
+        )
+      }
+
+      await refreshEducation()
+      resetEducationForm()
+      setMessage(isEditing
+        ? 'Education record updated successfully.'
+        : 'Education record added successfully.')
+    } catch (err) {
+      setError(err.message || 'Unable to save education.')
+    } finally {
+      setEducationSaving(false)
+    }
+  }
+
+  async function deleteEducation(educationId) {
+    if (!window.confirm('Delete this education record?')) return
+
+    try {
+      setError('')
+      setMessage('')
+      const response = await authenticatedFetch(
+        `/api/candidate/education/${encodeURIComponent(educationId)}`,
+        { method: 'DELETE' },
+      )
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(
+          data.detail || data.message ||
+          `Unable to delete education (${response.status})`,
+        )
+      }
+
+      await refreshEducation()
+      if (editingEducationId === educationId) resetEducationForm()
+      setMessage('Education record deleted successfully.')
+    } catch (err) {
+      setError(err.message || 'Unable to delete education.')
+    }
+  }
   async function refreshExperience() {
     const response = await authenticatedFetch('/api/candidate/experience')
     if (!response.ok) {
@@ -1116,7 +1256,60 @@ export default function CandidateMyProfile() {
                 placeholder="e.g. Bangladesh"
               />
             </label>
-          </div>
+            <label className="profile-form-field">
+              <span>Date of Birth</span>
+              <input
+                type="date"
+                name="date_of_birth"
+                value={profile.date_of_birth || ''}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Gender</span>
+              <select
+                name="gender"
+                value={profile.gender}
+                onChange={handleChange}
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </label>
+
+            <label className="profile-form-field">
+              <span>Nationality</span>
+              <input
+                name="nationality"
+                value={profile.nationality}
+                onChange={handleChange}
+                placeholder="e.g. Bangladeshi"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>National ID (NID)</span>
+              <input
+                name="nid_number"
+                value={profile.nid_number}
+                onChange={handleChange}
+                autoComplete="off"
+              />
+            </label>
+
+            <label className="profile-form-field">
+              <span>Full Address</span>
+              <textarea
+                name="full_address"
+                value={profile.full_address}
+                onChange={handleChange}
+                rows={3}
+              />
+            </label>          </div>
         </section>
 
         <section className="profile-section">
@@ -1154,6 +1347,15 @@ export default function CandidateMyProfile() {
               />
             </label>
 
+            <label className="profile-form-field">
+              <span>Passport Issue Date</span>
+              <input
+                type="date"
+                name="passport_issue_date"
+                value={profile.passport_issue_date || ''}
+                onChange={handleChange}
+              />
+            </label>
             <label className="profile-form-field">
               <span>Passport Expiry Date</span>
               <input
@@ -1272,59 +1474,133 @@ export default function CandidateMyProfile() {
           <div className="profile-section-heading">
             <h2>Education</h2>
             <p>
-              Provide your educational background to help TBBD match you with suitable overseas opportunities.
+              Add any formal education you wish to share. Every field is optional;
+              you can leave this section empty.
             </p>
           </div>
 
-          <div className="profile-information-grid">
-            <label className="profile-form-field">
-              <span>Highest Education</span>
-              <input
-                type="text"
-                name="highest_education"
-                placeholder="Bachelor Degree"
-              />
-            </label>
+          {education.length > 0 && (
+            <div className="profile-information-grid">
+              {education.map((item) => (
+                <div key={item.id} className="profile-form-full-width">
+                  <h3>{item.degree_qualification || 'Education record'}</h3>
+                  <p>{item.institution || 'Institution not provided'}</p>
+                  {item.field_of_study && <p>Field: {item.field_of_study}</p>}
+                  {(item.start_date || item.end_date) && (
+                    <p>
+                      {item.start_date || 'Start date not provided'}
+                      {' — '}
+                      {item.end_date || 'End date not provided'}
+                    </p>
+                  )}
+                  {item.description && <p>{item.description}</p>}
+                  <div className="profile-document-actions">
+                    <button type="button" onClick={() => startEditingEducation(item)}>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={educationSaving}
+                      onClick={() => deleteEducation(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-            <label className="profile-form-field">
-              <span>Institution Name</span>
-              <input
-                type="text"
-                name="institution_name"
-                placeholder="University / College"
-              />
-            </label>
+          {education.length === 0 && (
+            <p className="profile-document-empty">
+              No education records added. This section is optional.
+            </p>
+          )}
 
-            <label className="profile-form-field">
-              <span>Field of Study</span>
-              <input
-                type="text"
-                name="field_of_study"
-                placeholder="Computer Science"
-              />
-            </label>
-
-            <label className="profile-form-field">
-              <span>Passing Year</span>
-              <input
-                type="number"
-                name="passing_year"
-                min="1950"
-                max="2100"
-              />
-            </label>
-
-            <label className="profile-form-field">
-              <span>Result / GPA</span>
-              <input
-                type="text"
-                name="gpa_result"
-                placeholder="3.75"
-              />
-            </label>
-          </div>
+          <form onSubmit={saveEducation}>
+            <div className="profile-information-grid">
+              <label className="profile-form-field">
+                <span>Degree / Qualification (optional)</span>
+                <input
+                  value={educationForm.degree_qualification}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, degree_qualification: event.target.value,
+                  }))}
+                  placeholder="e.g. Diploma or Bachelor's degree"
+                />
+              </label>
+              <label className="profile-form-field">
+                <span>Institution (optional)</span>
+                <input
+                  value={educationForm.institution}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, institution: event.target.value,
+                  }))}
+                  placeholder="School, college or university"
+                />
+              </label>
+              <label className="profile-form-field">
+                <span>Field of Study (optional)</span>
+                <input
+                  value={educationForm.field_of_study}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, field_of_study: event.target.value,
+                  }))}
+                  placeholder="e.g. Electrical Engineering"
+                />
+              </label>
+              <label className="profile-form-field">
+                <span>Start Date (optional)</span>
+                <input
+                  type="date"
+                  value={educationForm.start_date}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, start_date: event.target.value,
+                  }))}
+                />
+              </label>
+              <label className="profile-form-field">
+                <span>End Date (optional)</span>
+                <input
+                  type="date"
+                  value={educationForm.end_date}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, end_date: event.target.value,
+                  }))}
+                />
+              </label>
+              <label className="profile-form-field">
+                <span>Description (optional)</span>
+                <textarea
+                  rows="3"
+                  value={educationForm.description}
+                  onChange={(event) => setEducationForm((current) => ({
+                    ...current, description: event.target.value,
+                  }))}
+                  placeholder="Additional details, if relevant"
+                />
+              </label>
+            </div>
+            <div className="profile-document-actions">
+              <button type="submit" disabled={educationSaving}>
+                {educationSaving
+                  ? 'Saving...'
+                  : editingEducationId
+                    ? 'Update Education'
+                    : 'Add Education'}
+              </button>
+              {editingEducationId && (
+                <button
+                  type="button"
+                  disabled={educationSaving}
+                  onClick={resetEducationForm}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
         </section>
-
         <section className="profile-section">
           <div className="profile-section-heading">
             <h2>Employment Experience</h2>

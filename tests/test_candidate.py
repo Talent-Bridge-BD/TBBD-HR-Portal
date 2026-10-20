@@ -1,3 +1,4 @@
+
 import base64
 import json
 import os
@@ -10,8 +11,16 @@ from repositories.candidate import InMemoryCandidateRepository
 from services.candidate import CandidateService
 
 
+class MockCandidateApprovalRepository:
+    """Test-only approval repository; avoids a live Azure SQL dependency."""
+
+    def ensure_candidate(self, principal_id):
+        return {"approval_status": "approved"}
+
+
 candidate_api._repository = InMemoryCandidateRepository()
 candidate_api._service = CandidateService(candidate_api._repository)
+candidate_api._approval_repository = MockCandidateApprovalRepository()
 
 client = TestClient(app)
 
@@ -23,7 +32,10 @@ def build_principal_header():
         "auth_typ": "aad",
         "claims": [
             {
-                "typ": "http://schemas.microsoft.com/identity/claims/objectidentifier",
+                "typ": (
+                    "http://schemas.microsoft.com/identity/claims/"
+                    "objectidentifier"
+                ),
                 "val": "test-principal-001",
             },
             {
@@ -59,6 +71,7 @@ def candidate_headers():
 def test_candidate_profile_requires_authenticated_identity():
     original_local_auth = os.environ.get("TBBD_LOCAL_AUTH")
     os.environ["TBBD_LOCAL_AUTH"] = "0"
+
     try:
         response = client.get("/api/candidate/profile")
     finally:
@@ -66,7 +79,9 @@ def test_candidate_profile_requires_authenticated_identity():
             os.environ.pop("TBBD_LOCAL_AUTH", None)
         else:
             os.environ["TBBD_LOCAL_AUTH"] = original_local_auth
+
     assert response.status_code == 401
+
 
 def test_candidate_profile_can_be_created_and_retrieved():
     headers = candidate_headers()
