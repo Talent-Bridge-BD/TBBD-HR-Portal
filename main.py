@@ -3,6 +3,7 @@ from api.administrator_activity import router as administrator_activity_router
 from api.activity import router as activity_router
 from api.administrator_organizations import router as administrator_organizations_router
 from api.administrator_candidate_approvals import router as administrator_candidate_approvals_router
+from api.administrator_candidate_roles import router as administrator_candidate_roles_router
 from api.employer_access_requests import (
     router as employer_access_requests_router,
     public_router as public_employer_access_requests_router,
@@ -25,6 +26,7 @@ from services.authorization import (
 )
 from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principal
 from repositories.organization import SqlOrganizationRepository
+from api import candidate as candidate_api
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
 from api.job import router as job_router
@@ -76,6 +78,7 @@ app.include_router(administrator_activity_router)
 app.include_router(activity_router)
 app.include_router(administrator_organizations_router)
 app.include_router(administrator_candidate_approvals_router)
+app.include_router(administrator_candidate_roles_router)
 app.include_router(employer_access_requests_router)
 app.include_router(public_employer_access_requests_router)
 app.include_router(candidate_router)
@@ -142,17 +145,32 @@ async def get_current_user(request: Request):
         or app_display_name == "TBBD Candidate Portal"
     )
 
-    if is_candidate_identity:
-        roles = {"Candidate"}
-    else:
-        roles = set(token_roles)
+    # Candidate role is application-managed, never granted by provider identity.
+    roles = set(token_roles) - {"Candidate"}
 
-        for role, group_id in authorization_groups.items():
-            if group_id in group_ids:
-                roles.add(role)
+    for role, group_id in authorization_groups.items():
+        if role != "Candidate" and group_id in group_ids:
+            roles.add(role)
 
-        if not roles:
-            roles.add("Employee")
+    candidate_role_signal = (
+        is_candidate_identity
+        or "Candidate" in token_roles
+        or any(
+            role == "Candidate" and group_id in group_ids
+            for role, group_id in authorization_groups.items()
+        )
+    )
+    if candidate_role_signal:
+        candidate_role_active = (
+            candidate_api._application_role_repository.has_role(
+                principal_id, "Candidate"
+            )
+        )
+        if candidate_role_active:
+            roles.add("Candidate")
+
+    if not roles and not is_candidate_identity:
+        roles.add("Employee")
 
     memberships = _organization_repository.get_active_memberships(
         principal_id
@@ -353,8 +371,49 @@ app.mount(
 
 
 @app.get("/")
-def home():
-    return FileResponse(DIST_DIR / "index.html")
+def home(request: Request):
+    # Keep the existing React app for candidates and portal sign-in returns.
+    is_candidate_mode = (
+        request.query_params.get("authMode") == "candidate"
+    )
+    is_portal_return = request.query_params.get("portal") == "1"
+    has_authenticated_principal = bool(
+        request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
+        or request.headers.get("X-MS-CLIENT-PRINCIPAL")
+    )
+
+    if is_candidate_mode or is_portal_return or has_authenticated_principal:
+        return FileResponse(DIST_DIR / "index.html")
+
+    # Serve the original branded Workplace Hub landing page.
+    landing_page = DIST_DIR / "workplace-hub.html"
+    if not landing_page.is_file():
+        landing_page = (
+            BASE_DIR / "frontend" / "public" / "workplace-hub.html"
+        )
+    return FileResponse(landing_page)
+
+
+@app.get("/workplace-hub.html", include_in_schema=False)
+def workplace_hub_html_page():
+    page = DIST_DIR / "workplace-hub.html"
+    if not page.is_file():
+        page = BASE_DIR / "frontend" / "public" / "workplace-hub.html"
+    if not page.is_file():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Workplace Hub page not found")
+    return FileResponse(page)
+
+
+@app.get("/candidate-access.html", include_in_schema=False)
+def candidate_access_html_page():
+    page = DIST_DIR / "candidate-access.html"
+    if not page.is_file():
+        page = BASE_DIR / "frontend" / "public" / "candidate-access.html"
+    if not page.is_file():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Candidate access page not found")
+    return FileResponse(page)
 
 
 @app.get("/employer-access-request")
