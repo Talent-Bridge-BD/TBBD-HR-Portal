@@ -9,6 +9,7 @@ from repositories.hiring import SqlHiringRepository
 from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
 from repositories.candidate_approvals import SqlCandidateApprovalRepository
+from repositories.application_roles import SqlApplicationRoleRepository
 from repositories.job import SqlJobRepository
 from repositories.blob_storage import BlobStorageRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
@@ -16,6 +17,7 @@ from repositories.candidate_skill import SqlCandidateSkillRepository
 from repositories.candidate_language import SqlCandidateLanguageRepository
 from repositories.candidate_experience import SqlCandidateExperienceRepository
 from repositories.candidate_preferences import SqlCandidatePreferencesRepository
+from repositories.candidate_education import SqlCandidateEducationRepository
 from services.application import ApplicationService
 from services.hiring import HiringService
 from services.interview import InterviewService
@@ -31,6 +33,7 @@ from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principa
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 _repository = SqlCandidateRepository()
 _approval_repository = SqlCandidateApprovalRepository()
+_application_role_repository = SqlApplicationRoleRepository()
 _service = CandidateService(_repository)
 _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
@@ -65,7 +68,16 @@ _experience_service = CandidateExperienceService(_experience_repository)
 
 _preferences_repository = SqlCandidatePreferencesRepository()
 _preferences_service = CandidatePreferencesService(_preferences_repository)
+_education_repository = SqlCandidateEducationRepository()
 CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
+class CandidateEducationRequest(BaseModel):
+    highest_education: str | None = None
+    institution_name: str | None = None
+    field_of_study: str | None = None
+    passing_year: str | int | None = None
+    gpa_result: str | None = None
+
+
 class CandidateApplicationRequest(BaseModel):
     job_id: str
     cover_letter: str | None = None
@@ -402,52 +414,57 @@ def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
         for claim in claims
         if claim.get("typ") == claim_type and claim.get("val")
     }
-def get_candidate_identity(request: Request) -> str:
+def _candidate_onboarding_identity(request: Request) -> str:
     principal = get_request_principal(request)
-
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id")
-    if not principal_id:
-        raise HTTPException(
-            status_code=401,
-            detail="Authenticated user identity is required",
-        )
-
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
-
-    provider_name = principal.get("provider_name", "")
-    app_display_name = principal.get("app_displayname", "")
+    user_id = str(principal["id"])
     is_candidate_identity = (
         principal.get("tenant_id") == TBBD_EXTERNAL_ID_TENANT_ID
-        or provider_name == "TBBDCandidateExternalID"
-        or app_display_name == "TBBD Candidate Portal"
+        or principal.get("provider_name") == "TBBDCandidateExternalID"
+        or principal.get("app_displayname") == "TBBD Candidate Portal"
     )
-
-    if (
-        CANDIDATE_GROUP_ID not in group_ids
-        and "Candidate" not in token_roles
-        and not is_candidate_identity
+    if not is_candidate_identity and not _application_role_repository.has_role(
+        user_id, "Candidate"
     ):
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate identity or role is required",
+        )
+    return user_id
+
+
+def get_candidate_identity(request: Request) -> str:
+    """Require an application-managed Candidate role."""
+    user_id = _candidate_onboarding_identity(request)
+    assignment_status = _application_role_repository.assignment_status(
+        user_id, "Candidate"
+    )
+    if assignment_status in {"revoked", "inactive"}:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Your Candidate access is currently inactive. "
+                "Please contact the TBBD HR team if you believe this is a mistake."
+            ),
+        )
+
+    if not _application_role_repository.has_role(user_id, "Candidate"):
         raise HTTPException(
             status_code=403,
             detail="Candidate role is required",
         )
-
-    return str(principal_id)
+    return user_id
 
 
 def require_approved_candidate_identity(request: Request) -> str:
     user_id = get_candidate_identity(request)
     record = _approval_repository.ensure_candidate(user_id)
     status = record["approval_status"]
-
     if status != "approved":
         raise HTTPException(
             status_code=403,
@@ -456,20 +473,36 @@ def require_approved_candidate_identity(request: Request) -> str:
                 "Administrator approval is required to access this feature."
             ),
         )
-
     return user_id
 
-def require_candidate_profile_access(request: Request) -> str:
-    """Allow pending candidates to maintain their own profile, but not rejected candidates."""
-    user_id = get_candidate_identity(request)
-    record = _approval_repository.ensure_candidate(user_id)
 
+def require_candidate_profile_access(request: Request) -> str:
+    """Allow pending candidates to maintain their profile, but reject rejected candidates."""
+    user_id = _candidate_onboarding_identity(request)
+    assignment_status = _application_role_repository.assignment_status(
+        user_id, "Candidate"
+    )
+    if assignment_status in {"revoked", "inactive"}:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Your Candidate access is currently inactive. "
+                "Please contact the TBBD HR team if you believe this is a mistake."
+            ),
+        )
+
+    if not _application_role_repository.has_role(user_id, "Candidate"):
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate role is required",
+        )
+
+    record = _approval_repository.ensure_candidate(user_id)
     if record["approval_status"] == "rejected":
         raise HTTPException(
             status_code=403,
             detail="Candidate approval was rejected. Profile-completion access is unavailable.",
         )
-
     return user_id
 
 
@@ -510,6 +543,32 @@ async def update_candidate_profile(
         "profile": saved.__dict__,
         "message": "Candidate profile saved",
     }
+@router.get("/education")
+def get_candidate_education(request: Request):
+    user_id = require_candidate_profile_access(request)
+    return {"education": _education_repository.get_education(user_id)}
+
+
+@router.put("/education")
+def save_candidate_education(
+    payload: CandidateEducationRequest,
+    request: Request,
+):
+    user_id = require_candidate_profile_access(request)
+    try:
+        education = _education_repository.save_education(
+            user_id,
+            payload.model_dump(),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "education": education,
+        "message": "Education saved successfully.",
+    }
+
+
 @router.get("/jobs")
 async def get_candidate_jobs(request: Request):
     require_approved_candidate_identity(request)
