@@ -45,6 +45,9 @@ class SqlApplicationRoleRepository:
             self.credential = AzureCliCredential()
 
     def _connection(self):
+        print(f"[APP ROLE SQL] server={self.server} database={self.database}", flush=True)
+        print(f"[APP ROLE SQL] credential={type(self.credential).__name__}", flush=True)
+
         token = self.credential.get_token(self.SQL_SCOPE).token
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
