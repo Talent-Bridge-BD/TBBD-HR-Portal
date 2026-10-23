@@ -26,6 +26,7 @@ from services.authorization import (
 )
 from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principal
 from repositories.organization import SqlOrganizationRepository
+from repositories.user_profile import SqlUserProfileRepository
 from api import candidate as candidate_api
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
@@ -102,6 +103,7 @@ app.include_router(notifications_router)
 app.include_router(administrator_notifications_router)
 
 _organization_repository = SqlOrganizationRepository()
+_user_profile_repository = SqlUserProfileRepository()
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
@@ -116,6 +118,19 @@ async def get_current_user(request: Request):
 
     principal_id = principal.get("id") or ""
     principal_name = principal.get("email") or ""
+
+    try:
+        profile = _user_profile_repository.get_by_email(principal_name)
+    except ValueError:
+        raise HTTPException(
+            status_code=409,
+            detail="Multiple user profiles match the signed-in email.",
+        )
+
+    user_id = principal_id
+    if profile is not None:
+        user_id = profile.user_id
+
 
     claims = principal.get("claims", [])
 
@@ -163,7 +178,7 @@ async def get_current_user(request: Request):
     if candidate_role_signal:
         candidate_role_active = (
             candidate_api._application_role_repository.has_role(
-                principal_id, "Candidate"
+                user_id, "Candidate"
             )
         )
         if candidate_role_active:
@@ -173,10 +188,10 @@ async def get_current_user(request: Request):
         roles.add("Employee")
 
     memberships = _organization_repository.get_active_memberships(
-        principal_id
+        user_id
     )
     authorization_context = build_authorization_context(
-        user_id=principal_id,
+        user_id=user_id,
         roles=roles,
         memberships=memberships,
     )
@@ -184,7 +199,7 @@ async def get_current_user(request: Request):
     return {
         "authenticated": True,
         "user": {
-            "id": principal_id,
+            "id": user_id,
             "email": principal_name,
             "name": next(
                 iter(claim_values("name")),

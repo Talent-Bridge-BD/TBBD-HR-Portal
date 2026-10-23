@@ -76,6 +76,38 @@ class SqlUserProfileRepository(UserProfileRepository):
             updated_at=row.updated_at,
         )
 
+    def get_by_email(self, email: str) -> Optional[UserProfile]:
+        """Resolve a principal email to its canonical application user profile."""
+        normalized_email = (email or "").strip()
+        if not normalized_email:
+            return None
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT TOP 2
+                    user_id,
+                    full_name,
+                    primary_email,
+                    phone,
+                    office_phone,
+                    organization_email,
+                    created_at,
+                    updated_at
+                FROM dbo.user_profiles
+                WHERE LOWER(LTRIM(RTRIM(primary_email))) =
+                      LOWER(LTRIM(RTRIM(?)))
+                """,
+                normalized_email,
+            )
+            rows = cursor.fetchall()
+
+        if len(rows) > 1:
+            raise ValueError("Multiple user profiles match this email.")
+
+        return self._row_to_profile(rows[0]) if rows else None
+
     def get_profile(self, user_id: str) -> Optional[UserProfile]:
         with self._connection() as connection:
             cursor = connection.cursor()

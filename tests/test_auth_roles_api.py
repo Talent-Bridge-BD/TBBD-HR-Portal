@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from api import candidate as candidate_api
 from repositories.application_roles import InMemoryApplicationRoleRepository
 from repositories.candidate_approvals import InMemoryCandidateApprovalRepository
+from models.user_profile import UserProfile
 
 client = TestClient(main.app)
 
@@ -16,7 +17,20 @@ def get_me_with_principal(monkeypatch, principal, approved_candidate=False):
     monkeypatch.setattr(candidate_api, "_application_role_repository", roles)
     monkeypatch.setattr(candidate_api, "_approval_repository", approvals)
 
-    user_id = principal["id"]
+    user_id = principal.get("application_user_id", principal["id"])
+    email = principal.get("email", "")
+
+    monkeypatch.setattr(
+        main._user_profile_repository,
+        "get_by_email",
+        lambda requested_email: (
+            UserProfile(user_id=user_id, primary_email=requested_email)
+            if requested_email
+            and requested_email.casefold() == email.casefold()
+            else None
+        ),
+    )
+
     if approved_candidate:
         approvals.ensure_candidate(user_id)
         approvals.review_candidate(
