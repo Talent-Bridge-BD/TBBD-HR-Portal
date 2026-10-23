@@ -200,21 +200,28 @@ class SqlCandidateApprovalRepository(CandidateApprovalRepository):
             self.credential = AzureCliCredential()
 
     def _connection(self) -> pyodbc.Connection:
+        connection_string = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER=tcp:{self.server},1433;"
+            f"DATABASE={self.database};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
+        # In Azure App Service, let ODBC acquire the managed identity token.
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            return pyodbc.connect(
+                connection_string + "Authentication=ActiveDirectoryMsi;"
+            )
+
+        # Keep Azure CLI token authentication for local development.
         token = self.credential.get_token(self.SQL_SCOPE).token
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
             f"<I{len(token_bytes)}s",
             len(token_bytes),
             token_bytes,
-        )
-
-        connection_string = (
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            f"SERVER={self.server},1433;"
-            f"DATABASE={self.database};"
-            "Encrypt=yes;"
-            "TrustServerCertificate=no;"
-            "Connection Timeout=30;"
         )
 
         return pyodbc.connect(

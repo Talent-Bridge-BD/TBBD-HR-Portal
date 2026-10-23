@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from api import candidate as candidate_api
+from repositories.application_roles import InMemoryApplicationRoleRepository
 from repositories.candidate import InMemoryCandidateRepository
 from repositories.candidate_approvals import InMemoryCandidateApprovalRepository
 from services.candidate import CandidateService
@@ -14,6 +15,16 @@ from services.candidate import CandidateService
 candidate_api._repository = InMemoryCandidateRepository()
 candidate_api._service = CandidateService(candidate_api._repository)
 candidate_api._approval_repository = InMemoryCandidateApprovalRepository()
+candidate_api._application_role_repository = InMemoryApplicationRoleRepository()
+
+
+def grant_candidate_role(user_id):
+    candidate_api._application_role_repository.grant_role(
+        user_id,
+        "Candidate",
+        assigned_by="test-admin",
+    )
+
 
 client = TestClient(app)
 
@@ -61,6 +72,7 @@ def candidate_headers():
             reviewed_by="test-admin",
             approval_notes="Approved test fixture",
         )
+    grant_candidate_role("test-principal-001")
     return {
         "X-MS-CLIENT-PRINCIPAL-ID": "test-principal-001",
         "X-MS-CLIENT-PRINCIPAL-NAME": "candidate@example.test",
@@ -124,6 +136,7 @@ def test_external_id_candidate_can_create_profile_without_workforce_group():
     principal["provider_name"] = "TBBDCandidateExternalID"
 
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "external-candidate-test-001"
+    grant_candidate_role("external-candidate-test-001")
     candidate_api._approval_repository.ensure_candidate(
         "external-candidate-test-001"
     )
@@ -159,6 +172,7 @@ def test_pending_candidate_can_check_approval_status():
         __import__("base64").b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-status-test"
+    grant_candidate_role("pending-status-test")
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = __import__("base64").b64encode(
         __import__("json").dumps(principal).encode("utf-8")
@@ -179,6 +193,7 @@ def test_pending_candidate_can_save_and_resume_profile():
         base64.b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-profile-resume-test"
+    grant_candidate_role("pending-profile-resume-test")
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = base64.b64encode(
         json.dumps(principal).encode("utf-8")
@@ -213,6 +228,7 @@ def test_pending_candidate_still_cannot_access_jobs():
         base64.b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-jobs-block-test"
+    grant_candidate_role("pending-jobs-block-test")
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = base64.b64encode(
         json.dumps(principal).encode("utf-8")

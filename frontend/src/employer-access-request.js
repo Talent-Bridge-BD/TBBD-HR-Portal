@@ -1,4 +1,4 @@
-import './employer-access-request.css'
+import "./styles.css";
 
 const form = document.querySelector('#employer-access-form')
 const submitButton = document.querySelector('#submit-button')

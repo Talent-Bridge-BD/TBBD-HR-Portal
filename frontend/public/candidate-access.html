@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0067B8">
+  <title>Candidate Portal | Talent Bridge BD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #F8FAFC; color: #0F172A; font-family: Arial, sans-serif; }
+    main { width: 100%; max-width: 760px; padding: 38px; background: #fff; border: 1px solid #E2E8F0; border-radius: 18px; box-shadow: 0 12px 36px #0F172A12; text-align: center; }
+    .mark { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 14px; background: #EAF4FC; color: #0067B8; font-weight: 800; font-size: 20px; }
+    .brand { margin: 18px 0 8px; color: #0067B8; font-weight: 700; letter-spacing: 1.5px; }
+    h1 { margin: 10px 0; font-size: clamp(25px, 4vw, 34px); }
+    .intro { color: #475569; line-height: 1.7; }
+    .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+    article { padding: 22px; border: 1px solid #E2E8F0; border-radius: 14px; }
+    article p { min-height: 48px; color: #475569; line-height: 1.6; }
+    .action { display: inline-block; margin-top: 12px; padding: 12px 20px; border-radius: 8px; background: #0067B8; color: white; text-decoration: none; font-weight: 700; }
+    .action:focus-visible { outline: 3px solid #94CFFF; outline-offset: 3px; }
+    footer { margin-top: 28px; color: #64748B; font-size: 13px; }
+    @media (max-width: 560px) { main { padding: 25px 18px; } .choices { grid-template-columns: 1fr; } article p { min-height: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true">TB</div>
+    <p class="brand">TALENT BRIDGE BD</p>
+    <h1>Candidate Portal</h1>
+    <p class="intro">Your journey to the right employment opportunity starts here.</p>
+    <div class="choices">
+      <article>
+        <h2>Already have an account?</h2>
+        <p>Sign in to access your candidate profile and applications.</p>
+        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=login">Sign in</a>
+      </article>
+      <article>
+        <h2>New to Talent Bridge BD?</h2>
+        <p>Create your candidate account to get started.</p>
+        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=create">Create account</a>
+      </article>
+    </div>
+    <footer>Connecting Bangladeshi Talent with Global Employment Opportunities.</footer>
+  </main>
+</body>
+</html>

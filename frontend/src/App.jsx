@@ -19,8 +19,6 @@ import SystemConfiguration from './pages/SystemConfiguration'
 import SystemActivity from './pages/SystemActivity'
 import NotificationSettings from './pages/NotificationSettings'
 import AdministratorNotifications from './pages/AdministratorNotifications'
-import EmployerAccessRequests from './pages/EmployerAccessRequests'
-import CandidateApprovals from './pages/CandidateApprovals'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -29,6 +27,8 @@ import EmployerApplications from './pages/EmployerApplications'
 import Hiring from './pages/Hiring'
 import CandidateDashboard from './pages/CandidateDashboard'
 import CandidateMyProfile from './pages/CandidateMyProfile'
+import EmployerAccessRequests from './pages/EmployerAccessRequests'
+import CandidateApprovals from './pages/CandidateApprovals'
 import CandidateMyApplications from './pages/CandidateMyApplications'
 import CandidateAvailableJobs from './pages/CandidateAvailableJobs'
 import Jobs from './pages/Jobs'
@@ -56,12 +56,12 @@ import OrganizationSelector from './components/OrganizationSelector'
 const placeholderPages = {}
 
 export default function App() {
+  const isCandidateMode = new URLSearchParams(window.location.search).get('authMode') === 'candidate'
   const [activePage, setActivePage] = useState('Dashboard')
+  const [workplaceHubOpened, setWorkplaceHubOpened] = useState(false)
   const [auth, setAuth] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
-
-  const isCandidateMode =
-    new URLSearchParams(window.location.search).get('authMode') === 'candidate'
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
     let mounted = true
@@ -87,6 +87,11 @@ export default function App() {
       })
       .catch((error) => {
         console.error('Failed to load current user:', error)
+        if (mounted) {
+          setAuthError(
+            error instanceof Error ? error.message : String(error),
+          )
+        }
       })
       .finally(() => {
         if (mounted) {
@@ -99,6 +104,16 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (
+      !authLoading &&
+      isCandidateMode &&
+      auth?.authenticated === false &&
+      !authError
+    ) {
+      window.location.replace('/candidate-access.html')
+    }
+  }, [authLoading, auth, authError, isCandidateMode])
   if (authLoading) {
     return (
       <div className="app-shell">
@@ -109,99 +124,114 @@ export default function App() {
     )
   }
 
-  if (!auth?.authenticated) {
+  if (isCandidateMode && authError) {
     return (
       <div className="app-shell">
         <main className="main-content">
           <div className="empty-state">
-            <strong>Welcome to Talent Bridge BD</strong>
+            <strong>We couldn't verify your sign-in session.</strong>
+            <p>
+              Your access has not been changed. Please return to candidate
+              sign-in and try again. If the problem continues, contact
+              Talent Bridge BD support.
+            </p>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() =>
+                window.location.replace('/candidate-access.html')
+              }
+            >
+              Return to candidate sign-in
+            </button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+  if (!auth?.authenticated) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <div className={`empty-state${isCandidateMode ? "" : " staff-signin-state"}`}>
+            <>
+              <strong>Sign in required</strong>
+              <p>
+                Staff and administrators can sign in with their Microsoft work account.
+              </p>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => {
+                  signIn().catch((error) => {
+                    console.error(
+                      'Microsoft Entra sign-in failed:',
+                      error,
+                    )
+                  })
+                }}
+              >
+                Staff and administrator sign in
+              </button>
 
-
-{isCandidateMode ? (
-              <>
-                <p>
-                  Sign in to your candidate account, or register if you are new.
-                </p>
-
-                <p>
-                  <strong>Are you applying for a job?</strong>
-                </p>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    width: '100%',
-                    overflow: 'hidden',
-                    border: '1px solid #0067B8',
-                    borderRadius: '6px',
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="primary-button"
-                    style={{
-                      flex: 1,
-                      minWidth: 0,
-                      border: 0,
-                      borderRadius: 0,
-                      borderRight: '1px solid #FFFFFF',
-                    }}
-                    onClick={() => {
-                      window.location.assign(
-                        '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=login'
-                      )
-                    }}
-                  >
-                    Candidate Sign in
-                  </button>
-
-                  <button
-                    type="button"
-                    className="primary-button"
-                    style={{
-                      flex: 1,
-                      minWidth: 0,
-                      border: 0,
-                      borderRadius: 0,
-                    }}
-                    onClick={() => {
-                      window.location.assign(
-                        '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&prompt=create'
-                      )
-                    }}
-                  >
-                    No Account? Register
-                  </button>
-                </div>
-              </>
-) : (
-
-              <>
-                <p>
-                  Staff and administrators can continue with Microsoft.
-                </p>
-
-                <button
-                  type="button"
-                  className="primary-button"
-                  onClick={() => signIn()}
-                >
-                  Sign in with Microsoft
-                </button>
-              </>
-            )}
+            </>
           </div>
         </main>
       </div>
     )
   }
 
+  if (isCandidateMode && auth?.authenticated && !auth?.roles?.includes('Candidate')) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <div className="empty-state">
+            <strong>Candidate access is not assigned to this account.</strong>
+            <p>Please contact Talent Bridge BD support if you believe this is an error.</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+  if (!isCandidateMode && !auth?.roles?.includes('Candidate') && !workplaceHubOpened) {
+    return (
+      <div className="app-shell" style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <main className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
+          <section style={{ width: '100%', maxWidth: '680px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ height: '8px', background: '#0067B8' }} />
+            <div style={{ padding: '40px 32px', textAlign: 'center' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '58px', borderRadius: '14px', background: '#EAF4FC', color: '#0067B8', fontSize: '20px', fontWeight: 800, marginBottom: '22px' }}>
+                TB
+              </div>
+              <p style={{ color: '#0067B8', fontSize: '13px', fontWeight: 700, letterSpacing: '1.8px', margin: '0 0 12px' }}>
+                WORKPLACE HUB
+              </p>
+              <h1 style={{ color: '#0F172A', fontSize: '28px', lineHeight: 1.3, margin: '0 0 16px' }}>
+                Administrator &amp; HR Manager Operations
+              </h1>
+              <p style={{ color: '#475569', fontSize: '16px', lineHeight: 1.7, margin: '0 auto 28px', maxWidth: '510px' }}>
+                Access TBBD workplace tools and HR operations with role-based access and permission controls.
+              </p>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => setWorkplaceHubOpened(true)}
+                style={{ minHeight: '46px', padding: '12px 26px' }}
+              >
+                Continue to Dashboard
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+    )
+  }
   const pages = {
-Dashboard: auth?.roles?.includes('Candidate') ? (
-  <CandidateDashboard onNavigate={setActivePage} />
-) : (
-  <Dashboard auth={auth} onNavigate={setActivePage} />
-),
+    Dashboard: auth?.roles?.includes('Candidate') ? (
+      <CandidateDashboard onNavigate={setActivePage} />
+    ) : (
+      <Dashboard auth={auth} onNavigate={setActivePage} />
+    ),
     'My Profile': auth?.roles?.includes('Candidate')
       ? <CandidateMyProfile />
       : <MyProfile auth={auth} />,
@@ -211,6 +241,8 @@ Dashboard: auth?.roles?.includes('Candidate') ? (
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
+    'employer-access-requests': <EmployerAccessRequests />,
+    'Candidate Approvals': <CandidateApprovals />,
     organizations: <OrganizationManagement onNavigate={setActivePage} />,
 
  users: <UserManagement auth={auth} />,
@@ -222,8 +254,6 @@ Dashboard: auth?.roles?.includes('Candidate') ? (
     settings: <SystemConfiguration />,
 
     activity: <SystemActivity />,
-    'employer-access-requests': <EmployerAccessRequests auth={auth} />,
-    'candidate-approvals': <CandidateApprovals />,
 
     'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
     'Employer My Organization': <EmployerOrganization />,
@@ -287,4 +317,3 @@ Dashboard: auth?.roles?.includes('Candidate') ? (
     </OrganizationProvider>
   )
 }
-

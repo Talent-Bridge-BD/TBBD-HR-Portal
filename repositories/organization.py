@@ -169,6 +169,21 @@ class SqlOrganizationRepository(OrganizationRepository):
 
     def _connection(self) -> pyodbc.Connection:
         print(f"[ORG SQL] connecting server={self.server} database={self.database}", flush=True)
+
+        connection_string = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER=tcp:{self.server},1433;"
+            f"DATABASE={self.database};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            return pyodbc.connect(
+                connection_string + "Authentication=ActiveDirectoryMsi;"
+            )
+
         token = self.credential.get_token(self.SQL_SCOPE).token
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
@@ -176,20 +191,13 @@ class SqlOrganizationRepository(OrganizationRepository):
             len(token_bytes),
             token_bytes,
         )
-        connection_string = (
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            f"SERVER={self.server},1433;"
-            f"DATABASE={self.database};"
-            "Encrypt=yes;"
-            "TrustServerCertificate=no;"
-            "Connection Timeout=30;"
-        )
         return pyodbc.connect(
             connection_string,
             attrs_before={
                 self.SQL_ACCESS_TOKEN_ATTRIBUTE: token_struct,
             },
         )
+
 
     def get_active_memberships(
         self,

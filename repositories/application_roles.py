@@ -48,22 +48,31 @@ class SqlApplicationRoleRepository:
         print(f"[APP ROLE SQL] server={self.server} database={self.database}", flush=True)
         print(f"[APP ROLE SQL] credential={type(self.credential).__name__}", flush=True)
 
+        connection_string = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER=tcp:{self.server},1433;"
+            f"DATABASE={self.database};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            return pyodbc.connect(
+                connection_string + "Authentication=ActiveDirectoryMsi;"
+            )
+
         token = self.credential.get_token(self.SQL_SCOPE).token
         print("[APP ROLE SQL] token acquired", flush=True)
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
             f"<I{len(token_bytes)}s", len(token_bytes), token_bytes
         )
-        connection_string = (
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            f"SERVER={self.server},1433;"
-            f"DATABASE={self.database};"
-            "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-        )
         return pyodbc.connect(
             connection_string,
             attrs_before={self.SQL_ACCESS_TOKEN_ATTRIBUTE: token_struct},
         )
+
 
     def assignment_status(self, user_id, role):
         with self._connection() as connection:
