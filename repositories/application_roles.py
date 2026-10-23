@@ -49,6 +49,7 @@ class SqlApplicationRoleRepository:
         print(f"[APP ROLE SQL] credential={type(self.credential).__name__}", flush=True)
 
         token = self.credential.get_token(self.SQL_SCOPE).token
+        print("[APP ROLE SQL] token acquired", flush=True)
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
             f"<I{len(token_bytes)}s", len(token_bytes), token_bytes
