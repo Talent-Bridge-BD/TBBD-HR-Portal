@@ -176,11 +176,20 @@ async def get_current_user(request: Request):
         )
     )
     if candidate_role_signal:
-        candidate_role_active = (
-            candidate_api._application_role_repository.has_role(
-                user_id, "Candidate"
+        try:
+            candidate_role_active = (
+                candidate_api._application_role_repository.has_role(
+                    user_id,
+                    "Candidate",
+                )
             )
-        )
+        except Exception as ex:
+            print(
+                f"[ROLE LOOKUP FAILED] {type(ex).__name__}: {ex}",
+                flush=True,
+            )
+            candidate_role_active = False
+
         if candidate_role_active:
             roles.add("Candidate")
 
