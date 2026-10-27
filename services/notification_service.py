@@ -26,14 +26,10 @@ class NotificationService:
             os.getenv("AZURE_COMMUNICATION_CONNECTION_STRING")
             or os.getenv("ACS_EMAIL_CONNECTION_STRING")
         )
-        if not connection_string:
-            raise ValueError(
-                "AZURE_COMMUNICATION_CONNECTION_STRING or "
-                "ACS_EMAIL_CONNECTION_STRING is required"
-            )
-
-        self.email_client = EmailClient.from_connection_string(
-            connection_string
+        self.email_client = (
+            EmailClient.from_connection_string(connection_string)
+            if connection_string
+            else None
         )
 
 
@@ -43,6 +39,13 @@ class NotificationService:
         recipient: str,
         subject_data: dict | None = None,
     ):
+
+        if self.email_client is None:
+            raise RuntimeError(
+                "Email notifications are unavailable: configure "
+                "AZURE_COMMUNICATION_CONNECTION_STRING or "
+                "ACS_EMAIL_CONNECTION_STRING"
+            )
 
         templates = self.repository.list_templates()
 

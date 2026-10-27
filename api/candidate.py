@@ -33,12 +33,14 @@ from services.candidate import CandidateService
 from services.job import JobService
 from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
+from repositories.application_roles import application_role_repository
 
 
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
 
 _repository = SqlCandidateRepository()
 _approval_repository = SqlCandidateApprovalRepository()
+_application_role_repository = application_role_repository
 _service = CandidateService(_repository)
 
 _job_repository = SqlJobRepository()
@@ -540,27 +542,42 @@ def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
 
 
 def get_candidate_role_identity(request: Request) -> str:
-    """Require an authenticated principal with an explicit Candidate role."""
+    """Require a trusted Candidate claim or an active database assignment."""
     principal = get_request_principal(request)
-
     if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
+    principal_id = str(principal["id"])
     claims = principal.get("claims") or []
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
+    trusted_claim = (
+        CANDIDATE_GROUP_ID in group_ids or "Candidate" in token_roles
+    )
 
-    # Provider or app-display-name metadata alone is never authorization.
-    if CANDIDATE_GROUP_ID not in group_ids and "Candidate" not in token_roles:
+    try:
+        status = _application_role_repository.assignment_status(
+            principal_id, "Candidate"
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Candidate role assignments are temporarily unavailable",
+        ) from exc
+
+    if status in {"revoked", "inactive"}:
         raise HTTPException(
             status_code=403,
-            detail="Candidate role is required",
+            detail="Candidate access is currently inactive; contact the TBBD HR team",
         )
 
-    return str(principal["id"])
+    if status == "active" or (status is None and trusted_claim):
+        return principal_id
+
+    raise HTTPException(status_code=403, detail="Candidate role is required")
 
 
 def get_candidate_identity(request: Request) -> str:

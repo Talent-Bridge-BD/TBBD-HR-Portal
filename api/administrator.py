@@ -29,9 +29,6 @@ def _get_administrator_context(request: Request):
 
     principal = get_request_principal(request)
 
-    print("DEBUG PRINCIPAL RESULT:")
-    print(principal)
-
     if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,

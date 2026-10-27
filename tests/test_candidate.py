@@ -1,4 +1,3 @@
-
 import base64
 import json
 import os
@@ -7,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from api import candidate as candidate_api
+from repositories.application_roles import InMemoryApplicationRoleRepository
 from repositories.candidate import InMemoryCandidateRepository
 from services.candidate import CandidateService
 
@@ -21,6 +21,7 @@ class MockCandidateApprovalRepository:
 candidate_api._repository = InMemoryCandidateRepository()
 candidate_api._service = CandidateService(candidate_api._repository)
 candidate_api._approval_repository = MockCandidateApprovalRepository()
+candidate_api._application_role_repository = InMemoryApplicationRoleRepository()
 
 client = TestClient(app)
 

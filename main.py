@@ -21,6 +21,9 @@ from services.authorization import (
     is_global_administrator,
 )
 from services.local_auth import get_request_principal
+from repositories.application_roles import (
+    application_role_repository as _application_role_assignment_repository,
+)
 from repositories.organization import SqlOrganizationRepository
 from api.candidate import router as candidate_router
 from api.employer import router as employer_router
@@ -44,6 +47,7 @@ from api.administrator_candidate_approvals import router as administrator_candid
 from api.administrator_notifications import (
     router as administrator_notifications_router
 )
+from api.employer_access_requests import router as employer_access_requests_router
 
 app = FastAPI()
 
@@ -91,6 +95,7 @@ app.include_router(organization_router)
 app.include_router(notifications_router)
 app.include_router(administrator_candidate_approvals_router)
 app.include_router(administrator_notifications_router)
+app.include_router(employer_access_requests_router)
 
 _organization_repository = SqlOrganizationRepository()
 
@@ -127,11 +132,32 @@ async def get_current_user(request: Request):
         "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
     }
 
-    roles = set(token_roles)
+    # Resolve Candidate separately so a revoked or inactive assignment
+    # cannot be overridden by a token claim.
+    roles = set(token_roles) - {"Candidate"}
 
     for role, group_id in authorization_groups.items():
-        if group_id in group_ids:
+        if role != "Candidate" and group_id in group_ids:
             roles.add(role)
+
+    trusted_candidate_claim = (
+        "Candidate" in token_roles
+        or authorization_groups["Candidate"] in group_ids
+    )
+    try:
+        candidate_status = (
+            _application_role_assignment_repository.assignment_status(
+                str(principal_id), "Candidate"
+            )
+        )
+    except Exception:
+        # Fail closed for Candidate; other role checks can still work.
+        candidate_status = "unavailable"
+
+    if candidate_status == "active" or (
+        candidate_status is None and trusted_candidate_claim
+    ):
+        roles.add("Candidate")
 
     if not roles:
         roles.add("Employee")
@@ -310,6 +336,11 @@ app.mount(
     StaticFiles(directory=DIST_DIR / "assets"),
     name="assets",
 )
+
+
+@app.get("/employer-access-request")
+def employer_access_request_page():
+    return FileResponse(DIST_DIR / "index.html")
 
 
 @app.get("/")

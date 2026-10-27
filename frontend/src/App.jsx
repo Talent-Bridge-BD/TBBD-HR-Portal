@@ -48,18 +48,40 @@ import CandidateNotifications from './pages/CandidateNotifications'
 import CandidateOffers from './pages/CandidateOffers'
 import EmployerNotifications from './pages/EmployerNotifications'
 import CandidateHelpSupport from './pages/CandidateHelpSupport'
-import { getCurrentUser, signIn } from './utils/auth'
+import { getCurrentUser } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
+import EmployerAccessRequest from './pages/EmployerAccessRequest'
 
 const placeholderPages = {}
 
+const STAFF_LOGIN_URL =
+  '/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1'
+
+const CANDIDATE_LOGIN_URL =
+  '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
+
+const PORTAL_ROLES = [
+  'Administrator',
+  'HR Manager',
+  'Employer Manager',
+  'Employer.Manager',
+  'Candidate',
+]
+
 export default function App() {
-  const isCandidateMode = new URLSearchParams(window.location.search).get('authMode') === 'candidate'
+  const searchParams = new URLSearchParams(window.location.search)
+
+  const isEmployerAccessRequest =
+    window.location.pathname === '/employer-access-request' ||
+    searchParams.get('page') === 'employer-access-request'
+
+  const isCandidateMode = searchParams.get('authMode') === 'candidate'
+
   const [activePage, setActivePage] = useState('Dashboard')
-  const [workplaceHubOpened, setWorkplaceHubOpened] = useState(false)
   const [auth, setAuth] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const [authError, setAuthError] = useState('')
 
   useEffect(() => {
     let mounted = true
@@ -70,7 +92,7 @@ export default function App() {
 
         setAuth(data)
 
-        const roles = data?.roles || []
+        const roles = Array.isArray(data?.roles) ? data.roles : []
 
         if (roles.includes('Candidate')) {
           setActivePage('Candidate Dashboard')
@@ -85,6 +107,12 @@ export default function App() {
       })
       .catch((error) => {
         console.error('Failed to load current user:', error)
+
+        if (mounted) {
+          setAuthError(
+            error?.message || 'Unable to verify your sign-in. Please try again.'
+          )
+        }
       })
       .finally(() => {
         if (mounted) {
@@ -97,184 +125,370 @@ export default function App() {
     }
   }, [])
 
+  if (isEmployerAccessRequest) {
+    return <EmployerAccessRequest />
+  }
+
   if (authLoading) {
     return (
       <div className="app-shell">
         <main className="main-content">
-          <p>Loading Workplace Hub...</p>
+          <p>Verifying your sign-in...</p>
         </main>
       </div>
     )
   }
 
-  if (!auth?.authenticated) {
+  if (authError) {
     return (
       <div className="app-shell">
         <main className="main-content">
-          <div className={`empty-state${isCandidateMode ? "" : " staff-signin-state"}`}>
-            {isCandidateMode ? (
-              <section className="candidate-landing">
-                <header className="candidate-brand">
-                  <div className="candidate-brand-mark" aria-hidden="true">TB</div>
-                  <div className="candidate-brand-copy">
-                    <strong>TALENT BRIDGE BD</strong>
-                    <span>Candidate Portal</span>
-                  </div>
-                </header>
-
-                <div className="candidate-welcome">
-                  <span className="candidate-eyebrow">YOUR NEXT CHAPTER STARTS HERE</span>
-                  <h1>Welcome to Talent Bridge BD Candidate Portal</h1>
-                  <p>Your journey to the right opportunity starts here.</p>
-                  <h2>Are you applying for a job?</h2>
-                </div>
-
-                <div className="candidate-access-grid">
-                  <article className="candidate-access-card">
-                    <div className="candidate-card-icon candidate-signin-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M10 16l4-4-4-4M14 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <h3>Already have an account?</h3>
-                    <p>Sign in to access your candidate profile and follow your job applications.</p>
-                    <a
-                      className="candidate-action candidate-action-signin"
-                      href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
-                    >
-                      Sign in
-                      <span aria-hidden="true">â†’</span>
-                    </a>
-                  </article>
-
-                  <article className="candidate-access-card">
-                    <div className="candidate-card-icon candidate-register-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M15 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-4A4.5 4.5 0 0 0 2 18.5V20M8.5 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M16 11h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <h3>No account yet?</h3>
-                    <p>Create your candidate account to get started with new employment opportunities.</p>
-                    <a
-                      className="candidate-action candidate-action-register"
-                      href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"
-                    >
-                      Register
-                      <span aria-hidden="true">â†’</span>
-                    </a>
-                  </article>
-                </div>
-
-                <footer className="candidate-welcome-footer">
-                  <span className="candidate-footer-rule" aria-hidden="true"></span>
-                  <p>Connecting Bangladeshi Talent with Global Employment Opportunities.</p>
-                </footer>
-              </section>
-            ) : (
-              <>
-                <strong>Sign in required</strong>
-                <p>
-                  Staff and administrators can sign in with their Microsoft work account.
-                </p>
-                <button
-                  type="button"
-                  className="primary-button"
-                  onClick={() => {
-                    signIn().catch((error) => {
-                      console.error(
-                        'Microsoft Entra sign-in failed:',
-                        error,
-                      )
-                    })
-                  }}
-                >
-                  Staff and administrator sign in
-                </button>
-
-              </>
-            )}
+          <div className="empty-state" role="alert">
+            <h2>Unable to verify your sign-in</h2>
+            <p>{authError}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </button>
           </div>
         </main>
       </div>
     )
   }
 
-  if (!isCandidateMode && !auth?.roles?.includes('Candidate') && !workplaceHubOpened) {
+  if (!auth?.authenticated && !isCandidateMode) {
+    const hubCardStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '16px',
+      minHeight: '210px',
+      padding: '26px 22px',
+      textAlign: 'center',
+    }
+
+    const hubCards = [
+      {
+        title: 'Candidate Sign In',
+        icon: '♙',
+        description: 'Sign in to access your candidate profile and recruitment journey.',
+        href: CANDIDATE_LOGIN_URL,
+      },
+      {
+        title: 'New Candidate Registration',
+        icon: '✚',
+        description: 'Start your candidate registration and create your recruitment profile.',
+        href: CANDIDATE_LOGIN_URL,
+      },
+      {
+        title: 'Employer Access Request',
+        icon: '▦',
+        description: 'Request employer access for review by the portal team. Approval is required.',
+        href: '/employer-access-request',
+      },
+      {
+        title: 'Administrator / Staff Sign In',
+        icon: '◇',
+        description: 'Sign in with your Microsoft work account. Your assigned role determines your access.',
+        href: STAFF_LOGIN_URL,
+      },
+    ]
+
     return (
       <div className="app-shell" style={{ minHeight: '100vh', background: '#F8FAFC' }}>
-        <main className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
-          <section style={{ width: '100%', maxWidth: '680px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)' }}>
-            <div style={{ height: '8px', background: '#0067B8' }} />
-            <div style={{ padding: '40px 32px', textAlign: 'center' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '58px', height: '58px', borderRadius: '14px', background: '#EAF4FC', color: '#0067B8', fontSize: '20px', fontWeight: 800, marginBottom: '22px' }}>
-                TB
-              </div>
-              <p style={{ color: '#0067B8', fontSize: '13px', fontWeight: 700, letterSpacing: '1.8px', margin: '0 0 12px' }}>
-                WORKPLACE HUB
-              </p>
-              <h1 style={{ color: '#0F172A', fontSize: '28px', lineHeight: 1.3, margin: '0 0 16px' }}>
-                Administrator &amp; HR Manager Operations
-              </h1>
-              <p style={{ color: '#475569', fontSize: '16px', lineHeight: 1.7, margin: '0 auto 28px', maxWidth: '510px' }}>
-                Access TBBD workplace tools and HR operations with role-based access and permission controls.
-              </p>
-              <button
-                type="button"
-                className="primary-button"
-                onClick={() => setWorkplaceHubOpened(true)}
-                style={{ minHeight: '46px', padding: '12px 26px' }}
+        <main
+          className="main-content"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            minHeight: '100vh',
+            margin: 0,
+            padding: '24px 20px',
+            boxSizing: 'border-box',
+            flex: '1 1 auto',
+          }}
+        >
+          <section
+            aria-labelledby="workplace-hub-title"
+            style={{
+              width: '100%',
+              maxWidth: '860px',
+              overflow: 'hidden',
+              border: '1px solid #E2E8F0',
+              borderRadius: '18px',
+              background: '#FFFFFF',
+              boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)',
+            }}
+          >
+            <div style={{ height: '7px', background: '#0067B8' }} />
+            <div style={{ padding: 'clamp(24px, 5vw, 44px)' }}>
+              <header style={{ textAlign: 'center', marginBottom: '30px' }}>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '54px',
+                    height: '54px',
+                    marginBottom: '16px',
+                    borderRadius: '14px',
+                    background: '#EAF4FC',
+                    color: '#0067B8',
+                    fontSize: '20px',
+                    fontWeight: 800,
+                  }}
+                >
+                  TB
+                </div>
+                <p
+                  style={{
+                    margin: '0 0 10px',
+                    color: '#0067B8',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    letterSpacing: '1.8px',
+                  }}
+                >
+                  TALENT BRIDGE BD
+                </p>
+                <h1
+                  id="workplace-hub-title"
+                  style={{
+                    margin: '0 0 12px',
+                    color: '#0F172A',
+                    fontSize: 'clamp(25px, 4vw, 34px)',
+                    lineHeight: 1.25,
+                  }}
+                >
+                  Workplace Hub
+                </h1>
+                <p style={{ margin: 0, color: '#475569', lineHeight: 1.7 }}>
+                  Choose the portal that matches your access needs. Access is
+                  determined by your assigned role and approval status.
+                </p>
+              </header>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: '18px',
+                }}
+                className="workplace-hub-grid"
               >
-                Continue to Dashboard
-              </button>
+                {hubCards.map((card) => (
+                  <a
+                    key={card.title}
+                    href={card.href}
+                    className="workplace-hub-card"
+                    style={hubCardStyle}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '52px',
+                        height: '52px',
+                        flexShrink: 0,
+                        borderRadius: '16px',
+                        background: '#EAF4FC',
+                        color: '#0067B8',
+                        fontSize: '27px',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {card.icon}
+                    </span>
+                    <span
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '10px',
+                        width: '100%',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <strong
+                        style={{
+                          display: 'block',
+                          marginBottom: '9px',
+                          color: '#0067B8',
+                          fontSize: '17px',
+                        }}
+                      >
+                        {card.title}
+                      </strong>
+                      <span style={{ color: '#475569', fontSize: '14px', lineHeight: 1.65 }}>
+                        {card.description}
+                      </span>
+                    </span>
+                    <span style={{ color: '#0067B8', fontSize: '14px', fontWeight: 700 }}>
+                      Continue →
+                    </span>
+                  </a>
+                ))}
+              </div>
+
+              <p
+                style={{
+                  margin: '24px 0 0',
+                  color: '#64748B',
+                  fontSize: '12px',
+                  lineHeight: 1.6,
+                  textAlign: 'center',
+                }}
+              >
+                Signing in does not automatically grant a role or employer access.
+              </p>
             </div>
           </section>
         </main>
       </div>
     )
   }
+
+  if (!auth?.authenticated && isCandidateMode) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <div className="empty-state">
+            <section
+              className="candidate-landing"
+              aria-label="Candidate portal access"
+            >
+              <header className="candidate-brand">
+                <div className="candidate-brand-mark" aria-hidden="true">
+                  TB
+                </div>
+                <div className="candidate-brand-copy">
+                  <strong>TALENT BRIDGE BD</strong>
+                  <span>Candidate Portal</span>
+                </div>
+              </header>
+
+              <section className="candidate-access-card">
+                <h1>Candidate Portal</h1>
+                <p>
+                  Sign in or continue to candidate registration.
+                </p>
+
+                <div className="candidate-unified-actions">
+                  <a
+                    className="candidate-action candidate-action-signin"
+                    href={CANDIDATE_LOGIN_URL}
+                  >
+                    Candidate Sign In
+                  </a>
+
+                  <a
+                    className="candidate-action candidate-action-register"
+                    href={CANDIDATE_LOGIN_URL}
+                  >
+                    New Candidate Registration
+                  </a>
+                </div>
+
+                <p>
+                  <a href="/employer-access-request">
+                    Employer Access Request
+                  </a>
+                </p>
+              </section>
+
+              <footer className="candidate-welcome-footer">
+                <p>Talent Bridge BD — Secure candidate access</p>
+              </footer>
+            </section>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const roles = Array.isArray(auth?.roles) ? auth.roles : []
+
+  const hasPortalRole = roles.some((role) => PORTAL_ROLES.includes(role))
+
+  if (!hasPortalRole) {
+    return (
+      <div className="app-shell">
+        <main className="main-content">
+          <div className="empty-state">
+            <strong>Access not assigned</strong>
+            <p>
+              Your account does not have a recognized TBBD Portal role.
+              Please contact your administrator.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const isCandidate = roles.includes('Candidate')
+
   const pages = {
-    Dashboard: auth?.roles?.includes('Candidate') ? (
+    Dashboard: isCandidate ? (
       <CandidateDashboard onNavigate={setActivePage} />
     ) : (
       <Dashboard auth={auth} onNavigate={setActivePage} />
     ),
-    'My Profile': auth?.roles?.includes('Candidate')
-      ? <CandidateMyProfile />
-      : <MyProfile auth={auth} />,
+
+    'My Profile': isCandidate ? (
+      <CandidateMyProfile />
+    ) : (
+      <MyProfile auth={auth} />
+    ),
+
     Leave: <Leave />,
     Attendance: <Attendance />,
     Applications: <Applications />,
     Schedule: <Schedule />,
     'Workplace Assistant': <WorkplaceAssistantPage />,
     'Administration Employers': <AdministrationEmployers auth={auth} />,
-    'Candidate Approvals': <CandidateApprovals />, 
+    'Candidate Approvals': <CandidateApprovals />,
     organizations: <OrganizationManagement onNavigate={setActivePage} />,
-
- users: <UserManagement auth={auth} />,
-
+    users: <UserManagement auth={auth} />,
     roles: <RolesManagement />,
-
     notifications: <AdministratorNotifications />,
-
     settings: <SystemConfiguration />,
-
     activity: <SystemActivity />,
 
-    'Employer Dashboard': <EmployerDashboard onNavigate={setActivePage} />,
+    'Employer Dashboard': (
+      <EmployerDashboard onNavigate={setActivePage} />
+    ),
     'Employer My Organization': <EmployerOrganization />,
     'Employer Job Requests': <EmployerJobRequests auth={auth} />,
     'Employer Job Openings': <EmployerJobOpenings auth={auth} />,
-    'Employer Applications': <EmployerApplications auth={auth} />,
+        'Employer Applications': <EmployerApplications auth={auth} />,
     'Employer Candidates': <RecruitmentCandidates auth={auth} />,
     'Employer Interviews / Tests': <EmployerInterviewsTests auth={auth} />,
     'Employer Hiring': <Hiring auth={auth} />,
     'Employer Notifications': <EmployerNotifications />,
 
-    'Candidate Dashboard': <CandidateDashboard onNavigate={setActivePage} />,
+    'Candidate Dashboard': (
+      <CandidateDashboard onNavigate={setActivePage} />
+    ),
     'Candidate My Profile': <CandidateMyProfile />,
     'Candidate My Applications': <CandidateMyApplications />,
+    'Candidate Available Jobs': <CandidateAvailableJobs />,
+    'Candidate Interviews': <CandidateInterviews />,
+    'Candidate Documents': <CandidateDocuments />,
+    'Candidate My Offers': <CandidateOffers />,
+    'Candidate Notifications': <CandidateNotifications />,
+    'Candidate Help & Support': <CandidateHelpSupport />,
+
     'Recruitment Jobs': <Jobs auth={auth} />,
-  'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
+    'Recruitment Candidates': <RecruitmentCandidates auth={auth} />,
     'Recruitment Applications': <RecruitmentApplications auth={auth} />,
     'Recruitment Screening': <RecruitmentScreening auth={auth} />,
     'Recruitment Interviews': <RecruitmentInterviews auth={auth} />,
@@ -284,11 +498,6 @@ export default function App() {
     'Recruitment Ticketing': <RecruitmentTicketing auth={auth} />,
     'Recruitment Deployment': <RecruitmentDeployment auth={auth} />,
     'Recruitment Onboarding': <RecruitmentOnboarding auth={auth} />,
-    'Candidate Available Jobs': <CandidateAvailableJobs />,
-  'Candidate Interviews': <CandidateInterviews />,
-  'Candidate Documents': <CandidateDocuments />,
-  'Candidate My Offers': <CandidateOffers />,
-  'Candidate Notifications': <CandidateNotifications />,
   }
 
   Object.entries(placeholderPages).forEach(([page, config]) => {

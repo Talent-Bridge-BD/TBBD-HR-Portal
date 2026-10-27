@@ -31,7 +31,7 @@ export async function initializeMsal() {
 export async function signIn() {
   await msalInstance.loginRedirect({
     ...loginRequest,
-    prompt: "select_account",
+    prompt: 'select_account',
   })
 }
 
@@ -55,11 +55,13 @@ export async function getAccessToken() {
     })
 
     return result.accessToken
-
   } catch (error) {
-
     if (error instanceof InteractionRequiredAuthError) {
-      await msalInstance.acquireTokenRedirect(loginRequest)
+      await msalInstance.acquireTokenRedirect({
+        ...loginRequest,
+        account,
+      })
+
       return null
     }
 
@@ -68,36 +70,66 @@ export async function getAccessToken() {
 }
 
 
-export async function getCurrentUser() {
-  const accessToken = await getAccessToken()
-
-  if (!accessToken) {
-    return null
-  }
-
+async function fetchCurrentUser(options = {}) {
   const response = await fetch('/api/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    ...options,
+    credentials: 'include',
   })
 
+  if (response.status === 401) {
+    return {
+      authenticated: false,
+      user: null,
+      roles: [],
+    }
+  }
+
   if (!response.ok) {
-    throw new Error(`Authentication request failed: ${response.status}`)
+    throw new Error(
+      `Authentication request failed: ${response.status}`
+    )
   }
 
   return response.json()
 }
 
 
-export async function authenticatedFetch(url, options = {}) {
+export async function getCurrentUser() {
+  const account = msalInstance.getActiveAccount()
+
+  if (!account) {
+    return fetchCurrentUser()
+  }
+
   const accessToken = await getAccessToken()
 
-  const headers = new Headers(options.headers || {})
+  if (!accessToken) {
+    return null
+  }
 
-  headers.set(
-    'Authorization',
-    `Bearer ${accessToken}`
-  )
+  return fetchCurrentUser({
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+}
+
+
+export async function authenticatedFetch(url, options = {}) {
+  const headers = new Headers(options.headers || {})
+  const account = msalInstance.getActiveAccount()
+
+  if (account) {
+    const accessToken = await getAccessToken()
+
+    if (!accessToken) {
+      throw new Error(
+        'Authentication is being redirected. Please try again after sign-in completes.'
+      )
+    }
+
+    headers.set('Authorization', `Bearer ${accessToken}`)
+  }
 
   return fetch(url, {
     ...options,

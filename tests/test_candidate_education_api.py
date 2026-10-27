@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from main import app
 from api import candidate as candidate_api
+from repositories.application_roles import InMemoryApplicationRoleRepository
 
 
 class FakeApprovalRepository:
@@ -107,6 +108,11 @@ def api_setup(monkeypatch):
             "id": "candidate-001",
             "claims": [{"typ": "roles", "val": "Candidate"}],
         },
+    )
+    role_repository = InMemoryApplicationRoleRepository()
+    role_repository.grant_role("candidate-001", "Candidate")
+    monkeypatch.setattr(
+        candidate_api, "_application_role_repository", role_repository
     )
 
     return TestClient(app), service, approval
