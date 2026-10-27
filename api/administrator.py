@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from repositories.organization import SqlOrganizationRepository
+from repositories.application_roles import application_role_repository
+from repositories.user_profile import SqlUserProfileRepository
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
@@ -15,6 +17,7 @@ router = APIRouter(
 
 
 _organization_repository = SqlOrganizationRepository()
+_user_profile_repository = SqlUserProfileRepository()
 
 
 AUTHORIZATION_GROUPS = {
@@ -26,50 +29,63 @@ AUTHORIZATION_GROUPS = {
 
 
 def _get_administrator_context(request: Request):
-
     principal = get_request_principal(request)
-
-    print("DEBUG PRINCIPAL RESULT:")
-    print(principal)
-
     if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user required",
         )
 
-    principal_id = principal["id"]
+    principal_id = str(principal["id"])
+    principal_email = str(principal.get("email") or "").strip()
+    user_id = principal_id
 
-    claims = principal.get("claims", [])
+    claims = principal.get("claims") or []
+    valid_claims = [claim for claim in claims if isinstance(claim, dict)]
+
+    roles = {
+        str(claim.get("val") or "").strip()
+        for claim in valid_claims
+        if str(claim.get("typ") or "").strip().lower().endswith("roles")
+        and claim.get("val")
+    }
 
     group_ids = {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == "groups"
+        str(claim.get("val") or "").strip()
+        for claim in valid_claims
+        if str(claim.get("typ") or "").strip().lower().endswith("groups")
         and claim.get("val")
     }
-
-    roles_claim = {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == "roles"
-        and claim.get("val")
-    }
-
-    roles = set(roles_claim)
 
     for role_name, group_id in AUTHORIZATION_GROUPS.items():
         if group_id in group_ids:
             roles.add(role_name)
 
-    memberships = (
-        _organization_repository.get_active_memberships(
-            principal_id
-        )
-    )
+    if "Administrator" not in roles:
+        if principal_email:
+            try:
+                profile = _user_profile_repository.get_by_email(principal_email)
+            except ValueError:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Multiple user profiles match the signed-in email.",
+                )
 
+            if profile is not None:
+                user_id = str(profile.user_id)
+
+        try:
+            if application_role_repository.has_role(user_id, "Administrator"):
+                roles.add("Administrator")
+        except Exception as ex:
+            print(
+                f"[ADMIN ROLE LOOKUP FAILED] {type(ex).__name__}: {ex}",
+                flush=True,
+            )
+
+    memberships = _organization_repository.get_active_memberships(user_id)
     context = build_authorization_context(
-        user_id=principal_id,
+        user_id=user_id,
         roles=roles,
         memberships=memberships,
     )
