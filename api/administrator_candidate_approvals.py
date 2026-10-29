@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 
 from api.administrator_organizations import require_admin
 from repositories.candidate_approvals import SqlCandidateApprovalRepository
+from repositories.candidate import SqlCandidateRepository
+from repositories.candidate_document import SqlCandidateDocumentRepository
 from services.local_auth import get_request_principal
 
 
@@ -12,6 +14,52 @@ router = APIRouter(
 )
 
 _repository = SqlCandidateApprovalRepository()
+_candidate_repository = SqlCandidateRepository()
+_document_repository = SqlCandidateDocumentRepository()
+
+
+def _profile_completion_errors(entra_object_id: str) -> list[str]:
+    candidate_id = _candidate_repository.get_candidate_id(entra_object_id)
+    if not candidate_id:
+        raise RuntimeError("Candidate profile could not be verified")
+
+    profile = _candidate_repository.get_profile(entra_object_id)
+    if not profile:
+        raise RuntimeError("Candidate profile could not be verified")
+
+    documents = _document_repository.list_documents(candidate_id)
+    document_types = {document.document_type for document in documents}
+
+    required_values = {
+        "First name": profile.first_name,
+        "Email": profile.email,
+        "Phone": profile.phone,
+        "Location": profile.location,
+        "Professional title": profile.professional_title,
+        "Career level": profile.career_level,
+        "Passport country": profile.passport_country,
+        "Passport expiry date": profile.passport_expiry_date,
+        "Passport status": profile.passport_status,
+        "International travel readiness": profile.international_travel_readiness,
+    }
+
+    missing = [
+        label for label, value in required_values.items()
+        if not str(value or "").strip()
+    ]
+
+    if profile.years_experience is None or str(profile.years_experience).strip() == "":
+        missing.append("Years of experience")
+
+    for document_type, label in (
+        ("resume", "Resume"),
+        ("passport", "Passport document"),
+        ("profile_photo", "Profile photo"),
+    ):
+        if document_type not in document_types:
+            missing.append(label)
+
+    return missing
 
 
 class CandidateReviewRequest(BaseModel):
@@ -83,6 +131,23 @@ def review_candidate(
             detail="Review status must be approved or rejected",
         )
 
+    if payload.status == "approved":
+        try:
+            missing_items = _profile_completion_errors(entra_object_id)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=503,
+                detail="Candidate profile verification failed; approval was not changed",
+            ) from exc
+
+        if missing_items:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "message": "Candidate profile is incomplete",
+                    "missing_items": missing_items,
+                },
+            )
     try:
         result = _repository.review_candidate(
             entra_object_id,
@@ -125,6 +190,25 @@ def bulk_approve_candidates(
     results = []
 
     for entra_object_id in ids:
+        try:
+            missing_items = _profile_completion_errors(entra_object_id)
+        except Exception:
+            results.append({
+                "entra_object_id": entra_object_id,
+                "status": "error",
+                "detail": "Candidate profile verification failed; not approved",
+            })
+            continue
+
+        if missing_items:
+            results.append({
+                "entra_object_id": entra_object_id,
+                "status": "error",
+                "detail": "Candidate profile is incomplete",
+                "missing_items": missing_items,
+            })
+            continue
+
         try:
             result = _repository.review_candidate(
                 entra_object_id,

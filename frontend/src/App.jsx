@@ -1,3 +1,4 @@
+import logo from './assets/branding/talent-bridge-bd-logo.png'
 import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
@@ -60,6 +61,9 @@ const STAFF_LOGIN_URL =
 
 const CANDIDATE_LOGIN_URL =
   '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
+
+const CANDIDATE_REGISTRATION_URL =
+  '/.auth/login/TBBDCandidateExternalID?prompt=create&post_login_redirect_uri=%2F%3FauthMode%3Dcandidate%26registration%3D1'
 
 const PORTAL_ROLES = [
   'Administrator',
@@ -159,17 +163,6 @@ export default function App() {
   }
 
   if (!auth?.authenticated && !isCandidateMode) {
-    const hubCardStyle = {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '16px',
-      minHeight: '210px',
-      padding: '26px 22px',
-      textAlign: 'center',
-    }
-
     const hubCards = [
       {
         title: 'Candidate Sign In',
@@ -181,7 +174,7 @@ export default function App() {
         title: 'New Candidate Registration',
         icon: '✚',
         description: 'Start your candidate registration and create your recruitment profile.',
-        href: CANDIDATE_LOGIN_URL,
+        href: CANDIDATE_REGISTRATION_URL,
       },
       {
         title: 'Employer Access Request',
@@ -198,54 +191,13 @@ export default function App() {
     ]
 
     return (
-      <div className="app-shell" style={{ minHeight: '100vh', background: '#F8FAFC' }}>
-        <main
-          className="main-content"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            minHeight: '100vh',
-            margin: 0,
-            padding: '24px 20px',
-            boxSizing: 'border-box',
-            flex: '1 1 auto',
-          }}
-        >
-          <section
-            aria-labelledby="workplace-hub-title"
-            style={{
-              width: '100%',
-              maxWidth: '860px',
-              overflow: 'hidden',
-              border: '1px solid #E2E8F0',
-              borderRadius: '18px',
-              background: '#FFFFFF',
-              boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08)',
-            }}
-          >
-            <div style={{ height: '7px', background: '#0067B8' }} />
-            <div style={{ padding: 'clamp(24px, 5vw, 44px)' }}>
-              <header style={{ textAlign: 'center', marginBottom: '30px' }}>
-                <div
-                  aria-hidden="true"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '54px',
-                    height: '54px',
-                    marginBottom: '16px',
-                    borderRadius: '14px',
-                    background: '#EAF4FC',
-                    color: '#0067B8',
-                    fontSize: '20px',
-                    fontWeight: 800,
-                  }}
-                >
-                  TB
-                </div>
+      <div className="app-shell workplace-hub-shell">
+        <main className="main-content workplace-hub-main">
+          <section aria-labelledby="workplace-hub-title" className="workplace-hub-panel">
+            <div className="workplace-hub-accent" />
+            <div className="workplace-hub-content">
+              <header className="workplace-hub-heading">
+                <img src={logo} alt="Talent Bridge BD" className="workplace-hub-logo" />
                 <p
                   style={{
                     margin: '0 0 10px',
@@ -275,11 +227,6 @@ export default function App() {
               </header>
 
               <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                  gap: '18px',
-                }}
                 className="workplace-hub-grid"
               >
                 {hubCards.map((card) => (
@@ -287,7 +234,6 @@ export default function App() {
                     key={card.title}
                     href={card.href}
                     className="workplace-hub-card"
-                    style={hubCardStyle}
                   >
                     <span
                       aria-hidden="true"
@@ -391,7 +337,7 @@ export default function App() {
 
                   <a
                     className="candidate-action candidate-action-register"
-                    href={CANDIDATE_LOGIN_URL}
+                    href={CANDIDATE_REGISTRATION_URL}
                   >
                     New Candidate Registration
                   </a>

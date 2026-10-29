@@ -44,6 +44,7 @@ from api.recruitment_pipeline import router as recruitment_pipeline_router
 from api.organization import router as organization_router
 from api.notifications import router as notifications_router
 from api.administrator_candidate_approvals import router as administrator_candidate_approvals_router
+from api.administrator_candidate_roles import router as administrator_candidate_roles_router
 from api.administrator_notifications import (
     router as administrator_notifications_router
 )
@@ -94,6 +95,7 @@ app.include_router(recruitment_pipeline_router)
 app.include_router(organization_router)
 app.include_router(notifications_router)
 app.include_router(administrator_candidate_approvals_router)
+app.include_router(administrator_candidate_roles_router)
 app.include_router(administrator_notifications_router)
 app.include_router(employer_access_requests_router)
 
@@ -577,6 +579,3 @@ async def handle_mcp(request: Request):
             "id": body.get("id", 1) if "body" in locals() else 1,
             "error": str(e),
         }
-
-
-

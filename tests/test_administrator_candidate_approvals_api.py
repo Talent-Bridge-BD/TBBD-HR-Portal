@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from types import SimpleNamespace
 
 from main import app
 from api import administrator_candidate_approvals as api
@@ -8,7 +9,34 @@ from repositories.candidate_approvals import InMemoryCandidateApprovalRepository
 
 def setup_api(monkeypatch):
     repository = InMemoryCandidateApprovalRepository()
+    profile = SimpleNamespace(
+        first_name="Test Candidate",
+        email="candidate@example.com",
+        phone="+8801700000000",
+        location="Dhaka",
+        professional_title="Software Engineer",
+        career_level="Mid-level",
+        years_experience=5,
+        passport_country="Bangladesh",
+        passport_expiry_date="2030-12-31",
+        passport_status="valid",
+        international_travel_readiness="yes",
+    )
+    documents = [
+        SimpleNamespace(document_type=document_type)
+        for document_type in ("resume", "passport", "profile_photo")
+    ]
+    candidate_repository = SimpleNamespace(
+        get_candidate_id=lambda user_id: f"candidate-id-{user_id}",
+        get_profile=lambda user_id: profile,
+    )
+    document_repository = SimpleNamespace(
+        list_documents=lambda candidate_id: documents,
+    )
+
     monkeypatch.setattr(api, "_repository", repository)
+    monkeypatch.setattr(api, "_candidate_repository", candidate_repository)
+    monkeypatch.setattr(api, "_document_repository", document_repository)
     monkeypatch.setattr(api, "require_admin", lambda request: {})
     monkeypatch.setattr(
         api,
@@ -69,6 +97,24 @@ def test_admin_can_approve_pending_candidate(monkeypatch):
     assert body["item"]["approval_status"] == "approved"
     assert body["item"]["reviewed_by"] == "test-admin-001"
     assert body["item"]["approval_notes"] == "Profile reviewed"
+
+
+def test_admin_cannot_approve_incomplete_candidate(monkeypatch):
+    repository, client = setup_api(monkeypatch)
+    repository.ensure_candidate("candidate-001")
+
+    profile = api._candidate_repository.get_profile("candidate-001")
+    profile.phone = ""
+
+    response = client.post(
+        "/api/administrator/candidate-approvals/candidate-001/review",
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"]["message"] == "Candidate profile is incomplete"
+    assert "Phone" in response.json()["detail"]["missing_items"]
+    assert repository.get_approval("candidate-001")["approval_status"] == "pending"
 
 
 def test_repeat_review_cannot_overwrite_decision(monkeypatch):
