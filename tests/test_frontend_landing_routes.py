@@ -28,8 +28,20 @@ def assert_workplace_hub(response):
     assert "--accent: #0F9D8A" in response.text
     assert "--accent: #7C3AED" in response.text
     assert "--accent: #C76A00" in response.text
-    assert "width: 220px" in response.text\n    assert "max-width: 1120px" in response.text\n    assert "height: 230px" in response.text\n    assert "width: 72px; height: 72px" in response.text\n    assert "border-radius: 20px" in response.text\n    assert "0 10px 30px rgba(0, 0, 0, .08)" in response.text\n    assert "translateY(-6px)" in response.text\n    assert "0 20px 40px rgba(0, 0, 0, .12)" in response.text\n    assert "FOR JOB SEEKERS" in response.text\n    assert "NEW CANDIDATES" in response.text\n    assert "FOR EMPLOYERS" in response.text\n    assert "AUTHORIZED PERSONNEL" in response.text
-    assert "align-self: center" in response.text\n    assert "min-height: 50px" in response.text
+    assert "width: 220px" in response.text
+    assert "max-width: 1120px" in response.text
+    assert "height: 230px" in response.text
+    assert "width: 72px; height: 72px" in response.text
+    assert "border-radius: 20px" in response.text
+    assert "0 10px 30px rgba(0, 0, 0, .08)" in response.text
+    assert "translateY(-6px)" in response.text
+    assert "0 20px 40px rgba(0, 0, 0, .12)" in response.text
+    assert "FOR JOB SEEKERS" in response.text
+    assert "NEW CANDIDATES" in response.text
+    assert "FOR EMPLOYERS" in response.text
+    assert "AUTHORIZED PERSONNEL" in response.text
+    assert "align-self: center" in response.text
+    assert "min-height: 50px" in response.text
     assert "Access is subject to account verification, approval status and assigned permissions." in response.text
     assert "prefers-reduced-motion: reduce" in response.text
     assert 'url("/assets/tbbd-workplace-hub.jpg")' not in response.text
