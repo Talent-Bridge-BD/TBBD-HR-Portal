@@ -16,6 +16,22 @@ def assert_workplace_hub(response):
     assert "/assets/talent-bridge-bd-logo.png" in response.text
     assert "Sign in with Microsoft" in response.text
 
+    candidate_sign_in = (
+        'href="/.auth/login/TBBDCandidateExternalID?'
+        'post_login_redirect_uri=%2F%3FauthMode%3Dcandidate"'
+    )
+    candidate_registration = (
+        'href="/.auth/login/TBBDCandidateExternalID?'
+        'post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&amp;prompt=create"'
+    )
+    assert candidate_sign_in in response.text
+    assert candidate_registration in response.text
+    assert 'href="/employer-access-request"' in response.text
+    assert (
+        'href="/.auth/login/aad?'
+        'post_login_redirect_uri=%2F%3Fportal%3D1"'
+    ) in response.text
+
 
 def test_public_homepage_serves_workplace_hub():
     response = client.get("/")
