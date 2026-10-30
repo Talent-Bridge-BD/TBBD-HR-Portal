@@ -11,6 +11,7 @@ def assert_workplace_hub(response):
     assert "text/html" in response.headers.get("content-type", "")
     assert "Talent Bridge BD Workplace Hub" in response.text
     assert "SECURE WORKPLACE ACCESS" in response.text
+    assert "Choose Your Workplace Journey" in response.text
     assert "Connecting Bangladeshi Talent With Global Employment Opportunities." in response.text
     assert "Candidate Sign In" in response.text
     assert "New Candidate Registration" in response.text
@@ -31,7 +32,14 @@ def assert_workplace_hub(response):
     assert "width: 220px" in response.text
     assert "max-width: 1120px" in response.text
     assert "height: 230px" in response.text
-    assert "width: 72px; height: 72px" in response.text
+    assert "width: 64px; height: 64px" in response.text
+    assert "width: 28px; height: 28px" in response.text
+    assert "border-top: 4px solid var(--accent)" in response.text
+    assert "background: var(--tint)" in response.text
+    assert "background: var(--accent)" in response.text
+    assert "0 8px 16px rgba(0, 0, 0, .12)" in response.text
+    assert ".access-heading" in response.text
+    assert "grid-template-rows: repeat(2, 184px)" in response.text
     assert "border-radius: 20px" in response.text
     assert "0 10px 30px rgba(0, 0, 0, .08)" in response.text
     assert "translateY(-6px)" in response.text
