@@ -20,16 +20,16 @@ def assert_workplace_hub(response):
     assert 'id="copyright-year"' in response.text
     assert "new Date().getFullYear()" in response.text
     assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in response.text
-    assert "grid-template-rows: repeat(2, minmax(220px, 1fr))" in response.text
+    assert "grid-template-rows: repeat(2, 230px)" in response.text
     assert "grid-template-columns: minmax(0, 1fr)" in response.text
     assert "@media (max-height: 820px)" in response.text
     assert "@media (max-width: 640px)" in response.text
-    assert "--accent: #356FC1" in response.text
-    assert "--accent: #278B77" in response.text
-    assert "--accent: #805CC0" in response.text
-    assert "--accent: #B87535" in response.text
-    assert "width: 220px" in response.text
-    assert "align-self: center" in response.text
+    assert "--accent: #2563EB" in response.text
+    assert "--accent: #0F9D8A" in response.text
+    assert "--accent: #7C3AED" in response.text
+    assert "--accent: #C76A00" in response.text
+    assert "width: 220px" in response.text\n    assert "max-width: 1120px" in response.text\n    assert "height: 230px" in response.text\n    assert "width: 72px; height: 72px" in response.text\n    assert "border-radius: 20px" in response.text\n    assert "0 10px 30px rgba(0, 0, 0, .08)" in response.text\n    assert "translateY(-6px)" in response.text\n    assert "0 20px 40px rgba(0, 0, 0, .12)" in response.text\n    assert "FOR JOB SEEKERS" in response.text\n    assert "NEW CANDIDATES" in response.text\n    assert "FOR EMPLOYERS" in response.text\n    assert "AUTHORIZED PERSONNEL" in response.text
+    assert "align-self: center" in response.text\n    assert "min-height: 50px" in response.text
     assert "Access is subject to account verification, approval status and assigned permissions." in response.text
     assert "prefers-reduced-motion: reduce" in response.text
     assert 'url("/assets/tbbd-workplace-hub.jpg")' not in response.text
