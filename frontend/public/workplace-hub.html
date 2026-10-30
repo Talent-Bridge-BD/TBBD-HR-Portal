@@ -3,181 +3,248 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#082746">
+  <meta name="theme-color" content="#072A53">
   <meta name="description" content="Secure Talent Bridge BD workplace access for candidates, employers, HR professionals and administrators.">
   <title>Workplace Hub | Talent Bridge BD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
       font-family: Inter, "Segoe UI", Arial, sans-serif;
-      color: #102a43;
-      background: #f4f8fc;
+      color: #0B2F5B;
+      background: #F8FBFF;
       font-synthesis: none;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      --navy: #082746;
-      --blue: #0067B8;
-      --bright-blue: #168ACB;
-      --pale-blue: #EAF3FA;
-      --muted: #526579;
-      --line: #dce7f0;
+      --navy: #072A53;
+      --title: #0B2F5B;
+      --muted: #667085;
+      --page-width: 1200px;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { min-width: 320px; scroll-behavior: smooth; }
     body {
-      min-width: 320px; min-height: 100vh; margin: 0; display: flex; flex-direction: column;
-      background: linear-gradient(180deg, #f7fafe 0%, #f1f6fb 100%);
+      min-width: 320px; min-height: 100vh; min-height: 100svh; margin: 0;
+      display: flex; flex-direction: column;
+      background: linear-gradient(135deg, #F8FBFF 0%, #F1F6FC 100%);
     }
     a { color: inherit; }
     .topbar {
-      position: relative; z-index: 1; color: #fff; background: var(--navy);
-      border-bottom: 4px solid var(--blue); box-shadow: 0 5px 22px rgb(8 39 70 / 12%);
+      flex: 0 0 auto; color: #fff; background: #072A53;
+      box-shadow: 0 3px 14px rgba(7, 42, 83, .10);
     }
     .topbar-inner {
-      width: min(1200px, calc(100% - 48px)); min-height: 82px; margin-inline: auto;
+      width: min(var(--page-width), calc(100% - 48px)); height: 72px; margin-inline: auto;
       display: flex; align-items: center; justify-content: space-between; gap: 24px;
     }
-    .brand-row { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-row {
+      min-width: 0; display: inline-flex; align-items: center; gap: 12px;
+      color: #fff; text-decoration: none;
+    }
     .brand-logo {
-      display: block; width: 54px; height: 54px; flex: 0 0 auto; object-fit: contain;
-      object-position: center; padding: 3px; border-radius: 9px; background: #fff;
+      display: block; width: 52px; height: 52px; flex: 0 0 52px;
+      object-fit: contain; object-position: center; background: #fff; border-radius: 7px;
     }
-    .brand-copy { display: flex; flex-direction: column; gap: 3px; }
-    .brand { font-size: 15px; line-height: 1.35; letter-spacing: .12em; font-weight: 800; }
-    .brand-subtitle { color: #c8dced; font-size: 12px; line-height: 1.4; letter-spacing: .035em; }
-    .primary-nav { display: flex; align-items: center; justify-content: flex-end; gap: clamp(12px, 2.2vw, 28px); }
+    .brand-copy { display: flex; flex-direction: column; gap: 2px; }
+    .brand {
+      color: #fff; font-family: Manrope, Inter, sans-serif; font-size: 24px;
+      font-weight: 700; line-height: 1.15; letter-spacing: -.035em; white-space: nowrap;
+    }
+    .brand-subtitle { color: #D9E8F8; font-size: 14px; font-weight: 500; line-height: 1.3; }
+    .primary-nav { display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
     .primary-nav a {
-      color: #e6f1fa; font-size: 12px; font-weight: 650; line-height: 1.5;
-      text-decoration: none; white-space: nowrap; transition: color .15s ease;
+      color: #E8F1FA; font-size: 12px; font-weight: 600; text-decoration: none;
+      white-space: nowrap; transition: color .2s ease;
     }
-    .primary-nav a:hover { color: #8ed0ff; }
-    .primary-nav a:focus-visible { outline: 2px solid #8ed0ff; outline-offset: 5px; border-radius: 2px; }
-    .primary-nav .nav-cta { padding: 9px 13px; color: #fff; border: 1px solid rgb(255 255 255 / 42%); border-radius: 8px; }
-    .primary-nav .nav-cta:hover { color: #fff; background: rgb(255 255 255 / 12%); }
-
-    main { width: min(1160px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 46px; flex: 1; }
-    .hero-banner {
-      position: relative; isolation: isolate; display: flex; min-height: clamp(230px, 27vw, 310px);
-      align-items: center; overflow: hidden; padding: clamp(28px, 5vw, 58px); color: #fff;
-      background-color: var(--navy);
-      background-image: linear-gradient(90deg, rgb(8 39 70 / 94%) 0%, rgb(8 39 70 / 84%) 43%, rgb(8 39 70 / 28%) 100%), url("/assets/tbbd-workplace-hub.jpg");
-      background-repeat: no-repeat; background-position: center; background-size: cover;
-      border-radius: 18px; box-shadow: 0 16px 36px rgb(8 39 70 / 15%);
+    .primary-nav a:hover { color: #9DD8FF; }
+    .primary-nav a:focus-visible, .brand-row:focus-visible {
+      outline: 3px solid #9DD8FF; outline-offset: 4px; border-radius: 3px;
     }
-    .hero-content { width: min(650px, 100%); }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 9px; color: #a9dcff;
-      font-size: 11px; font-weight: 800; letter-spacing: .16em; line-height: 1.5; text-transform: uppercase;
+    .primary-nav .nav-cta {
+      padding: 9px 13px; border: 1px solid rgba(255,255,255,.48); border-radius: 8px;
     }
-    .eyebrow::before { width: 25px; height: 2px; content: ""; background: #55b7f2; }
+    main {
+      width: min(var(--page-width), calc(100% - 48px)); margin: 0 auto;
+      padding: 16px 0 14px; flex: 1 0 auto;
+      display: flex; flex-direction: column;
+    }
+    .hero {
+      min-height: 140px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 8px 12px 4px;
+      text-align: center;
+    }
+    .security-badge {
+      min-height: 32px; display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 7px 16px; color: #0B5CAB; background: #E6F4FF;
+      border-radius: 999px; font-size: 12px; font-weight: 700;
+      letter-spacing: 1.5px; line-height: 1.2;
+    }
+    .security-badge svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
     h1 {
-      margin: 13px 0 12px; color: #fff; font-size: clamp(32px, 4.5vw, 48px);
+      max-width: 1000px; margin: 9px 0 7px; color: #0B2F5B;
+      font-family: Manrope, Inter, sans-serif; font-size: clamp(36px, 3.2vw, 46px);
       font-weight: 800; letter-spacing: -.045em; line-height: 1.1; text-wrap: balance;
     }
-    .hero-copy {
-      max-width: 600px; margin: 0; color: #edf6fd; font-size: clamp(14px, 1.6vw, 16px);
-      line-height: 1.75; text-shadow: 0 1px 3px rgb(0 0 0 / 28%);
+    .tagline {
+      max-width: 700px; margin: 0; color: #667085; font-size: 18px;
+      font-weight: 500; line-height: 1.5;
     }
-    .access-heading { margin: 34px 0 18px; text-align: center; }
-    .access-heading h2 { margin: 0 0 7px; color: var(--navy); font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -.025em; }
-    .access-heading p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .workspace-grid {
-      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr;
-      gap: 20px; max-width: 1040px; margin-inline: auto; scroll-margin-top: 24px;
+      width: 100%; max-width: 1180px; margin: 18px auto 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(220px, 1fr)); gap: 18px 20px;
+      scroll-margin-top: 18px;
     }
     .workspace {
-      position: relative; display: flex; min-width: 0; min-height: 270px; flex-direction: column;
-      align-items: stretch; padding: 25px 28px 26px; overflow: hidden; background: #fff;
-      border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 26px rgb(8 39 70 / 5%);
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      --accent: #356FC1; --card-bg: #EAF1FF; --icon-bg: #DCE9FF;
+      --card-border: #C5D8F5;
+      min-width: 0; min-height: 220px; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 15px 20px 16px; text-align: center;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-top: 4px solid var(--accent); border-radius: 17px;
+      box-shadow: 0 6px 20px rgba(20, 45, 80, .07);
+      transition: transform .27s ease, box-shadow .27s ease, border-color .27s ease;
     }
-    .workspace::before {
-      position: absolute; inset: 0 auto 0 0; width: 4px; content: "";
-      background: linear-gradient(180deg, var(--bright-blue), var(--blue)); opacity: .9;
-    }
-    .workspace:hover { transform: translateY(-3px); border-color: #b8d5e9; box-shadow: 0 16px 34px rgb(8 39 70 / 10%); }
     .workspace.registration {
-      background: linear-gradient(145deg, #fff 0%, #f4faff 100%);
-      border-color: #9cc9e7; box-shadow: 0 10px 30px rgb(0 103 184 / 10%);
+      --accent: #278B77; --card-bg: #E9F6F1; --icon-bg: #D8F0E9;
+      --card-border: #C1E1D6;
     }
-    .workspace.registration::before { width: 5px; background: var(--bright-blue); }
-    .card-top { width: 100%; display: grid; grid-template-columns: 1fr 52px 1fr; align-items: center; gap: 10px; }
-    .workspace-label {
-      justify-self: start; display: inline-flex; align-items: center; min-height: 27px; padding: 5px 10px;
-      color: #075b9b; background: var(--pale-blue); border: 1px solid #d8eaf7;
-      border-radius: 999px; font-size: 11px; font-weight: 750; letter-spacing: .025em;
+    .workspace.employer {
+      --accent: #805CC0; --card-bg: #F1ECFA; --icon-bg: #E9DFFF;
+      --card-border: #D9CBEE;
+    }
+    .workspace.staff {
+      --accent: #B87535; --card-bg: #FFF2E5; --icon-bg: #FCE7D2;
+      --card-border: #EED2B5;
+    }
+    .workspace.candidate { box-shadow: 0 8px 22px rgba(53, 111, 193, .11); }
+    .workspace:hover {
+      transform: translateY(-4px); border-color: var(--accent);
+      box-shadow: 0 14px 30px rgba(20, 45, 80, .12);
     }
     .card-icon {
-      grid-column: 2; grid-row: 1; display: grid; width: 48px; height: 48px;
-      place-items: center; color: var(--blue); background: #f0f7fc;
-      border: 1px solid #e1eef7; border-radius: 13px;
+      width: 52px; height: 52px; flex: 0 0 52px; display: grid;
+      place-items: center; color: var(--accent); background: var(--icon-bg);
+      border-radius: 16px;
     }
     .card-icon svg {
-      display: block; width: 23px; height: 23px; fill: none; stroke: currentColor;
+      width: 26px; height: 26px; fill: none; stroke: currentColor;
       stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
     }
-    .registration .card-icon { color: #fff; background: var(--blue); border-color: var(--blue); }
-    .card-top::after { content: ""; grid-column: 3; }
-    .workspace h3 { margin: 19px 0 8px; color: var(--navy); font-size: 21px; font-weight: 750; letter-spacing: -.02em; line-height: 1.3; }
-    .workspace p { max-width: 410px; margin: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .workspace-label {
+      margin-top: 6px; padding: 4px 10px; color: var(--accent);
+      background: var(--icon-bg); border-radius: 999px;
+      font-size: 10px; font-weight: 700; letter-spacing: .9px; line-height: 1.25;
+    }
+    .workspace h2 {
+      margin: 6px 0 4px; color: #0B2F5B; font-family: Manrope, Inter, sans-serif;
+      font-size: 22px; font-weight: 700; letter-spacing: -.025em; line-height: 1.2;
+    }
+    .workspace p {
+      max-width: 440px; margin: 0 auto 8px; color: #526579;
+      font-size: 14px; font-weight: 400; line-height: 1.45;
+    }
     .action {
-      display: inline-flex; width: 100%; min-height: 46px; align-items: center; justify-content: center;
-      gap: 10px; margin-top: auto; padding: 11px 16px; color: #fff; background: var(--blue);
-      border: 1px solid var(--blue); border-radius: 9px; text-align: center; text-decoration: none;
-      font-size: 13px; font-weight: 750; line-height: 1.35;
-      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      width: 220px; max-width: 100%; min-height: 46px; align-self: center;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      margin: auto auto 0; padding: 10px 14px; color: #fff;
+      background: var(--accent); border: 1px solid var(--accent);
+      border-radius: 11px; font-size: 14px; font-weight: 700;
+      line-height: 1.25; text-align: center; text-decoration: none;
+      transition: filter .2s ease, box-shadow .2s ease;
     }
-    .action:hover { color: #fff; background: var(--navy); border-color: var(--navy); box-shadow: 0 5px 13px rgb(8 39 70 / 17%); }
-    .registration .action { background: linear-gradient(100deg, var(--blue), var(--bright-blue)); border-color: var(--blue); }
-    .action:focus-visible { outline: 3px solid #79bde8; outline-offset: 3px; }
-    .action svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .security-note {
-      display: flex; align-items: center; justify-content: center; gap: 9px; margin: 25px auto 0;
-      color: #5e7184; font-size: 12px; line-height: 1.65; text-align: center;
+    .action:hover { filter: brightness(.92); box-shadow: 0 5px 12px rgba(20,45,80,.13); }
+    .action:focus-visible {
+      outline: 3px solid #0B5CAB; outline-offset: 3px;
     }
-    .security-note svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: var(--blue); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .permission-notice {
+      width: 100%; max-width: 1180px; min-height: 40px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 14px auto 0; padding: 9px 12px; color: #526579;
+      background: #EDF3F9; border-radius: 10px; font-size: 13px;
+      line-height: 1.45; text-align: center;
+    }
+    .permission-notice svg {
+      width: 16px; height: 16px; flex: 0 0 auto; fill: none;
+      stroke: #526579; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
     footer {
-      display: flex; align-items: center; justify-content: center; gap: 16px; padding: 22px 24px;
-      color: #d6e3ef; background: var(--navy); border-top: 4px solid var(--blue);
-      font-size: 12px; line-height: 1.7; text-align: left;
+      min-height: 60px; flex: 0 0 auto; display: flex; align-items: center;
+      justify-content: center; padding: 10px 24px; color: #D9E8F8;
+      background: #072A53; font-size: 12px; line-height: 1.5; text-align: center;
     }
-    .footer-logo { display: block; width: 44px; height: 44px; flex: 0 0 auto; object-fit: contain; padding: 2px; background: #fff; border-radius: 7px; }
-    .footer-copy strong { color: #fff; font-weight: 750; }
-    .footer-copy span { color: #c1d4e5; }
-
-    @media (max-width: 760px) {
-      .topbar-inner { width: min(100% - 36px, 680px); min-height: 76px; }
-      .primary-nav { gap: 14px; }
+    .footer-copy strong { color: #fff; font-size: 14px; font-weight: 700; }
+    .footer-copy span { color: #D9E8F8; }
+    @media (min-width: 1600px) {
+      .topbar-inner { height: 76px; }
+      .workspace-grid { grid-template-rows: repeat(2, minmax(230px, 1fr)); gap: 20px; }
+      .workspace { min-height: 230px; padding: 17px 22px 18px; }
+      .card-icon { width: 56px; height: 56px; flex-basis: 56px; }
+      .card-icon svg { width: 28px; height: 28px; }
+      .workspace h2 { font-size: 24px; }
+      .action { min-height: 48px; }
+    }
+    @media (max-height: 820px) and (min-width: 761px) {
+      .topbar-inner { height: 64px; }
+      .brand-logo { width: 46px; height: 46px; flex-basis: 46px; }
+      .brand { font-size: 22px; }
+      main { padding: 10px 0 8px; }
+      .hero { min-height: 116px; padding: 4px 10px 0; }
+      .security-badge { min-height: 30px; padding: 6px 14px; font-size: 11px; }
+      h1 { margin: 6px 0 5px; font-size: 38px; }
+      .tagline { font-size: 16px; }
+      .workspace-grid {
+        margin-top: 14px; grid-template-rows: repeat(2, minmax(194px, 1fr)); gap: 14px 18px;
+      }
+      .workspace { min-height: 194px; padding: 9px 18px 10px; }
+      .card-icon { width: 42px; height: 42px; flex-basis: 42px; border-radius: 13px; }
+      .card-icon svg { width: 22px; height: 22px; }
+      .workspace-label { margin-top: 4px; padding: 3px 9px; font-size: 9px; }
+      .workspace h2 { margin: 4px 0 3px; font-size: 20px; }
+      .workspace p { margin-bottom: 5px; font-size: 13px; line-height: 1.35; }
+      .action { min-height: 42px; font-size: 13px; }
+      .permission-notice { min-height: 36px; margin-top: 10px; padding: 7px 10px; font-size: 12px; }
+      footer { min-height: 50px; padding: 7px 20px; }
+      .footer-copy strong { font-size: 13px; }
+    }
+    @media (max-width: 900px) and (min-width: 641px) {
+      .topbar-inner { width: calc(100% - 36px); }
+      main { width: calc(100% - 36px); }
+      .primary-nav { gap: 12px; }
       .primary-nav a { font-size: 11px; }
-      main { width: min(100% - 36px, 680px); padding-top: 26px; }
-      .hero-banner { min-height: 250px; border-radius: 15px; background-position: 58% center; }
-      .workspace-grid { grid-template-columns: 1fr; max-width: 560px; }
-      .workspace { min-height: 246px; }
+      .brand { font-size: 20px; }
+      .workspace-grid { gap: 16px; }
+      .workspace { padding-inline: 14px; }
+      .workspace h2 { font-size: 20px; }
+      .workspace p { font-size: 13px; }
     }
-    @media (max-width: 520px) {
-      .topbar-inner { width: calc(100% - 30px); min-height: 72px; gap: 12px; }
+    @media (max-width: 640px) {
+      .topbar-inner { width: calc(100% - 32px); height: 64px; gap: 8px; }
       .brand-row { gap: 9px; }
-      .brand-logo { width: 43px; height: 43px; }
-      .brand { font-size: 12px; letter-spacing: .09em; }
-      .brand-subtitle { font-size: 10px; }
+      .brand-logo { width: 43px; height: 43px; flex-basis: 43px; }
+      .brand { font-size: 17px; }
+      .brand-subtitle { font-size: 11px; }
       .primary-nav { gap: 0; }
       .primary-nav a:not(.nav-cta) { display: none; }
       .primary-nav .nav-cta { padding: 8px 10px; font-size: 10px; }
-      main { width: calc(100% - 30px); padding-top: 18px; }
-      .hero-banner {
-        min-height: 245px; padding: 27px 22px;
-        background-image: linear-gradient(90deg, rgb(8 39 70 / 95%) 0%, rgb(8 39 70 / 82%) 72%, rgb(8 39 70 / 60%) 100%), url("/assets/tbbd-workplace-hub.jpg");
-        background-position: 62% center;
-      }
-      h1 { font-size: 32px; }
-      .hero-copy { font-size: 14px; }
-      .access-heading { margin-top: 28px; }
-      .access-heading p { font-size: 13px; }
-      .workspace { min-height: 242px; padding: 22px 21px; }
-      .workspace h3 { font-size: 19px; }
-      footer { gap: 11px; padding: 18px 16px; font-size: 11px; }
-      .footer-logo { width: 39px; height: 39px; }
+      main { width: calc(100% - 32px); padding: 12px 0 14px; }
+      .hero { min-height: 132px; padding: 5px 0 0; }
+      .security-badge { min-height: 30px; padding: 6px 12px; font-size: 10px; letter-spacing: 1.1px; }
+      h1 { margin: 9px 0 6px; font-size: clamp(27px, 7vw, 34px); }
+      .tagline { font-size: 15px; }
+      .workspace-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-rows: minmax(205px, auto); gap: 14px; margin-top: 14px; }
+      .workspace { min-height: 205px; padding: 13px 18px 14px; }
+      .card-icon { width: 48px; height: 48px; flex-basis: 48px; }
+      .workspace-label { margin-top: 5px; }
+      .workspace h2 { font-size: 21px; }
+      .workspace p { font-size: 14px; }
+      .action { width: 100%; min-height: 46px; }
+      .permission-notice { margin-top: 14px; font-size: 12px; }
+      footer { min-height: 52px; padding: 8px 14px; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -188,11 +255,11 @@
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand-row" href="#page-title" aria-label="Talent Bridge BD Workplace Hub home" style="text-decoration:none">
+      <a class="brand-row" href="#page-title" aria-label="Talent Bridge BD Workplace Hub home">
         <img class="brand-logo" src="/assets/talent-bridge-bd-logo.png" alt="Talent Bridge BD official logo">
         <span class="brand-copy">
           <span class="brand">TALENT BRIDGE BD</span>
-          <span class="brand-subtitle">Connecting Talent with Opportunity</span>
+          <span class="brand-subtitle">Workplace Hub</span>
         </span>
       </a>
       <nav class="primary-nav" aria-label="Main navigation">
@@ -205,69 +272,56 @@
   </header>
 
   <main>
-    <section class="hero-banner" aria-labelledby="page-title">
-      <div class="hero-content">
-        <div class="eyebrow">One destination · Four access journeys</div>
-        <h1 id="page-title">Welcome to Talent Bridge BD</h1>
-        <p class="hero-copy">Your workplace starts here. Choose the secure access journey that matches your role and continue with confidence.</p>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="security-badge">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 16 5v4.6c0 3.6-2.4 6.4-6 8-3.6-1.6-6-4.4-6-8V5l6-2.5Z"/><path d="m7.3 9.8 1.8 1.8 3.7-4"/></svg>
+        SECURE WORKPLACE ACCESS
       </div>
-    </section>
-
-    <section class="access-heading" aria-labelledby="access-heading">
-      <h2 id="access-heading">Choose Your Access</h2>
-      <p>Dedicated access for candidates, employers and authorized workplace teams.</p>
+      <h1 id="page-title">Talent Bridge BD Workplace Hub</h1>
+      <p class="tagline">Connecting Bangladeshi Talent With Global Employment Opportunities.</p>
     </section>
 
     <section class="workspace-grid" id="access-options" aria-label="Choose your workplace access">
-      <article class="workspace" id="candidate-sign-in">
-        <div class="card-top">
-          <span class="workspace-label">For job seekers</span>
-          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.5-3.4 3.1-5.5 7-5.5s6.5 2.1 7 5.5"/><path d="M19 5v4m-2-2h4"/></svg></span>
-        </div>
-        <h3>Candidate Sign In</h3>
-        <p>Return to your candidate profile and continue your recruitment journey.</p>
-        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate">Candidate Sign In <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4"/></svg></a>
+      <article class="workspace candidate" id="candidate-sign-in">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.5-3.4 3.1-5.5 7-5.5s6.5 2.1 7 5.5"/></svg></span>
+        <span class="workspace-label">CANDIDATE</span>
+        <h2>Candidate Sign In</h2>
+        <p>Sign in to access your candidate profile and recruitment journey.</p>
+        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate">Candidate Sign In <span aria-hidden="true">→</span></a>
       </article>
 
       <article class="workspace registration" id="candidate-registration">
-        <div class="card-top">
-          <span class="workspace-label">New candidates</span>
-          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6m-3-3h6"/></svg></span>
-        </div>
-        <h3>New Candidate Registration</h3>
-        <p>Create your candidate account and begin building your recruitment profile.</p>
-        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&amp;prompt=create">Register as a Candidate <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4"/></svg></a>
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.4-3.2 2.4-5 5.5-5 1.2 0 2.2.2 3 .7M17 10v8m-4-4h8"/></svg></span>
+        <span class="workspace-label">REGISTRATION</span>
+        <h2>New Candidate Registration</h2>
+        <p>Start your candidate registration and create your recruitment profile.</p>
+        <a class="action" href="/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate&amp;prompt=create">Register as a Candidate <span aria-hidden="true">→</span></a>
       </article>
 
-      <article class="workspace" id="employer-access">
-        <div class="card-top">
-          <span class="workspace-label">For employers</span>
-          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M9 7V4h6v3M3 12h18m-11 0v2h4v-2"/></svg></span>
-        </div>
-        <h3>Employer Access Request</h3>
-        <p>Request access to employer services for review by the Talent Bridge BD team.</p>
-        <a class="action" href="/employer-access-request">Request Employer Access <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4"/></svg></a>
+      <article class="workspace employer" id="employer-access">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M9 7V4h6v3M3 12h18m-11 0v2h4v-2"/></svg></span>
+        <span class="workspace-label">EMPLOYER</span>
+        <h2>Employer Access Request</h2>
+        <p>Request employer access for review by the Talent Bridge BD team.</p>
+        <a class="action" href="/employer-access-request">Request Employer Access <span aria-hidden="true">→</span></a>
       </article>
 
-      <article class="workspace" id="staff-access">
-        <div class="card-top">
-          <span class="workspace-label">Authorized personnel</span>
-          <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h3m-3 4h8m-2-4 1.5 1.5L18 12"/></svg></span>
-        </div>
-        <h3>Staff &amp; Administrator Sign In</h3>
-        <p>Sign in with your Microsoft work account. Access is determined by your assigned role.</p>
-        <a class="action" href="/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1">Sign in with Microsoft <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4"/></svg></a>
+      <article class="workspace staff" id="staff-access">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v5.5c0 4.4-3 7.7-8 9.5-5-1.8-8-5.1-8-9.5V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>
+        <span class="workspace-label">STAFF &amp; ADMIN</span>
+        <h2>Staff &amp; Administrator Sign In</h2>
+        <p>Sign in with your Microsoft work account. Your assigned role determines your access.</p>
+        <a class="action" href="/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1">Sign In with Microsoft <span aria-hidden="true">→</span></a>
       </article>
     </section>
 
-    <p class="security-note">
+    <p class="permission-notice">
       <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"/><path d="M7 8V5a3 3 0 0 1 6 0v3m-3 4v2"/></svg>
-      Secure access is subject to account verification, approval status and assigned permissions.
+      Access is subject to account verification, approval status and assigned permissions.
     </p>
   </main>
 
   <footer>
-    <img class="footer-logo" src="/assets/talent-bridge-bd-logo.png" alt="Talent Bridge BD official logo">
     <div class="footer-copy">
       <strong>Talent Bridge BD</strong> · Official Workplace Hub<br>
       <span>© <span id="copyright-year"></span> Talent Bridge BD. All rights reserved.</span>
