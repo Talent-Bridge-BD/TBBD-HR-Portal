@@ -72,7 +72,7 @@
       display: flex; flex-direction: column;
     }
     .hero {
-      min-height: 140px; display: flex; flex-direction: column;
+      min-height: 132px; display: flex; flex-direction: column;
       align-items: center; justify-content: center; padding: 8px 12px 4px;
       text-align: center;
     }
@@ -85,56 +85,61 @@
     .security-badge svg { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
     h1 {
       max-width: 1000px; margin: 9px 0 7px; color: #0B2F5B;
-      font-family: Manrope, Inter, sans-serif; font-size: clamp(36px, 3.2vw, 46px);
+      font-family: Manrope, Inter, sans-serif; font-size: clamp(40px, 3.5vw, 48px);
       font-weight: 800; letter-spacing: -.045em; line-height: 1.1; text-wrap: balance;
     }
     .tagline {
       max-width: 700px; margin: 0; color: #667085; font-size: 18px;
       font-weight: 500; line-height: 1.5;
     }
+    .access-heading {
+      margin: 8px 0 0; color: #0B2F5B; font-family: Manrope, Inter, sans-serif;
+      font-size: 32px; font-weight: 700; letter-spacing: -.025em; line-height: 1.2;
+      text-align: center;
+    }
     .workspace-grid {
-      width: 100%; max-width: 1120px; margin: 12px auto 0;
+      width: 100%; max-width: 1120px; margin: 10px auto 0;
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-template-rows: repeat(2, 230px); gap: 20px;
       scroll-margin-top: 18px;
     }
     .workspace {
-      --accent: #2563EB; --card-bg: #FFFFFF; --icon-bg: #FFFFFF; --card-border: #E4EAF2;
+      --accent: #2563EB; --tint: #E8F0FF; --card-border: #E5E7EB;
       min-width: 0; width: 100%; max-width: 540px; min-height: 230px; height: 230px;
       display: flex; flex-direction: column; align-items: center;
-      padding: 14px 20px 16px; text-align: center;
-      background: #FFFFFF; border: 1px solid #E4EAF2;
+      padding: 12px 20px 14px; text-align: center;
+      background: #FFFFFF; border: 1px solid #E5E7EB; border-top: 4px solid var(--accent);
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
       transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
     }
     .workspace.registration {
-      --accent: #0F9D8A; --card-bg: #FFFFFF; --icon-bg: #FFFFFF; --card-border: #E4EAF2;
+      --accent: #0F9D8A; --tint: #E4F6F2; --card-border: #E5E7EB;
     }
     .workspace.employer {
-      --accent: #7C3AED; --card-bg: #FFFFFF; --icon-bg: #FFFFFF; --card-border: #E4EAF2;
+      --accent: #7C3AED; --tint: #F0EAFE; --card-border: #E5E7EB;
     }
     .workspace.staff {
-      --accent: #C76A00; --card-bg: #FFFFFF; --icon-bg: #FFFFFF; --card-border: #E4EAF2;
+      --accent: #C76A00; --tint: #FFF0DF; --card-border: #E5E7EB;
     }
-    .workspace.candidate { border-color: #C9D9F8; box-shadow: 0 12px 34px rgba(37, 99, 235, .15); }
+    .workspace.candidate { border-color: #B8CCF8; border-top-color: #1D4ED8; box-shadow: 0 13px 36px rgba(37, 99, 235, .18); }
     .workspace:hover {
       transform: translateY(-6px); border-color: var(--accent);
       box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
     }
     .card-icon {
-      width: 72px; height: 72px; flex: 0 0 72px; display: grid;
-      place-items: center; color: var(--accent); background: #FFFFFF;
-      border: 1px solid #F0F2F5; border-radius: 20px;
+      width: 64px; height: 64px; flex: 0 0 64px; display: grid;
+      place-items: center; color: #FFFFFF; background: var(--accent);
+      border: 1px solid var(--accent); border-radius: 18px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, .12);
     }
     .card-icon svg {
-      width: 30px; height: 30px; fill: none; stroke: currentColor;
+      width: 28px; height: 28px; fill: none; stroke: currentColor;
       stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
     }
     .workspace-label {
       margin-top: 7px; padding: 4px 10px; color: var(--accent);
-      background: transparent; border-radius: 999px;
+      background: var(--tint); border-radius: 999px;
       font-size: 11px; font-weight: 700; letter-spacing: 1px; line-height: 1.25;
     }
     .workspace h2 {
@@ -150,11 +155,12 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       margin: auto auto 0; padding: 10px 14px; color: #fff;
       background: var(--accent); border: 1px solid var(--accent);
-      border-radius: 12px; font-size: 14px; font-weight: 700;
+      border-radius: 12px; font-size: 15px; font-weight: 700;
       line-height: 1.25; text-align: center; text-decoration: none;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, .12);
       transition: filter .2s ease, box-shadow .2s ease;
     }
-    .action:hover { filter: brightness(.92); box-shadow: 0 5px 12px rgba(20,45,80,.13); }
+    .action:hover { filter: brightness(.92); box-shadow: 0 10px 20px rgba(0,0,0,.16); }
     .action:focus-visible {
       outline: 3px solid #0B5CAB; outline-offset: 3px;
     }
@@ -190,21 +196,22 @@
       .brand-logo { width: 50px; height: 50px; flex-basis: 50px; }
       .brand { font-size: 22px; }
       main { padding: 10px 0 8px; }
-      .hero { min-height: 108px; padding: 2px 10px 0; }
+      .hero { min-height: 96px; padding: 1px 10px 0; }
       .security-badge { min-height: 30px; padding: 6px 14px; font-size: 11px; }
-      h1 { margin: 5px 0 4px; font-size: 34px; }
-      .tagline { font-size: 18px; }
+      h1 { margin: 4px 0 3px; font-size: 32px; }
+      .tagline { font-size: 16px; line-height: 1.35; }
+      .access-heading { margin-top: 4px; font-size: 24px; }
       .workspace-grid {
-        margin-top: 14px; grid-template-rows: repeat(2, 210px); gap: 14px 18px;
+        margin-top: 8px; grid-template-rows: repeat(2, 184px); gap: 12px 18px;
       }
-      .workspace { min-height: 210px; height: 210px; padding: 8px 16px 10px; }
-      .card-icon { width: 72px; height: 72px; flex-basis: 72px; border-radius: 20px; }
-      .card-icon svg { width: 30px; height: 30px; }
-      .workspace-label { margin-top: 5px; padding: 4px 10px; font-size: 11px; }
-      .workspace h2 { margin: 4px 0 3px; font-size: 18px; }
-      .workspace p { margin-bottom: 4px; font-size: 13px; line-height: 1.6; }
-      .action { min-height: 48px; font-size: 13px; }
-      .permission-notice { min-height: 36px; margin-top: 10px; padding: 7px 10px; font-size: 12px; }
+      .workspace { min-height: 184px; height: 184px; padding: 7px 16px 8px; }
+      .card-icon { width: 56px; height: 56px; flex-basis: 56px; border-radius: 16px; }
+      .card-icon svg { width: 26px; height: 26px; }
+      .workspace-label { margin-top: 4px; padding: 3px 9px; font-size: 10px; }
+      .workspace h2 { margin: 3px 0 2px; font-size: 16px; }
+      .workspace p { margin-bottom: 3px; font-size: 12px; line-height: 1.35; }
+      .action { min-height: 40px; font-size: 13px; }
+      .permission-notice { min-height: 32px; margin-top: 8px; padding: 5px 10px; font-size: 12px; }
       footer { min-height: 50px; padding: 6px 20px; }
       .footer-copy strong { font-size: 13px; }
     }
@@ -233,6 +240,7 @@
       .security-badge { min-height: 30px; padding: 6px 12px; font-size: 10px; letter-spacing: 1.1px; }
       h1 { margin: 9px 0 6px; font-size: clamp(27px, 7vw, 34px); }
       .tagline { font-size: 15px; }
+      .access-heading { margin-top: 12px; font-size: 24px; }
       .workspace-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-rows: minmax(205px, auto); gap: 14px; margin-top: 14px; }
       .workspace { min-height: 205px; padding: 13px 18px 14px; }
       .card-icon { width: 72px; height: 72px; flex-basis: 72px; }
@@ -278,6 +286,7 @@
       <p class="tagline">Connecting Bangladeshi Talent With Global Employment Opportunities.</p>
     </section>
 
+    <h2 class="access-heading">Choose Your Workplace Journey</h2>
     <section class="workspace-grid" id="access-options" aria-label="Choose your workplace access">
       <article class="workspace candidate" id="candidate-sign-in">
         <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.5-3.4 3.1-5.5 7-5.5s6.5 2.1 7 5.5"/></svg></span>
