@@ -23,7 +23,6 @@ ENTRA_JWKS_URL = (
     + TBBD_TENANT_ID + "/discovery/v2.0/keys"
 )
 
-
 def _get_easy_auth_principal(request: Request) -> Optional[dict]:
     """Read the authenticated principal supplied by Azure App Service Easy Auth."""
     principal_id = request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
@@ -186,17 +185,27 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
 
 def get_request_principal(request: Request) -> Optional[dict]:
     """
-    Resolve the authenticated Microsoft Entra principal.
+    Resolve the authenticated identity without mixing authentication sessions.
 
-    Production:
-        Azure App Service Easy Auth headers.
+    A supplied Authorization header is authoritative:
+    - A valid Bearer token resolves to the workforce identity.
+    - An invalid or unsupported Authorization header is rejected.
+    - It never falls back to an Easy Auth cookie identity.
 
-    Local development:
-        Microsoft Entra bearer access token.
+    Easy Auth is used only when no Authorization header is supplied.
     """
-    easy_auth_principal = _get_easy_auth_principal(request)
+    authorization = request.headers.get("Authorization")
 
-    if easy_auth_principal:
-        return easy_auth_principal
+    if authorization is not None:
+        scheme, separator, token = authorization.partition(" ")
 
-    return _get_entra_principal(request)
+        if (
+            scheme.lower() != "bearer"
+            or not separator
+            or not token.strip()
+        ):
+            return None
+
+        return _get_entra_principal(request)
+
+    return _get_easy_auth_principal(request)
