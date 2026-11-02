@@ -86,7 +86,13 @@ def build_authorization_context(
     }
 
 
-    normalized_roles = frozenset(roles)
+    role_aliases = {
+        "Employer.Manager": "Employer Manager",
+    }
+    normalized_roles = frozenset(
+        role_aliases.get(role, role)
+        for role in roles
+    )
 
     return AuthorizationContext(
         user_id=user_id,
