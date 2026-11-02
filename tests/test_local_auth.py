@@ -49,6 +49,53 @@ def easy_auth_headers():
     }
 
 
+
+def test_easy_auth_prefers_preferred_username_over_display_name():
+    principal = {
+        "claims": [
+            {"typ": "tid", "val": "candidate-tenant"},
+            {"typ": "name", "val": "TBBD External Candidate"},
+            {"typ": "preferred_username", "val": "moazzem900@outlook.com"},
+        ]
+    }
+    encoded = base64.b64encode(
+        json.dumps(principal).encode("utf-8")
+    ).decode("ascii")
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": "candidate-user-id",
+        "X-MS-CLIENT-PRINCIPAL": encoded,
+        "X-MS-CLIENT-PRINCIPAL-NAME": "TBBD External Candidate",
+    }
+
+    result = local_auth._get_easy_auth_principal(make_request(headers))
+
+    assert result["email"] == "moazzem900@outlook.com"
+    assert result["name"] == "TBBD External Candidate"
+    assert result["id"] == "candidate-user-id"
+
+
+def test_easy_auth_does_not_treat_display_name_as_email():
+    principal = {
+        "claims": [
+            {"typ": "tid", "val": "candidate-tenant"},
+            {"typ": "name", "val": "TBBD External Candidate"},
+        ]
+    }
+    encoded = base64.b64encode(
+        json.dumps(principal).encode("utf-8")
+    ).decode("ascii")
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": "candidate-user-id",
+        "X-MS-CLIENT-PRINCIPAL": encoded,
+        "X-MS-CLIENT-PRINCIPAL-NAME": "TBBD External Candidate",
+    }
+
+    result = local_auth._get_easy_auth_principal(make_request(headers))
+
+    assert result["email"] is None
+    assert result["name"] == "TBBD External Candidate"
+
+
 def test_valid_bearer_takes_precedence_over_easy_auth(monkeypatch):
     workforce_principal = {
         "id": "workforce-user-id",

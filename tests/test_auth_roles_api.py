@@ -1,4 +1,8 @@
 import main
+import services.local_auth as local_auth
+from types import SimpleNamespace
+import json
+import base64
 from fastapi.testclient import TestClient
 from api import candidate as candidate_api
 from repositories.application_roles import InMemoryApplicationRoleRepository
@@ -54,6 +58,70 @@ def get_me_with_principal(monkeypatch, principal, approved_candidate=False):
         lambda user_id: [],
     )
     return client.get("/api/me")
+
+
+def test_api_me_uses_easy_auth_email_claim_and_preserves_display_name(monkeypatch):
+    principal_id = "integration-candidate-id"
+    expected_email = "moazzem900@outlook.com"
+    display_name = "TBBD External Candidate"
+
+    claims = {
+        "auth_typ": "aad",
+        "claims": [
+            {"typ": "tid", "val": CANDIDATE_TENANT_ID},
+            {"typ": "name", "val": display_name},
+            {"typ": "preferred_username", "val": expected_email},
+        ],
+    }
+    encoded_principal = base64.b64encode(
+        json.dumps(claims).encode("utf-8")
+    ).decode("ascii")
+
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": principal_id,
+        "X-MS-CLIENT-PRINCIPAL-NAME": display_name,
+        "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+    }
+
+    monkeypatch.setattr(
+        main,
+        "get_request_principal",
+        lambda request: local_auth._get_easy_auth_principal(request),
+    )
+
+    profile_lookups = []
+    monkeypatch.setattr(
+        main._user_profile_repository,
+        "get_by_email",
+        lambda email: profile_lookups.append(email) or None,
+    )
+
+    monkeypatch.setattr(
+        candidate_api,
+        "_application_role_repository",
+        SimpleNamespace(
+            has_role=lambda user_id, role: (
+                user_id == principal_id and role == "Candidate"
+            )
+        ),
+    )
+
+    monkeypatch.setattr(
+        main._organization_repository,
+        "get_active_memberships",
+        lambda user_id: [],
+    )
+
+    response = client.get("/api/me", headers=headers)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["authenticated"] is True
+    assert data["user"]["email"] == expected_email
+    assert data["user"]["name"] == display_name
+    assert data["user"]["id"] == principal_id
+    assert "Candidate" in data["roles"]
+    assert profile_lookups == [expected_email]
 
 
 def test_external_id_candidate_receives_role_only_when_approved(monkeypatch):

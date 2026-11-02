@@ -65,8 +65,28 @@ def _get_easy_auth_principal(request: Request) -> Optional[dict]:
 
     principal["tenant_id"] = tenant_id
     principal["id"] = principal_id
-    principal["email"] = request.headers.get(
-        "X-MS-CLIENT-PRINCIPAL-NAME"
+
+    email_claim = None
+    for claim_type in ("preferred_username", "email", "emails", "upn"):
+        email_claim = next(
+            (
+                claim["val"].strip()
+                for claim in claims
+                if isinstance(claim, dict)
+                and str(claim.get("typ", "")).lower() == claim_type
+                and isinstance(claim.get("val"), str)
+                and "@" in claim["val"].strip()
+            ),
+            None,
+        )
+        if email_claim:
+            break
+
+    header_name = request.headers.get("X-MS-CLIENT-PRINCIPAL-NAME")
+    principal["email"] = email_claim or (
+        header_name.strip()
+        if header_name and "@" in header_name
+        else None
     )
 
     name_claim = next(
