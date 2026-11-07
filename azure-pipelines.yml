@@ -1,0 +1,79 @@
+# TBBD HR Portal
+# Azure DevOps CI Pipeline
+
+trigger:
+- main
+
+pr:
+- main
+
+pool:
+  name: 'TBBD-Agent-Pool'
+
+variables:
+  pythonVersion: '3.14'
+  nodeVersion: '20.x'
+
+steps:
+- checkout: self
+  displayName: 'Checkout TBBD HR Portal repository'
+
+- script: |
+    echo "TBBD HR Portal - Azure DevOps CI"
+    echo "Repository: $(Build.Repository.Name)"
+    echo "Branch: $(Build.SourceBranch)"
+    echo "Commit: $(Build.SourceVersion)"
+    echo "Build ID: $(Build.BuildId)"
+  displayName: 'Display build information'
+
+- task: UsePythonVersion@0
+  displayName: 'Set Python version'
+  inputs:
+    versionSpec: '$(pythonVersion)'
+
+- script: |
+    python --version
+    python -m pip --version
+  displayName: 'Verify Python environment'
+
+- script: |
+    if [ -f requirements.txt ]; then
+      python -m pip install --upgrade pip
+      python -m pip install -r requirements.txt
+    else
+      echo "requirements.txt not found."
+      echo "Skipping Python dependency installation."
+    fi
+  displayName: 'Install backend dependencies'
+
+- script: |
+    python -m compileall -q .
+  displayName: 'Validate Python source'
+
+- task: NodeTool@0
+  displayName: 'Set Node.js version'
+  inputs:
+    versionSpec: '$(nodeVersion)'
+
+- script: |
+    node --version
+    npm --version
+  displayName: 'Verify Node.js environment'
+
+- script: |
+    cd frontend
+    if [ -f package-lock.json ]; then
+      npm ci
+    else
+      npm install
+    fi
+  displayName: 'Install frontend dependencies'
+
+- script: |
+    cd frontend
+    npm run build
+  displayName: 'Build React frontend'
+
+- script: |
+    echo "TBBD HR Portal CI validation completed."
+  displayName: 'CI build summary'

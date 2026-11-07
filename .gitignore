@@ -141,3 +141,8 @@ __pycache__/
 *$py.class
 .pytest_cache/
 .env
+*.pyo
+*.pyd
+.venv/
+venv/
+ENV/
