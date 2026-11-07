@@ -50,7 +50,7 @@ import CandidateNotifications from './pages/CandidateNotifications'
 import CandidateOffers from './pages/CandidateOffers'
 import EmployerNotifications from './pages/EmployerNotifications'
 import CandidateHelpSupport from './pages/CandidateHelpSupport'
-import { getCurrentUser } from './utils/auth'
+import { getCurrentUser, initializeMsal, signIn } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
 import EmployerAccessRequest from './pages/EmployerAccessRequest'
@@ -91,7 +91,10 @@ export default function App() {
   useEffect(() => {
     let mounted = true
 
-    getCurrentUser()
+    Promise.resolve(
+      import.meta.env.DEV ? initializeMsal() : undefined
+    )
+      .then(() => getCurrentUser())
       .then((data) => {
         if (!mounted) return
 
@@ -247,6 +250,17 @@ export default function App() {
                   key={card.id}
                   id={card.id}
                   href={card.href}
+                  onClick={(event) => {
+                    if (import.meta.env.DEV && card.id === 'staff-access') {
+                      event.preventDefault()
+                      signIn().catch((error) => {
+                        console.error('Local Microsoft sign-in failed:', error)
+                        setAuthError(
+                          error?.message || 'Unable to start Microsoft sign-in.'
+                        )
+                      })
+                    }
+                  }}
                   className={`workplace-hub-card workplace-hub-card--${card.theme}`}
                 >
                   <span className="workplace-hub-card-icon" aria-hidden="true">

@@ -1,54 +1,60 @@
 const workplaceNavigation = [
-  ['Dashboard', '⌂'],
-  ['My Profile', '◉'],
-  ['Attendance', '◷'],
-  ['Leave', '▣'],
-  ['Schedule', '□'],
-  ['Applications', '▤'],
+  ['Dashboard', 'âŒ‚'],
+  ['My Profile', 'â—‰'],
+  ['Attendance', 'â—·'],
+  ['Leave', 'â–£'],
+  ['Schedule', 'â–¡'],
+  ['Applications', 'â–¤'],
 ]
 
 const recruitmentNavigation = [
-  ['Recruitment Jobs', '▤'],
-  ['Recruitment Candidates', '♙'],
-  ['Recruitment Applications', '▤'],
-  ['Recruitment Screening', '◌'],
-  ['Recruitment Interviews', '◷'],
-  ['Recruitment Trade Tests', '⚒'],
-  ['Recruitment Medical', '✚'],
-  ['Recruitment Visa Processing', '🛂'],
-  ['Recruitment Ticketing', '✈'],
-  ['Recruitment Onboarding', '✓'],
-  ['Recruitment Deployment', '🚀'],
+  ['Recruitment Jobs', 'â–¤'],
+  ['Recruitment Candidates', 'â™™'],
+  ['Recruitment Applications', 'â–¤'],
+  ['Recruitment Screening', 'â—Œ'],
+  ['Recruitment Interviews', 'â—·'],
+  ['Recruitment Trade Tests', 'âš’'],
+  ['Recruitment Medical', 'âœš'],
+  ['Recruitment Visa Processing', 'ðŸ›‚'],
+  ['Recruitment Ticketing', 'âœˆ'],
+  ['Recruitment Onboarding', 'âœ“'],
+  ['Recruitment Deployment', 'ðŸš€'],
 ]
 
 const employerNavigation = [
-  ['Employer Dashboard', '⌂'],
-  ['Employer My Organization', '◉'],
-  ['Employer Job Requests', '＋'],
-  ['Employer Job Openings', '▤'],
-  ['Employer Candidates', '♙'],
-  ['Employer Applications', '▣'],
-  ['Employer Interviews / Tests', '◷'],
-  ['Employer Hiring', '✓'],
-  ['Employer Notifications', '🔔'],
+  ['Employer Dashboard', 'âŒ‚'],
+  ['Employer My Organization', 'â—‰'],
+  ['Employer Job Requests', 'ï¼‹'],
+  ['Employer Job Openings', 'â–¤'],
+  ['Employer Candidates', 'â™™'],
+  ['Employer Applications', 'â–£'],
+  ['Employer Interviews / Tests', 'â—·'],
+  ['Employer Hiring', 'âœ“'],
+  ['Employer Notifications', 'ðŸ””'],
 ]
 
 const candidateNavigation = [
-  ['Candidate Available Jobs', '▤'],
-  ['Candidate My Applications', '▤'],
-  ['Candidate Interviews', '◷'],
-  ['Candidate My Offers', '📄'],
-  ['Candidate Documents', '□'],
-  ['Candidate Notifications', '🔔'],
+  ['Candidate Available Jobs', 'â–¤'],
+  ['Candidate My Applications', 'â–¤'],
+  ['Candidate Interviews', 'â—·'],
+  ['Candidate My Offers', 'ðŸ“„'],
+  ['Candidate Documents', 'â–¡'],
+  ['Candidate Notifications', 'ðŸ””'],
 ]
 
 const administrationNavigation = [
+  ['Organization Management', '🏢', true, 'organizations'],
+  ['User Management', '👥', true, 'users'],
+  ['Roles & Permissions', '🔐', true, 'roles'],
+  ['Notification System', '🔔', true, 'notifications'],
+  ['System Configuration', '⚙️', true, 'settings'],
+  ['System Activity', '📋', true, 'activity'],
   ['Administration Employers', '♙'],
   ['Candidate Approvals', '♙'],
 ]
 
 const toolNavigation = [
-  ['Workplace Assistant', '✦'],
+  ['Workplace Assistant', 'âœ¦'],
 ]
 
 function hasAnyRole(auth, roles) {
@@ -74,15 +80,13 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
     !isHRManager &&
     hasAnyRole(auth, ['Candidate'])
 
-  const renderItem = ([label, icon, enabled = true]) => (
+  const renderItem = ([label, icon, enabled = true, pageKey = label]) => (
     <button
       key={label}
-      className={`nav-item ${activePage === label ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
+      className={`nav-item ${activePage === pageKey ? 'active' : ''} ${!enabled ? 'disabled' : ''}`}
       onClick={() => {
         if (!enabled) return
-
-
-        onNavigate(label)
+        onNavigate(pageKey)
       }}
       disabled={!enabled}
       title={!enabled ? `${label} — Coming Soon` : label}
