@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, HTTPException, Request
 
 from repositories.organization import SqlOrganizationRepository
@@ -26,7 +27,6 @@ AUTHORIZATION_GROUPS = {
 
 
 def _get_administrator_context(request: Request):
-
     principal = get_request_principal(request)
 
     if not principal or not principal.get("id"):
@@ -46,10 +46,8 @@ def _get_administrator_context(request: Request):
         if group_id in groups:
             roles.add(role_name)
 
-    memberships = (
-        _organization_repository.get_active_memberships(
-            principal_id
-        )
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
     )
 
     context = build_authorization_context(
@@ -68,45 +66,36 @@ def _get_administrator_context(request: Request):
 
 
 @router.get("/dashboard")
-def get_administrator_dashboard(
-    request: Request,
-):
-
+def get_administrator_dashboard(request: Request):
     _get_administrator_context(request)
 
+    # This repository method returns active organizations only.
+    # Therefore, it cannot provide a reliable all-organizations total.
     organizations = (
         _organization_repository.list_active_organizations()
     )
 
     return {
         "organizations": {
-            "total": len(organizations),
-            "active": len(
-                [
-                    org
-                    for org in organizations
-                    if org.status == "active"
-                ]
-            ),
+            "total": None,
+            "active": len(organizations),
         },
-
         "users": {
-            "total": 0,
-            "active": 0,
+            "total": None,
+            "active": None,
         },
-
         "roles": {
-            "total": 4,
-            "permissionSets": 0,
+            "total": len(AUTHORIZATION_GROUPS),
+            "permissionSets": None,
         },
-
         "notifications": {
-            "templates": 0,
-            "deliveryStatus": 0,
+            "templates": None,
+            "deliveryStatus": None,
         },
-
         "system": {
             "settings": None,
             "integrations": None,
+            "recentActions": None,
+            "failedEvents": None,
         },
     }

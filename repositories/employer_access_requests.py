@@ -47,17 +47,21 @@ class InMemoryEmployerAccessRequestRepository(
 
     @staticmethod
     def _clean_payload(payload: dict) -> dict:
-        fields = {
-            "contact_name": 160,
-            "work_email": 320,
-            "organization_name": 200,
-            "website": 500,
-            "business_details": 2000,
-            "access_reason": 2000,
+        required_fields = {
+            "company_name": 200,
+            "representative_name": 200,
+            "email": 320,
+        }
+        optional_fields = {
+            "phone": 50,
+            "country": 100,
+            "industry": 150,
+            "requested_roles": 1000,
+            "requirements": 10000,
         }
         cleaned = {}
 
-        for field, maximum in fields.items():
+        for field, maximum in required_fields.items():
             value = str(payload.get(field) or "").strip()
             if not value:
                 raise ValueError(f"{field} is required")
@@ -65,7 +69,13 @@ class InMemoryEmployerAccessRequestRepository(
                 raise ValueError(f"{field} exceeds {maximum} characters")
             cleaned[field] = value
 
-        cleaned["work_email"] = cleaned["work_email"].casefold()
+        for field, maximum in optional_fields.items():
+            value = str(payload.get(field) or "").strip() or None
+            if value is not None and len(value) > maximum:
+                raise ValueError(f"{field} exceeds {maximum} characters")
+            cleaned[field] = value
+
+        cleaned["email"] = cleaned["email"].casefold()
         return cleaned
 
     def create_request(self, payload: dict) -> dict:
@@ -74,9 +84,9 @@ class InMemoryEmployerAccessRequestRepository(
         for existing in self._requests:
             if (
                 existing["status"] == "pending"
-                and existing["work_email"] == cleaned["work_email"]
-                and existing["organization_name"].casefold()
-                == cleaned["organization_name"].casefold()
+                and existing["email"] == cleaned["email"]
+                and existing["company_name"].casefold()
+                == cleaned["company_name"].casefold()
             ):
                 raise ValueError(
                     "A pending request already exists for this email and organization"
@@ -202,12 +212,14 @@ class SqlEmployerAccessRequestRepository(
     def _serialize(row) -> dict:
         return {
             "id": str(row.id),
-            "contact_name": row.contact_name,
-            "work_email": row.work_email,
-            "organization_name": row.organization_name,
-            "website": row.website,
-            "business_details": row.business_details,
-            "access_reason": row.access_reason,
+            "company_name": row.company_name,
+            "representative_name": row.representative_name,
+            "email": row.email,
+            "phone": row.phone,
+            "country": row.country,
+            "industry": row.industry,
+            "requested_roles": row.requested_roles,
+            "requirements": row.requirements,
             "status": row.status,
             "reviewed_by": row.reviewed_by,
             "reviewed_at": (
@@ -233,11 +245,11 @@ class SqlEmployerAccessRequestRepository(
                     SELECT TOP 1 id
                     FROM dbo.employer_access_requests
                     WHERE status = N'pending'
-                      AND LOWER(work_email) = ?
-                      AND LOWER(organization_name) = ?
+                      AND LOWER(email) = ?
+                      AND LOWER(company_name) = ?
                     """,
-                    cleaned["work_email"],
-                    cleaned["organization_name"].casefold(),
+                    cleaned["email"],
+                    cleaned["company_name"].casefold(),
                 )
                 if cursor.fetchone():
                     raise ValueError(
@@ -247,30 +259,32 @@ class SqlEmployerAccessRequestRepository(
                 cursor.execute(
                     """
                     INSERT INTO dbo.employer_access_requests (
-                        id, contact_name, work_email, organization_name,
-                        website, business_details, access_reason, status,
-                        created_at, updated_at
+                        id, company_name, representative_name, email,
+                        phone, country, industry, requested_roles, requirements,
+                        status, created_at, updated_at
                     )
                     OUTPUT
-                        INSERTED.id, INSERTED.contact_name,
-                        INSERTED.work_email, INSERTED.organization_name,
-                        INSERTED.website, INSERTED.business_details,
-                        INSERTED.access_reason, INSERTED.status,
-                        INSERTED.reviewed_by, INSERTED.reviewed_at,
-                        INSERTED.review_notes, INSERTED.created_at,
-                        INSERTED.updated_at
+                        INSERTED.id, INSERTED.company_name,
+                        INSERTED.representative_name, INSERTED.email,
+                        INSERTED.phone, INSERTED.country, INSERTED.industry,
+                        INSERTED.requested_roles, INSERTED.requirements,
+                        INSERTED.status, INSERTED.reviewed_by,
+                        INSERTED.reviewed_at, INSERTED.review_notes,
+                        INSERTED.created_at, INSERTED.updated_at
                     VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, N'pending',
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, N'pending',
                         SYSUTCDATETIME(), SYSUTCDATETIME()
                     )
                     """,
                     request_id,
-                    cleaned["contact_name"],
-                    cleaned["work_email"],
-                    cleaned["organization_name"],
-                    cleaned["website"],
-                    cleaned["business_details"],
-                    cleaned["access_reason"],
+                    cleaned["company_name"],
+                    cleaned["representative_name"],
+                    cleaned["email"],
+                    cleaned["phone"],
+                    cleaned["country"],
+                    cleaned["industry"],
+                    cleaned["requested_roles"],
+                    cleaned["requirements"],
                 )
                 row = cursor.fetchone()
                 if row is None:
@@ -295,10 +309,10 @@ class SqlEmployerAccessRequestRepository(
 
         query = """
             SELECT
-                id, contact_name, work_email, organization_name,
-                website, business_details, access_reason, status,
-                reviewed_by, reviewed_at, review_notes, created_at,
-                updated_at
+                id, company_name, representative_name, email,
+                phone, country, industry, requested_roles, requirements,
+                status, reviewed_by, reviewed_at, review_notes,
+                created_at, updated_at
             FROM dbo.employer_access_requests
         """
         parameters = []
@@ -345,13 +359,13 @@ class SqlEmployerAccessRequestRepository(
                 SET status = ?, reviewed_by = ?, reviewed_at = SYSUTCDATETIME(),
                     review_notes = ?, updated_at = SYSUTCDATETIME()
                 OUTPUT
-                    INSERTED.id, INSERTED.contact_name,
-                    INSERTED.work_email, INSERTED.organization_name,
-                    INSERTED.website, INSERTED.business_details,
-                    INSERTED.access_reason, INSERTED.status,
-                    INSERTED.reviewed_by, INSERTED.reviewed_at,
-                    INSERTED.review_notes, INSERTED.created_at,
-                    INSERTED.updated_at
+                    INSERTED.id, INSERTED.company_name,
+                    INSERTED.representative_name, INSERTED.email,
+                    INSERTED.phone, INSERTED.country, INSERTED.industry,
+                    INSERTED.requested_roles, INSERTED.requirements,
+                    INSERTED.status, INSERTED.reviewed_by,
+                    INSERTED.reviewed_at, INSERTED.review_notes,
+                    INSERTED.created_at, INSERTED.updated_at
                 WHERE id = ? AND status = N'pending'
                 """,
                 status,

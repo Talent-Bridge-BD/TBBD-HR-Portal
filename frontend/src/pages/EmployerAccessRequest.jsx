@@ -1,12 +1,15 @@
 ﻿import { useState } from 'react'
+import talentBridgeLogo from '../assets/branding/talent-bridge-bd-logo.png'
 
 const initialValues = {
-  contact_name: '',
-  work_email: '',
-  organization_name: '',
-  website: '',
-  business_details: '',
-  access_reason: '',
+  company_name: '',
+  representative_name: '',
+  email: '',
+  phone: '',
+  country: '',
+  industry: '',
+  requested_roles: '',
+  requirements: '',
 }
 
 export default function EmployerAccessRequest() {
@@ -57,166 +60,162 @@ export default function EmployerAccessRequest() {
   }
 
   return (
-    <div className="app-shell">
-      <main className="main-content">
-        <div className="empty-state">
-          <section className="candidate-landing candidate-unified-landing">
-            <header className="candidate-brand">
-              <div className="candidate-brand-mark" aria-hidden="true">TB</div>
-              <div className="candidate-brand-copy">
-                <strong>TALENT BRIDGE BD</strong>
-                <span>Secure Workplace Access</span>
-              </div>
-            </header>
+    <main className="public-request">
+      <header className="public-request__header">
+        <a
+          className="public-request__brand"
+          href="/"
+          aria-label="Talent Bridge BD home"
+        >
+          <img
+            src={talentBridgeLogo}
+            alt="Talent Bridge BD"
+            className="public-request__logo"
+          />
+          <span>Talent Bridge BD</span>
+        </a>
+      </header>
 
-            <div className="candidate-welcome">
-              <span className="candidate-eyebrow">EMPLOYER ACCESS</span>
-              <h1>Request Employer Access</h1>
-              <p>
-                Tell us about your organization and why you need access to the
-                Talent Bridge BD workplace.
-              </p>
-            </div>
+      <section
+        className="public-request__card"
+        aria-label="Employer access request form"
+      >
+        <p className="public-request__eyebrow">EMPLOYER SERVICES</p>
 
-            <section
-              className="candidate-access-card candidate-unified-card employer-request-card"
-              aria-label="Employer access request form"
+        <h1>Request Employer Access</h1>
+
+        <p className="public-request__intro">
+          Tell us about your organization. Our team will review your request
+          before any portal access is granted.
+        </p>
+
+        {result ? (
+          <div
+            className="public-request__result"
+            role="status"
+            aria-live="polite"
+          >
+            <h2>Request submitted</h2>
+
+            <p>{result.message}</p>
+
+            <p>
+              Reference: <strong>{result.request_id}</strong>
+            </p>
+
+            <p>
+              Your request is pending review. It does not create an account or
+              grant portal permissions.
+            </p>
+
+            <button
+              type="button"
+              className="public-request__button"
+              onClick={() => {
+                setResult(null)
+                setError('')
+              }}
             >
-              {result ? (
-                <div role="status" aria-live="polite">
-                  <h2>Request submitted</h2>
-                  <p>{result.message}</p>
-                  <p>
-                    Reference: <strong>{result.request_id}</strong>
-                  </p>
-                  <p>
-                    Your request is pending review. It does not create an
-                    account or grant portal permissions.
-                  </p>
-                  <button
-                    type="button"
-                    className="candidate-action candidate-action-signin"
-                    onClick={() => {
-                      setResult(null)
-                      setError('')
-                    }}
-                  >
-                    Submit another request
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h2>Organization details</h2>
-                  <p>All fields are required for review.</p>
+              Submit another request
+            </button>
+          </div>
+        ) : (
+          <>
+            <h2 className="public-request__section-title">
+              Organization details
+            </h2>
 
-                  {error && (
-                    <p className="employer-request-error" role="alert">
-                      {error}
-                    </p>
-                  )}
+            <p className="public-request__section-intro">
+              Please complete the required fields. The remaining details are optional.
+            </p>
 
-                  <form onSubmit={handleSubmit} className="employer-request-form">
-                    <label>
-                      Contact name
-                      <input
-                        name="contact_name"
-                        value={values.contact_name}
-                        onChange={updateField}
-                        minLength={2}
-                        maxLength={160}
-                        autoComplete="name"
-                        required
-                      />
-                    </label>
-
-                    <label>
-                      Work email
-                      <input
-                        name="work_email"
-                        type="email"
-                        value={values.work_email}
-                        onChange={updateField}
-                        maxLength={320}
-                        autoComplete="email"
-                        required
-                      />
-                    </label>
-
-                    <label>
-                      Organization name
-                      <input
-                        name="organization_name"
-                        value={values.organization_name}
-                        onChange={updateField}
-                        minLength={2}
-                        maxLength={200}
-                        autoComplete="organization"
-                        required
-                      />
-                    </label>
-
-                    <label>
-                      Organization website
-                      <input
-                        name="website"
-                        type="text"
-                        value={values.website}
-                        onChange={updateField}
-                        placeholder="https://example.com"
-                        maxLength={500}
-                        required
-                      />
-                    </label>
-
-                    <label>
-                      Business details
-                      <textarea
-                        name="business_details"
-                        value={values.business_details}
-                        onChange={updateField}
-                        minLength={10}
-                        maxLength={2000}
-                        rows={4}
-                        required
-                      />
-                    </label>
-
-                    <label>
-                      Why do you need employer access?
-                      <textarea
-                        name="access_reason"
-                        value={values.access_reason}
-                        onChange={updateField}
-                        minLength={10}
-                        maxLength={2000}
-                        rows={4}
-                        required
-                      />
-                    </label>
-
-                    <button
-                      type="submit"
-                      className="candidate-action candidate-action-signin"
-                      disabled={submitting}
-                    >
-                      {submitting ? 'Submitting…' : 'Submit access request'}
-                    </button>
-                  </form>
-                </>
-              )}
-
-              <p className="candidate-unified-note">
-                Employer requests are reviewed by the TBBD team. Submission
-                does not create an account or grant access.
+            {error && (
+              <p className="public-request__error" role="alert">
+                {error}
               </p>
+            )}
 
-              <a className="employer-request-back" href="/">
-                Back to workplace access
-              </a>
-            </section>
-          </section>
-        </div>
-      </main>
-    </div>
+            <form onSubmit={handleSubmit} className="employer-request-form">
+              <div className="public-request__grid">
+                <label className="public-request__field">
+                  Company name *
+                  <input name="company_name" value={values.company_name}
+                    onChange={updateField} minLength={2} maxLength={200}
+                    autoComplete="organization" required />
+                </label>
+
+                <label className="public-request__field">
+                  Representative name *
+                  <input name="representative_name" value={values.representative_name}
+                    onChange={updateField} minLength={2} maxLength={200}
+                    autoComplete="name" required />
+                </label>
+
+                <label className="public-request__field">
+                  Business email *
+                  <input name="email" type="email" value={values.email}
+                    onChange={updateField} maxLength={320}
+                    autoComplete="email" required />
+                </label>
+
+                <label className="public-request__field">
+                  Phone
+                  <input name="phone" type="tel" value={values.phone}
+                    onChange={updateField} maxLength={50} autoComplete="tel" />
+                </label>
+
+                <label className="public-request__field">
+                  Country
+                  <input name="country" value={values.country}
+                    onChange={updateField} maxLength={100}
+                    autoComplete="country-name" />
+                </label>
+
+                <label className="public-request__field">
+                  Industry
+                  <input name="industry" value={values.industry}
+                    onChange={updateField} maxLength={150} />
+                </label>
+
+                <label className="public-request__field public-request__field--full">
+                  Requested roles or hiring needs
+                  <textarea name="requested_roles" value={values.requested_roles}
+                    onChange={updateField} maxLength={1000} rows={3}
+                    placeholder="For example: Steel Fixers, Electricians, Welders" />
+                </label>
+
+                <label className="public-request__field public-request__field--full">
+                  Additional requirements
+                  <textarea name="requirements" value={values.requirements}
+                    onChange={updateField} maxLength={10000} rows={4}
+                    placeholder="Tell us about your organization and recruitment needs" />
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="public-request__button"
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting…' : 'Submit access request'}
+              </button>
+            </form>
+          </>
+        )}
+
+        <p className="public-request__note">
+          Employer requests are reviewed by the TBBD team. Submission does not
+          create an account or grant access.
+        </p>
+
+        <a className="public-request__back" href="/">
+          Back to workplace access
+        </a>
+      </section>
+
+      <footer className="public-request__footer">
+        Talent Bridge BD — Employer Access
+      </footer>
+    </main>
   )
 }

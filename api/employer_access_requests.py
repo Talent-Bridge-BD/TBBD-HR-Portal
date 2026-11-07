@@ -20,12 +20,14 @@ _repository = SqlEmployerAccessRequestRepository()
 
 
 class EmployerAccessRequestCreate(BaseModel):
-    contact_name: str = Field(min_length=2, max_length=160)
-    work_email: str = Field(min_length=5, max_length=320)
-    organization_name: str = Field(min_length=2, max_length=200)
-    website: str = Field(min_length=4, max_length=500)
-    business_details: str = Field(min_length=10, max_length=2000)
-    access_reason: str = Field(min_length=10, max_length=2000)
+    company_name: str = Field(min_length=2, max_length=200)
+    representative_name: str = Field(min_length=2, max_length=200)
+    email: str = Field(min_length=5, max_length=320)
+    phone: str | None = Field(default=None, max_length=50)
+    country: str | None = Field(default=None, max_length=100)
+    industry: str | None = Field(default=None, max_length=150)
+    requested_roles: str | None = Field(default=None, max_length=1000)
+    requirements: str | None = Field(default=None, max_length=10000)
 
 
 class EmployerAccessRequestReview(BaseModel):
@@ -35,34 +37,23 @@ class EmployerAccessRequestReview(BaseModel):
 
 def _validate_submission(payload: EmployerAccessRequestCreate) -> dict:
     data = payload.model_dump()
-    for key, value in data.items():
-        data[key] = value.strip()
-        if not data[key]:
+
+    for key in ("company_name", "representative_name", "email"):
+        value = (data.get(key) or "").strip()
+        if not value:
             raise HTTPException(
                 status_code=422,
                 detail=f"{key} must not be blank",
             )
+        data[key] = value
 
-    email = data["work_email"]
+    for key in ("phone", "country", "industry", "requested_roles", "requirements"):
+        data[key] = (data.get(key) or "").strip() or None
+
+    email = data["email"]
     if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
-        raise HTTPException(status_code=422, detail="Enter a valid work email")
-    data["work_email"] = email.casefold()
-
-    website = data["website"]
-    parsed = urlsplit(
-        website if "://" in website else f"https://{website}"
-    )
-    if (
-        parsed.scheme not in {"http", "https"}
-        or not parsed.hostname
-        or "." not in parsed.hostname
-        or any(character.isspace() for character in website)
-    ):
-        raise HTTPException(
-            status_code=422,
-            detail="Enter a valid organization website",
-        )
-    data["website"] = parsed.geturl()
+        raise HTTPException(status_code=422, detail="Enter a valid business email")
+    data["email"] = email.casefold()
 
     return data
 

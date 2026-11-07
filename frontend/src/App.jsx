@@ -1,4 +1,5 @@
 import logo from './assets/branding/talent-bridge-bd-logo.png'
+import workplaceHubBanner from './assets/images/hubbanner.jpeg'
 import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
@@ -165,143 +166,146 @@ export default function App() {
   if (!auth?.authenticated && !isCandidateMode) {
     const hubCards = [
       {
+        id: 'candidate-access',
         title: 'Candidate Sign In',
-        icon: '♙',
+        category: 'For Job Seekers',
         description: 'Sign in to access your candidate profile and recruitment journey.',
+        cta: 'Candidate Sign In',
+        icon: 'candidate',
+        theme: 'blue',
         href: CANDIDATE_LOGIN_URL,
       },
       {
+        id: 'registration-access',
         title: 'New Candidate Registration',
-        icon: '✚',
-        description: 'Start your candidate registration and create your recruitment profile.',
+        category: 'New Candidates',
+        description: 'Create your recruitment profile and start.',
+        cta: 'Register Candidate',
+        icon: 'plus',
+        theme: 'green',
         href: CANDIDATE_REGISTRATION_URL,
       },
       {
+        id: 'employer-access',
         title: 'Employer Access Request',
-        icon: '▦',
-        description: 'Request employer access for review by the portal team. Approval is required.',
+        category: 'For Employers',
+        description: 'Request employer access and workforce services.',
+        cta: 'Request Access',
+        icon: 'briefcase',
+        theme: 'purple',
         href: '/employer-access-request',
       },
       {
-        title: 'Administrator / Staff Sign In',
-        icon: '◇',
-        description: 'Sign in with your Microsoft work account. Your assigned role determines your access.',
+        id: 'staff-access',
+        title: 'Staff & Administrator Sign In',
+        category: 'Authorized Personnel',
+        description: 'Microsoft work account sign in.',
+        cta: 'Sign in with Microsoft',
+        icon: 'logo',
+        theme: 'orange',
         href: STAFF_LOGIN_URL,
       },
     ]
 
     return (
-      <div className="app-shell workplace-hub-shell">
-        <main className="main-content workplace-hub-main">
-          <section aria-labelledby="workplace-hub-title" className="workplace-hub-panel">
-            <div className="workplace-hub-accent" />
-            <div className="workplace-hub-content">
-              <header className="workplace-hub-heading">
-                <img src={logo} alt="Talent Bridge BD" className="workplace-hub-logo" />
-                <p
-                  style={{
-                    margin: '0 0 10px',
-                    color: '#0067B8',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    letterSpacing: '1.8px',
-                  }}
-                >
-                  TALENT BRIDGE BD
-                </p>
-                <h1
-                  id="workplace-hub-title"
-                  style={{
-                    margin: '0 0 12px',
-                    color: '#0F172A',
-                    fontSize: 'clamp(25px, 4vw, 34px)',
-                    lineHeight: 1.25,
-                  }}
-                >
-                  Workplace Hub
-                </h1>
-                <p style={{ margin: 0, color: '#475569', lineHeight: 1.7 }}>
-                  Choose the portal that matches your access needs. Access is
-                  determined by your assigned role and approval status.
-                </p>
-              </header>
+      <div className="workplace-hub-shell">
+        <header className="workplace-hub-header">
+          <a className="workplace-hub-brand" href="/" aria-label="Talent Bridge BD home">
+            <img src={logo} alt="Talent Bridge BD" />
+            <span className="workplace-hub-brand-copy">
+              <strong>TALENT BRIDGE BD</strong>
+              <small>Connecting Talent • Building Tomorrow</small>
+            </span>
+          </a>
 
-              <div
-                className="workplace-hub-grid"
-              >
-                {hubCards.map((card) => (
-                  <a
-                    key={card.title}
-                    href={card.href}
-                    className="workplace-hub-card"
-                  >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '52px',
-                        height: '52px',
-                        flexShrink: 0,
-                        borderRadius: '16px',
-                        background: '#EAF4FC',
-                        color: '#0067B8',
-                        fontSize: '27px',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {card.icon}
-                    </span>
-                    <span
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '10px',
-                        width: '100%',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <strong
-                        style={{
-                          display: 'block',
-                          marginBottom: '9px',
-                          color: '#0067B8',
-                          fontSize: '17px',
-                        }}
-                      >
-                        {card.title}
-                      </strong>
-                      <span style={{ color: '#475569', fontSize: '14px', lineHeight: 1.65 }}>
-                        {card.description}
-                      </span>
-                    </span>
-                    <span style={{ color: '#0067B8', fontSize: '14px', fontWeight: 700 }}>
-                      Continue →
-                    </span>
-                  </a>
-                ))}
-              </div>
+          <nav className="workplace-hub-nav" aria-label="Main navigation">
+            <a href="#candidate-access">Candidates</a>
+            <a href="#employer-access">Employers</a>
+            <a href="#about-tbbd">About TBBD</a>
+          </nav>
+        </header>
 
-              <p
-                style={{
-                  margin: '24px 0 0',
-                  color: '#64748B',
-                  fontSize: '12px',
-                  lineHeight: 1.6,
-                  textAlign: 'center',
-                }}
-              >
-                Signing in does not automatically grant a role or employer access.
-              </p>
+        <main className="workplace-hub-main">
+          <section className="workplace-hub-hero" aria-labelledby="workplace-hub-title">
+            <img
+              className="workplace-hub-hero-image"
+              src={workplaceHubBanner}
+              alt=""
+            />
+            <div className="workplace-hub-hero-overlay">
+              <h1 id="workplace-hub-title">Welcome to the TBBD<br />Workplace Hub</h1>
+              <h2>Talent, Employers and HR Operations<br />All in One Place</h2>
+              <span className="workplace-hub-hero-accent" />
+              <p>Secure Access. Seamless Experience.</p>
             </div>
           </section>
+
+          <section className="workplace-hub-access" aria-label="Workplace access options">
+            <div className="workplace-hub-grid">
+              {hubCards.map((card) => (
+                <a
+                  key={card.id}
+                  id={card.id}
+                  href={card.href}
+                  className={`workplace-hub-card workplace-hub-card--${card.theme}`}
+                >
+                  <span className="workplace-hub-card-icon" aria-hidden="true">
+                    {card.icon === 'candidate' && (
+                      <svg viewBox="0 0 64 64" role="presentation">
+                        <circle cx="32" cy="21" r="11" fill="currentColor" />
+                        <path d="M12 55c0-12 8-19 20-19s20 7 20 19v2H12z" fill="currentColor" />
+                      </svg>
+                    )}
+                    {card.icon === 'plus' && (
+                      <svg viewBox="0 0 64 64" role="presentation">
+                        <path d="M32 12v40M12 32h40" fill="none" stroke="currentColor" strokeWidth="9" strokeLinecap="round" />
+                      </svg>
+                    )}
+                    {card.icon === 'briefcase' && (
+                      <svg viewBox="0 0 64 64" role="presentation">
+                        <rect x="9" y="22" width="46" height="31" rx="5" fill="none" stroke="currentColor" strokeWidth="5" />
+                        <path d="M23 22v-7h18v7M9 34c13 8 33 8 46 0M28 34h8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                    {card.icon === 'logo' && (
+                      <svg viewBox="0 0 64 64" role="img" aria-label="Microsoft">
+                        <rect x="4" y="4" width="26" height="26" fill="#F25022" />
+                        <rect x="34" y="4" width="26" height="26" fill="#7FBA00" />
+                        <rect x="4" y="34" width="26" height="26" fill="#00A4EF" />
+                        <rect x="34" y="34" width="26" height="26" fill="#FFB900" />
+                      </svg>
+                    )}
+                  </span>
+
+                  <span className="workplace-hub-card-divider" />
+
+                  <span className="workplace-hub-card-content">
+                    <strong>{card.title}</strong>
+                    <span className="workplace-hub-card-category">{card.category}</span>
+                    <span className="workplace-hub-card-description">
+                      {card.description}
+                    </span>
+                  </span>
+
+                  <span className="workplace-hub-card-cta">
+                    {card.cta} <span aria-hidden="true">→</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <p className="workplace-hub-notice" id="about-tbbd">
+            Access is subject to assigned permissions.
+          </p>
         </main>
+
+        <footer className="workplace-hub-footer">
+          © Talent Bridge BD. All Rights Reserved.
+        </footer>
       </div>
     )
   }
-
   if (!auth?.authenticated && isCandidateMode) {
     return (
       <div className="app-shell">

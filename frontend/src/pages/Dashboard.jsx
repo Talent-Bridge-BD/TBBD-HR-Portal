@@ -9,7 +9,6 @@ import { getEmployeeDisplayName } from '../utils/employee'
 import { authenticatedFetch } from '../utils/auth'
 import { employeeDashboard } from '../data/employeeDashboard'
 import EmployerDashboard from './EmployerDashboard'
-import AdministratorDashboard from './AdministratorDashboard'
 import AdministratorOrganizations from './AdministratorOrganizations'
 
 export default function Dashboard({ auth, onNavigate }) {
@@ -122,9 +121,6 @@ export default function Dashboard({ auth, onNavigate }) {
     },
   ]
 
-  if (isAdministrator) {
-    return <AdministratorDashboard onNavigate={onNavigate} />
-  }
 
   if (isEmployerManager) {
     return <EmployerDashboard onNavigate={onNavigate} />
@@ -169,24 +165,28 @@ export default function Dashboard({ auth, onNavigate }) {
               icon="◈"
               label="Active Candidates"
               value={operations.candidates_pipeline}
+              onClick={() => onNavigate('Recruitment Candidates')}
               detail="Candidates in active recruitment"
             />
             <StatCard
               icon="◉"
               label="Interviews"
               value={operations.interviews_upcoming}
+              onClick={() => onNavigate('Recruitment Interviews')}
               detail="Upcoming scheduled interviews"
             />
             <StatCard
               icon="◌"
               label="Pending"
               value={operations.new_applications}
+              onClick={() => onNavigate('Recruitment Applications')}
               detail="Applications awaiting review"
             />
             <StatCard
               icon="✓"
               label="Completed"
               value={pipeline.Completed}
+              onClick={() => onNavigate('Recruitment Candidates')}
               detail="Completed recruitment stages"
             />
           </div>
