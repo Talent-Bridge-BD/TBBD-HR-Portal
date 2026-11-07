@@ -191,7 +191,6 @@ button {
   background: #f3f6f9;
   color: #1c2a40;
 }
-
 .nav-item.active {
   background: #0B5CAD;
   color: #ffffff;
@@ -7272,7 +7271,8 @@ button {
   outline-offset: 3px;
 }
 
-.workplace-hub-card > span:last-child {
+/* LEGACY CARD CTA - EXCLUDE CURRENT THEMED BUTTONS */
+.workplace-hub-card > span:last-child:not(.workplace-hub-card-cta) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7289,7 +7289,7 @@ button {
   transition: background-color 160ms ease;
 }
 
-.workplace-hub-card:hover > span:last-child {
+.workplace-hub-card:hover > span:last-child:not(.workplace-hub-card-cta) {
   background: #00569B;
 }
 
@@ -7763,21 +7763,29 @@ button {
 
   .workplace-hub-hero-overlay {
     padding: 22px;
-    background: linear-gradient(90deg, rgba(8,37,69,.15), rgba(8,37,69,.08) 75%, rgba(8,37,69,0));
+    background: linear-gradient(
+      90deg,
+      rgba(8,37,69,.15),
+      rgba(8,37,69,.08) 75%,
+      rgba(8,37,69,0)
+    );
   }
 
   .workplace-hub-hero-overlay p {
     display: none;
   }
 
+  /* MOBILE ACCESS CARDS - EQUAL HEIGHT */
   .workplace-hub-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: auto;
+    grid-auto-rows: 160px;
     gap: 16px;
   }
 
   .workplace-hub-card {
+    height: 160px;
     min-height: 160px;
+    box-sizing: border-box;
     padding: 20px 15px;
     gap: 12px;
   }
@@ -7815,35 +7823,56 @@ button {
     font-size: 12px;
   }
 
+  /* MOBILE CTA - EQUAL HEIGHT */
   .workplace-hub-card-cta {
+    width: 100%;
     min-width: 0;
+    height: 44px;
     min-height: 44px;
+    box-sizing: border-box;
     padding: 8px 10px;
     font-size: 12px;
-    white-space: normal;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
+  /* MOBILE FOOTER */
   .workplace-hub-footer {
     min-height: 55px;
     padding: 12px 18px;
     font-size: 14px;
+    text-align: center;
+    justify-content: center;
   }
 }
 
+/* EXTRA SMALL MOBILE - ACCESS CARD LAYOUT */
+
 @media (max-width: 420px) {
   .workplace-hub-card {
+    height: 160px;
+    min-height: 160px;
+    box-sizing: border-box;
     flex-wrap: wrap;
   }
 
   .workplace-hub-card-content {
     flex-basis: calc(100% - 90px);
+    min-width: 0;
   }
 
   .workplace-hub-card-cta {
     margin-left: auto;
+    height: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
+    white-space: nowrap;
   }
 }
 
+/* REDUCED MOTION ACCESSIBILITY */
 @media (prefers-reduced-motion: reduce) {
   .workplace-hub-card {
     transition: none;
@@ -7876,6 +7905,7 @@ button {
   margin-right: auto;
 }
 
+/* MOBILE HERO TEXT */
 @media (max-width: 760px) {
   .workplace-hub-hero-overlay {
     padding: 16px;
@@ -8342,6 +8372,7 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
 }
 
 /* Mobile dimensions; retain the existing stacked header arrangement */
+
 @media (max-width: 760px) {
   .workplace-hub-header {
     min-height: 80px;
@@ -8396,10 +8427,13 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
 
 /* END TBBD WORKPLACE HUB - FINAL APPROVED OVERRIDES */
 
-/* FINAL MOBILE REFINEMENT - TBBD WORKPLACE HUB */
+/* =========================================================
+   FINAL MOBILE REFINEMENT - TBBD WORKPLACE HUB
+   ========================================================= */
+
 @media (max-width: 760px) {
 
-  /* Compact mobile header */
+  /* MOBILE HEADER */
   .workplace-hub-header {
     min-height: 80px;
     padding: 8px 14px;
@@ -8426,6 +8460,7 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
     line-height: 1.3;
   }
 
+  /* MOBILE NAVIGATION */
   .workplace-hub-nav {
     width: 100%;
     justify-content: space-between;
@@ -8438,10 +8473,19 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
     font-weight: 600;
   }
 
-  /* Mobile hero banner */
+  /* MOBILE MAIN CONTENT */
+  .workplace-hub-main {
+    max-width: none;
+    padding: 12px 14px 12px;
+  }
+
+  /* MOBILE HERO BANNER */
   .workplace-hub-hero {
+    width: 100%;
+    max-width: none;
     height: 180px;
     min-height: 180px;
+    margin: 0 0 16px;
     border-radius: 16px;
   }
 
@@ -8475,7 +8519,6 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
     text-align: center;
   }
 
-  /* Remove decorative closing elements on mobile */
   .workplace-hub-hero-accent {
     order: 2;
     display: block;
@@ -8487,24 +8530,83 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
   }
 
   .workplace-hub-hero-overlay p {
-    order: 4;
-    display: none;
+    display: none !important;
   }
 
-  /* Mobile access cards */
+  /* MOBILE ACCESS SECTION */
+  .workplace-hub-access {
+    max-width: none;
+  }
+
+  /* FOUR CARDS - EQUAL HEIGHT */
   .workplace-hub-grid {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: auto;
+    grid-auto-rows: 160px;
     gap: 12px;
   }
 
+  /* RESTORE ORIGINAL FLEX CARD LAYOUT */
   .workplace-hub-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 160px;
     min-height: 160px;
+
+    box-sizing: border-box;
+    padding: 10px 15px 52px;
+    gap: 12px;
+
+    overflow: hidden;
+  }
+
+  /* ICON */
+  .workplace-hub-card-icon {
+    flex: 0 0 58px;
+    width: 58px;
+    height: 58px;
+  }
+
+  .workplace-hub-card-icon svg {
+    width: 46px;
+    height: 46px;
+  }
+
+  .workplace-hub-card--orange .workplace-hub-card-icon img {
+    width: 58px;
+    height: 65px;
+  }
+
+  /* VERTICAL COLOURED DIVIDER */
+  .workplace-hub-card-divider {
+    flex: 0 0 2px;
+    min-height: 90px;
+    height: 90px;
+    align-self: center;
+  }
+
+  /* CARD CONTENT */
+  .workplace-hub-card-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
   }
 
   .workplace-hub-card-content strong {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
+    line-height: 1.15;
   }
 
   .workplace-hub-card-category {
@@ -8513,22 +8615,72 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
   }
 
   .workplace-hub-card-description {
-    font-size: 13px;
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.2;
   }
 
+  /* STAFF TITLE - EXACTLY TWO LINES */
+  .workplace-hub-card--orange
+  .workplace-hub-card-content strong {
+    font-size: 15px;
+    line-height: 1.15;
+  }
+
+  .workplace-hub-card--orange
+  .workplace-hub-card-content strong .staff-card-title-line {
+    display: block;
+    white-space: nowrap;
+  }
+
+  /* ALL FOUR BUTTONS - HALF WIDTH, RIGHT ALIGNED */
   .workplace-hub-card-cta {
-    min-height: 40px;
+    position: absolute;
+    right: 15px;
+    bottom: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    width: 50%;
+    max-width: 50%;
+    min-width: 0;
+
     height: 40px;
+    min-height: 40px;
+
+    margin: 0;
+    padding: 5px 3px;
+
+    box-sizing: border-box;
+    font-size: clamp(9px, 2.6vw, 11px);
+    white-space: nowrap;
+  }
+
+  .workplace-hub-card-cta span {
+    font-size: 16px;
+  }
+
+  /* MOBILE FOOTER - CENTER COPYRIGHT */
+  .workplace-hub-footer {
+    display: flex;
+    width: 100%;
+    min-height: 55px;
+
+    box-sizing: border-box;
+    padding: 12px 18px;
+
+    align-items: center;
+    justify-content: center;
+
     font-size: 14px;
-    padding: 6px 10px;
+    text-align: center;
   }
 }
 
-
 /* END FINAL MOBILE REFINEMENT */
-
-
-
 
 /* TBBD FINAL DESKTOP BANNER - THREE LINE NAVY DESIGN */
 @media (min-width: 761px) {
@@ -8639,3 +8791,35 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
   }
 }
 /* END TBBD DESKTOP COLOUR AND RESPONSIVE TEXT CORRECTION */
+
+/* TBBD STAFF CARD - SUPPORTING LABEL */
+.workplace-hub-card--orange .workplace-hub-card-category {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 3px;
+}
+/* TBBD STAFF CARD - TWO LINE TITLE WIDTH */
+@media (min-width: 761px) {
+  .workplace-hub-card--orange .workplace-hub-card-content {
+    min-width: 0;
+  }
+
+  .workplace-hub-card--orange .workplace-hub-card-content strong {
+    width: 100%;
+    max-width: 100%;
+    font-size: 20px;
+    line-height: 1.15;
+  }
+}
+/* TBBD STAFF CARD - EXPLICIT TITLE LINES */
+.workplace-hub-card--orange .workplace-hub-card-content strong .staff-card-title-line {
+  display: block;
+  white-space: nowrap;
+}
+
+/* TBBD FOOTER - CENTER COPYRIGHT TEXT */
+.workplace-hub-footer {
+  text-align: center;
+  justify-content: center;
+}

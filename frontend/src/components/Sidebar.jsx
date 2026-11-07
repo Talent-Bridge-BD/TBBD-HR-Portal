@@ -1,45 +1,45 @@
 const workplaceNavigation = [
-  ['Dashboard', 'âŒ‚'],
-  ['My Profile', 'â—‰'],
-  ['Attendance', 'â—·'],
-  ['Leave', 'â–£'],
-  ['Schedule', 'â–¡'],
-  ['Applications', 'â–¤'],
+  ['Dashboard', '\u{1F3E0}'],
+  ['My Profile', '\u{1F464}'],
+  ['Attendance', '\u{1F4C5}'],
+  ['Leave', '\u{1F3D6}'],
+  ['Schedule', '\u{1F5D3}'],
+  ['Applications', '\u{1F4C4}'],
 ]
 
 const recruitmentNavigation = [
-  ['Recruitment Jobs', 'â–¤'],
-  ['Recruitment Candidates', 'â™™'],
-  ['Recruitment Applications', 'â–¤'],
-  ['Recruitment Screening', 'â—Œ'],
-  ['Recruitment Interviews', 'â—·'],
-  ['Recruitment Trade Tests', 'âš’'],
-  ['Recruitment Medical', 'âœš'],
-  ['Recruitment Visa Processing', 'ðŸ›‚'],
-  ['Recruitment Ticketing', 'âœˆ'],
-  ['Recruitment Onboarding', 'âœ“'],
-  ['Recruitment Deployment', 'ðŸš€'],
+  ['Recruitment Jobs', '\u{1F4BC}'],
+  ['Recruitment Candidates', '\u{1F465}'],
+  ['Recruitment Applications', '\u{1F4C4}'],
+  ['Recruitment Screening', '\u{1F50D}'],
+  ['Recruitment Interviews', '\u{1F91D}'],
+  ['Recruitment Trade Tests', '\u{1F6E0}\u{FE0F}'],
+  ['Recruitment Medical', '\u{1F3E5}'],
+  ['Recruitment Visa Processing', '\u{1F6C2}'],
+  ['Recruitment Ticketing', '\u{1F3AB}'],
+  ['Recruitment Onboarding', '\u{2705}'],
+  ['Recruitment Deployment', '\u{1F680}'],
 ]
 
 const employerNavigation = [
-  ['Employer Dashboard', 'âŒ‚'],
-  ['Employer My Organization', 'â—‰'],
-  ['Employer Job Requests', 'ï¼‹'],
-  ['Employer Job Openings', 'â–¤'],
-  ['Employer Candidates', 'â™™'],
-  ['Employer Applications', 'â–£'],
-  ['Employer Interviews / Tests', 'â—·'],
-  ['Employer Hiring', 'âœ“'],
-  ['Employer Notifications', 'ðŸ””'],
+  ['Employer Dashboard', '\u{1F3E0}'],
+  ['Employer My Organization', '\u{1F3E2}'],
+  ['Employer Job Requests', '\u{2795}'],
+  ['Employer Job Openings', '\u{1F4BC}'],
+  ['Employer Candidates', '\u{1F465}'],
+  ['Employer Applications', '\u{1F4C4}'],
+  ['Employer Interviews / Tests', '\u{1F91D}'],
+  ['Employer Hiring', '\u{2705}'],
+  ['Employer Notifications', '\u{1F514}'],
 ]
 
 const candidateNavigation = [
-  ['Candidate Available Jobs', 'â–¤'],
-  ['Candidate My Applications', 'â–¤'],
-  ['Candidate Interviews', 'â—·'],
-  ['Candidate My Offers', 'ðŸ“„'],
-  ['Candidate Documents', 'â–¡'],
-  ['Candidate Notifications', 'ðŸ””'],
+  ['Candidate Available Jobs', '\u{1F4BC}'],
+  ['Candidate My Applications', '\u{1F4C4}'],
+  ['Candidate Interviews', '\u{1F91D}'],
+  ['Candidate My Offers', '\u{1F4D1}'],
+  ['Candidate Documents', '\u{1F4C1}'],
+  ['Candidate Notifications', '\u{1F514}'],
 ]
 
 const administrationNavigation = [
@@ -54,7 +54,7 @@ const administrationNavigation = [
 ]
 
 const toolNavigation = [
-  ['Workplace Assistant', 'âœ¦'],
+  ['Workplace Assistant', '\u{2728}'],
 ]
 
 function hasAnyRole(auth, roles) {

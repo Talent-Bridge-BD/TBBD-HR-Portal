@@ -182,7 +182,7 @@ export default function App() {
         id: 'registration-access',
         title: 'New Candidate Registration',
         category: 'New Candidates',
-        description: 'Create your recruitment profile and start.',
+        description: 'Create your profile and begin your recruitment journey.',
         cta: 'Register Candidate',
         icon: 'plus',
         theme: 'green',
@@ -192,7 +192,7 @@ export default function App() {
         id: 'employer-access',
         title: 'Employer Access Request',
         category: 'For Employers',
-        description: 'Request employer access and workforce services.',
+        description: 'Request access to employer workforce services.',
         cta: 'Request Access',
         icon: 'briefcase',
         theme: 'purple',
@@ -200,9 +200,14 @@ export default function App() {
       },
       {
         id: 'staff-access',
-        title: 'Staff & Administrator Sign In',
+        title: (
+          <>
+            <span className="staff-card-title-line">Staff & Administrator</span>
+            <span className="staff-card-title-line">Sign In</span>
+          </>
+        ),
         category: 'Authorized Personnel',
-        description: 'Microsoft work account sign in.',
+        description: 'Sign in with your Microsoft work account.',
         cta: 'Sign in with Microsoft',
         icon: 'logo',
         theme: 'orange',
@@ -236,7 +241,7 @@ export default function App() {
               alt=""
             />
             <div className="workplace-hub-hero-overlay">
-              <h1 id="workplace-hub-title">Welcome to the TBBD<br />Workplace Hub</h1>
+              <h1 id="workplace-hub-title">Welcome to the TBBD Workplace Hub</h1>
               <h2>Talent, Employers and HR Operations<br />All in One Place</h2>
               <span className="workplace-hub-hero-accent" />
               <p>Secure Access. Seamless Experience.</p>
@@ -310,7 +315,7 @@ export default function App() {
           </section>
 
           <p className="workplace-hub-notice" id="about-tbbd">
-            Access is subject to assigned permissions.
+            Access is granted based on assigned permissions.
           </p>
         </main>
 

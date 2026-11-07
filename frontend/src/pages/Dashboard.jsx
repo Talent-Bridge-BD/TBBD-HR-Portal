@@ -60,9 +60,14 @@ export default function Dashboard({ auth, onNavigate }) {
       .then((data) => setPipeline(data))
       .catch((error) => console.error(error))
   }, [isAdministrator, isHRManager])
-  const employeeName =
-    employeeDashboard.employee.name || getEmployeeDisplayName()
+  const authenticatedUser = auth?.user || {}
+  const authenticatedName =
+    authenticatedUser.name && authenticatedUser.name !== authenticatedUser.email
+      ? authenticatedUser.name
+      : authenticatedUser.email?.split('@')[0]?.replace(/[._-]+/g, ' ')
 
+  const employeeName =
+    authenticatedName || employeeDashboard.employee.name || getEmployeeDisplayName()
   const {
     attendance,
     leave,
