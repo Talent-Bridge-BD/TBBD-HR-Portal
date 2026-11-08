@@ -8473,6 +8473,17 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
     font-weight: 600;
   }
 
+  /* Hide Candidates and Employers on mobile */
+  .workplace-hub-nav a[href*="candidate"],
+  .workplace-hub-nav a[href*="employer"] {
+    display: none !important;
+  }
+
+  /* Keep About TBBD visible */
+  .workplace-hub-nav a[href*="about"] {
+    display: inline-flex !important;
+  }
+
   /* MOBILE MAIN CONTENT */
   .workplace-hub-main {
     max-width: none;
@@ -8822,4 +8833,37 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
 .workplace-hub-footer {
   text-align: center;
   justify-content: center;
+}
+
+/* =========================================================
+   TBBD WORKPLACE HUB - FINAL DESKTOP TYPOGRAPHY & ALIGNMENT
+   Desktop only. Existing mobile layout is preserved.
+   ========================================================= */
+
+.workplace-hub-shell {
+  font-family: Manrope, Inter, "Segoe UI", Arial, sans-serif;
+}
+
+/* Header typography */
+.workplace-hub-brand strong {
+  font-weight: 800;
+}
+
+.workplace-hub-brand small {
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Banner typography */
+.workplace-hub-hero h1 {
+  font-weight: 800;
+}
+
+.workplace-hub-hero h2 {
+  font-weight: 600;
+}
+
+/* Footer typography */
+.workplace-hub-footer {
+  font-weight: 600;
 }
