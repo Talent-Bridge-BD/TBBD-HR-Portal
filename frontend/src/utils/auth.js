@@ -75,9 +75,7 @@ export async function signOut() {
 }
 
 
-export async function getAccessToken() {
-  const account = msalInstance.getActiveAccount()
-
+export async function getAccessToken(account = msalInstance.getActiveAccount()) {
   if (!account) {
     throw new Error('No authenticated Entra account is available')
   }
@@ -89,11 +87,12 @@ export async function getAccessToken() {
     })
 
     return result.accessToken
-
   } catch (error) {
-
     if (error instanceof InteractionRequiredAuthError) {
-      await msalInstance.acquireTokenRedirect(loginRequest)
+      await msalInstance.acquireTokenRedirect({
+        ...loginRequest,
+        account,
+      })
       return null
     }
 
@@ -103,7 +102,23 @@ export async function getAccessToken() {
 
 
 export async function getCurrentUser() {
-  const response = await authenticatedFetch('/api/me')
+  let response
+  const candidateMode = isCandidateMode()
+  const account = msalInstance.getActiveAccount()
+
+  if (candidateMode || !account) {
+    response = await fetch('/api/me', { credentials: 'include' })
+  } else {
+    response = await authenticatedFetch('/api/me')
+  }
+
+  if (response.status === 401) {
+    return {
+      authenticated: false,
+      user: null,
+      roles: [],
+    }
+  }
 
   if (!response.ok) {
     throw new Error(`Authentication request failed: ${response.status}`)
@@ -111,9 +126,13 @@ export async function getCurrentUser() {
 
   const user = await response.json()
 
-  if (isCandidateMode() &&
+  if (candidateMode &&
       (!user?.authenticated || !user?.roles?.includes('Candidate'))) {
-    throw new Error('Candidate session is not authenticated. Please sign in again.')
+    return {
+      authenticated: false,
+      user: null,
+      roles: [],
+    }
   }
 
   return user
@@ -121,14 +140,29 @@ export async function getCurrentUser() {
 
 export async function authenticatedFetch(url, options = {}) {
   const headers = new Headers(options.headers || {})
+  const candidateMode = isCandidateMode()
+  const account = msalInstance.getActiveAccount()
 
-  if (isCandidateMode()) {
+  if (candidateMode || !account) {
     headers.delete('Authorization')
     headers.delete('X-ZUMO-AUTH')
-    return fetch(url, { ...options, credentials: 'include', headers })
+
+    return fetch(url, {
+      ...options,
+      credentials: 'include',
+      headers,
+    })
   }
 
-  const accessToken = await getAccessToken()
-  headers.set('Authorization', `Bearer ${accessToken}`)
-  return fetch(url, { ...options, credentials: 'include', headers })
+  const accessToken = await getAccessToken(account)
+
+  if (accessToken) {
+    headers.set('Authorization', `Bearer ${accessToken}`)
+  }
+
+  return fetch(url, {
+    ...options,
+    credentials: 'include',
+    headers,
+  })
 }
