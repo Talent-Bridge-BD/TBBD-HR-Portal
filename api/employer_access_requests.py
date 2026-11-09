@@ -1,5 +1,4 @@
 ﻿import re
-from urllib.parse import urlsplit
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Request

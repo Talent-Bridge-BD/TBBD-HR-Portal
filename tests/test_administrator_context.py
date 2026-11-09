@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from starlette.requests import Request
 
 from api import administrator
-from services.local_auth import get_request_principal
 
 
 ADMIN_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"

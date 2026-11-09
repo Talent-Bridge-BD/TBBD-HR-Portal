@@ -7,7 +7,6 @@ from api.administrator_organizations import router as administrator_organization
 
 import os
 from fastapi import FastAPI
-...
 from pathlib import Path
 
 import requests
