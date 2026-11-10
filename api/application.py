@@ -4,6 +4,8 @@ import json
 from fastapi import APIRouter, HTTPException, Request
 
 from repositories.application import SqlApplicationRepository
+from repositories.application_roles import application_role_repository
+from repositories.user_profile import SqlUserProfileRepository
 from repositories.audit_logs import AuditLogRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
 from repositories.blob_storage import BlobStorageRepository
@@ -26,6 +28,7 @@ _application_service = ApplicationService(
     _application_repository,
 )
 _organization_repository = SqlOrganizationRepository()
+_user_profile_repository = SqlUserProfileRepository()
 _candidate_document_repository = SqlCandidateDocumentRepository()
 _blob_repository = BlobStorageRepository()
 _audit_log_repository = AuditLogRepository()
@@ -41,9 +44,12 @@ def _claim_values(
     claim_type: str,
 ) -> set[str]:
     return {
-        str(claim.get("val"))
+        str(claim.get("val")).strip()
         for claim in claims
-        if claim.get("typ") == claim_type
+        if isinstance(claim, dict)
+        and str(claim.get("typ") or "").strip().lower().endswith(
+            claim_type.lower()
+        )
         and claim.get("val")
     }
 
@@ -53,21 +59,17 @@ def get_application_authorization_context(
 ):
     principal = get_request_principal(request)
 
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id")
+    principal_id = str(principal["id"])
+    principal_email = str(principal.get("email") or "").strip()
+    user_id = principal_id
 
-    if not principal_id:
-        raise HTTPException(
-            status_code=401,
-            detail="Authenticated user identity is required",
-        )
-
-    claims = principal.get("claims", [])
+    claims = principal.get("claims") or []
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
@@ -82,6 +84,34 @@ def get_application_authorization_context(
     if ADMINISTRATOR_GROUP_ID in group_ids:
         roles.add("Administrator")
 
+    if "Administrator" not in roles:
+        if principal_email:
+            try:
+                profile = _user_profile_repository.get_by_email(
+                    principal_email
+                )
+            except ValueError:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Multiple user profiles match the signed-in email.",
+                )
+
+            if profile is not None:
+                user_id = str(profile.user_id)
+
+        try:
+            if application_role_repository.has_role(
+                user_id,
+                "Administrator",
+            ):
+                roles.add("Administrator")
+        except Exception as ex:
+            print(
+                f"[APPLICATION ADMIN ROLE LOOKUP FAILED] "
+                f"{type(ex).__name__}: {ex}",
+                flush=True,
+            )
+
     allowed_roles = {
         "Employer Manager",
         "HR Manager",
@@ -95,11 +125,11 @@ def get_application_authorization_context(
         )
 
     memberships = _organization_repository.get_active_memberships(
-        principal_id,
+        user_id,
     )
 
     return build_authorization_context(
-        user_id=principal_id,
+        user_id=user_id,
         roles=roles,
         memberships=memberships,
     )
