@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 
 from repositories.organization import SqlOrganizationRepository
-from services.authorization import (
-    build_authorization_context,
-    is_global_administrator,
-)
-from services.local_auth import get_request_principal
+from api.administrator import _get_administrator_context
 
 
 router = APIRouter(
@@ -16,60 +12,9 @@ router = APIRouter(
 _repository = SqlOrganizationRepository()
 
 
-AUTHORIZATION_GROUPS = {
-    "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
-    "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-    "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-    "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-}
-
-
 def require_admin(request: Request):
-    principal = get_request_principal(request)
-
-    if not principal or not principal.get("id"):
-        raise HTTPException(
-            status_code=401,
-            detail="Authenticated user required",
-        )
-
-    claims = principal.get("claims", [])
-
-    group_ids = {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == "groups"
-        and claim.get("val")
-    }
-
-    roles_claim = {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == "roles"
-        and claim.get("val")
-    }
-
-    roles = set(roles_claim)
-
-    for role_name, group_id in AUTHORIZATION_GROUPS.items():
-        if group_id in group_ids:
-            roles.add(role_name)
-
-    context = build_authorization_context(
-        user_id=principal["id"],
-        roles=roles,
-        memberships=_repository.get_active_memberships(
-            principal["id"]
-        ),
-    )
-
-    if not is_global_administrator(context):
-        raise HTTPException(
-            status_code=403,
-            detail="Administrator access required",
-        )
-
-    return context
+    """Use the shared Administrator authorization implementation."""
+    return _get_administrator_context(request)
 
 
 @router.get("")

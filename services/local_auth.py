@@ -49,6 +49,21 @@ def _get_easy_auth_principal(request: Request) -> Optional[dict]:
     if not isinstance(claims, list):
         claims = []
 
+    def _claim_values(*claim_types):
+        values = []
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
+            claim_type = str(claim.get("typ", "")).lower()
+            claim_type = claim_type.rsplit("/", 1)[-1].rsplit(":", 1)[-1]
+            value = claim.get("val")
+            if claim_type in claim_types and isinstance(value, str) and value.strip():
+                values.append(value.strip())
+        return values
+
+    principal["groups"] = _claim_values("groups")
+    principal["roles"] = _claim_values("roles", "role")
+
     tenant_id = next(
         (
             str(claim.get("val"))
