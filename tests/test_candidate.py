@@ -8,12 +8,16 @@ from main import app
 from api import candidate as candidate_api
 from repositories.candidate import InMemoryCandidateRepository
 from repositories.candidate_approvals import InMemoryCandidateApprovalRepository
+from repositories.candidate_education import InMemoryCandidateEducationRepository
+from repositories.application_roles import InMemoryApplicationRoleRepository
 from services.candidate import CandidateService
 
 
 candidate_api._repository = InMemoryCandidateRepository()
 candidate_api._service = CandidateService(candidate_api._repository)
 candidate_api._approval_repository = InMemoryCandidateApprovalRepository()
+candidate_api._education_repository = InMemoryCandidateEducationRepository()
+candidate_api._application_role_repository = InMemoryApplicationRoleRepository()
 
 client = TestClient(app)
 
@@ -51,6 +55,9 @@ def build_principal_header():
 
 
 def candidate_headers():
+    candidate_api._application_role_repository.grant_role(
+        "test-principal-001", "Candidate", assigned_by="test-admin"
+    )
     approval = candidate_api._approval_repository.ensure_candidate(
         "test-principal-001"
     )
@@ -124,6 +131,9 @@ def test_external_id_candidate_can_create_profile_without_workforce_group():
     principal["provider_name"] = "TBBDCandidateExternalID"
 
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "external-candidate-test-001"
+    candidate_api._application_role_repository.grant_role(
+        "external-candidate-test-001", "Candidate", assigned_by="test-admin"
+    )
     candidate_api._approval_repository.ensure_candidate(
         "external-candidate-test-001"
     )
@@ -159,6 +169,9 @@ def test_pending_candidate_can_check_approval_status():
         __import__("base64").b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-status-test"
+    candidate_api._application_role_repository.grant_role(
+        "pending-status-test", "Candidate", assigned_by="test-admin"
+    )
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = __import__("base64").b64encode(
         __import__("json").dumps(principal).encode("utf-8")
@@ -179,6 +192,9 @@ def test_pending_candidate_can_save_and_resume_profile():
         base64.b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-profile-resume-test"
+    candidate_api._application_role_repository.grant_role(
+        "pending-profile-resume-test", "Candidate", assigned_by="test-admin"
+    )
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = base64.b64encode(
         json.dumps(principal).encode("utf-8")
@@ -213,6 +229,9 @@ def test_pending_candidate_still_cannot_access_jobs():
         base64.b64decode(headers["X-MS-CLIENT-PRINCIPAL"])
     )
     headers["X-MS-CLIENT-PRINCIPAL-ID"] = "pending-jobs-block-test"
+    candidate_api._application_role_repository.grant_role(
+        "pending-jobs-block-test", "Candidate", assigned_by="test-admin"
+    )
     principal["provider_name"] = "TBBDCandidateExternalID"
     headers["X-MS-CLIENT-PRINCIPAL"] = base64.b64encode(
         json.dumps(principal).encode("utf-8")
@@ -220,3 +239,55 @@ def test_pending_candidate_still_cannot_access_jobs():
 
     response = client.get("/api/candidate/jobs", headers=headers)
     assert response.status_code == 403
+
+def test_candidate_education_can_be_saved_and_reloaded():
+    headers = candidate_headers()
+    payload = {
+        "highest_education": "Bachelor Degree",
+        "institution_name": "Test University",
+        "field_of_study": "Computer Science",
+        "passing_year": "2022",
+        "gpa_result": "3.75",
+    }
+
+    saved = client.put("/api/candidate/education", headers=headers, json=payload)
+    assert saved.status_code == 200, saved.text
+    assert saved.json()["education"] == payload
+
+    loaded = client.get("/api/candidate/education", headers=headers)
+    assert loaded.status_code == 200, loaded.text
+    assert loaded.json()["education"] == payload
+
+
+def test_candidate_education_all_fields_may_be_blank():
+    headers = candidate_headers()
+    payload = {
+        "highest_education": "",
+        "institution_name": "",
+        "field_of_study": "",
+        "passing_year": "",
+        "gpa_result": "",
+    }
+
+    saved = client.put("/api/candidate/education", headers=headers, json=payload)
+    assert saved.status_code == 200, saved.text
+    assert saved.json()["education"] == payload
+
+    loaded = client.get("/api/candidate/education", headers=headers)
+    assert loaded.status_code == 200, loaded.text
+    assert loaded.json()["education"] == payload
+
+
+def test_candidate_education_rejects_invalid_passing_year():
+    headers = candidate_headers()
+    payload = {
+        "highest_education": "",
+        "institution_name": "",
+        "field_of_study": "",
+        "passing_year": "1900",
+        "gpa_result": "",
+    }
+
+    response = client.put("/api/candidate/education", headers=headers, json=payload)
+    assert response.status_code == 400, response.text
+    assert "between 1950 and 2100" in response.json()["detail"]
