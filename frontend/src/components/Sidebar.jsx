@@ -50,6 +50,7 @@ const administrationNavigation = [
   ['System Configuration', '⚙️', true, 'settings'],
   ['System Activity', '📋', true, 'activity'],
   ['Administration Employers', '♙'],
+  ['Employer Access Requests', '♙'],
   ['Candidate Approvals', '♙'],
 ]
 
