@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
-import { getAccessToken } from '../utils/auth'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function MyProfile({ auth }) {
   const name = auth?.user?.name || 'Employee'
@@ -45,14 +45,8 @@ export default function MyProfile({ auth }) {
 
     async function loadProfile() {
       try {
-        const accessToken = await getAccessToken()
 
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
+        const response = await authenticatedFetch('/api/profile')
 
         if (!response.ok) {
           throw new Error('Unable to load profile')
@@ -125,14 +119,11 @@ export default function MyProfile({ auth }) {
     setError('')
 
     try {
-      const accessToken = await getAccessToken()
 
-      const response = await fetch('/api/profile', {
+      const response = await authenticatedFetch('/api/profile', {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(draft),
       })
