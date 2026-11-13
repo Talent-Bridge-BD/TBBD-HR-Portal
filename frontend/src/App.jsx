@@ -21,6 +21,7 @@ import RolesManagement from './pages/RolesManagement'
 import SystemConfiguration from './pages/SystemConfiguration'
 import SystemActivity from './pages/SystemActivity'
 import AdministratorNotifications from './pages/AdministratorNotifications'
+import WorkplaceNotifications from './pages/WorkplaceNotifications'
 import EmployerDashboard from './pages/EmployerDashboard'
 import EmployerOrganization from './pages/EmployerOrganization'
 import EmployerJobRequests from './pages/EmployerJobRequests'
@@ -430,6 +431,7 @@ export default function App() {
     users: <UserManagement auth={auth} />,
     roles: <RolesManagement />,
     notifications: <AdministratorNotifications />,
+    'Notifications': <WorkplaceNotifications />,
     settings: <SystemConfiguration />,
     activity: <SystemActivity />,
 
