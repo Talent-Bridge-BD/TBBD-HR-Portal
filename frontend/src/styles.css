@@ -8867,3 +8867,53 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
 .workplace-hub-footer {
   font-weight: 600;
 }
+
+/* DESKTOP ACCESS CARDS - LOWER DESCRIPTION AND ACTION ALIGNMENT */
+@media (min-width: 761px) {
+  .workplace-hub-card {
+    align-items: stretch;
+  }
+
+  .workplace-hub-card-icon {
+    align-self: center;
+  }
+
+  .workplace-hub-card-content {
+    align-self: stretch;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .workplace-hub-card-description {
+    margin-top: auto;
+    font-size: 12.5px;
+    line-height: 1.35;
+    max-width: 34ch;
+  }
+
+  .workplace-hub-card-cta {
+    align-self: flex-end;
+    margin-top: auto;
+  }
+}
+/* END DESKTOP ACCESS CARD ALIGNMENT */
+
+/* TWO PRECISE DESKTOP POSITION ADJUSTMENTS */
+@media (min-width: 761px) {
+  .workplace-hub-card--blue .workplace-hub-card-content {
+    transform: translateX(7px);
+  }
+
+  .workplace-hub-card--orange .workplace-hub-card-icon {
+    transform: translateX(-8px);
+  }
+}
+/* END TWO POSITION ADJUSTMENTS */
+
+/* CANDIDATE CARD - SUBHEADING VERTICAL REFINEMENT */
+@media (min-width: 761px) {
+  .workplace-hub-card--blue .workplace-hub-card-category {
+    transform: translateY(8px);
+  }
+}
+/* END CANDIDATE SUBHEADING REFINEMENT */
