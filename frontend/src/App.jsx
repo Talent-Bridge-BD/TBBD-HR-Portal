@@ -51,7 +51,7 @@ import CandidateNotifications from './pages/CandidateNotifications'
 import CandidateOffers from './pages/CandidateOffers'
 import EmployerNotifications from './pages/EmployerNotifications'
 import CandidateHelpSupport from './pages/CandidateHelpSupport'
-import { getCurrentUser, initializeMsal, signIn } from './utils/auth'
+import { getCurrentUser, initializeMsal, signIn, initializeCandidateMsal, getCandidateCurrentUser, candidateSignIn, candidateRegister } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
 import EmployerAccessRequest from './pages/EmployerAccessRequest'
@@ -61,11 +61,13 @@ const placeholderPages = {}
 const STAFF_LOGIN_URL =
   '/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1'
 
-const CANDIDATE_LOGIN_URL =
-  '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
+const CANDIDATE_LOGIN_URL = import.meta.env.DEV
+  ? '/?authMode=candidate'
+  : '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
 
-const CANDIDATE_REGISTRATION_URL =
-  '/.auth/login/TBBDCandidateExternalID?prompt=create&post_login_redirect_uri=%2F%3FauthMode%3Dcandidate%26registration%3D1'
+const CANDIDATE_REGISTRATION_URL = import.meta.env.DEV
+  ? '/?authMode=candidate&registration=1'
+  : '/.auth/login/TBBDCandidateExternalID?prompt=create&post_login_redirect_uri=%2F%3FauthMode%3Dcandidate%26registration%3D1'
 
 const PORTAL_ROLES = [
   'Administrator',
@@ -93,9 +95,15 @@ export default function App() {
     let mounted = true
 
     Promise.resolve(
-      import.meta.env.DEV ? initializeMsal() : undefined
+      import.meta.env.DEV
+        ? (isCandidateMode ? initializeCandidateMsal() : initializeMsal())
+        : undefined
     )
-      .then(() => getCurrentUser())
+      .then(() =>
+        import.meta.env.DEV && isCandidateMode
+          ? getCandidateCurrentUser()
+          : getCurrentUser()
+      )
       .then((data) => {
         if (!mounted) return
 
@@ -257,6 +265,25 @@ export default function App() {
                   id={card.id}
                   href={card.href}
                   onClick={(event) => {
+                    if (
+                      import.meta.env.DEV &&
+                      ['candidate-access', 'registration-access'].includes(card.id)
+                    ) {
+                      event.preventDefault()
+                      const startCandidateFlow =
+                        card.id === 'registration-access'
+                          ? candidateRegister
+                          : candidateSignIn
+
+                      startCandidateFlow().catch((error) => {
+                        console.error('Candidate sign-in failed:', error)
+                        setAuthError(
+                          error?.message || 'Candidate sign-in failed.'
+                        )
+                      })
+                      return
+                    }
+
                     if (import.meta.env.DEV && card.id === 'staff-access') {
                       event.preventDefault()
                       signIn().catch((error) => {
@@ -355,6 +382,15 @@ export default function App() {
                   <a
                     className="candidate-action candidate-action-signin"
                     href={CANDIDATE_LOGIN_URL}
+                    onClick={(event) => {
+                      if (import.meta.env.DEV) {
+                        event.preventDefault()
+                        candidateSignIn().catch((error) => {
+                          console.error('Candidate sign-in failed:', error)
+                          setAuthError(error?.message || 'Candidate sign-in failed.')
+                        })
+                      }
+                    }}
                   >
                     Candidate Sign In
                   </a>
@@ -362,6 +398,15 @@ export default function App() {
                   <a
                     className="candidate-action candidate-action-register"
                     href={CANDIDATE_REGISTRATION_URL}
+                    onClick={(event) => {
+                      if (import.meta.env.DEV) {
+                        event.preventDefault()
+                        candidateRegister().catch((error) => {
+                          console.error('Candidate registration failed:', error)
+                          setAuthError(error?.message || 'Candidate registration failed.')
+                        })
+                      }
+                    }}
                   >
                     New Candidate Registration
                   </a>

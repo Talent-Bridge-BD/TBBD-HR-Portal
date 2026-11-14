@@ -20,6 +20,28 @@ ENTRA_JWKS_URL = (
     f"{TBBD_TENANT_ID}/discovery/v2.0/keys"
 )
 
+# Separate trust configuration for the TBBD External ID candidate tenant.
+CANDIDATE_EXTERNAL_TENANT_ID = "c8573333-aad0-4a28-8e40-c20e17989f61"
+CANDIDATE_EXTERNAL_CLIENT_ID = "f9ba8736-f7fa-4553-a305-5b187f0c4152"
+CANDIDATE_EXTERNAL_SCOPE = "access_as_user"
+
+CANDIDATE_EXTERNAL_ISSUER = (
+    "https://c8573333-aad0-4a28-8e40-c20e17989f61.ciamlogin.com/"
+    "c8573333-aad0-4a28-8e40-c20e17989f61/v2.0"
+)
+
+CANDIDATE_EXTERNAL_JWKS_URL = (
+    "https://tbbdexternal.ciamlogin.com/"
+    "c8573333-aad0-4a28-8e40-c20e17989f61/"
+    "discovery/v2.0/keys"
+    "?appid=f9ba8736-f7fa-4553-a305-5b187f0c4152"
+)
+
+CANDIDATE_EXTERNAL_AUDIENCES = [
+    CANDIDATE_EXTERNAL_CLIENT_ID,
+    f"api://{CANDIDATE_EXTERNAL_CLIENT_ID}",
+]
+
 EMAIL_CLAIM_TYPES = {
     "preferred_username",
     "email",
@@ -30,9 +52,22 @@ EMAIL_CLAIM_TYPES = {
 
 
 def _get_claim_values(claims: Any, claim_type: str) -> list[str]:
-    """Extract unique, non-empty values for a claim type."""
+    """Extract unique, non-empty values for a claim type.
+
+    Supports short and URI-qualified Easy Auth claim names.
+    """
     if not isinstance(claims, list):
         return []
+
+    aliases = {
+        "roles": {"role", "roles"},
+        "groups": {"group", "groups"},
+    }
+
+    target_types = aliases.get(
+        claim_type.lower(),
+        {claim_type.lower()},
+    )
 
     values = []
     seen = set()
@@ -41,7 +76,11 @@ def _get_claim_values(claims: Any, claim_type: str) -> list[str]:
         if not isinstance(claim, dict):
             continue
 
-        if str(claim.get("typ", "")).lower() != claim_type.lower():
+        normalized_type = str(claim.get("typ", "")).strip().lower()
+        normalized_type = normalized_type.rsplit("/", 1)[-1]
+        normalized_type = normalized_type.rsplit(":", 1)[-1]
+
+        if normalized_type not in target_types:
             continue
 
         value = claim.get("val")
@@ -258,6 +297,108 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
     return principal
 
 
+def _get_candidate_external_id_principal(
+    request: Request,
+) -> Optional[dict]:
+    """Validate a scoped access token issued by the TBBD External ID tenant."""
+    token = _get_bearer_token(request)
+
+    if not token:
+        return None
+
+    # The unverified issuer is used only to select the fixed candidate
+    # validator. Signature, issuer and audience are verified below.
+    try:
+        unverified_claims = jwt.decode(
+            token,
+            options={
+                "verify_signature": False,
+                "verify_aud": False,
+                "verify_iss": False,
+            },
+        )
+    except jwt.PyJWTError:
+        return None
+
+    if unverified_claims.get("iss") != CANDIDATE_EXTERNAL_ISSUER:
+        return None
+
+    try:
+        signing_key = jwt.PyJWKClient(
+            CANDIDATE_EXTERNAL_JWKS_URL
+        ).get_signing_key_from_jwt(token)
+
+        claims = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=CANDIDATE_EXTERNAL_AUDIENCES,
+            issuer=CANDIDATE_EXTERNAL_ISSUER,
+        )
+    except (
+        jwt.PyJWTError,
+        requests.RequestException,
+        ValueError,
+    ):
+        return None
+
+    scopes = claims.get("scp", "")
+    if (
+        not isinstance(scopes, str)
+        or CANDIDATE_EXTERNAL_SCOPE not in scopes.split()
+    ):
+        return None
+
+    principal_id = claims.get("oid") or claims.get("sub")
+    if not isinstance(principal_id, str) or not principal_id.strip():
+        return None
+
+    email = (
+        claims.get("preferred_username")
+        or claims.get("email")
+        or claims.get("upn")
+        or ""
+    )
+
+    if not email:
+        emails = claims.get("emails")
+        if isinstance(emails, list) and emails:
+            email = emails[0]
+
+    if not isinstance(email, str):
+        email = ""
+
+    roles = ["Candidate"]
+    principal_claims = [
+        {"typ": "roles", "val": "Candidate"},
+        {"typ": "tid", "val": CANDIDATE_EXTERNAL_TENANT_ID},
+    ]
+
+    if claims.get("oid"):
+        principal_claims.append(
+            {"typ": "oid", "val": str(claims["oid"])}
+        )
+    else:
+        principal_claims.append(
+            {"typ": "sub", "val": principal_id}
+        )
+
+    principal = {
+        "id": principal_id,
+        "email": email,
+        "groups": [],
+        "roles": roles,
+        "claims": principal_claims,
+        "identity_provider": "candidate_external_id",
+    }
+
+    name = claims.get("name")
+    if isinstance(name, str) and name.strip():
+        principal["name"] = name.strip()
+
+    return principal
+
+
 def get_request_principal(request: Request) -> Optional[dict]:
     """
     Resolve the authenticated Microsoft Entra principal.
@@ -272,5 +413,9 @@ def get_request_principal(request: Request) -> Optional[dict]:
 
     if easy_auth_principal is not None:
         return easy_auth_principal
+
+    candidate_principal = _get_candidate_external_id_principal(request)
+    if candidate_principal is not None:
+        return candidate_principal
 
     return _get_entra_principal(request)
