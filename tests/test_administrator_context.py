@@ -6,7 +6,10 @@ import pytest
 from fastapi import HTTPException
 from starlette.requests import Request
 
+from fastapi.testclient import TestClient
+
 from api import administrator
+from main import app
 
 
 ADMIN_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
@@ -110,3 +113,31 @@ def test_administrator_context_requires_authenticated_principal(
 
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "Authenticated user required"
+
+def test_administrator_dashboard_endpoint_accepts_top_level_role(
+    fake_organization_repository,
+):
+    principal = {
+        "roles": ["Administrator"],
+        "claims": [],
+    }
+
+    encoded_principal = base64.b64encode(
+        json.dumps(principal).encode("utf-8")
+    ).decode("ascii")
+
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": "test-admin-001",
+        "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+    }
+
+    response = TestClient(app).get(
+        "/api/administrator/dashboard",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["organizations"]["active"] == 0
+    assert response.json()["roles"]["total"] == len(
+        administrator.AUTHORIZATION_GROUPS
+    )

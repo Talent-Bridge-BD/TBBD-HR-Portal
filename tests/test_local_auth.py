@@ -122,3 +122,45 @@ def test_easy_auth_rejects_malformed_principal():
     })
 
     assert _get_easy_auth_principal(request) is None
+
+def test_easy_auth_normalizes_singular_and_uri_qualified_role_group_claims():
+    request = make_request({
+        "claims": [
+            {
+                "typ": "role",
+                "val": "Administrator",
+            },
+            {
+                "typ": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                "val": "HR Manager",
+            },
+            {
+                "typ": "http://schemas.microsoft.com/identity/claims/group",
+                "val": "group-001",
+            },
+            {
+                "typ": "http://schemas.microsoft.com/identity/claims/groups",
+                "val": "group-002",
+            },
+            {
+                "typ": "roles",
+                "val": "Administrator",
+            },
+            {
+                "typ": "groups",
+                "val": "group-001",
+            },
+        ]
+    })
+
+    principal = _get_easy_auth_principal(request)
+
+    assert principal["roles"] == [
+        "Administrator",
+        "HR Manager",
+    ]
+
+    assert principal["groups"] == [
+        "group-001",
+        "group-002",
+    ]

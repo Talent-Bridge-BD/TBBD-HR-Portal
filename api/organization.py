@@ -42,26 +42,12 @@ def _get_administrator(request: Request) -> dict:
             detail="Authenticated user identity is required",
         )
 
-    claims = principal.get("claims", [])
-
-    group_ids = {
-        claim.get("val")
-        for claim in claims
-        if claim.get("typ") == "groups"
-    }
-
-    token_roles = {
-        claim.get("val")
-        for claim in claims
-        if claim.get("typ") == "roles"
-    }
-
-    roles = set(token_roles)
+    roles = set(principal.get("roles") or [])
+    group_ids = set(principal.get("groups") or [])
 
     for role, group_id in AUTHORIZATION_GROUPS.items():
         if group_id in group_ids:
             roles.add(role)
-
     principal_id = principal.get("id") or ""
 
     memberships = _organization_repository.get_active_memberships(
