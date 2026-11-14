@@ -1,13 +1,357 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from api.administrator import router as administrator_router
+from api.administrator_organizations import router as administrator_organizations_router
+
 import os
+from fastapi import FastAPI
+from pathlib import Path
+
 import requests
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from services.authorization import (
+    build_authorization_context,
+    is_global_administrator,
+)
+from services.local_auth import get_request_principal
+from repositories.application_roles import (
+    application_role_repository as _application_role_assignment_repository,
+)
+from repositories.organization import SqlOrganizationRepository
+from api.candidate import router as candidate_router
+from api.employer import router as employer_router
+from api.job import router as job_router
+from api.job_compensation import router as job_compensation_router
+from api.job_request import router as job_request_router
+from api.application import router as application_router
+from api.interview import router as interview_router
+from api.trade_test import router as trade_test_router
+from api.screening import router as screening_router
+from api.medical_examination import router as medical_examination_router
+from api.visa_processing import router as visa_processing_router
+from api.ticketing import router as ticketing_router
+from api.onboarding import router as onboarding_router
+from api.hiring import router as hiring_router
+from api.user_profile import router as user_profile_router
+from api.recruitment_pipeline import router as recruitment_pipeline_router
+from api.organization import router as organization_router
+from api.notifications import router as notifications_router
+from api.administrator_candidate_approvals import router as administrator_candidate_approvals_router
+from api.administrator_candidate_roles import router as administrator_candidate_roles_router
+from api.administrator_notifications import (
+    router as administrator_notifications_router
+)
+from api.employer_access_requests import router as employer_access_requests_router
 
 app = FastAPI()
 
 
+AZURE_OPENAI_ENDPOINT = os.environ.get(
+    "AZURE_OPENAI_ENDPOINT",
+    "https://tbbd-openai-sea-prd.cognitiveservices.azure.com/",
+)
+AZURE_OPENAI_DEPLOYMENT = os.environ.get(
+    "AZURE_OPENAI_DEPLOYMENT",
+    "gpt-4.1-mini",
+)
+
+_azure_openai_token_provider = get_bearer_token_provider(
+    DefaultAzureCredential(),
+    "https://cognitiveservices.azure.com/.default",
+)
+
+from openai import AzureOpenAI
+
+_azure_openai_client = AzureOpenAI(
+    azure_endpoint=AZURE_OPENAI_ENDPOINT,
+    azure_ad_token_provider=_azure_openai_token_provider,
+    api_version="2024-10-21",
+)
+app.include_router(administrator_router)
+app.include_router(administrator_organizations_router)
+app.include_router(candidate_router)
+app.include_router(employer_router)
+app.include_router(job_router)
+app.include_router(job_compensation_router)
+app.include_router(job_request_router)
+app.include_router(application_router)
+app.include_router(interview_router)
+app.include_router(trade_test_router)
+app.include_router(screening_router)
+app.include_router(medical_examination_router)
+app.include_router(visa_processing_router)
+app.include_router(ticketing_router)
+app.include_router(onboarding_router)
+app.include_router(hiring_router)
+app.include_router(user_profile_router)
+app.include_router(recruitment_pipeline_router)
+app.include_router(organization_router)
+app.include_router(notifications_router)
+app.include_router(administrator_candidate_approvals_router)
+app.include_router(administrator_candidate_roles_router)
+app.include_router(administrator_notifications_router)
+app.include_router(employer_access_requests_router)
+
+_organization_repository = SqlOrganizationRepository()
+
+@app.get("/api/me")
+async def get_current_user(request: Request):
+    principal = get_request_principal(request)
+
+    if not principal:
+        return {
+            "authenticated": False,
+            "user": None,
+            "roles": [],
+        }
+
+    principal_id = principal.get("id") or ""
+    principal_name = principal.get("email") or ""
+
+    claims = principal.get("claims", [])
+
+    def claim_values(claim_type):
+        return [
+            claim.get("val")
+            for claim in claims
+            if claim.get("typ") == claim_type
+        ]
+
+    group_ids = set(claim_values("groups"))
+    token_roles = set(claim_values("roles"))
+
+    authorization_groups = {
+        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
+        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
+        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
+        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
+    }
+
+    # Resolve Candidate separately so a revoked or inactive assignment
+    # cannot be overridden by a token claim.
+    roles = set(token_roles) - {"Candidate"}
+
+    for role, group_id in authorization_groups.items():
+        if role != "Candidate" and group_id in group_ids:
+            roles.add(role)
+
+    trusted_candidate_claim = (
+        "Candidate" in token_roles
+        or authorization_groups["Candidate"] in group_ids
+    )
+    try:
+        candidate_status = (
+            _application_role_assignment_repository.assignment_status(
+                str(principal_id), "Candidate"
+            )
+        )
+    except Exception:
+        # Fail closed for Candidate; other role checks can still work.
+        candidate_status = "unavailable"
+
+    if candidate_status == "active" or (
+        candidate_status is None and trusted_candidate_claim
+    ):
+        roles.add("Candidate")
+
+    if not roles:
+        roles.add("Employee")
+
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
+    )
+    authorization_context = build_authorization_context(
+        user_id=principal_id,
+        roles=roles,
+        memberships=memberships,
+    )
+
+    return {
+        "authenticated": True,
+        "user": {
+            "id": principal_id,
+            "email": principal_name,
+            "name": next(
+                iter(claim_values("name")),
+                principal_name,
+            ),
+        },
+        "roles": sorted(authorization_context.roles),
+        "organization_ids": sorted(
+            authorization_context.organization_ids
+        ),
+    }
+
+
+
+@app.get("/api/organizations")
+async def list_organizations(request: Request):
+    principal = get_request_principal(request)
+
+    if not principal:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
+
+    principal_id = principal.get("id") or ""
+    claims = principal.get("claims", [])
+
+    def claim_values(claim_type):
+        return [
+            claim.get("val")
+            for claim in claims
+            if claim.get("typ") == claim_type
+        ]
+
+    group_ids = set(claim_values("groups"))
+    token_roles = set(claim_values("roles"))
+
+    authorization_groups = {
+        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
+        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
+        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
+        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
+    }
+
+    roles = set(token_roles)
+
+    for role, group_id in authorization_groups.items():
+        if group_id in group_ids:
+            roles.add(role)
+
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
+    )
+
+    authorization_context = build_authorization_context(
+        user_id=principal_id,
+        roles=roles,
+        memberships=memberships,
+    )
+
+    if is_global_administrator(authorization_context):
+        organizations = _organization_repository.list_active_organizations()
+    elif (
+        "HR Manager" in authorization_context.roles
+        or "Employer Manager" in authorization_context.roles
+    ) and authorization_context.organization_ids:
+        organizations = [
+            organization
+            for organization in _organization_repository.list_active_organizations()
+            if organization.id in authorization_context.organization_ids
+        ]
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Organization access is required",
+        )
+
+
+    return {
+    "organizations": [
+        {
+            "id": organization.id,
+            "name": organization.name,
+            "status": organization.status,
+            "member_count": len(
+                _organization_repository.list_members(
+                    organization.id
+                )
+            ),
+        }
+        for organization in organizations
+    ]
+}
+
+@app.get("/api/organizations/{organization_id}")
+async def get_organization(organization_id: str, request: Request):
+    principal = get_request_principal(request)
+
+    if not principal:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
+
+    principal_id = principal.get("id") or ""
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
+    )
+
+    authorized = any(
+        membership.organization_id == organization_id
+        and membership.status == "active"
+        for membership in memberships
+    )
+
+    if not authorized:
+        raise HTTPException(
+            status_code=403,
+            detail="User is not authorized for this organization",
+        )
+
+    organizations = _organization_repository.list_active_organizations()
+
+    organization = next(
+        (
+            item
+            for item in organizations
+            if item.id == organization_id
+        ),
+        None,
+    )
+
+    if organization is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Organization not found",
+        )
+
+    return {
+        "organization": {
+            "id": organization.id,
+            "name": organization.name,
+            "status": organization.status,
+        }
+    }
+
+
+@app.get("/healthz")
+@app.head("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
+BASE_DIR = Path(__file__).resolve().parent
+DIST_DIR = BASE_DIR / "dist"
+
+app.mount(
+    "/assets",
+    StaticFiles(directory=DIST_DIR / "assets"),
+    name="assets",
+)
+
+
+@app.get("/employer-access-request")
+def employer_access_request_page():
+    return FileResponse(DIST_DIR / "index.html")
+
+
 @app.get("/")
 def home():
-    return {"status": "MCP server running"}
+    return FileResponse(DIST_DIR / "index.html")
+
+
+@app.get("/redirect.html")
+def redirect_page():
+    return FileResponse(DIST_DIR / "redirect.html")
 
 
 def search_hr_documents(query: str):
@@ -32,6 +376,8 @@ def search_hr_documents(query: str):
 
     payload = {
         "search": query,
+        "queryType": "semantic",
+        "semanticConfiguration": "ks-tbbd-hr-policies-v2-semantic-configuration",
         "top": 5,
         "select": "uid,snippet_parent_id,doc_url,snippet"
     }
@@ -69,6 +415,85 @@ def search_hr_documents(query: str):
         )
 
     return results
+
+
+def generate_workplace_answer(query: str, search_results: list[dict]) -> str:
+    if not search_results:
+        return (
+            "I couldn't find relevant information in the available TBBD "
+            "workplace policies."
+        )
+
+    context_parts = []
+    for index, result in enumerate(search_results, start=1):
+        document = result.get("document") or "TBBD HR Policy"
+        snippet = result.get("snippet") or ""
+        if not snippet:
+            continue
+
+        context_parts.append(
+            f"Source {index}: {document}\n"
+            f"{snippet}"
+        )
+
+    context = "\n\n".join(context_parts)
+
+    if not context:
+        return (
+            "I couldn't find usable policy information for that question."
+        )
+
+    system_prompt = """
+You are the TBBD Workplace Assistant.
+
+Answer the employee's question using ONLY the supplied TBBD workplace
+policy and knowledge excerpts.
+
+Important rules:
+- Answer the employee's actual question directly.
+- Synthesize the relevant information instead of copying a whole document.
+- If the question asks for a process, present the steps in a clear order.
+- If the question asks who is responsible for each process step, map a
+  role to a step only when the supplied sources explicitly connect that role
+  to that specific step.
+- A broad responsibility such as "HR â†’ Plan and manage training" must be
+  reported only as "HR â†’ Plan and manage training". Do not add, explain, or
+  interpret it as ownership of approval, assignment, monitoring, evaluation,
+  or any other individual process step unless the source explicitly says so.
+- Keep documented process steps and documented role responsibilities separate.
+  Do not force every process step to have a named owner.
+- If a process step has no explicitly documented owner, say "The policy does
+  not specify a responsible role for this step."
+- Never use phrases such as "implied", "presumably", "likely", or "also
+  responsible" to fill a responsibility gap.
+- Do not invent policies, responsibilities, deadlines, approvals, or
+  procedures that are not supported by the supplied sources.
+- If the sources do not contain enough information, say that clearly.
+- Ignore raw document artifacts such as image references, markdown image
+  links, SharePoint paths, figure references, or extraction metadata.
+- Do not mention retrieval, embeddings, snippets, vector search, or
+  internal system details.
+- Keep the answer concise but complete.
+"""
+
+    response = _azure_openai_client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[
+            {"role": "system", "content": system_prompt.strip()},
+            {
+                "role": "user",
+                "content": (
+                    f"Employee question:\n{query}\n\n"
+                    f"Retrieved TBBD policy context:\n{context}"
+                ),
+            },
+        ],
+        temperature=0.2,
+        max_tokens=700,
+    )
+
+    answer = response.choices[0].message.content
+    return (answer or "").strip()
 
 
 @app.post("/mcp")
@@ -123,11 +548,13 @@ async def handle_mcp(request: Request):
                 }
 
             results = search_hr_documents(query)
+            answer = generate_workplace_answer(query, results)
 
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
+                    "answer": answer,
                     "content": results
                 },
             }

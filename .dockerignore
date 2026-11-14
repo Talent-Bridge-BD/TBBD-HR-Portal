@@ -17,3 +17,5 @@ latestlogs/
 *.zip
 repositories/*.backup
 repositories/*.before-*
+
+frontend/src/pages/EmployerAccessRequest.jsx.logo-backup

@@ -1,0 +1,44 @@
+.administrator-page {
+  padding: 32px;
+}
+
+.administrator-header h1 {
+  color: #0F172A;
+  margin-bottom: 8px;
+}
+
+.administrator-header p {
+  color: #64748B;
+}
+
+.organization-table-card {
+  margin-top: 24px;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.organization-table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.organization-table-card th,
+.organization-table-card td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.status {
+  text-transform: capitalize;
+}
+
+.organization-table-card button {
+  background: #0067B8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+}

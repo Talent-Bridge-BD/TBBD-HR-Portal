@@ -101,6 +101,39 @@ def test_administrator_can_list_organization_members(monkeypatch):
     assert data["members"][0]["user_id"] == EMPLOYER_ID
 
 
+def test_administrator_top_level_role_claim_can_list_organization_members(monkeypatch):
+    import api.organization as organization_api
+
+    monkeypatch.setattr(
+        organization_api,
+        "_organization_repository",
+        make_repository(),
+    )
+
+    principal = {
+        "roles": ["Administrator"],
+        "claims": [
+            {"typ": "name", "val": "Test Administrator"},
+        ],
+    }
+
+    encoded_principal = base64.b64encode(
+        json.dumps(principal).encode("utf-8")
+    ).decode("utf-8")
+
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": ADMIN_ID,
+        "X-MS-CLIENT-PRINCIPAL-NAME": "administrator@example.com",
+        "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+    }
+
+    response = TestClient(app).get(
+        f"/api/organizations/{ORG_ID}/members",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
 def test_non_administrator_cannot_list_organization_members(monkeypatch):
     import api.organization as organization_api
 

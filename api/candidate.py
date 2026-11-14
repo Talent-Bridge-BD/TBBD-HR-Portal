@@ -1,18 +1,23 @@
+
 import base64
 import json
 import os
+
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, field_validator
+
 from models.candidate import CandidateProfile
 from repositories.application import SqlApplicationRepository
 from repositories.hiring import SqlHiringRepository
 from repositories.interview import SqlInterviewRepository
 from repositories.candidate import SqlCandidateRepository
+from repositories.candidate_approvals import SqlCandidateApprovalRepository
 from repositories.job import SqlJobRepository
 from repositories.blob_storage import BlobStorageRepository
 from repositories.candidate_document import SqlCandidateDocumentRepository
 from repositories.candidate_skill import SqlCandidateSkillRepository
 from repositories.candidate_language import SqlCandidateLanguageRepository
+from repositories.candidate_education import SqlCandidateEducationRepository
 from repositories.candidate_experience import SqlCandidateExperienceRepository
 from repositories.candidate_preferences import SqlCandidatePreferencesRepository
 from services.application import ApplicationService
@@ -21,26 +26,37 @@ from services.interview import InterviewService
 from services.candidate_document import CandidateDocumentService
 from services.candidate_skill import CandidateSkillService
 from services.candidate_language import CandidateLanguageService
+from services.candidate_education import CandidateEducationService
 from services.candidate_experience import CandidateExperienceService
 from services.candidate_preferences import CandidatePreferencesService
 from services.candidate import CandidateService
 from services.job import JobService
+from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
+from repositories.application_roles import application_role_repository
+
+
 router = APIRouter(prefix="/api/candidate", tags=["candidate"])
+
 _repository = SqlCandidateRepository()
+_approval_repository = SqlCandidateApprovalRepository()
+_application_role_repository = application_role_repository
 _service = CandidateService(_repository)
+
 _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
+
 _application_repository = SqlApplicationRepository()
 _application_service = ApplicationService(_application_repository)
 
-_hiring_repository = SqlHiringRepository()
+_notification_service = NotificationService()
 
+_hiring_repository = SqlHiringRepository()
 _hiring_service = HiringService(_hiring_repository)
 
 _interview_repository = SqlInterviewRepository()
-
 _interview_service = InterviewService(_interview_repository)
+
 _document_repository = SqlCandidateDocumentRepository()
 _blob_repository = BlobStorageRepository()
 _document_service = CandidateDocumentService(
@@ -49,18 +65,23 @@ _document_service = CandidateDocumentService(
 )
 
 _skill_repository = SqlCandidateSkillRepository()
-
 _skill_service = CandidateSkillService(_skill_repository)
 
 _language_repository = SqlCandidateLanguageRepository()
 _language_service = CandidateLanguageService(_language_repository)
 
 _experience_repository = SqlCandidateExperienceRepository()
+
+_education_repository = SqlCandidateEducationRepository()
+_education_service = CandidateEducationService(_education_repository)
 _experience_service = CandidateExperienceService(_experience_repository)
 
 _preferences_repository = SqlCandidatePreferencesRepository()
 _preferences_service = CandidatePreferencesService(_preferences_repository)
+
 CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
+
+
 class CandidateApplicationRequest(BaseModel):
     job_id: str
     cover_letter: str | None = None
@@ -94,6 +115,7 @@ class CandidateSkillRequest(BaseModel):
     def validate_proficiency(cls, value: str | None) -> str | None:
         if value is None:
             return None
+
         value = value.strip().lower()
         if not value:
             return None
@@ -156,8 +178,52 @@ class CandidateLanguageRequest(BaseModel):
         return value
 
 
-class CandidateExperienceRequest(BaseModel):
+class CandidateEducationRequest(BaseModel):
+    degree_qualification: str | None = None
+    institution: str | None = None
+    field_of_study: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    description: str | None = None
 
+    @field_validator(
+        "degree_qualification",
+        "institution",
+        "field_of_study",
+        "description",
+    )
+    @classmethod
+    def normalize_optional_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        return value or None
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_optional_date(cls, value: str | None) -> str | None:
+        from datetime import date
+
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            return None
+        try:
+            date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError("Education dates must use YYYY-MM-DD format") from exc
+        return value
+
+    def validate_date_range(self) -> None:
+        from datetime import date
+
+        if self.start_date and self.end_date:
+            if date.fromisoformat(self.end_date) < date.fromisoformat(self.start_date):
+                raise ValueError("End date cannot be before start date")
+
+
+class CandidateExperienceRequest(BaseModel):
     job_title: str
     company: str
     location: str | None = None
@@ -202,9 +268,11 @@ class CandidateExperienceRequest(BaseModel):
     def validate_employment_type(cls, value: str | None) -> str | None:
         if value is None:
             return None
+
         value = value.strip()
         if not value:
             return None
+
         allowed = {"Full-Time", "Part-Time", "Contract", "Temporary"}
         if value not in allowed:
             raise ValueError(
@@ -220,8 +288,11 @@ class CandidateExperienceRequest(BaseModel):
         value = value.strip()
         try:
             parsed = date.fromisoformat(value)
-        except ValueError:
-            raise ValueError("Start date must be a valid date in YYYY-MM-DD format")
+        except ValueError as exc:
+            raise ValueError(
+                "Start date must be a valid date in YYYY-MM-DD format"
+            ) from exc
+
         if parsed > date.today():
             raise ValueError("Start date cannot be in the future")
         return value
@@ -233,13 +304,18 @@ class CandidateExperienceRequest(BaseModel):
 
         if value is None:
             return None
+
         value = value.strip()
         if not value:
             return None
+
         try:
             date.fromisoformat(value)
-        except ValueError:
-            raise ValueError("End date must be a valid date in YYYY-MM-DD format")
+        except ValueError as exc:
+            raise ValueError(
+                "End date must be a valid date in YYYY-MM-DD format"
+            ) from exc
+
         return value
 
     @field_validator("description")
@@ -294,9 +370,7 @@ class CandidatePreferencesRequest(BaseModel):
     ) -> str | None:
         if value is None:
             return None
-
         value = value.strip()
-
         return value or None
 
     @field_validator("work_arrangement")
@@ -309,12 +383,10 @@ class CandidatePreferencesRequest(BaseModel):
             return None
 
         value = value.strip().lower()
-
         if value not in {"on_site", "hybrid", "remote"}:
             raise ValueError(
                 "Work arrangement must be on_site, hybrid, or remote"
             )
-
         return value
 
     @field_validator("preferred_contact_method")
@@ -327,12 +399,10 @@ class CandidatePreferencesRequest(BaseModel):
             return None
 
         value = value.strip().lower()
-
         if value not in {"email", "phone"}:
             raise ValueError(
                 "Preferred contact method must be email or phone"
             )
-
         return value
 
     @field_validator("expected_salary")
@@ -342,10 +412,7 @@ class CandidatePreferencesRequest(BaseModel):
         value: float | None,
     ) -> float | None:
         if value is not None and value < 0:
-            raise ValueError(
-                "Expected salary cannot be negative"
-            )
-
+            raise ValueError("Expected salary cannot be negative")
         return value
 
 
@@ -356,6 +423,11 @@ class CandidateProfileRequest(BaseModel):
     email: str = ""
     phone: str = ""
     location: str = ""
+    date_of_birth: str | None = None
+    gender: str = ""
+    nationality: str = "Bangladeshi"
+    nid_number: str = ""
+    full_address: str = ""
 
     # Professional profile
     professional_title: str = ""
@@ -366,28 +438,98 @@ class CandidateProfileRequest(BaseModel):
     # Passport / international mobility
     passport_number: str = ""
     passport_country: str = ""
+    passport_issue_date: str | None = None
     passport_expiry_date: str | None = None
     passport_status: str = ""
     international_travel_readiness: str = ""
 
     # Existing document reference
     resume_document_id: str | None = None
+
+    @field_validator(
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "location",
+        "gender",
+        "nationality",
+        "nid_number",
+        "full_address",
+        "professional_title",
+        "summary",
+        "career_level",
+        "passport_country",
+        "passport_status",
+        "international_travel_readiness",
+    )
+    @classmethod
+    def trim_text(cls, value: str) -> str:
+        return value.strip()
+
+    @field_validator("years_experience")
+    @classmethod
+    def validate_years_experience(
+        cls,
+        value: float | None,
+    ) -> float | None:
+        if value is not None and not 0 <= value <= 80:
+            raise ValueError(
+                "Years of experience must be between 0 and 80"
+            )
+        return value
+
+    @field_validator(
+        "date_of_birth",
+        "passport_issue_date",
+        "passport_expiry_date",
+    )
+    @classmethod
+    def validate_optional_dates(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        from datetime import date
+
+        if value is None or not value.strip():
+            return None
+
+        value = value.strip()
+        try:
+            date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError(
+                "Date must use YYYY-MM-DD format"
+            ) from exc
+
+        return value
+
+    @field_validator("gender")
+    @classmethod
+    def validate_gender(cls, value: str) -> str:
+        if value and value not in {
+            "Female",
+            "Male",
+            "Other",
+            "Prefer not to say",
+        }:
+            raise ValueError("Select a valid gender option")
+        return value
+
     @field_validator("passport_number")
     @classmethod
     def validate_passport_number(cls, value: str) -> str:
-        value = value.strip().upper()
-
-        if not value:
-            return value
-
         import re
 
-        if not re.fullmatch(r"(?:[A-Z]\d{8}|[A-Z]{2}\d{7})", value):
+        value = value.strip().upper()
+        if value and not re.fullmatch(
+            r"(?:[A-Z]\d{8}|[A-Z]{2}\d{7})",
+            value,
+        ):
             raise ValueError(
                 "Passport number must be in the format "
                 "A00000000 or AB0000000"
             )
-
         return value
 
 
@@ -397,73 +539,147 @@ def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
         for claim in claims
         if claim.get("typ") == claim_type and claim.get("val")
     }
-def get_candidate_identity(request: Request) -> str:
+
+
+def get_candidate_role_identity(request: Request) -> str:
+    """Require a trusted Candidate claim or an active database assignment."""
     principal = get_request_principal(request)
-
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id")
-    if not principal_id:
-        raise HTTPException(
-            status_code=401,
-            detail="Authenticated user identity is required",
-        )
-
-    claims = principal.get("claims", [])
+    principal_id = str(principal["id"])
+    claims = principal.get("claims") or []
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
+    trusted_claim = (
+        CANDIDATE_GROUP_ID in group_ids or "Candidate" in token_roles
+    )
 
-    if CANDIDATE_GROUP_ID not in group_ids and "Candidate" not in token_roles:
+    try:
+        status = _application_role_repository.assignment_status(
+            principal_id, "Candidate"
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Candidate role assignments are temporarily unavailable",
+        ) from exc
+
+    if status in {"revoked", "inactive"}:
         raise HTTPException(
             status_code=403,
-            detail="Candidate role is required",
+            detail="Candidate access is currently inactive; contact the TBBD HR team",
         )
 
-    return str(principal_id)
+    if status == "active" or (status is None and trusted_claim):
+        return principal_id
+
+    raise HTTPException(status_code=403, detail="Candidate role is required")
+
+
+def get_candidate_identity(request: Request) -> str:
+    """Allow a role-authorized candidate to access their profile while pending."""
+    principal_id = get_candidate_role_identity(request)
+    approval = _approval_repository.ensure_candidate(principal_id)
+    status = approval.get("approval_status")
+
+    if status == "rejected":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate account has not been approved",
+        )
+    if status not in {"pending", "approved"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate approval status is invalid",
+        )
+
+    return principal_id
+
+
+def get_approved_candidate_identity(request: Request) -> str:
+    """Require both the Candidate role and administrator approval."""
+    principal_id = get_candidate_role_identity(request)
+    approval = _approval_repository.ensure_candidate(principal_id)
+    status = approval.get("approval_status")
+
+    if status == "pending":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate account is awaiting administrator approval",
+        )
+    if status == "rejected":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate account has not been approved",
+        )
+    if status != "approved":
+        raise HTTPException(
+            status_code=403,
+            detail="Candidate approval status is invalid",
+        )
+
+    return principal_id
+
+
+@router.get("/approval-status")
+async def get_candidate_approval_status(request: Request):
+    """Let a role-authorized candidate check their own approval status."""
+    principal_id = get_candidate_role_identity(request)
+    approval = _approval_repository.ensure_candidate(principal_id)
+    return {
+        "approval_status": approval.get("approval_status"),
+        "reviewed_at": approval.get("reviewed_at"),
+    }
+
 
 @router.get("/profile")
 async def get_candidate_profile(request: Request):
     user_id = get_candidate_identity(request)
     profile = _service.get_profile(user_id)
+
     if profile is None:
         return {
             "profile": None,
             "message": "Candidate profile has not been created yet",
         }
+
     return {"profile": profile.__dict__}
+
+
 @router.put("/profile")
 async def update_candidate_profile(
     payload: CandidateProfileRequest,
     request: Request,
 ):
     user_id = get_candidate_identity(request)
+
     saved = _service.save_profile(
         CandidateProfile(
             user_id=user_id,
             **payload.model_dump(),
         )
     )
+
     return {
         "profile": saved.__dict__,
         "message": "Candidate profile saved",
     }
+
+
 @router.get("/jobs")
 async def get_candidate_jobs(request: Request):
-    get_candidate_identity(request)
+    get_approved_candidate_identity(request)
     jobs = _job_service.list_published_jobs()
-    return {
-        "jobs": [job.__dict__ for job in jobs],
-    }
+    return {"jobs": [job.__dict__ for job in jobs]}
 
 
 @router.get("/applications")
 async def get_candidate_applications(request: Request):
-    user_id = get_candidate_identity(request)
-
+    user_id = get_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     print(
@@ -482,17 +698,13 @@ async def get_candidate_applications(request: Request):
     )
 
     return {
-        "applications": [
-            item.__dict__
-            for item in applications
-        ],
+        "applications": [item.__dict__ for item in applications],
     }
 
 
 @router.get("/offers")
 async def get_candidate_offers(request: Request):
-    user_id = get_candidate_identity(request)
-
+    user_id = get_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -501,13 +713,8 @@ async def get_candidate_offers(request: Request):
             "message": "Candidate profile has not been created yet",
         }
 
-    offers = _hiring_service.list_candidate_offers(
-        candidate_id,
-    )
-
-    return {
-        "offers": offers,
-    }
+    offers = _hiring_service.list_candidate_offers(candidate_id)
+    return {"offers": offers}
 
 
 @router.post("/offers/{offer_id}/accept")
@@ -515,8 +722,7 @@ async def accept_candidate_offer(
     offer_id: str,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
-
+    user_id = get_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -534,7 +740,7 @@ async def accept_candidate_offer(
         raise HTTPException(
             status_code=400,
             detail=str(error),
-        )
+        ) from error
 
     if offer is None:
         raise HTTPException(
@@ -550,27 +756,24 @@ async def accept_candidate_offer(
 
 @router.get("/interviews")
 async def get_candidate_interviews(request: Request):
-    user_id = get_candidate_identity(request)
+    user_id = get_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
+
     print(
         f"[CANDIDATE DEBUG] user_id={user_id} "
         f"candidate_id={candidate_id}"
     )
+
     if candidate_id is None:
         return {
             "interviews": [],
             "message": "Candidate profile has not been created yet",
         }
 
-    interviews = _interview_service.list_candidate_interviews(
-        candidate_id,
-    )
+    interviews = _interview_service.list_candidate_interviews(candidate_id)
 
     return {
-        "interviews": [
-            item.__dict__
-            for item in interviews
-        ],
+        "interviews": [item.__dict__ for item in interviews],
     }
 
 
@@ -579,8 +782,7 @@ async def create_candidate_application(
     payload: CandidateApplicationRequest,
     request: Request,
 ):
-    user_id = get_candidate_identity(request)
-
+    user_id = get_approved_candidate_identity(request)
     candidate_id = _service.get_candidate_id(user_id)
 
     if candidate_id is None:
@@ -597,9 +799,7 @@ async def create_candidate_application(
             detail="Job is no longer available",
         )
 
-    existing = _application_service.list_candidate_applications(
-        candidate_id,
-    )
+    existing = _application_service.list_candidate_applications(candidate_id)
 
     if any(
         application.job_id == payload.job_id
@@ -616,6 +816,22 @@ async def create_candidate_application(
             job_id=payload.job_id,
             cover_letter=payload.cover_letter,
         )
+
+        try:
+            candidate_profile = _service.get_profile(user_id)
+
+            _notification_service.send_notification(
+                event_type="APPLICATION_RECEIVED",
+                recipient=(
+                    candidate_profile.email
+                    if candidate_profile and candidate_profile.email
+                    else user_id
+                ),
+                subject_data={"job_title": job.title},
+            )
+        except Exception as notification_error:
+            print(f"[NOTIFICATION ERROR] {notification_error}")
+
     except Exception as exc:
         message = str(exc)
 
@@ -623,7 +839,7 @@ async def create_candidate_application(
             raise HTTPException(
                 status_code=409,
                 detail="You have already applied for this job",
-            )
+            ) from exc
 
         raise
 
@@ -633,9 +849,103 @@ async def create_candidate_application(
     }
 
 
+@router.get("/education")
+def list_candidate_education(request: Request):
+    user_id = get_candidate_identity(request)
+    education = _education_service.list_education(user_id)
+    return [item.__dict__ for item in education]
+
+
+@router.post("/education", status_code=201)
+def create_candidate_education(
+    payload: CandidateEducationRequest,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+
+    if not any((
+        payload.degree_qualification,
+        payload.institution,
+        payload.field_of_study,
+        payload.start_date,
+        payload.end_date,
+        payload.description,
+    )):
+        raise HTTPException(
+            status_code=400,
+            detail="Provide at least one education detail",
+        )
+
+    try:
+        payload.validate_date_range()
+        from datetime import date
+
+        education = _education_service.create_education(
+            user_id,
+            payload.degree_qualification,
+            payload.institution,
+            payload.field_of_study,
+            date.fromisoformat(payload.start_date) if payload.start_date else None,
+            date.fromisoformat(payload.end_date) if payload.end_date else None,
+            payload.description,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return education.__dict__
+
+
+@router.put("/education/{education_id}")
+def update_candidate_education(
+    education_id: str,
+    payload: CandidateEducationRequest,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+
+    try:
+        payload.validate_date_range()
+        from datetime import date
+
+        education = _education_service.update_education(
+            user_id,
+            education_id,
+            payload.degree_qualification,
+            payload.institution,
+            payload.field_of_study,
+            date.fromisoformat(payload.start_date) if payload.start_date else None,
+            date.fromisoformat(payload.end_date) if payload.end_date else None,
+            payload.description,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if education is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Education record not found",
+        )
+
+    return education.__dict__
+
+
+@router.delete("/education/{education_id}", status_code=204)
+def delete_candidate_education(
+    education_id: str,
+    request: Request,
+):
+    user_id = get_candidate_identity(request)
+    deleted = _education_service.delete_education(user_id, education_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Education record not found",
+        )
+
+
 @router.get("/experience")
 def list_candidate_experience(request: Request):
-
     user_id = get_candidate_identity(request)
     experience = _experience_service.list_experience(user_id)
     return [item.__dict__ for item in experience]
@@ -646,12 +956,10 @@ def create_candidate_experience(
     payload: CandidateExperienceRequest,
     request: Request,
 ):
-
     user_id = get_candidate_identity(request)
 
     try:
         payload.validate_date_range()
-
         from datetime import date
 
         experience = _experience_service.create_experience(
@@ -661,16 +969,12 @@ def create_candidate_experience(
             payload.location,
             payload.employment_type,
             date.fromisoformat(payload.start_date),
-            (
-                date.fromisoformat(payload.end_date)
-                if payload.end_date
-                else None
-            ),
+            date.fromisoformat(payload.end_date) if payload.end_date else None,
             payload.currently_working,
             payload.description,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return experience.__dict__
 
@@ -681,12 +985,10 @@ def update_candidate_experience(
     payload: CandidateExperienceRequest,
     request: Request,
 ):
-
     user_id = get_candidate_identity(request)
 
     try:
         payload.validate_date_range()
-
         from datetime import date
 
         experience = _experience_service.update_experience(
@@ -697,16 +999,12 @@ def update_candidate_experience(
             payload.location,
             payload.employment_type,
             date.fromisoformat(payload.start_date),
-            (
-                date.fromisoformat(payload.end_date)
-                if payload.end_date
-                else None
-            ),
+            date.fromisoformat(payload.end_date) if payload.end_date else None,
             payload.currently_working,
             payload.description,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if experience is None:
         raise HTTPException(
@@ -722,13 +1020,9 @@ def delete_candidate_experience(
     experience_id: str,
     request: Request,
 ):
-
     user_id = get_candidate_identity(request)
 
-    deleted = _experience_service.delete_experience(
-        user_id,
-        experience_id,
-    )
+    deleted = _experience_service.delete_experience(user_id, experience_id)
 
     if not deleted:
         raise HTTPException(
@@ -750,6 +1044,7 @@ def create_candidate_language(
     request: Request,
 ):
     user_id = get_candidate_identity(request)
+
     try:
         language = _language_service.create_language(
             user_id,
@@ -759,7 +1054,8 @@ def create_candidate_language(
             payload.writing_proficiency,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     return language.__dict__
 
 
@@ -770,6 +1066,7 @@ def update_candidate_language(
     request: Request,
 ):
     user_id = get_candidate_identity(request)
+
     try:
         language = _language_service.update_language(
             user_id,
@@ -780,10 +1077,13 @@ def update_candidate_language(
             payload.writing_proficiency,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if language is None:
-        raise HTTPException(status_code=404, detail="Language not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Language not found",
+        )
 
     return language.__dict__
 
@@ -794,13 +1094,14 @@ def delete_candidate_language(
     request: Request,
 ):
     user_id = get_candidate_identity(request)
-    deleted = _language_service.delete_language(
-        user_id,
-        language_id,
-    )
+
+    deleted = _language_service.delete_language(user_id, language_id)
 
     if not deleted:
-        raise HTTPException(status_code=404, detail="Language not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Language not found",
+        )
 
 
 @router.get("/skills")
@@ -825,7 +1126,7 @@ def create_candidate_skill(
             payload.proficiency,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return skill.__dict__
 
@@ -847,10 +1148,13 @@ def update_candidate_skill(
             payload.proficiency,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if skill is None:
-        raise HTTPException(status_code=404, detail="Skill not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Skill not found",
+        )
 
     return skill.__dict__
 
@@ -862,29 +1166,24 @@ def delete_candidate_skill(
 ):
     user_id = get_candidate_identity(request)
 
-    deleted = _skill_service.delete_skill(
-        user_id,
-        skill_id,
-    )
+    deleted = _skill_service.delete_skill(user_id, skill_id)
 
     if not deleted:
-        raise HTTPException(status_code=404, detail="Skill not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Skill not found",
+        )
 
 
 @router.get("/preferences")
 def get_candidate_preferences(request: Request):
     user_id = get_candidate_identity(request)
-
     preferences = _preferences_service.get_preferences(user_id)
 
     if preferences is None:
-        return {
-            "preferences": None,
-        }
+        return {"preferences": None}
 
-    return {
-        "preferences": preferences.__dict__,
-    }
+    return {"preferences": preferences.__dict__}
 
 
 @router.put("/preferences")
@@ -934,7 +1233,7 @@ async def get_candidate_documents(request: Request):
     documents = _document_service.list_documents(candidate_id)
 
     return {
-        "documents": [document.__dict__ for document in documents]
+        "documents": [document.__dict__ for document in documents],
     }
 
 
@@ -974,7 +1273,7 @@ async def upload_candidate_document(
         raise HTTPException(
             status_code=400,
             detail=str(exc),
-        )
+        ) from exc
 
     return {
         "document": document.__dict__,
@@ -1009,11 +1308,11 @@ async def download_candidate_document(
 
     try:
         file_bytes = _blob_repository.download(document.blob_name)
-    except Exception:
+    except Exception as exc:
         raise HTTPException(
             status_code=404,
             detail="Document file could not be retrieved",
-        )
+        ) from exc
 
     from fastapi.responses import Response
 
@@ -1047,11 +1346,11 @@ async def delete_candidate_document(
             candidate_id,
             document_id,
         )
-    except Exception:
+    except Exception as exc:
         raise HTTPException(
             status_code=500,
             detail="Document could not be deleted",
-        )
+        ) from exc
 
     if document is None:
         raise HTTPException(

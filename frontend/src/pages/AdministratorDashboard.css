@@ -1,0 +1,99 @@
+.administrator-dashboard {
+    padding: 24px;
+    background: #F8FAFC;
+    min-height: 100%;
+}
+
+
+.administrator-header h1 {
+    color: #0F172A;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+
+.administrator-header p {
+    color: #475569;
+    margin-bottom: 24px;
+}
+
+
+.administrator-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+
+.administrator-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+
+.administrator-card h2 {
+    color: #0F172A;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+
+.administrator-card p {
+    color: #64748B;
+}
+
+
+.administrator-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+
+.administrator-metric {
+    background: #F8FAFC;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+
+.administrator-metric span {
+    display: block;
+    color: #64748B;
+    font-size: 13px;
+}
+
+
+.administrator-metric strong {
+    display: block;
+    color: #0067B8;
+    font-size: 22px;
+    margin-top: 4px;
+}
+
+
+.administrator-card button {
+    background: #0067B8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+
+.administrator-card button:hover {
+    opacity: 0.9;
+}
+
+
+@media (max-width: 900px) {
+
+    .administrator-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

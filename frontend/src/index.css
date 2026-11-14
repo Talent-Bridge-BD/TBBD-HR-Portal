@@ -2749,3 +2749,342 @@
   }
 }
 
+/* TBBD candidate profile visual polish v1 */
+.candidate-portal-page {
+  color: #334155;
+  line-height: 1.6;
+}
+
+.candidate-portal-page .profile-section,
+.candidate-portal-page .profile-hero-card,
+.candidate-portal-page .profile-completion-card {
+  box-sizing: border-box;
+}
+
+.candidate-portal-page .profile-section {
+  margin-block: 20px;
+  padding: 24px;
+  border: 1px solid #dce5ef;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.candidate-portal-page .profile-section-heading {
+  margin-bottom: 20px;
+}
+
+.candidate-portal-page .profile-section-heading h2 {
+  color: #17324d;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.candidate-portal-page .profile-section-heading p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.candidate-portal-page .profile-information-grid {
+  gap: 18px;
+}
+
+.candidate-portal-page .profile-form-field input,
+.candidate-portal-page .profile-form-field select,
+.candidate-portal-page .profile-form-field textarea {
+  box-sizing: border-box;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.candidate-portal-page .profile-form-field input:focus,
+.candidate-portal-page .profile-form-field select:focus,
+.candidate-portal-page .profile-form-field textarea:focus {
+  border-color: #0067b8;
+  outline: 3px solid rgb(0 103 184 / 14%);
+  outline-offset: 1px;
+}
+
+.candidate-portal-page .profile-actions-section {
+  gap: 16px;
+  border: 1px solid #dce5ef;
+  border-radius: 14px;
+  background: #f4f8fc;
+}
+
+.candidate-portal-page .profile-action-primary {
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  .candidate-portal-page .profile-section {
+    margin-block: 14px;
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .candidate-portal-page .profile-information-grid {
+    gap: 14px;
+  }
+
+  .candidate-portal-page .profile-actions-section {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .candidate-portal-page .profile-section {
+    padding: 14px;
+  }
+
+  .candidate-portal-page .profile-action-primary {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate-portal-page *,
+  .candidate-portal-page *::before,
+  .candidate-portal-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Candidate profile: restore fields required by the approved profile design. */
+.candidate-portal-page label.profile-form-field:has([name="passport_country"]),
+.candidate-portal-page label.profile-form-field:has([name="passport_status"]),
+.candidate-portal-page label.profile-form-field:has([name="international_travel_readiness"]),
+.candidate-portal-page label.profile-form-field:has([name="gpa_result"]),
+.candidate-portal-page label.profile-form-field:has(#experience-employment-type),
+.candidate-portal-page label.profile-form-field:has(#skill-category),
+.candidate-portal-page label.profile-form-field:has(#language-speaking),
+.candidate-portal-page label.profile-form-field:has(#language-reading),
+.candidate-portal-page label.profile-form-field:has(#language-writing) {
+  display: grid !important;
+}
+
+.candidate-portal-page .profile-section:has(+ .profile-actions-section)
+  .profile-information-grid > label.profile-form-field:nth-child(n+3):nth-child(-n+8) {
+  display: grid !important;
+}
+
+/* TBBD Candidate Profile - clean, consistent, responsive styling */
+.candidate-portal-page .profile-section {
+  margin: 20px 0;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.candidate-portal-page .profile-section-heading {
+  margin-bottom: 22px;
+}
+
+.candidate-portal-page .profile-section-heading h2 {
+  margin: 0 0 8px;
+  color: #0f2f50;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.candidate-portal-page .profile-section-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.candidate-portal-page .profile-information-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+  align-items: start;
+}
+
+.candidate-portal-page label.profile-form-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.candidate-portal-page .profile-form-field input,
+.candidate-portal-page .profile-form-field select,
+.candidate-portal-page .profile-form-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.candidate-portal-page .profile-form-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.candidate-portal-page .profile-form-field input:focus,
+.candidate-portal-page .profile-form-field select:focus,
+.candidate-portal-page .profile-form-field textarea:focus {
+  border-color: #0067b8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(0 103 184 / 14%);
+}
+
+.candidate-portal-page .profile-form-field input::placeholder,
+.candidate-portal-page .profile-form-field textarea::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.candidate-portal-page .profile-actions-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: #f4f8fc;
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+}
+
+.candidate-portal-page .profile-action-primary {
+  min-height: 44px;
+  padding: 10px 18px;
+  color: #ffffff;
+  background: #0067b8;
+  border: 1px solid #0067b8;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.candidate-portal-page .profile-action-primary:hover {
+  background: #0b5cad;
+}
+
+.candidate-portal-page button:focus-visible,
+.candidate-portal-page a:focus-visible {
+  outline: 3px solid rgb(0 103 184 / 35%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .candidate-portal-page .profile-section {
+    margin: 14px 0;
+    padding: 18px;
+    border-radius: 10px;
+  }
+
+  .candidate-portal-page .profile-information-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .candidate-portal-page .profile-actions-section {
+    padding: 16px;
+  }
+
+  .candidate-portal-page .profile-action-primary {
+    width: 100%;
+  }
+}
+
+/* TBBD candidate profile: missing component styles */
+.candidate-portal-page .profile-form-full-width {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.candidate-portal-page .profile-document-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.candidate-portal-page .profile-document-actions button,
+.candidate-portal-page .profile-document-upload-button {
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f2f50;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.candidate-portal-page .profile-document-actions button:hover,
+.candidate-portal-page .profile-document-upload-button:hover {
+  border-color: #0067b8;
+  color: #0067b8;
+}
+
+.candidate-portal-page .profile-document-empty {
+  margin: 12px 0 0;
+  padding: 16px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
+  background: #f8fafc;
+  line-height: 1.6;
+}
+
+.candidate-portal-page .profile-error-message,
+.candidate-portal-page .profile-success-message {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.candidate-portal-page .profile-error-message {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.candidate-portal-page .profile-success-message {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+@media (max-width: 480px) {
+  .candidate-portal-page .profile-document-actions {
+    align-items: stretch;
+  }
+
+  .candidate-portal-page .profile-document-actions button,
+  .candidate-portal-page .profile-document-upload-button {
+    max-width: 100%;
+  }
+}

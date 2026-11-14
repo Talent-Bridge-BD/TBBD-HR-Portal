@@ -97,6 +97,19 @@ class SqlCandidateRepository(CandidateRepository):
         )
 
     @staticmethod
+    def _sql_date(value):
+        """Convert an optional ISO date or datetime to a SQL date."""
+        from datetime import date, datetime
+
+        if value is None or value == "":
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        return date.fromisoformat(str(value))
+
+    @staticmethod
     def _row_to_profile(
         row: pyodbc.Row,
         resume_document_id: Optional[str] = None,
@@ -107,29 +120,39 @@ class SqlCandidateRepository(CandidateRepository):
             last_name=row.last_name or "",
             email=row.email or "",
             phone=row.phone or "",
+            date_of_birth=(
+                row.date_of_birth.isoformat()
+                if row.date_of_birth is not None else None
+            ),
+            gender=row.gender or "",
+            nationality=row.nationality or "Bangladeshi",
+            nid_number=row.nid_number or "",
+            full_address=row.address or "",
             professional_title=row.current_title or "",
             summary=row.professional_summary or "",
             location=", ".join(
                 part for part in (row.city or "", row.country or "") if part
             ),
             career_level=row.career_level or "",
-            years_experience=float(row.years_experience)
-            if row.years_experience is not None
-            else None,
+            years_experience=(
+                float(row.years_experience)
+                if row.years_experience is not None else None
+            ),
             passport_number=row.passport_number or "",
             passport_country=row.passport_country or "",
+            passport_issue_date=(
+                row.passport_issue_date.isoformat()
+                if row.passport_issue_date is not None else None
+            ),
             passport_expiry_date=(
                 row.passport_expiry_date.isoformat()
-                if row.passport_expiry_date is not None
-                else None
+                if row.passport_expiry_date is not None else None
             ),
             passport_status=row.passport_status or "",
             international_travel_readiness=(
                 row.international_travel_readiness or ""
             ),
-            workflow_status=(
-                row.workflow_status or "Applied"
-            ),
+            workflow_status=row.workflow_status or "Applied",
             resume_document_id=resume_document_id,
         )
 
@@ -166,7 +189,6 @@ class SqlCandidateRepository(CandidateRepository):
     def get_profile(self, user_id: str) -> Optional[CandidateProfile]:
         with self._connection() as connection:
             cursor = connection.cursor()
-
             cursor.execute(
                 """
                 SELECT
@@ -176,6 +198,11 @@ class SqlCandidateRepository(CandidateRepository):
                     last_name,
                     email,
                     phone,
+                    date_of_birth,
+                    address,
+                    gender,
+                    nationality,
+                    nid_number,
                     city,
                     country,
                     professional_summary,
@@ -184,6 +211,7 @@ class SqlCandidateRepository(CandidateRepository):
                     years_experience,
                     passport_number,
                     passport_country,
+                    passport_issue_date,
                     passport_expiry_date,
                     passport_status,
                     international_travel_readiness,
@@ -193,9 +221,7 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 user_id,
             )
-
             row = cursor.fetchone()
-
             if row is None:
                 return None
 
@@ -210,26 +236,47 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 row.id,
             )
-
             document_row = cursor.fetchone()
-
             resume_document_id = (
                 str(document_row.document_id)
-                if document_row is not None
-                else None
+                if document_row is not None else None
             )
-
-            return self._row_to_profile(
-                row,
-                resume_document_id,
-            )
+            return self._row_to_profile(row, resume_document_id)
 
     def save_profile(self, profile: CandidateProfile) -> CandidateProfile:
         city, country = self._split_location(profile.location)
+        date_of_birth = self._sql_date(profile.date_of_birth)
+        passport_expiry_date = self._sql_date(profile.passport_expiry_date)
+
+        output_columns = """
+            INSERTED.id,
+            INSERTED.entra_object_id,
+            INSERTED.first_name,
+            INSERTED.last_name,
+            INSERTED.email,
+            INSERTED.phone,
+            INSERTED.date_of_birth,
+            INSERTED.address,
+            INSERTED.city,
+            INSERTED.country,
+            INSERTED.professional_summary,
+            INSERTED.current_title,
+            INSERTED.career_level,
+            INSERTED.years_experience,
+            INSERTED.passport_number,
+            INSERTED.passport_country,
+            INSERTED.gender,
+            INSERTED.nationality,
+            INSERTED.nid_number,
+            INSERTED.passport_issue_date,
+            INSERTED.passport_expiry_date,
+            INSERTED.passport_status,
+            INSERTED.international_travel_readiness,
+            INSERTED.workflow_status
+        """
 
         with self._connection() as connection:
             cursor = connection.cursor()
-
             cursor.execute(
                 """
                 SELECT id
@@ -238,18 +285,19 @@ class SqlCandidateRepository(CandidateRepository):
                 """,
                 profile.user_id,
             )
-
             existing = cursor.fetchone()
 
             if existing is None:
                 cursor.execute(
-                    """
+                    f"""
                     INSERT INTO dbo.candidates (
                         entra_object_id,
                         first_name,
                         last_name,
                         email,
                         phone,
+                        date_of_birth,
+                        address,
                         city,
                         country,
                         current_title,
@@ -258,40 +306,30 @@ class SqlCandidateRepository(CandidateRepository):
                         years_experience,
                         passport_number,
                         passport_country,
+                        gender,
+                        nationality,
+                        nid_number,
+                        passport_issue_date,
                         passport_expiry_date,
                         passport_status,
                         international_travel_readiness,
                         workflow_status,
                         profile_status
                     )
-                    OUTPUT
-                        INSERTED.id,
-                        INSERTED.entra_object_id,
-                        INSERTED.first_name,
-                        INSERTED.last_name,
-                        INSERTED.email,
-                        INSERTED.phone,
-                        INSERTED.city,
-                        INSERTED.country,
-                        INSERTED.professional_summary,
-                        INSERTED.current_title,
-                        INSERTED.career_level,
-                        INSERTED.years_experience,
-                        INSERTED.passport_number,
-                        INSERTED.passport_country,
-                        INSERTED.passport_expiry_date,
-                        INSERTED.passport_status,
-                        INSERTED.international_travel_readiness,
-                        INSERTED.workflow_status
+                    OUTPUT {output_columns}
                     VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?
                     )
                     """,
                     profile.user_id,
                     profile.first_name,
-                    profile.last_name,
+                    profile.last_name or "",
                     profile.email,
                     profile.phone or None,
+                    date_of_birth,
+                    profile.full_address or None,
                     city,
                     country,
                     profile.professional_title or None,
@@ -300,22 +338,27 @@ class SqlCandidateRepository(CandidateRepository):
                     profile.years_experience,
                     profile.passport_number or None,
                     profile.passport_country or None,
-                    profile.passport_expiry_date or None,
+                    profile.gender or None,
+                    profile.nationality or "Bangladeshi",
+                    profile.nid_number or None,
+                    self._sql_date(profile.passport_issue_date),
+                    passport_expiry_date,
                     profile.passport_status or None,
                     profile.international_travel_readiness or None,
-                    profile.workflow_status,
+                    profile.workflow_status or "Applied",
                     "incomplete",
                 )
-
             else:
                 cursor.execute(
-                    """
+                    f"""
                     UPDATE dbo.candidates
                     SET
                         first_name = ?,
                         last_name = ?,
                         email = ?,
                         phone = ?,
+                        date_of_birth = ?,
+                        address = ?,
                         city = ?,
                         country = ?,
                         current_title = ?,
@@ -324,36 +367,24 @@ class SqlCandidateRepository(CandidateRepository):
                         years_experience = ?,
                         passport_number = ?,
                         passport_country = ?,
+                        gender = ?,
+                        nationality = ?,
+                        nid_number = ?,
+                        passport_issue_date = ?,
                         passport_expiry_date = ?,
                         passport_status = ?,
                         international_travel_readiness = ?,
                         workflow_status = ?,
                         updated_at = SYSUTCDATETIME()
-                    OUTPUT
-                        INSERTED.id,
-                        INSERTED.entra_object_id,
-                        INSERTED.first_name,
-                        INSERTED.last_name,
-                        INSERTED.email,
-                        INSERTED.phone,
-                        INSERTED.city,
-                        INSERTED.country,
-                        INSERTED.professional_summary,
-                        INSERTED.current_title,
-                        INSERTED.career_level,
-                        INSERTED.years_experience,
-                        INSERTED.passport_number,
-                        INSERTED.passport_country,
-                        INSERTED.passport_expiry_date,
-                        INSERTED.passport_status,
-                        INSERTED.international_travel_readiness,
-                        INSERTED.workflow_status
+                    OUTPUT {output_columns}
                     WHERE id = ?
                     """,
                     profile.first_name,
-                    profile.last_name,
+                    profile.last_name or "",
                     profile.email,
                     profile.phone or None,
+                    date_of_birth,
+                    profile.full_address or None,
                     city,
                     country,
                     profile.professional_title or None,
@@ -362,21 +393,20 @@ class SqlCandidateRepository(CandidateRepository):
                     profile.years_experience,
                     profile.passport_number or None,
                     profile.passport_country or None,
-                    profile.passport_expiry_date or None,
+                    profile.gender or None,
+                    profile.nationality or "Bangladeshi",
+                    profile.nid_number or None,
+                    self._sql_date(profile.passport_issue_date),
+                    passport_expiry_date,
                     profile.passport_status or None,
                     profile.international_travel_readiness or None,
-                    profile.workflow_status,
+                    profile.workflow_status or "Applied",
                     existing.id,
                 )
 
             row = cursor.fetchone()
-
             if row is None:
                 raise RuntimeError("Candidate profile could not be saved")
 
             connection.commit()
-
-            return self._row_to_profile(
-                row,
-                profile.resume_document_id,
-            )
+            return self._row_to_profile(row, profile.resume_document_id)

@@ -48,7 +48,7 @@ class NotificationRepository(ABC):
     def create(
         self,
         *,
-        candidate_id: str,
+        candidate_id: str | None = None,
         recipient_user_id: str,
         recipient_type: str,
         title: str,
@@ -120,7 +120,7 @@ class SqlNotificationRepository(NotificationRepository):
     def _row_to_dict(row) -> dict:
         return {
             "id": str(row.id),
-            "candidate_id": str(row.candidate_id),
+            "candidate_id": str(row.candidate_id) if row.candidate_id is not None else None,
             "recipient_user_id": row.recipient_user_id,
             "recipient_type": row.recipient_type,
             "organization_id": (
@@ -368,7 +368,7 @@ class SqlNotificationRepository(NotificationRepository):
     def create(
         self,
         *,
-        candidate_id: str,
+        candidate_id: str | None = None,
         recipient_user_id: str,
         recipient_type: str,
         title: str,

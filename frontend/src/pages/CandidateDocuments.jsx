@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { authenticatedFetch } from '../utils/auth'
 import PageHeader from '../components/PageHeader'
 import DashboardCard from '../components/DashboardCard'
 
@@ -174,7 +175,7 @@ export default function CandidateDocuments() {
   const [message, setMessage] = useState('')
 
   async function refreshDocuments() {
-    const response = await fetch('/api/candidate/documents')
+    const response = await authenticatedFetch('/api/candidate/documents')
 
     if (!response.ok) {
       const body = await response.text()
@@ -197,7 +198,7 @@ export default function CandidateDocuments() {
       try {
         setLoading(true)
         setError('')
-        const response = await fetch('/api/candidate/documents')
+        const response = await authenticatedFetch('/api/candidate/documents')
 
         if (!response.ok) {
           const body = await response.text()
@@ -243,7 +244,7 @@ export default function CandidateDocuments() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/documents?document_type=${encodeURIComponent(
           documentType,
         )}`,
@@ -294,7 +295,7 @@ export default function CandidateDocuments() {
       setError('')
       setMessage('')
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/documents/${encodeURIComponent(document.id)}`,
         {
           method: 'DELETE',
@@ -324,7 +325,7 @@ export default function CandidateDocuments() {
       setError('')
       setMessage('')
 
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `/api/candidate/documents/${encodeURIComponent(document.id)}`,
       )
 

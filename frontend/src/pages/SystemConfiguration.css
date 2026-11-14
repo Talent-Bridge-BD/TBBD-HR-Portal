@@ -1,0 +1,31 @@
+.system-configuration-page {
+  padding: 24px;
+}
+
+.system-configuration-page .page-header h1 {
+  color: #0B2545;
+}
+
+.configuration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.configuration-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.configuration-card h2 {
+  color: #0067B8;
+  margin-bottom: 16px;
+}
+
+.configuration-card li {
+  margin-bottom: 10px;
+  color: #475569;
+}

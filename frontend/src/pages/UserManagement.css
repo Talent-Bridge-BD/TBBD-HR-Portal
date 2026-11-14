@@ -1,0 +1,56 @@
+.user-management-page {
+  width: 100%;
+}
+
+.user-management-page .page-header {
+  margin-bottom: 24px;
+}
+
+.user-management-page .card {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.user-management-page .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-management-page select {
+  padding: 8px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.user-management-page .onboarding-table-wrap {
+  overflow-x: auto;
+}
+
+.user-management-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-management-page th {
+  text-align: left;
+  padding: 12px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.user-management-page td {
+  padding: 12px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.user-management-page button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC;
+}
