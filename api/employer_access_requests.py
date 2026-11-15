@@ -8,12 +8,18 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from api.administrator_organizations import require_admin
+from api import organization as organization_api
 from repositories.employer_access_requests import (
     EmployerAccessRequestRepository,
 )
 
 from services.email_service import EmailService
 from repositories.administrator_notifications import AdministratorNotificationRepository
+from repositories.external_identity import SqlExternalIdentityMappingRepository
+from services.local_auth import (
+    TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+    TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+)
 
 router = APIRouter(
     prefix="/api/employer-access-requests",
@@ -28,6 +34,9 @@ public_router = APIRouter(
 
 _repository = EmployerAccessRequestRepository()
 _delivery_log_repository = AdministratorNotificationRepository()
+_identity_mapping_repository = SqlExternalIdentityMappingRepository(
+    organization_api._organization_repository._connection
+)
 
 
 class EmployerAccessRequestCreate(BaseModel):
@@ -56,6 +65,19 @@ class EmployerAccessRequestReview(BaseModel):
 
     status: Literal["Approved", "Rejected"]
     review_notes: str | None = Field(default=None, max_length=2000)
+
+
+class EmployerAccessRequestActivation(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    organization_id: str = Field(min_length=1, max_length=100)
+    entra_object_id: str = Field(min_length=1, max_length=200)
+    identity_verified: bool
+    # Supply only when linking an already-existing application account.
+    # Omit for the existing new-employer activation workflow.
+    application_user_id: str | None = Field(default=None, min_length=1, max_length=100)
+
+
 
 
 @public_router.post("", status_code=201)
@@ -272,6 +294,304 @@ def review_employer_access_request(
     # or organization membership.
     return {
         "message": message,
+        "notification_status": notification_status,
+        "request": record,
+    }
+
+
+@router.post("/{request_id}/activate")
+def activate_approved_employer_request(
+    request: Request,
+    request_id: str,
+    payload: EmployerAccessRequestActivation,
+):
+    """Activate an approved request for an administrator-verified Entra identity."""
+    principal = require_admin(request)
+
+    if payload.identity_verified is not True:
+        raise HTTPException(
+            status_code=400,
+            detail="Confirm that the Microsoft Entra identity was independently verified.",
+        )
+
+    try:
+        from services.local_auth import get_request_principal
+        authenticated_principal = get_request_principal(request)
+    except Exception:
+        authenticated_principal = None
+
+    administrator_id = (
+        str(authenticated_principal.get("id"))
+        if authenticated_principal and authenticated_principal.get("id")
+        else None
+    )
+    if not administrator_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated Administrator identity required",
+        )
+
+    try:
+        record = _repository.get_request(request_id)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from None
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="The employer access request could not be retrieved.",
+        ) from None
+
+    if record is None:
+        raise HTTPException(status_code=404, detail="Employer access request not found.")
+    if record.get("status") != "Approved":
+        raise HTTPException(
+            status_code=409,
+            detail="Only an Approved employer access request can be activated.",
+        )
+
+    organization_id = payload.organization_id.strip()
+    entra_object_id = payload.entra_object_id.strip()
+
+    try:
+        organizations = organization_api._organization_repository.list_active_organizations()
+        organization = next(
+            (item for item in organizations if str(item.id) == organization_id),
+            None,
+        )
+        if organization is None:
+            raise HTTPException(status_code=404, detail="Active organization not found.")
+
+        members = organization_api._organization_repository.list_members(organization_id)
+
+        if payload.application_user_id:
+            # Existing-account linking is deliberately separate from creating
+            # or changing organization memberships. The target must already
+            # have an active Employer Manager membership in this organization.
+            application_user_id = payload.application_user_id.strip()
+            member = next(
+                (
+                    item for item in members
+                    if str(item.user_id) == application_user_id
+                    and str(item.status).lower() == "active"
+                    and str(item.role).strip().lower() == "employer manager"
+                ),
+                None,
+            )
+            if member is None:
+                raise HTTPException(
+                    status_code=409,
+                    detail=(
+                        "The selected application account does not have an active "
+                        "Employer Manager membership in this organization."
+                    ),
+                )
+
+            existing_mapping = _identity_mapping_repository.get_mapping(
+                provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                external_object_id=entra_object_id,
+            )
+            if existing_mapping is not None:
+                raise HTTPException(
+                    status_code=409,
+                    detail="This external identity already has a mapping. Review it before making changes.",
+                )
+
+            try:
+                mapping = _identity_mapping_repository.create_active_mapping(
+                    provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                    tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                    external_object_id=entra_object_id,
+                    application_user_id=application_user_id,
+                    verified_by=administrator_id,
+                    verification_method="administrator_attestation",
+                )
+            except Exception:
+                # A concurrent request may have claimed the unique external
+                # identity. Report a conflict if the mapping now exists; let
+                # genuine database failures reach the service-unavailable path.
+                if _identity_mapping_repository.get_mapping(
+                    provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                    tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                    external_object_id=entra_object_id,
+                ) is not None:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="This external identity already has a mapping. Review it before making changes.",
+                    ) from None
+                raise
+            membership_action = "link"
+            audit_entity_type = "external_identity_mapping"
+            audit_entity_id = str(mapping["id"])
+            audit_target_user_id = application_user_id
+        else:
+            # Preserve the existing new-employer activation behaviour.
+            existing = next(
+                (member for member in members if str(member.user_id) == entra_object_id),
+                None,
+            )
+
+            if existing is not None:
+                if str(existing.status).lower() == "active":
+                    raise HTTPException(
+                        status_code=409,
+                        detail="This Entra identity already has an active membership in the selected organization.",
+                    )
+                if existing.role != "Employer Manager":
+                    raise HTTPException(
+                        status_code=409,
+                        detail="An inactive membership exists with a different role. Review it separately before activation.",
+                    )
+                member = organization_api._organization_repository.update_membership_status(
+                    organization_id=organization_id,
+                    user_id=entra_object_id,
+                    status="active",
+                    role="Employer Manager",
+                )
+                membership_action = "reactivate"
+            else:
+                member = organization_api._organization_repository.add_membership(
+                    organization_id=organization_id,
+                    user_id=entra_object_id,
+                    role="Employer Manager",
+                )
+                membership_action = "create"
+            audit_entity_type = "organization_membership"
+            audit_entity_id = str(member.id)
+            audit_target_user_id = entra_object_id
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="Organization membership could not be activated.",
+        ) from None
+
+    # Record the membership action. The mapping or membership has already
+    # committed independently, so an audit failure must be reported honestly.
+    audit_status = "SUCCESS"
+    try:
+        organization_api._audit_log_repository.create_log(
+            user_id=administrator_id,
+            user_email=authenticated_principal.get("email"),
+            user_name=authenticated_principal.get("name"),
+            organization_id=organization_id,
+            event_type=(
+                "external_identity_mapping"
+                if membership_action == "link"
+                else "organization_membership"
+            ),
+            action=membership_action,
+            entity_type=audit_entity_type,
+            entity_id=audit_entity_id,
+            status="success",
+            details={
+                "organization_name": organization.name,
+                "target_user_id": audit_target_user_id,
+                "external_object_id": entra_object_id,
+                "identity_provider": TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                "identity_tenant_id": TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                "role": "Employer Manager",
+                "access_request_id": str(record.get("id")),
+                "identity_verification_confirmed_by_admin": True,
+                "verification_method": (
+                    "administrator_attestation"
+                    if membership_action == "link"
+                    else "administrator_verified_activation"
+                ),
+            },
+        )
+    except Exception:
+        audit_status = "FAILED"
+
+    notification_status = "FAILED"
+    failure_reason = "Email provider did not confirm success."
+    delivery_log_id = None
+    recipient = str(record.get("email") or "").strip()
+
+    if recipient:
+        try:
+            log = _delivery_log_repository.create_delivery_log(
+                recipient=recipient,
+                channel="EMAIL",
+                status="PENDING",
+                notification_id=None,
+            )
+            delivery_log_id = log.get("id") if log else None
+        except Exception:
+            delivery_log_id = None
+
+        company_name = str(record.get("company_name") or "your organization")
+        representative_name = str(record.get("representative_name") or "Employer")
+        portal_url = "https://employer.talentbridgebd.com"
+        plain_text = (
+            f"Dear {representative_name},\n\n"
+            f"Your employer access request for {company_name} has been activated "
+            f"for the selected organization, {organization.name}.\n\n"
+            "Sign in to the Talent Bridge BD portal using Microsoft Entra ID "
+            "with the identity verified by our administrator. This email does "
+            "not create a password or replace your organization's sign-in policy.\n\n"
+            f"Portal: {portal_url}\n\n"
+            "If you cannot sign in, contact the Talent Bridge BD administrator.\n\n"
+            "Kind regards,\nTalent Bridge BD"
+        )
+        html_content = (
+            '<div style="font-family:Arial,sans-serif;line-height:1.6">'
+            f"<p>{html.escape(plain_text).replace(chr(10), '<br>')}</p>"
+            "</div>"
+        )
+
+        try:
+            result = EmailService().send_email(
+                recipient=recipient,
+                subject="Your Talent Bridge BD Employer Access Is Active",
+                html_content=html_content,
+                plain_text=plain_text,
+            )
+            result_status = (
+                result.get("status")
+                if isinstance(result, dict)
+                else getattr(result, "status", None)
+            )
+            if result_status == "Succeeded":
+                notification_status = "SENT"
+                failure_reason = None
+        except Exception as exc:
+            failure_reason = f"Email send failed ({type(exc).__name__})."
+
+        if delivery_log_id is not None:
+            try:
+                _delivery_log_repository.update_delivery_status(
+                    delivery_log_id,
+                    notification_status,
+                    failure_reason,
+                )
+            except Exception:
+                pass
+
+    return {
+        "message": (
+            "Employer access is active, but audit logging failed. Administrator follow-up is required."
+            if audit_status == "FAILED"
+            else (
+                "Employer membership is active. Activation email sent."
+                if notification_status == "SENT"
+                else "Employer membership is active, but the activation email could not be confirmed as sent."
+            )
+        ),
+        "membership_status": "ACTIVE",
+        "audit_status": audit_status,
+        "requires_admin_follow_up": audit_status == "FAILED",
+        "audit_warning": (
+            "The membership or identity mapping is active, but its audit record could not be saved."
+            if audit_status == "FAILED"
+            else None
+        ),
+        "role": "Employer Manager",
+        "organization": {
+            "id": organization.id,
+            "name": organization.name,
+        },
         "notification_status": notification_status,
         "request": record,
     }

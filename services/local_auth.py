@@ -10,6 +10,9 @@ from fastapi import Request
 TBBD_TENANT_ID = "319c9d59-c5f1-48d3-af49-4f959b5e02c1"
 TBBD_CLIENT_ID = "16835108-56db-49f8-a566-a52bc0691cec"
 TBBD_EXTERNAL_ID_TENANT_ID = "c8573333-aad0-4a28-8e40-c20e17989f61"
+TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID = "c8573333-aad0-4a28-8e40-c20e17989f61"
+TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID = "d5079e97-35ed-47cb-8f20-3f86875751a4"
+TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER = "TBBDEmployerExternalID"
 
 # Microsoft Entra ID authority endpoints.
 # Build the URLs from separate strings to avoid Markdown-link corruption.
@@ -79,6 +82,9 @@ def _get_easy_auth_principal(request: Request) -> Optional[dict]:
     )
 
     principal["tenant_id"] = tenant_id
+    principal["audiences"] = _claim_values("aud")
+    object_ids = _claim_values("oid", "objectidentifier")
+    principal["object_id"] = object_ids[0] if object_ids else None
     principal["id"] = principal_id
 
     email_claim = None
@@ -205,6 +211,7 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
 
     principal = {
         "id": str(principal_id),
+        "object_id": str(principal_id),
         "tenant_id": str(tenant_id),
         "email": str(email),
         "groups": groups,
@@ -216,6 +223,34 @@ def _get_entra_principal(request: Request) -> Optional[dict]:
         principal["name"] = str(claims["name"])
 
     return principal
+
+
+def is_employer_external_principal(principal: Optional[dict]) -> bool:
+    """Return True only for the configured Employer External ID tenant and app.
+
+    Easy Auth is responsible for cryptographic token validation. This additional
+    check prevents a principal from another configured tenant or application
+    from being treated as an Employer Portal identity.
+    """
+    if not isinstance(principal, dict):
+        return False
+
+    if str(principal.get("tenant_id") or "").lower() != (
+        TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID.lower()
+    ):
+        return False
+
+    if not str(principal.get("object_id") or "").strip():
+        return False
+
+    audiences = principal.get("audiences") or []
+    if isinstance(audiences, str):
+        audiences = [audiences]
+
+    return (
+        isinstance(audiences, (list, tuple, set))
+        and TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID in {str(value) for value in audiences}
+    )
 
 
 def get_request_principal(request: Request) -> Optional[dict]:

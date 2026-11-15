@@ -5,14 +5,23 @@ from fastapi import APIRouter, HTTPException, Request
 
 from repositories.employer_dashboard import SqlEmployerDashboardRepository
 from repositories.organization import SqlOrganizationRepository
+from repositories.external_identity import SqlExternalIdentityMappingRepository
 from services.authorization import build_authorization_context
-from services.local_auth import get_request_principal
+from services.local_auth import (
+    TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+    TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+    get_request_principal,
+    is_employer_external_principal,
+)
 from services.employer_dashboard import EmployerDashboardService
 
 
 router = APIRouter(prefix="/api/employer", tags=["employer"])
 
 _organization_repository = SqlOrganizationRepository()
+_identity_mapping_repository = SqlExternalIdentityMappingRepository(
+    _organization_repository._connection
+)
 _dashboard_repository = SqlEmployerDashboardRepository()
 _service = EmployerDashboardService(_dashboard_repository)
 
@@ -25,7 +34,7 @@ AUTHORIZATION_GROUPS = {
 }
 
 
-def _get_principal(request: Request) -> tuple[str, str, set[str]]:
+def _get_principal(request: Request) -> tuple[str, str, set[str], dict]:
     principal = get_request_principal(request)
 
     if not principal:
@@ -64,16 +73,73 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
 
     employer_name = principal.get("name") or principal.get("email") or "Employer"
 
-    return principal_id, employer_name, roles
+    return principal_id, employer_name, roles, principal
 
 
 @router.get("/dashboard")
 async def get_employer_dashboard(request: Request):
-    principal_id, employer_name, roles = _get_principal(request)
+    principal_id, employer_name, roles, principal = _get_principal(request)
 
-    memberships = _organization_repository.get_active_memberships(
-        principal_id
-    )
+    if str(principal.get("tenant_id") or "").lower() == (
+        TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID.lower()
+    ):
+        if not is_employer_external_principal(principal):
+            raise HTTPException(
+                status_code=401,
+                detail="Employer External ID application audience is invalid",
+            )
+
+        external_object_id = str(principal.get("object_id") or "").strip()
+        if not external_object_id:
+            raise HTTPException(
+                status_code=401,
+                detail="Employer External ID object identity is missing",
+            )
+
+        mapping = _identity_mapping_repository.get_mapping(
+            provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+            tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+            external_object_id=external_object_id,
+        )
+        if mapping is not None:
+            if str(mapping.get("status", "")).lower() != "active":
+                raise HTTPException(
+                    status_code=403,
+                    detail="Employer identity mapping is not active",
+                )
+            application_user_id = str(mapping.get("application_user_id") or "")
+            if not application_user_id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Employer identity is not linked to an application account",
+                )
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail=(
+                    "Employer external identity has not been linked "
+                    "to an application account"
+                ),
+            )
+
+        memberships = _organization_repository.get_active_memberships(
+            application_user_id
+        )
+        if not any(
+            str(membership.role).strip().lower() == "employer manager"
+            and str(membership.status).strip().lower() == "active"
+            for membership in memberships
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="An active Employer Manager organization membership is required",
+            )
+        principal_id = application_user_id
+        roles = {"Employer Manager"}
+    else:
+        memberships = _organization_repository.get_active_memberships(
+            principal_id
+        )
 
     context = build_authorization_context(
         user_id=principal_id,

@@ -24,7 +24,14 @@ from services.authorization import (
     build_authorization_context,
     is_global_administrator,
 )
-from services.local_auth import TBBD_EXTERNAL_ID_TENANT_ID, get_request_principal
+from services.local_auth import (
+    TBBD_EXTERNAL_ID_TENANT_ID,
+    TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+    TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+    get_request_principal,
+    is_employer_external_principal,
+)
+from repositories.external_identity import SqlExternalIdentityMappingRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.user_profile import SqlUserProfileRepository
 from api import candidate as candidate_api
@@ -104,6 +111,60 @@ app.include_router(administrator_notifications_router)
 
 _organization_repository = SqlOrganizationRepository()
 _user_profile_repository = SqlUserProfileRepository()
+_identity_mapping_repository = SqlExternalIdentityMappingRepository(
+    _organization_repository._connection
+)
+
+
+def _resolve_application_user_id(principal):
+    """Resolve a mapped Employer External ID to its canonical app user."""
+    principal_id = str(principal.get("id") or "").strip()
+
+    if not is_employer_external_principal(principal):
+        return principal_id
+
+    external_object_id = str(
+        principal.get("object_id") or principal_id
+    ).strip()
+
+    if not external_object_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Employer external identity is incomplete",
+        )
+
+    mapping = _identity_mapping_repository.get_mapping(
+        provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+        tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        external_object_id=external_object_id,
+    )
+
+    if mapping is None:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "Employer external identity has not been linked "
+                "to an application account"
+            ),
+        )
+
+    if str(mapping.get("status") or "").casefold() != "active":
+        raise HTTPException(
+            status_code=403,
+            detail="Employer external identity mapping is not active",
+        )
+
+    application_user_id = str(
+        mapping.get("application_user_id") or ""
+    ).strip()
+
+    if not application_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Employer identity mapping has no application user",
+        )
+
+    return application_user_id
 
 @app.get("/api/me")
 async def get_current_user(request: Request):
@@ -118,18 +179,21 @@ async def get_current_user(request: Request):
 
     principal_id = principal.get("id") or ""
     principal_name = principal.get("email") or ""
+    is_employer_identity = is_employer_external_principal(principal)
+    user_id = _resolve_application_user_id(principal)
 
-    try:
-        profile = _user_profile_repository.get_by_email(principal_name)
-    except ValueError:
-        raise HTTPException(
-            status_code=409,
-            detail="Multiple user profiles match the signed-in email.",
-        )
-
-    user_id = principal_id
-    if profile is not None:
-        user_id = profile.user_id
+    # The verified Employer identity mapping is authoritative.
+    # Do not replace its canonical ID with an email-based profile lookup.
+    if not is_employer_identity:
+        try:
+            profile = _user_profile_repository.get_by_email(principal_name)
+        except ValueError:
+            raise HTTPException(
+                status_code=409,
+                detail="Multiple user profiles match the signed-in email.",
+            )
+        if profile is not None:
+            user_id = profile.user_id
 
 
     claims = principal.get("claims", [])
@@ -151,35 +215,31 @@ async def get_current_user(request: Request):
         "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
     }
 
-    provider_name = principal.get("provider_name", "")
-    app_display_name = principal.get("app_displayname", "")
-
+    # Candidate and Employer identities share a tenant but use different apps.
     is_candidate_identity = (
         principal.get("tenant_id") == TBBD_EXTERNAL_ID_TENANT_ID
-        or provider_name == "TBBDCandidateExternalID"
-        or app_display_name == "TBBD Candidate Portal"
+        and not is_employer_identity
     )
 
-    # Candidate role is application-managed, never granted by provider identity.
+    # Candidate role authorization comes only from the application assignment.
     roles = set(token_roles) - {"Candidate"}
-
     for role, group_id in authorization_groups.items():
         if role != "Candidate" and group_id in group_ids:
             roles.add(role)
 
     candidate_role_signal = (
-        is_candidate_identity
-        or "Candidate" in token_roles
-        or any(
-            role == "Candidate" and group_id in group_ids
-            for role, group_id in authorization_groups.items()
+        not is_employer_identity
+        and (
+            is_candidate_identity
+            or "Candidate" in token_roles
+            or authorization_groups["Candidate"] in group_ids
         )
     )
     if candidate_role_signal:
         try:
             candidate_role_active = (
                 candidate_api._application_role_repository.has_role(
-                    user_id,
+                    principal_id,
                     "Candidate",
                 )
             )
@@ -189,13 +249,11 @@ async def get_current_user(request: Request):
                 flush=True,
             )
             candidate_role_active = False
-
         if candidate_role_active:
             roles.add("Candidate")
 
-    if not roles and not is_candidate_identity:
+    if not roles and not is_candidate_identity and not is_employer_identity:
         roles.add("Employee")
-
     memberships = _organization_repository.get_active_memberships(
         user_id
     )
@@ -233,7 +291,8 @@ async def list_organizations(request: Request):
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id") or ""
+    principal_id = _resolve_application_user_id(principal)
+    is_employer_identity = is_employer_external_principal(principal)
     claims = principal.get("claims", [])
 
     def claim_values(claim_type):
@@ -254,9 +313,13 @@ async def list_organizations(request: Request):
     }
 
     roles = set(token_roles)
+    if is_employer_identity:
+        roles.discard("Candidate")
 
     for role, group_id in authorization_groups.items():
-        if group_id in group_ids:
+        if group_id in group_ids and not (
+            is_employer_identity and role == "Candidate"
+        ):
             roles.add(role)
 
     memberships = _organization_repository.get_active_memberships(
@@ -313,7 +376,7 @@ async def get_organization(organization_id: str, request: Request):
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id") or ""
+    principal_id = _resolve_application_user_id(principal)
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
@@ -363,7 +426,7 @@ def healthz():
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DIST_DIR = BASE_DIR / "dist"
+DIST_DIR = BASE_DIR / "frontend" / "dist"
 
 class FrontendAssets(StaticFiles):
     def __init__(self):
@@ -395,49 +458,15 @@ app.mount(
 
 
 @app.get("/")
-def home(request: Request):
-    # Keep the existing React app for candidates and portal sign-in returns.
-    is_candidate_mode = (
-        request.query_params.get("authMode") == "candidate"
-    )
-    is_portal_return = request.query_params.get("portal") == "1"
-    has_authenticated_principal = bool(
-        request.headers.get("X-MS-CLIENT-PRINCIPAL-ID")
-        or request.headers.get("X-MS-CLIENT-PRINCIPAL")
-    )
+def home():
+    return FileResponse(DIST_DIR / "index.html")
 
-    if is_candidate_mode or is_portal_return or has_authenticated_principal:
-        return FileResponse(DIST_DIR / "index.html")
-
-    # Serve the original branded Workplace Hub landing page.
-    landing_page = DIST_DIR / "workplace-hub.html"
-    if not landing_page.is_file():
-        landing_page = (
-            BASE_DIR / "frontend" / "public" / "workplace-hub.html"
-        )
-    return FileResponse(landing_page)
 
 
 @app.get("/workplace-hub.html", include_in_schema=False)
 def workplace_hub_html_page():
-    page = DIST_DIR / "workplace-hub.html"
-    if not page.is_file():
-        page = BASE_DIR / "frontend" / "public" / "workplace-hub.html"
-    if not page.is_file():
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="Workplace Hub page not found")
-    return FileResponse(page)
+    return FileResponse(DIST_DIR / "index.html")
 
-
-@app.get("/candidate-access.html", include_in_schema=False)
-def candidate_access_html_page():
-    page = DIST_DIR / "candidate-access.html"
-    if not page.is_file():
-        page = BASE_DIR / "frontend" / "public" / "candidate-access.html"
-    if not page.is_file():
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="Candidate access page not found")
-    return FileResponse(page)
 
 
 @app.get("/employer-access-request")
