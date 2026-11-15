@@ -61,6 +61,9 @@ const placeholderPages = {}
 const STAFF_LOGIN_URL =
   '/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1'
 
+
+const EMPLOYER_LOGIN_URL = 'https://employer.talentbridgebd.com/.auth/login/TBBDEmployerExternalID'
+
 const CANDIDATE_LOGIN_URL = import.meta.env.DEV
   ? '/?authMode=candidate'
   : '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
@@ -199,9 +202,9 @@ export default function App() {
       },
       {
         id: 'employer-access',
-        title: 'Employer Access Request',
+        title: 'Employer Access & Sign In',
         category: 'For Employers',
-        description: 'Request access to employer workforce services.',
+        description: 'Manage job postings, candidate reviews, and workforce access.',
         cta: 'Request Access',
         icon: 'briefcase',
         theme: 'purple',
@@ -259,11 +262,15 @@ export default function App() {
 
           <section className="workplace-hub-access" aria-label="Workplace access options">
             <div className="workplace-hub-grid">
-              {hubCards.map((card) => (
-                <a
+              {hubCards.map((card) => {
+                const isEmployerCard = card.id === 'employer-access'
+                const CardWrapper = isEmployerCard ? 'div' : 'a'
+
+                return (
+                  <CardWrapper
                   key={card.id}
                   id={card.id}
-                  href={card.href}
+                  href={isEmployerCard ? undefined : card.href}
                   onClick={(event) => {
                     if (
                       import.meta.env.DEV &&
@@ -326,19 +333,42 @@ export default function App() {
 
                   <span className="workplace-hub-card-divider" />
 
-                  <span className="workplace-hub-card-content">
-                    <strong>{card.title}</strong>
-                    <span className="workplace-hub-card-category">{card.category}</span>
-                    <span className="workplace-hub-card-description">
-                      {card.description}
-                    </span>
-                  </span>
+                  {isEmployerCard ? (
+                    <div className="workplace-hub-card-main">
+                      <div className="workplace-hub-card-content">
+                        <strong>{card.title}</strong>
+                        <span className="workplace-hub-card-category">{card.category}</span>
+                        <span className="workplace-hub-card-description">
+                          {card.description}
+                        </span>
+                      </div>
 
-                  <span className="workplace-hub-card-cta">
-                    {card.cta} <span aria-hidden="true">→</span>
-                  </span>
-                </a>
-              ))}
+                      <div className="workplace-hub-card-actions">
+                        <a className="workplace-hub-card-cta" href={EMPLOYER_LOGIN_URL}>
+                          Employer Sign In <span aria-hidden="true">→</span>
+                        </a>
+                        <a className="workplace-hub-card-cta" href={card.href}>
+                          Request Access <span aria-hidden="true">→</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="workplace-hub-card-content">
+                        <strong>{card.title}</strong>
+                        <span className="workplace-hub-card-category">{card.category}</span>
+                        <span className="workplace-hub-card-description">
+                          {card.description}
+                        </span>
+                      </span>
+                      <span className="workplace-hub-card-cta">
+                        {card.cta} <span aria-hidden="true">→</span>
+                      </span>
+                    </>
+                  )}
+                  </CardWrapper>
+                  )
+                  })}
             </div>
           </section>
 
