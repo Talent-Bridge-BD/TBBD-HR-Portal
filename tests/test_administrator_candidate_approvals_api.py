@@ -188,6 +188,32 @@ def test_invalid_review_status_is_rejected_by_api(monkeypatch):
 
 
 
+
+
+def test_bulk_approval_value_error_does_not_expose_exception_message(monkeypatch):
+    repository, client = setup_api(monkeypatch)
+    repository.ensure_candidate("candidate-001")
+
+    def fail_review(*args, **kwargs):
+        raise ValueError("internal SQL statement and database details")
+
+    monkeypatch.setattr(repository, "review_candidate", fail_review)
+
+    response = client.post(
+        "/api/administrator/candidate-approvals/bulk-approve",
+        json={"entra_object_ids": ["candidate-001"]},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["error_count"] == 1
+    assert body["results"][0]["detail"] == (
+        "Candidate approval failed; not approved"
+    )
+    assert "internal SQL statement" not in response.text
+    assert "database details" not in response.text
+
+
 def test_candidate_approval_verification_error_does_not_expose_exception_context(monkeypatch):
     _, client = setup_api(monkeypatch)
 
