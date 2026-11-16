@@ -9125,3 +9125,333 @@ Employer Access Request ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dedicated standal
   }
 }
 /* END TBBD EMPLOYER MOBILE DESCRIPTION AND ACTION SPACING */
+
+/* =========================================================
+   TBBD WORKPLACE HUB - CONSISTENT CARD TYPOGRAPHY
+   AND EMPLOYER LINK DECORATION
+   ========================================================= */
+
+.workplace-hub-shell .workplace-hub-card,
+.workplace-hub-shell .workplace-hub-card * {
+  font-family: Manrope, Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:hover,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:focus,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:visited,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:active {
+  text-decoration: none !important;
+}
+
+/* =========================================================
+   TBBD FOUR ACCESS CARDS - TYPOGRAPHY AND SPACING REFINEMENT
+   Preserve existing card structure, colours, icons and routes.
+   ========================================================= */
+
+/* Consistent desktop typography across all four cards */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card-content strong {
+    font-size: 20px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.25px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-category {
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    font-size: 13px;
+    line-height: 1.45;
+    margin-top: 6px;
+    max-width: 38ch;
+  }
+}
+
+/* Consistent mobile typography and readable spacing */
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 168px;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content strong {
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.15px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-category {
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.35;
+    max-width: 36ch;
+    overflow-wrap: break-word;
+  }
+
+  /* Keep the Employer card's two actions readable and consistent */
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-content {
+    gap: 4px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-description {
+    margin-top: 3px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions .workplace-hub-card-cta {
+    text-decoration: none !important;
+    line-height: 1.2;
+  }
+}
+
+/* Preserve the staff card's intentional two-line title */
+.workplace-hub-shell .workplace-hub-card--orange
+.workplace-hub-card-content strong .staff-card-title-line {
+  display: block;
+  white-space: nowrap;
+}
+
+/* END FOUR ACCESS CARDS REFINEMENT */
+
+/* =========================================================
+   TBBD FINAL FOUR-CARD REFINEMENT - 2026-11-16
+   Consistent typography, text alignment and mobile spacing.
+   Preserves card structure, colours, icons, actions and routes.
+   ========================================================= */
+
+/* One consistent text-alignment system for all four cards */
+.workplace-hub-shell .workplace-hub-card-content {
+  text-align: left;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.workplace-hub-shell .workplace-hub-card-content strong,
+.workplace-hub-shell .workplace-hub-card-category,
+.workplace-hub-shell .workplace-hub-card-description {
+  text-align: left;
+}
+
+/* Consistent desktop typography */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card-content strong {
+    font-size: 20px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.25px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-category {
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    font-size: 13px;
+    line-height: 1.45;
+    margin-top: 6px;
+    max-width: 38ch;
+  }
+}
+
+/* Final mobile card proportions and typography */
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 168px;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    min-width: 0;
+    gap: 4px;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content strong {
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.15px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-category {
+    display: block;
+    width: 100%;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    display: block;
+    width: 100%;
+    max-width: 36ch;
+    margin-top: 3px;
+    font-size: 11.5px;
+    font-weight: 400;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+
+  /* Employer: align text consistently and preserve both actions */
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-content {
+    align-items: flex-start;
+    text-align: left;
+    gap: 4px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-content strong,
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-category,
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-description {
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-description {
+    margin-top: 3px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions {
+    align-items: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions .workplace-hub-card-cta {
+    text-decoration: none !important;
+    line-height: 1.2;
+  }
+
+  /* Staff: keep the deliberate two-line title, left-aligned */
+  .workplace-hub-shell .workplace-hub-card--orange
+  .workplace-hub-card-content strong {
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--orange
+  .staff-card-title-line {
+    display: block;
+    white-space: nowrap;
+    text-align: left;
+  }
+}
+
+/* Keep Employer action links free of underlines in every state */
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:hover,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:focus,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:visited,
+.workplace-hub-shell .workplace-hub-card--purple
+.workplace-hub-card-actions .workplace-hub-card-cta:active {
+  text-decoration: none !important;
+}
+
+/* END TBBD FINAL FOUR-CARD REFINEMENT */
+
+/* =========================================================
+   TBBD FOUR-CARD BOTTOM SPACING ALIGNMENT - 2026-11-16
+   Align the bottom inset of all four card actions.
+   ========================================================= */
+
+/* Desktop: anchor Employer actions to the same card bottom inset */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card--purple .workplace-hub-card-main {
+    align-self: stretch;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple .workplace-hub-card-actions {
+    margin-top: auto;
+  }
+}
+
+/* Mobile: standard CTAs and Employer action row share a 10px inset */
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-card-cta {
+    bottom: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple .workplace-hub-card-actions {
+    margin-top: auto;
+  }
+}
+
+/* END TBBD FOUR-CARD BOTTOM SPACING ALIGNMENT - 2026-11-16 */
+
+/* TBBD FINAL EMPLOYER BUTTON BOTTOM INSET - 2026-11-16 */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card--purple .workplace-hub-card-actions {
+    margin-bottom: 8px;
+  }
+}
+/* END TBBD FINAL EMPLOYER BUTTON BOTTOM INSET */
+
+/* TBBD FINAL EMPLOYER DESKTOP BUTTON REFINEMENT - 2026-11-16 */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions {
+    padding-top: 12px;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions .workplace-hub-card-cta {
+    height: 48px;
+    min-height: 48px;
+  }
+}
+/* END TBBD FINAL EMPLOYER DESKTOP BUTTON REFINEMENT */
+
+/* FINAL: Match Employer action bottom inset to other cards */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card--purple
+  .workplace-hub-card-actions {
+    margin-bottom: 0;
+  }
+}
+/* END EMPLOYER BOTTOM INSET ALIGNMENT */
+
+/* TBBD EXACT DESKTOP CARD ACTION BOTTOM ALIGNMENT - 2026-11-16 */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-card--blue .workplace-hub-card-cta,
+  .workplace-hub-shell .workplace-hub-card--green .workplace-hub-card-cta,
+  .workplace-hub-shell .workplace-hub-card--orange .workplace-hub-card-cta {
+    transform: translateY(13.34px);
+  }
+}
+/* END TBBD EXACT DESKTOP CARD ACTION BOTTOM ALIGNMENT */
