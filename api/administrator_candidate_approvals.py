@@ -134,11 +134,11 @@ def review_candidate(
     if payload.status == "approved":
         try:
             missing_items = _profile_completion_errors(entra_object_id)
-        except Exception as exc:
+        except Exception:
             raise HTTPException(
                 status_code=503,
                 detail="Candidate profile verification failed; approval was not changed",
-            ) from exc
+            ) from None
 
         if missing_items:
             raise HTTPException(
