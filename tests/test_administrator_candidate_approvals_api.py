@@ -185,3 +185,24 @@ def test_invalid_review_status_is_rejected_by_api(monkeypatch):
         repository.get_approval("candidate-001")["approval_status"]
         == "pending"
     )
+
+
+
+def test_candidate_approval_verification_error_does_not_expose_exception_context(monkeypatch):
+    _, client = setup_api(monkeypatch)
+
+    def fail_profile_verification(_entra_object_id):
+        raise RuntimeError("internal database details must not reach the client")
+
+    monkeypatch.setattr(api, "_profile_completion_errors", fail_profile_verification)
+
+    response = client.post(
+        "/api/administrator/candidate-approvals/candidate-001/review",
+        json={"status": "approved"},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Candidate profile verification failed; approval was not changed"
+    )
+    assert "internal database details" not in response.text
