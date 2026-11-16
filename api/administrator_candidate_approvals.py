@@ -216,11 +216,11 @@ def bulk_approve_candidates(
                 reviewed_by=reviewer,
                 approval_notes=payload.approval_notes,
             )
-        except ValueError as exc:
+        except ValueError:
             results.append({
                 "entra_object_id": entra_object_id,
                 "status": "error",
-                "detail": str(exc),
+                "detail": "Candidate approval failed; not approved",
             })
             continue
 
