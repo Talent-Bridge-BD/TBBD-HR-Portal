@@ -1,0 +1,3144 @@
+
+.workplace-hub-card {
+  box-sizing: border-box;
+  border: 1px solid #D9E5F0;
+  border-radius: 18px;
+  background: #FFFFFF;
+  color: #0F172A;
+  text-decoration: none;
+  box-shadow: 0 5px 16px rgba(15, 35, 65, 0.055);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.workplace-hub-card:hover {
+  transform: translateY(-3px);
+  border-color: #80B9E5;
+  box-shadow: 0 12px 26px rgba(0, 103, 184, 0.12);
+}
+
+.workplace-hub-card:focus-visible {
+  outline: 3px solid #80B9E5;
+  outline-offset: 3px;
+}
+
+.workplace-hub-grid {
+  align-items: stretch;
+}
+
+@media (max-width: 600px) {
+  .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workplace-hub-card {
+    transition: none;
+  }
+
+  .workplace-hub-card:hover {
+    transform: none;
+  }
+}
+
+
+/* Original branded Workplace Hub design — React landing page */
+.workplace-hub-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  color: #102f52;
+  background: linear-gradient(180deg, #F7FAFD 0%, #EEF4FA 100%);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.workplace-hub-topbar {
+  flex: 0 0 auto;
+  padding: 8px 24px;
+  min-height: 72px;
+  color: #fff;
+  background: #082342;
+  border-bottom: 4px solid #0067B8;
+  box-shadow: 0 6px 20px rgb(6 21 46 / 20%);
+}
+
+.workplace-hub-topbar-inner,
+.workplace-hub-main,
+.workplace-hub-footer {
+  width: min(1080px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.workplace-hub-topbar-inner {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+.workplace-hub-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.workplace-hub-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  padding: 4px;
+  box-sizing: border-box;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgb(255 255 255 / 16%);
+}
+
+.workplace-hub-brand {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  line-height: 1.05;
+  margin-bottom: 2px;
+}
+
+.workplace-hub-brand-subtitle {
+  margin-top: 0;
+  color: #d5e9f7;
+  font-size: 12px;
+}
+
+.workplace-hub-main {
+  flex: 1 0 auto;
+  padding: 18px 0 18px;
+  box-sizing: border-box;
+}
+
+.workplace-hub-intro {
+  max-width: 900px;
+  margin: 0 auto 16px;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.workplace-hub-eyebrow {
+  display: inline-block;
+  padding: 6px 11px;
+  color: #075985;
+  background: #dff5ff;
+  border: 1px solid #b8e9fb;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.workplace-hub-intro h1 {
+  margin: 8px 0;
+  background: linear-gradient(100deg, #0b2545 8%, #075985 56%, #0f766e 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: clamp(28px, 3.2vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+
+.workplace-hub-intro p {
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.workplace-hub-grid {
+  display: grid;
+  width: 100%;
+  max-width: 1000px;
+  margin-inline: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+.workplace-hub-page .workplace-hub-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 220px;
+  padding: 18px;
+  overflow: hidden;
+  color: #102f52;
+  text-align: center;
+  text-decoration: none;
+  background: #FBFDFF;
+  border: 1px solid #E5EDF5;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.workplace-hub-page .workplace-hub-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--hub-accent);
+}
+
+.workplace-hub-page .workplace-hub-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 145px;
+  height: 145px;
+  right: -65px;
+  top: -70px;
+  border-radius: 50%;
+  background: var(--hub-glow);
+  pointer-events: none;
+}
+
+.workplace-hub-page .workplace-hub-card:nth-child(1) {
+  --hub-accent: linear-gradient(90deg, #2563eb, #38bdf8);
+  --hub-glow: rgb(59 130 246 / 10%);
+  --hub-label-bg: #e5efff;
+  --hub-label-text: #1d4ed8;
+  --hub-button: #1d64d8;
+  --hub-button-hover: #174ca8;
+  border-color: #E5EDF5;
+}
+
+.workplace-hub-page .workplace-hub-card:nth-child(2) {
+  --hub-accent: linear-gradient(90deg, #059669, #2dd4bf);
+  --hub-glow: rgb(16 185 129 / 11%);
+  --hub-label-bg: #dcfce9;
+  --hub-label-text: #047857;
+  --hub-button: #07845f;
+  --hub-button-hover: #066b4e;
+  border-color: #E5EDF5;
+}
+
+.workplace-hub-page .workplace-hub-card:nth-child(3) {
+  --hub-accent: linear-gradient(90deg, #7c3aed, #c084fc);
+  --hub-glow: rgb(139 92 246 / 11%);
+  --hub-label-bg: #f0e7ff;
+  --hub-label-text: #6d28d9;
+  --hub-button: #7138c8;
+  --hub-button-hover: #5726a4;
+  border-color: #E5EDF5;
+}
+
+.workplace-hub-page .workplace-hub-card:nth-child(4) {
+  --hub-accent: linear-gradient(90deg, #d97706, #fbbf24);
+  --hub-glow: rgb(245 158 11 / 12%);
+  --hub-label-bg: #fff0d5;
+  --hub-label-text: #92400e;
+  --hub-button: #a85a08;
+  --hub-button-hover: #854608;
+  border-color: #E5EDF5;
+}
+
+.workplace-hub-page .workplace-hub-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 17px 35px rgb(15 37 69 / 13%);
+}
+
+.workplace-hub-page .workplace-hub-card:focus-visible {
+  outline: 3px solid #0ea5e9;
+  outline-offset: 4px;
+}
+
+.workplace-hub-icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 8px;
+  border-radius: 15px;
+}
+
+.workplace-hub-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.workplace-hub-icon-candidate {
+  color: #2563eb;
+  background: #e5efff;
+}
+
+.workplace-hub-icon-register {
+  color: #07845f;
+  background: #dcfce9;
+}
+
+.workplace-hub-icon-employer {
+  color: #7138c8;
+  background: #f0e7ff;
+}
+
+.workplace-hub-icon-staff {
+  color: #a85a08;
+  background: #fff0d5;
+}
+
+.workplace-hub-card-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 7px;
+}
+
+.workplace-hub-label {
+  display: inline-block;
+  padding: 5px 9px;
+  color: var(--hub-label-text);
+  background: var(--hub-label-bg);
+  border: 1px solid rgb(148 163 184 / 18%);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.workplace-hub-card-title {
+  display: block;
+  color: #102f52;
+  font-size: clamp(18px, 1.7vw, 22px);
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+
+.workplace-hub-card-description {
+  display: block;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.workplace-hub-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 38px;
+  max-width: 100%;
+  margin-top: auto;
+  padding: 8px 15px;
+  color: #fff;
+  background: var(--hub-button);
+  border: 1px solid var(--hub-button);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgb(15 37 69 / 12%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.workplace-hub-card:hover .workplace-hub-action {
+  background: var(--hub-button-hover);
+  border-color: var(--hub-button-hover);
+  box-shadow: 0 6px 15px rgb(15 37 69 / 18%);
+  transform: translateY(-1px);
+}
+
+.workplace-hub-security-note {
+  margin: 14px 0 0;
+  color: #52657c;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.workplace-hub-footer {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 16px 0;
+  color: #52657c;
+  border-top: 1px solid #dbe7f2;
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .workplace-hub-topbar {
+    padding: 8px 14px;
+  }
+
+  .workplace-hub-topbar-inner,
+  .workplace-hub-main,
+  .workplace-hub-footer {
+    width: min(100% - 28px, 1080px);
+  }
+
+  .workplace-hub-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .workplace-hub-brand {
+    font-size: 15px;
+  }
+
+  .workplace-hub-brand-subtitle {
+    font-size: 12px;
+  }
+
+  .workplace-hub-main {
+    padding-top: 16px;
+  }
+
+  .workplace-hub-intro {
+    margin-bottom: 14px;
+  }
+
+  .workplace-hub-intro h1 {
+    font-size: clamp(27px, 7vw, 36px);
+  }
+
+  .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .workplace-hub-page .workplace-hub-card {
+    min-height: 0;
+    padding: 18px 16px;
+  }
+
+  .workplace-hub-card-title {
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workplace-hub-page .workplace-hub-card,
+  .workplace-hub-action {
+    transition: none;
+  }
+
+  .workplace-hub-page .workplace-hub-card:hover,
+  .workplace-hub-page .workplace-hub-card:hover .workplace-hub-action {
+    transform: none;
+  }
+}
+
+
+/* TBBD WORKPLACE HUB — PREVIEW MIGRATION */
+
+.workplace-hub-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  width: 100%;
+  overflow-x: hidden;
+  color: #17324f;
+  background: linear-gradient(180deg, #f7fafd 0%, #edf3f9 100%);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.workplace-hub-shell .workplace-hub-header {
+  display: flex;
+  flex: 0 0 80px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 80px;
+  padding: 10px max(32px, calc((100% - 1184px) / 2));
+  box-sizing: border-box;
+  color: #fff;
+  background: #082342;
+  border-bottom: 3px solid #087caa;
+}
+
+.workplace-hub-shell .workplace-hub-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  color: #fff;
+  text-decoration: none;
+}
+
+.workplace-hub-shell .workplace-hub-brand img {
+  display: block;
+  width: 54px;
+  height: 54px;
+  padding: 3px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #F3F6FA;
+}
+
+.workplace-hub-shell .workplace-hub-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workplace-hub-shell .workplace-hub-brand-copy strong {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.workplace-hub-shell .workplace-hub-brand-copy small {
+  color: #d5e9f7;
+  font-size: 12px;
+}
+
+.workplace-hub-shell .workplace-hub-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.workplace-hub-shell .workplace-hub-nav a {
+  color: #e7f2fb;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workplace-hub-shell .workplace-hub-nav a:hover,
+.workplace-hub-shell .workplace-hub-nav a:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.workplace-hub-shell .workplace-hub-main {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1184px;
+  margin: 0 auto;
+  padding: 8px 32px 0;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+.workplace-hub-shell .workplace-hub-hero {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 1120px;
+  height: 260px;
+  max-height: 260px;
+  margin: 0 0 24px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #dceaf5;
+  box-sizing: border-box;
+}
+
+.workplace-hub-shell .workplace-hub-hero-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(90deg, rgb(5 26 49 / 58%), rgb(5 26 49 / 24%));
+  box-sizing: border-box;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay h1 {
+  margin: 0 0 8px;
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 800;
+  line-height: 1.15;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay h2 {
+  margin: 0;
+  font-size: clamp(14px, 1.6vw, 19px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 30%);
+}
+
+.workplace-hub-shell .workplace-hub-hero-accent {
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin: 13px 0 10px;
+  border-radius: 3px;
+  background: #5dd6d0;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 30%);
+}
+
+.workplace-hub-shell .workplace-hub-access,
+.workplace-hub-shell .workplace-hub-grid,
+.workplace-hub-shell .workplace-hub-notice {
+  width: 100%;
+  max-width: 1120px;
+}
+
+.workplace-hub-shell .workplace-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(160px, auto);
+  gap: 16px;
+}
+
+.workplace-hub-shell .workplace-hub-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  width: 100%;
+  min-width: 0;
+  min-height: 160px;
+  height: 100%;
+  padding: 20px;
+  overflow: hidden;
+  color: #17324f;
+  text-align: left;
+  text-decoration: none;
+  border: 1px solid #e0e9f2;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 5px 17px rgb(15 37 69 / 7%);
+  box-sizing: border-box;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.workplace-hub-shell .workplace-hub-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  content: "";
+  background: var(--hub-accent);
+}
+
+.workplace-hub-shell .workplace-hub-card--blue {
+  --hub-accent: #2563EB;
+  --hub-tint: #DBEAFE;
+  --hub-color: #2563EB;
+}
+
+.workplace-hub-shell .workplace-hub-card--green {
+  --hub-accent: #059669;
+  --hub-tint: #D1FAE5;
+  --hub-color: #059669;
+}
+
+.workplace-hub-shell .workplace-hub-card--purple {
+  --hub-accent: #7C3AED;
+  --hub-tint: #EDE9FE;
+  --hub-color: #7C3AED;
+}
+
+.workplace-hub-shell .workplace-hub-card--orange {
+  --hub-accent: #D97706;
+  --hub-tint: #FEF3C7;
+  --hub-color: #D97706;
+}
+
+.workplace-hub-shell .workplace-hub-card-icon {
+  display: flex;
+  flex: 0 0 64px;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  color: var(--hub-color);
+  border-radius: 14px;
+  background: var(--hub-tint);
+}
+
+.workplace-hub-shell .workplace-hub-card-icon svg {
+  display: block;
+  width: 42px;
+  height: 42px;
+}
+
+.workplace-hub-shell .workplace-hub-card-divider {
+  align-self: stretch;
+  flex: 0 0 1px;
+  width: 1px;
+  background: #e7edf3;
+}
+
+.workplace-hub-shell .workplace-hub-card-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 5px;
+}
+
+.workplace-hub-shell .workplace-hub-label {
+  color: var(--hub-color);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+.workplace-hub-shell .workplace-hub-card-title {
+  color: #17324f;
+  font-size: clamp(16px, 1.5vw, 19px);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.workplace-hub-shell .workplace-hub-card-description {
+  color: #52657a;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.workplace-hub-shell .workplace-hub-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  align-self: center;
+  padding: 9px 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.3;
+  white-space: nowrap;
+  border-radius: 8px;
+  background: var(--hub-color);
+}
+
+.workplace-hub-shell .workplace-hub-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--hub-accent);
+  box-shadow: 0 13px 27px rgb(15 37 69 / 12%);
+}
+
+.workplace-hub-shell .workplace-hub-card:focus-visible {
+  outline: 3px solid #0ea5e9;
+  outline-offset: 3px;
+}
+
+.workplace-hub-shell .workplace-hub-notice {
+  margin: 24px 0 0;
+  color: #52657a;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: min(calc(100% - 64px), 1120px);
+  min-height: 48px;
+  margin: 12px auto 0;
+  padding: 12px 0;
+  color: #52657a;
+  font-size: 12px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-header {
+    flex: 0 0 auto;
+    min-height: 80px;
+    height: auto;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand {
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy strong {
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    font-size: 11px;
+  }
+
+  .workplace-hub-shell .workplace-hub-nav {
+    justify-content: center;
+    width: 100%;
+    gap: clamp(14px, 5vw, 22px);
+    padding: 5px 0 3px;
+  }
+
+  .workplace-hub-shell .workplace-hub-nav a {
+    font-size: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    padding: 12px 18px 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    width: 100%;
+    max-width: 100%;
+    height: 210px;
+    min-height: 200px;
+    max-height: 215px;
+    aspect-ratio: auto;
+    margin-bottom: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-image {
+    object-position: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    padding: 16px 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    font-size: clamp(22px, 6vw, 28px);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    font-size: clamp(13px, 3.6vw, 16px);
+    line-height: 1.4;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-accent {
+    margin: 11px 0 9px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 132px;
+    height: auto;
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    font-size: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    padding: 8px;
+    font-size: 11px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    width: calc(100% - 36px);
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workplace-hub-shell .workplace-hub-card {
+    transition: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover {
+    transform: none;
+  }
+}
+/* =========================================================
+   TBBD WORKPLACE HUB — APPROVED DESKTOP + MOBILE DESIGN
+   Scoped overrides: existing routes and functionality remain
+   ========================================================= */
+
+.workplace-hub-shell {
+  font-family: "Manrope", Inter, "Segoe UI", Arial, sans-serif;
+  color: #18334e;
+  background: #f1f5fa;
+}
+
+.workplace-hub-shell .workplace-hub-header {
+  flex: 0 0 72px;
+  min-height: 72px;
+  padding: 8px max(32px, calc((100% - 1184px) / 2));
+  background: #072a53;
+  border-bottom: 3px solid #0b9b9b;
+}
+
+.workplace-hub-shell .workplace-hub-brand img {
+  width: 52px;
+  height: 52px;
+}
+
+.workplace-hub-shell .workplace-hub-brand-copy strong {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.workplace-hub-shell .workplace-hub-brand-copy small {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.workplace-hub-shell .workplace-hub-main {
+  max-width: 1200px;
+  padding: 20px 32px 0;
+}
+
+.workplace-hub-shell .workplace-hub-hero {
+position: relative;
+display: block;
+width: 100%;
+max-width: 1120px;
+height: 260px;
+max-height: 260px;
+margin-bottom: 24px;
+overflow: hidden;
+border-radius: 16px;
+background: #072a53;
+}
+
+.workplace-hub-shell .workplace-hub-hero-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 24px;
+  color: #fff;
+  text-align: left;
+  background: linear-gradient(90deg, rgb(5 26 49 / 58%), rgb(5 26 49 / 24%));
+  box-sizing: border-box;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay h1 {
+  margin-bottom: 8px;
+  color: #fff;
+  font-size: clamp(30px, 3.5vw, 48px);
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay h2 {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 40%);
+}
+
+.workplace-hub-shell .workplace-hub-hero-accent {
+  background: #0b9b9b;
+}
+
+.workplace-hub-shell .workplace-hub-hero-overlay p {
+  color: #fff;
+  font-size: 14px;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 40%);
+}
+
+.workplace-hub-shell .workplace-hub-grid {
+  grid-auto-rows: minmax(180px, auto);
+  column-gap: 24px;
+  row-gap: 20px;
+}
+
+.workplace-hub-shell .workplace-hub-card {
+  min-height: 180px;
+  height: auto;
+  padding: 22px;
+  gap: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+  box-shadow: 0 5px 18px rgb(15 37 69 / 6%);
+}
+
+.workplace-hub-shell .workplace-hub-card-icon {
+  flex-basis: 72px;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+}
+
+.workplace-hub-shell .workplace-hub-card-icon svg {
+  width: 44px;
+  height: 44px;
+}
+
+.workplace-hub-shell .workplace-hub-card-title {
+  font-size: clamp(20px, 2vw, 27px);
+  font-weight: 700;
+  color: #18334e;
+}
+
+.workplace-hub-shell .workplace-hub-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.workplace-hub-shell .workplace-hub-card-description {
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.workplace-hub-shell .workplace-hub-action {
+  justify-content: center;
+  width: 220px;
+  min-width: 220px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.workplace-hub-shell .workplace-hub-notice {
+  margin-top: 22px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.workplace-hub-shell .workplace-hub-footer {
+  width: 100%;
+  max-width: none;
+  min-height: 56px;
+  margin: 24px 0 0;
+  padding: 16px 20px;
+  color: #fff;
+  background: #072a53;
+  font-size: 13px;
+}
+
+/* Mobile layout — retained and coordinated with desktop */
+
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-header {
+    min-height: 0;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy strong {
+    font-size: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    font-size: 11px;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    padding: 14px 16px 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    height: 210px;
+    min-height: 200px;
+    max-height: 215px;
+    margin-bottom: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    padding: 16px 8px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    font-size: clamp(22px, 6vw, 30px);
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    font-size: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    min-height: 0;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-radius: 13px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 19px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    font-size: 13px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    grid-column: 2;
+    grid-row: 2;
+    width: 220px;
+    min-width: 0;
+    max-width: 100%;
+    height: 44px;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 18px;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    margin-top: 20px;
+    padding: 15px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .workplace-hub-shell .workplace-hub-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    width: 100%;
+  }
+}
+/* TBBD Workplace Hub — revised desktop design */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-header {
+    flex: 0 0 88px;
+    min-height: 88px;
+    padding: 10px 32px;
+    background: #0B2F5B;
+    border-bottom: 3px solid #12C7D6;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy strong {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-nav {
+    gap: 32px;
+  }
+
+  .workplace-hub-shell .workplace-hub-nav a {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    max-width: 1400px;
+    padding: 24px 24px 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-access,
+  .workplace-hub-shell .workplace-hub-grid,
+  .workplace-hub-shell .workplace-hub-notice {
+    max-width: 1400px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    max-width: 1400px;
+    height: 250px;
+    max-height: 250px;
+    margin-bottom: 28px;
+    border-radius: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px 60px;
+    text-align: left;
+    background: linear-gradient(
+      90deg,
+      rgb(5 26 49 / 58%),
+      rgb(5 26 49 / 24%)
+    );
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    font-size: 56px;
+    line-height: 1.1;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 240px;
+    column-gap: 24px;
+    row-gap: 24px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 240px;
+    height: 240px;
+    padding: 20px 22px;
+    gap: 18px;
+    border-radius: 18px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--blue {
+    --hub-accent: #2563EB;
+    --hub-tint: #DBEAFE;
+    --hub-color: #2563EB;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--green {
+    --hub-accent: #059669;
+    --hub-tint: #D1FAE5;
+    --hub-color: #059669;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple {
+    --hub-accent: #7C3AED;
+    --hub-tint: #EDE9FE;
+    --hub-color: #7C3AED;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--orange {
+    --hub-accent: #D97706;
+    --hub-tint: #FEF3C7;
+    --hub-color: #D97706;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 72px;
+    border: 1px solid var(--hub-accent);
+    border-radius: 16px;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #64748B;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    justify-content: center;
+    width: 220px;
+    min-width: 220px;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 20px;
+    color: #64748B;
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    width: 100%;
+    max-width: none;
+    min-height: 60px;
+    margin: 20px 0 0;
+    padding: 16px 20px;
+    color: #fff;
+    background: #0B2F5B;
+    font-size: 14px;
+  }
+}
+
+/* TBBD Workplace Hub — final enterprise desktop corrections */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-header {
+    flex-basis: 88px;
+    min-height: 88px;
+    background: #082B55;
+    border-bottom: 3px solid #12C7D6;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    color: #DCE7F5;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    max-width: 1400px;
+    padding: 16px 24px 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    height: 250px;
+    max-height: 250px;
+    margin-bottom: 24px;
+    border-radius: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    background: rgba(0, 20, 60, 0.35);
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 220px;
+    column-gap: 24px;
+    row-gap: 24px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 220px;
+    height: 220px;
+    padding: 20px 24px;
+    gap: 17px;
+    border-radius: 18px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover {
+    transform: translateY(-3px);
+    border-color: #e0e9f2;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: block;
+    align-self: stretch;
+    flex: 0 0 1px;
+    width: 1px;
+    background: #e7edf3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 72px;
+    border: 0;
+    border-radius: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #64748B;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 220px;
+    width: 220px;
+    min-width: 220px;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 20px;
+    color: #64748B;
+    font-size: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    min-height: 60px;
+    margin-top: 20px;
+    color: #fff;
+    background: #082B55;
+    font-size: 14px;
+  }
+}
+
+/* TBBD Workplace Hub — restore compact original desktop cards */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-auto-rows: minmax(160px, auto);
+    column-gap: 16px;
+    row-gap: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 160px;
+    height: auto;
+    padding: 20px;
+    gap: 17px;
+    border: 1px solid #e0e9f2;
+    border-radius: 15px;
+    box-shadow: 0 5px 17px rgb(15 37 69 / 7%);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--blue {
+    --hub-accent: #2563EB;
+    --hub-tint: #DBEAFE;
+    --hub-color: #2563EB;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--green {
+    --hub-accent: #059669;
+    --hub-tint: #D1FAE5;
+    --hub-color: #059669;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple {
+    --hub-accent: #7C3AED;
+    --hub-tint: #EDE9FE;
+    --hub-color: #7C3AED;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--orange {
+    --hub-accent: #D97706;
+    --hub-tint: #FEF3C7;
+    --hub-color: #D97706;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--hub-tint);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .045em;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    color: #17324f;
+    font-size: clamp(16px, 1.5vw, 19px);
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #52657a;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--hub-accent);
+    box-shadow: 0 13px 27px rgb(15 37 69 / 12%);
+  }
+}
+
+
+/* TBBD Workplace Hub — final centered banner and 80px header */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-header {
+    flex: 0 0 80px;
+    flex-basis: 80px;
+    height: 80px;
+    min-height: 80px;
+    padding: 10px 32px;
+    background: #082B55;
+    border-bottom: 3px solid #12C7D6;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy strong {
+    font-size: 26px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    color: #DCE7F5;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    width: calc(100% - 48px);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 0 0;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    width: 100%;
+    max-width: 1200px;
+    height: 240px;
+    min-height: 240px;
+    max-height: 240px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 16px 40px;
+    text-align: center;
+    background: rgba(0, 20, 60, 0.55);
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    margin: 0 0 8px;
+    color: #FFFFFF;
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-accent {
+    display: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    margin: 8px 0 0;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 220px;
+    column-gap: 24px;
+    row-gap: 24px;
+    max-width: 1200px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 220px;
+    height: 220px;
+    padding: 20px 24px;
+    gap: 17px;
+    border: 1px solid #E0E9F2;
+    border-radius: 18px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--blue {
+    --hub-accent: #2563EB;
+    --hub-tint: #DBEAFE;
+    --hub-color: #2563EB;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--green {
+    --hub-accent: #059669;
+    --hub-tint: #D1FAE5;
+    --hub-color: #059669;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple {
+    --hub-accent: #7C3AED;
+    --hub-tint: #EDE9FE;
+    --hub-color: #7C3AED;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--orange {
+    --hub-accent: #D97706;
+    --hub-tint: #FEF3C7;
+    --hub-color: #D97706;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 72px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--hub-tint);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #64748B;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 220px;
+    width: 220px;
+    min-width: 220px;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 20px;
+    color: #64748B;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    min-height: 60px;
+    margin-top: 20px;
+    color: #FFFFFF;
+    background: #082B55;
+    font-size: 14px;
+  }
+}
+
+
+/* TBBD Workplace Hub — restore approved compact cards and page width */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-main {
+    max-width: 1400px;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-auto-rows: minmax(160px, auto);
+    column-gap: 16px;
+    row-gap: 16px;
+    max-width: 1400px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 160px;
+    height: auto;
+    padding: 20px;
+    gap: 17px;
+    border: 1px solid #e0e9f2;
+    border-radius: 15px;
+    box-shadow: 0 5px 17px rgb(15 37 69 / 7%);
+    box-sizing: border-box;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--hub-tint);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .045em;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    color: #17324f;
+    font-size: clamp(16px, 1.5vw, 19px);
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #52657a;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--hub-accent);
+    box-shadow: 0 13px 27px rgb(15 37 69 / 12%);
+  }
+}
+
+
+/* TBBD Workplace Hub — final production design specification */
+@media (min-width: 1024px) {
+  .workplace-hub-shell .workplace-hub-header {
+    flex: 0 0 80px;
+    height: 80px;
+    min-height: 80px;
+    padding: 10px 32px;
+    background: #082B55;
+    border-bottom: 3px solid #12C7D6;
+    align-items: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy strong {
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .workplace-hub-shell .workplace-hub-brand-copy small {
+    color: #DCE7F5;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .workplace-hub-shell .workplace-hub-nav a {
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .workplace-hub-shell .workplace-hub-main {
+    width: calc(100% - 48px);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 0 0;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero {
+    width: 100%;
+    max-width: 1200px;
+    height: 240px;
+    min-height: 240px;
+    max-height: 240px;
+    margin: 0 auto 24px;
+    border-radius: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 40px;
+    text-align: center;
+    background: linear-gradient(
+      90deg,
+      rgba(3, 24, 54, 0.78),
+      rgba(3, 35, 72, 0.48),
+      rgba(3, 24, 54, 0.78)
+    );
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    margin: 0 0 8px;
+    color: #FFFFFF;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: clamp(16px, 1.5vw, 19px);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-accent {
+    display: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    margin: 8px 0 0;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(230px, auto);
+    column-gap: 20px;
+    row-gap: 20px;
+    max-width: 1200px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 230px;
+    height: auto;
+    padding: 24px;
+    gap: 17px;
+    border: 1px solid #dce7f3;
+    border-radius: 20px;
+    background: rgb(255 255 255 / 96%);
+    box-shadow: 0 8px 24px rgb(22 48 79 / 7%), 0 1px 3px rgb(22 48 79 / 4%);
+    box-sizing: border-box;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .workplace-hub-shell .workplace-hub-card::before {
+    inset: 0 0 auto;
+    width: auto;
+    height: 5px;
+    background: var(--hub-accent);
+    pointer-events: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card::after {
+    position: absolute;
+    z-index: 0;
+    top: -70px;
+    right: -65px;
+    width: 145px;
+    height: 145px;
+    border-radius: 50%;
+    background: var(--hub-glow);
+    content: "";
+    pointer-events: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--blue {
+    --hub-accent: linear-gradient(90deg, #2563eb, #38bdf8);
+    --hub-glow: rgb(59 130 246 / 10%);
+    --hub-tint: linear-gradient(145deg, #1d4ed8, #2563eb 55%, #0891b2);
+    --hub-color: #1d4ed8;
+    --hub-label-bg: #e5efff;
+    --hub-label-text: #1d4ed8;
+    --hub-button: linear-gradient(105deg, #1d4ed8, #2563eb);
+    --hub-button-hover: #174ca8;
+    border-color: #d6e6fb;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--green {
+    --hub-accent: linear-gradient(90deg, #059669, #2dd4bf);
+    --hub-glow: rgb(16 185 129 / 11%);
+    --hub-tint: linear-gradient(145deg, #047857, #059669 55%, #0d9488);
+    --hub-color: #047857;
+    --hub-label-bg: #dcfce9;
+    --hub-label-text: #047857;
+    --hub-button: linear-gradient(105deg, #047857, #0d9488);
+    --hub-button-hover: #066b4e;
+    border-color: #d2eee6;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--purple {
+    --hub-accent: linear-gradient(90deg, #7c3aed, #c084fc);
+    --hub-glow: rgb(139 92 246 / 11%);
+    --hub-tint: linear-gradient(145deg, #5b21b6, #7c3aed 55%, #4f46e5);
+    --hub-color: #6d28d9;
+    --hub-label-bg: #f0e7ff;
+    --hub-label-text: #6d28d9;
+    --hub-button: linear-gradient(105deg, #6d28d9, #7c3aed);
+    --hub-button-hover: #5726a4;
+    border-color: #e5ddfb;
+  }
+
+  .workplace-hub-shell .workplace-hub-card--orange {
+    --hub-accent: linear-gradient(90deg, #d97706, #fbbf24);
+    --hub-glow: rgb(245 158 11 / 12%);
+    --hub-tint: linear-gradient(145deg, #92400e, #b45309 55%, #c2410c);
+    --hub-color: #92400e;
+    --hub-label-bg: #fff0d5;
+    --hub-label-text: #92400e;
+    --hub-button: linear-gradient(105deg, #92400e, #b45309);
+    --hub-button-hover: #854608;
+    border-color: #f4e5c9;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    border: 1px solid rgb(255 255 255 / 60%);
+    border-radius: 17px;
+    box-shadow: 0 7px 16px rgb(15 23 42 / 13%);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    color: #fff;
+    stroke: currentColor;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    padding: 7px 11px;
+    color: var(--hub-label-text);
+    background: var(--hub-label-bg);
+    border: 1px solid rgb(148 163 184 / 18%);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    color: #fff;
+    background: var(--hub-button);
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgb(15 37 69 / 12%);
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  }
+
+  .workplace-hub-shell .workplace-hub-action:hover {
+    background: var(--hub-button-hover);
+    filter: brightness(1.04);
+    box-shadow: 0 6px 15px rgb(15 37 69 / 18%);
+    transform: translateY(-1px);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: block;
+    align-self: stretch;
+    flex: 0 0 1px;
+    width: 1px;
+    background: #E7EDF3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--hub-tint);
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    color: #16324F;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-notice {
+    margin-top: 20px;
+    color: #64748B;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-footer {
+    min-height: 60px;
+    height: 60px;
+    margin-top: 20px;
+    color: #FFFFFF;
+    background: #082B55;
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   TBBD WORKPLACE HUB — CONSOLIDATED PAGE AND CARD LAYOUT
+   Preserves the current header, banner, links and authentication.
+   ========================================================= */
+
+.workplace-hub-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  height: auto;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.workplace-hub-shell .workplace-hub-main {
+  flex: 1 0 auto;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.workplace-hub-shell .workplace-hub-access {
+  width: 100%;
+}
+
+.workplace-hub-shell .workplace-hub-grid {
+  display: grid;
+  width: 100%;
+  max-width: 1000px;
+  margin-inline: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.workplace-hub-shell .workplace-hub-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  padding: 18px 22px;
+  gap: 7px;
+  overflow: hidden;
+  color: #102f52;
+  text-align: center;
+  text-decoration: none;
+  background: #FBFDFF;
+  border: 1px solid #E5EDF5;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
+}
+
+.workplace-hub-shell .workplace-hub-card:nth-child(1) {
+  --hub-accent: linear-gradient(90deg, #2563eb, #38bdf8);
+  --hub-glow: rgb(59 130 246 / 10%);
+  --hub-label-bg: #e5efff;
+  --hub-label-text: #1d4ed8;
+  --hub-button: #1d64d8;
+  --hub-button-hover: #174ca8;
+}
+
+.workplace-hub-shell .workplace-hub-card:nth-child(2) {
+  --hub-accent: linear-gradient(90deg, #059669, #2dd4bf);
+  --hub-glow: rgb(16 185 129 / 11%);
+  --hub-label-bg: #dcfce9;
+  --hub-label-text: #047857;
+  --hub-button: #07845f;
+  --hub-button-hover: #066b4e;
+}
+
+.workplace-hub-shell .workplace-hub-card:nth-child(3) {
+  --hub-accent: linear-gradient(90deg, #7c3aed, #c084fc);
+  --hub-glow: rgb(139 92 246 / 11%);
+  --hub-label-bg: #f0e7ff;
+  --hub-label-text: #6d28d9;
+  --hub-button: #7138c8;
+  --hub-button-hover: #5726a4;
+}
+
+.workplace-hub-shell .workplace-hub-card:nth-child(4) {
+  --hub-accent: linear-gradient(90deg, #d97706, #fbbf24);
+  --hub-glow: rgb(245 158 11 / 12%);
+  --hub-label-bg: #fff0d5;
+  --hub-label-text: #92400e;
+  --hub-button: #a85a08;
+  --hub-button-hover: #854608;
+}
+
+.workplace-hub-shell .workplace-hub-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--hub-accent);
+}
+
+.workplace-hub-shell .workplace-hub-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  right: -65px;
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  background: var(--hub-glow);
+  pointer-events: none;
+}
+
+.workplace-hub-shell .workplace-hub-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 17px 35px rgb(15 37 69 / 13%);
+}
+
+.workplace-hub-shell .workplace-hub-card:focus-visible {
+  outline: 3px solid #0ea5e9;
+  outline-offset: 4px;
+}
+
+.workplace-hub-shell .workplace-hub-card-icon {
+  display: flex;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 8px;
+  border: 0;
+  border-radius: 15px;
+  box-shadow: none;
+}
+
+.workplace-hub-shell .workplace-hub-icon-candidate {
+  color: #2563eb;
+  background: #e5efff;
+}
+
+.workplace-hub-shell .workplace-hub-icon-register {
+  color: #07845f;
+  background: #dcfce9;
+}
+
+.workplace-hub-shell .workplace-hub-icon-employer {
+  color: #7138c8;
+  background: #f0e7ff;
+}
+
+.workplace-hub-shell .workplace-hub-icon-staff {
+  color: #a85a08;
+  background: #fff0d5;
+}
+
+.workplace-hub-shell .workplace-hub-card-icon svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.workplace-hub-shell .workplace-hub-card-divider {
+  display: none;
+}
+
+.workplace-hub-shell .workplace-hub-card-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 7px;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-label {
+  display: inline-block;
+  padding: 5px 9px;
+  color: var(--hub-label-text);
+  background: var(--hub-label-bg);
+  border: 1px solid rgb(148 163 184 / 18%);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-card-title {
+  display: block;
+  margin: 0;
+  color: #102f52;
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-card-description {
+  display: block;
+  margin: 0 0 8px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  min-height: 38px;
+  margin-top: auto;
+  padding: 8px 15px;
+  color: #fff;
+  background: var(--hub-button);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgb(15 37 69 / 12%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+.workplace-hub-shell .workplace-hub-card:hover .workplace-hub-action {
+  background: var(--hub-button-hover);
+  box-shadow: 0 6px 15px rgb(15 37 69 / 18%);
+  transform: translateY(-1px);
+}
+
+.workplace-hub-shell .workplace-hub-notice {
+  margin-top: 20px;
+  color: #64748B;
+  font-size: 14px;
+  text-align: center;
+}
+
+.workplace-hub-shell .workplace-hub-footer {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 60px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 680px) {
+  .workplace-hub-shell .workplace-hub-grid {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    min-height: 0;
+    height: auto;
+    padding: 18px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workplace-hub-shell .workplace-hub-card,
+  .workplace-hub-shell .workplace-hub-action {
+    transition: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover,
+  .workplace-hub-shell .workplace-hub-card:hover .workplace-hub-action {
+    transform: none;
+  }
+}
+/* TBBD Workplace Hub — restore approved mobile card layout */
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    flex-direction: initial;
+    align-items: initial;
+    justify-content: initial;
+    min-height: 0;
+    height: auto;
+    padding: 16px;
+    gap: 12px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    font-size: 19px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    font-size: 13px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    grid-column: 2;
+    grid-row: 2;
+    width: 220px;
+    min-width: 0;
+    max-width: 100%;
+    height: 44px;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+}
+
+/* Preserve the existing narrow-phone adjustments */
+@media (max-width: 360px) {
+  .workplace-hub-shell .workplace-hub-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   TBBD WORKPLACE HUB — FINAL RESPONSIVE CARD LAYOUT FIX
+   Desktop: horizontal cards
+   Mobile: icon left, content right, action below
+   Header, hero, navigation and authentication are untouched.
+   ========================================================= */
+
+/* Desktop and tablet */
+@media (min-width: 761px) {
+  .workplace-hub-shell .workplace-hub-grid {
+    display: grid;
+    width: 100%;
+    max-width: 1400px;
+    margin-inline: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(160px, auto);
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    min-height: 160px;
+    height: auto;
+    padding: 20px;
+    gap: 17px;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    display: flex;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: block;
+    flex: 0 0 1px;
+    width: 1px;
+    align-self: stretch;
+    background: #E7EDF3;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: auto;
+    min-width: 0;
+    gap: 7px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title,
+  .workplace-hub-shell .workplace-hub-card-description {
+    width: 100%;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    flex: 0 0 auto;
+    align-self: center;
+    width: auto;
+    max-width: 180px;
+    min-width: 0;
+    min-height: 38px;
+    height: auto;
+    margin: 0 0 0 auto;
+    padding: 9px 12px;
+    white-space: normal;
+    text-align: center;
+    font-size: 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 14px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    flex-direction: initial;
+    align-items: start;
+    justify-content: initial;
+    min-height: 0;
+    height: auto;
+    padding: 16px;
+    gap: 10px 12px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    margin: 0;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    gap: 7px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-label {
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-title {
+    width: 100%;
+    font-size: 19px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-description {
+    width: 100%;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    align-self: start;
+    width: 220px;
+    max-width: 100%;
+    min-width: 0;
+    height: 44px;
+    margin: 4px 0 0;
+    font-size: 14px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+  .workplace-hub-shell .workplace-hub-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   TBBD WORKPLACE HUB — FINAL ENTERPRISE ACCESS CARDS
+   Refined enterprise design
+   Preserve existing branding, card structure and functionality
+   Desktop target: 550px × 160px per card
+   ========================================================= */
+
+/* Workplace Hub hero banner — final desktop dimensions */
+.workplace-hub-shell .workplace-hub-hero {
+  width: 100%;
+  max-width: 1120px;
+  height: 250px;
+  min-height: 250px;
+  max-height: 250px;
+  margin: 0 auto 20px;
+}
+
+/* Desktop grid */
+.workplace-hub-shell .workplace-hub-grid {
+  display: grid;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 160px;
+  gap: 20px;
+}
+
+/* Main card */
+.workplace-hub-shell .workplace-hub-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  height: 160px;
+  min-height: 160px;
+  padding: 18px;
+  gap: 16px;
+  overflow: hidden;
+  text-align: left;
+  background: #FFFFFF;
+  border: 1px solid #E0E9F2;
+  border-radius: 16px;
+  box-shadow: 0 5px 18px rgba(15, 37, 69, 0.07);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* Four-pixel top accent */
+.workplace-hub-shell .workplace-hub-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--hub-accent);
+}
+
+/* Decorative corner circle */
+.workplace-hub-shell .workplace-hub-card::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -35px;
+  right: -35px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--hub-glow);
+  opacity: .75;
+  pointer-events: none;
+}
+
+/* Keep card content above decorative elements */
+.workplace-hub-shell .workplace-hub-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Individual card colours */
+
+/* Candidate Sign In */
+.workplace-hub-shell .workplace-hub-card:nth-child(1) {
+  --hub-accent: #2563EB;
+  --hub-glow: rgba(37, 99, 235, .10);
+  --hub-label-bg: #DBEAFE;
+  --hub-label-text: #2563EB;
+  --hub-button: #2563EB;
+}
+
+/* New Candidate Registration */
+.workplace-hub-shell .workplace-hub-card:nth-child(2) {
+  --hub-accent: #059669;
+  --hub-glow: rgba(5, 150, 105, .10);
+  --hub-label-bg: #D1FAE5;
+  --hub-label-text: #059669;
+  --hub-button: #059669;
+}
+
+/* Employer Access Request */
+.workplace-hub-shell .workplace-hub-card:nth-child(3) {
+  --hub-accent: #7C3AED;
+  --hub-glow: rgba(124, 58, 237, .10);
+  --hub-label-bg: #EDE9FE;
+  --hub-label-text: #7C3AED;
+  --hub-button: #7C3AED;
+}
+
+/* Staff and Administrator Sign In */
+.workplace-hub-shell .workplace-hub-card:nth-child(4) {
+  --hub-accent: #D97706;
+  --hub-glow: rgba(217, 119, 6, .10);
+  --hub-label-bg: #FEF3C7;
+  --hub-label-text: #D97706;
+  --hub-button: #D97706;
+}
+
+/* Icon container */
+.workplace-hub-shell .workplace-hub-card-icon {
+  display: flex;
+  flex: 0 0 56px;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+/* Candidate icon */
+.workplace-hub-shell .workplace-hub-icon-candidate {
+  color: #2563EB;
+  background: #DBEAFE;
+}
+
+/* New Candidate Registration — green User Plus styling */
+.workplace-hub-shell .workplace-hub-icon-register {
+  color: #059669;
+  background: #D1FAE5;
+}
+
+/* Employer icon */
+.workplace-hub-shell .workplace-hub-icon-employer {
+  color: #7C3AED;
+  background: #EDE9FE;
+}
+
+/* Staff and Administrator — preserve Microsoft four-colour logo */
+.workplace-hub-shell .workplace-hub-icon-staff {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Card divider */
+.workplace-hub-shell .workplace-hub-card-divider {
+  display: block;
+  flex: 0 0 2px;
+  align-self: stretch;
+  width: 2px;
+  background: #D8E4EF;
+  border-radius: 2px;
+  opacity: 1;
+}
+
+/* Text content */
+.workplace-hub-shell .workplace-hub-card-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: auto;
+  max-width: 320px;
+  min-width: 0;
+  gap: 6px;
+  text-align: left;
+}
+
+/* Category labels */
+.workplace-hub-shell .workplace-hub-label {
+  display: inline-block;
+  padding: 4px 8px;
+  color: var(--hub-label-text);
+  background: var(--hub-label-bg);
+  border: 0;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+/* Card titles */
+.workplace-hub-shell .workplace-hub-card-title {
+  margin: 0;
+  color: #17324F;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: left;
+}
+
+/* Card descriptions */
+.workplace-hub-shell .workplace-hub-card-description {
+  margin: 0;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+}
+
+/* Desktop action buttons */
+.workplace-hub-shell .workplace-hub-action {
+  display: inline-flex;
+  flex: 0 0 180px;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  box-sizing: border-box;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+  height: 42px;
+  min-height: 42px;
+  margin: 0 0 0 auto;
+  padding: 0 8px;
+  color: #FFFFFF;
+  background: var(--hub-button);
+  border: 0;
+  border-radius: 10px;
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+}
+
+/* Card hover effect */
+.workplace-hub-shell .workplace-hub-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 37, 69, .12);
+}
+
+/* Notice spacing */
+.workplace-hub-shell .workplace-hub-notice {
+  margin-top: 12px;
+}
+
+
+/* Mobile layout */
+@media (max-width: 760px) {
+
+  /* Single-column access cards */
+  .workplace-hub-shell .workplace-hub-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 20px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card {
+    display: grid;
+    grid-template-columns: 56px 2px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+    padding: 16px;
+    gap: 10px 12px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 56px;
+    height: 56px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-divider {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-content {
+    grid-column: 3;
+    grid-row: 1;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .workplace-hub-shell .workplace-hub-action {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: start;
+    width: 180px;
+    min-width: 0;
+    max-width: 100%;
+    height: 42px;
+    margin: 0;
+  }
+
+  /* Mobile hero banner refinement */
+  .workplace-hub-shell .workplace-hub-hero {
+    height: 180px;
+    min-height: 180px;
+    max-height: 180px;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h1 {
+    color: #ffffff;
+    font-size: 26px;
+    line-height: 1.2;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    text-wrap: balance;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay h2 {
+    color: #12C7D6;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    text-wrap: balance;
+  }
+
+  .workplace-hub-shell .workplace-hub-hero-overlay p {
+    display: none;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+
+  .workplace-hub-shell .workplace-hub-card {
+    grid-template-columns: 44px 2px minmax(0, 1fr);
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .workplace-hub-shell .workplace-hub-card-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Reduced-motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .workplace-hub-shell .workplace-hub-card {
+    transition: none;
+  }
+
+  .workplace-hub-shell .workplace-hub-card:hover {
+    transform: none;
+  }
+}

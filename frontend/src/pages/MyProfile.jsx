@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
-import { getAccessToken } from '../utils/auth'
+import { authenticatedFetch } from '../utils/auth'
 
 export default function MyProfile({ auth }) {
   const name = auth?.user?.name || 'Employee'
@@ -14,16 +14,19 @@ export default function MyProfile({ auth }) {
     'Employee'
 
   const [profile, setProfile] = useState({
-    full_name: name,
-    primary_email: email !== 'Not available'
-      ? email
-      : 'admin@talentbridgebd.com',
-    phone: '+8801713007477',
-    office_phone: '+880255040800',
-    organization_email: 'admin_tbbd@loyaltrademanagement.com',
+    full_name: '',
+    primary_email: email !== 'Not available' ? email : '',
+    phone: '',
+    office_phone: '',
+    organization_email: '',
   })
 
-  const displayName = profile.full_name || name
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [draft, setDraft] = useState(profile)
+  const [loading, setLoading] = useState(true)
+
+  const displayName = profile.full_name || (loading ? name : 'Employee')
 
   const initials = displayName
     .split(/\s+/)
@@ -32,10 +35,6 @@ export default function MyProfile({ auth }) {
     .map((part) => part[0])
     .join('')
     .toUpperCase()
-
-  const [isEditing, setIsEditing] = useState(false)
-  const [draft, setDraft] = useState(profile)
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -45,32 +44,20 @@ export default function MyProfile({ auth }) {
 
     async function loadProfile() {
       try {
-        const accessToken = await getAccessToken()
-
-        const response = await fetch('/api/profile', {
-          credentials: 'include',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-
+        const response = await authenticatedFetch('/api/profile')
         if (!response.ok) {
-          throw new Error('Unable to load profile')
+          const body = await response.text()
+          throw new Error(body || `Unable to load profile (${response.status})`)
         }
-
         const data = await response.json()
         const loadedProfile = {
-          full_name: data.profile?.full_name || name,
+          full_name: data.profile?.full_name?.trim() || '',
           primary_email:
             data.profile?.primary_email ||
-            (email !== 'Not available'
-              ? email
-              : 'admin@talentbridgebd.com'),
-          phone: data.profile?.phone || '+8801713007477',
-          office_phone: data.profile?.office_phone || '+880255040800',
-          organization_email:
-            data.profile?.organization_email ||
-            'admin_tbbd@loyaltrademanagement.com',
+            (email !== 'Not available' ? email : ''),
+          phone: data.profile?.phone || '',
+          office_phone: data.profile?.office_phone || '',
+          organization_email: data.profile?.organization_email || '',
         }
 
         if (!cancelled) {
@@ -125,22 +112,24 @@ export default function MyProfile({ auth }) {
     setError('')
 
     try {
-      const accessToken = await getAccessToken()
-
-      const response = await fetch('/api/profile', {
+      const response = await authenticatedFetch('/api/profile', {
         method: 'PUT',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(draft),
       })
-
-      const data = await response.json()
-
+      const responseText = await response.text()
+      let data = {}
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText)
+        } catch {
+          throw new Error(`Unable to save profile: non-JSON response (${response.status})`)
+        }
+      }
       if (!response.ok) {
-        throw new Error(data.detail || 'Unable to save profile')
+        throw new Error(data.detail || `Unable to save profile (${response.status})`)
       }
 
       const savedProfile = {
@@ -220,26 +209,26 @@ export default function MyProfile({ auth }) {
 
           <div className="profile-information-item">
             <span>Mobile Phone</span>
-            <strong>{loading ? 'Loading...' : profile.phone}</strong>
+            <strong>{loading ? 'Loading...' : profile.phone || 'Not set'}</strong>
           </div>
 
           <div className="profile-information-item">
             <span>Primary Email</span>
             <strong>
-              {loading ? 'Loading...' : profile.primary_email}
+              {loading ? 'Loading...' : profile.primary_email || 'Not set'}
             </strong>
           </div>
 
           <div className="profile-information-item">
             <span>Office Phone</span>
             <strong>
-              {loading ? 'Loading...' : profile.office_phone}
+              {loading ? 'Loading...' : profile.office_phone || 'Not set'}
             </strong>
           </div>
           <div className="profile-information-item">
             <span>Organization Email</span>
             <strong>
-              {loading ? 'Loading...' : profile.organization_email}
+              {loading ? 'Loading...' : profile.organization_email || 'Not set'}
             </strong>
           </div>
         </div>
