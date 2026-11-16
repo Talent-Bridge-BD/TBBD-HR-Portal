@@ -1,4 +1,4 @@
-import workplaceHubBanner from '../assets/images/banner-hub.jpeg'
+import workplaceHubBanner from '../assets/images/hubbanner.jpeg'
 
 export default function WorkplaceHub({
   staffLoginUrl,
