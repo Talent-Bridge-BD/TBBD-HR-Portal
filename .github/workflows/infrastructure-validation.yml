@@ -33,5 +33,16 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
+            az bicep install
             az bicep version
-            find infrastructure/bicep -name "*.bicep" -print
+
+            mapfile -t templates < <(find infrastructure/bicep -type f -name "*.bicep" | sort)
+            if [ ${#templates[@]} -eq 0 ]; then
+              echo "No Bicep templates found under infrastructure/bicep."
+              exit 1
+            fi
+
+            for template in "${templates[@]}"; do
+              echo "Validating ${template}"
+              az bicep build --file "${template}" --stdout > /dev/null
+            done
