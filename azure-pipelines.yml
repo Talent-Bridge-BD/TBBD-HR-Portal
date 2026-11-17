@@ -1,4 +1,3 @@
-
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
 # CI validation only - no deployment or production changes
@@ -35,20 +34,19 @@ steps:
       echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Verify Python 3.11 environment
+  # Python 3.11 - native ARM64 Homebrew installation
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
       echo "Checking Python environment..."
-
       command -v python3.11
       python3.11 --version
       python3.11 -m pip --version
       python3.11 -c "import platform; print('Architecture:', platform.machine())"
     displayName: 'Verify Python 3.11 environment'
 
-  # Install backend dependencies and CI-only pytest
+  # Install application dependencies and CI-only test dependency
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
@@ -59,12 +57,10 @@ steps:
       # Install pytest for CI testing only.
       # Keep pytest out of production requirements.txt.
       python3.11 -m pip install pytest
-
-      # Verify pytest is available.
       python3.11 -m pytest --version
     displayName: 'Install backend dependencies'
 
-  # Set Node.js 20
+  # Node.js 20
   - task: UseNode@1
     displayName: 'Set Node.js version'
     inputs:
@@ -73,7 +69,6 @@ steps:
   # Verify Node.js environment
   - script: |
       set -eu
-
       node --version
       npm --version
     displayName: 'Verify Node.js environment'
@@ -81,7 +76,6 @@ steps:
   # Install frontend dependencies
   - script: |
       set -eu
-
       npm ci
     workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
@@ -89,7 +83,6 @@ steps:
   # Build React frontend
   - script: |
       set -eu
-
       npm run build
     workingDirectory: 'frontend'
     displayName: 'Build React frontend'
@@ -99,18 +92,15 @@ steps:
       set -eu
 
       echo "Checking Vite build output..."
-
       test -f frontend/dist/index.html
       test -f frontend/dist/redirect.html
       test -d frontend/dist/assets
 
       echo "Copying frontend build into root dist directory..."
-
       mkdir -p dist
       cp -R frontend/dist/. dist/
 
       echo "Verifying application frontend assets..."
-
       test -f dist/index.html
       test -f dist/redirect.html
       test -d dist/assets
@@ -118,11 +108,10 @@ steps:
       echo "Frontend assets are ready for backend tests."
     displayName: 'Prepare frontend assets for backend tests'
 
-  # Validate Python source
+  # Validate Python source after frontend build
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
-
       python3.11 -m compileall -q .
     displayName: 'Validate Python source'
 
@@ -130,7 +119,6 @@ steps:
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
-
       python3.11 -m pytest -q --ignore=test_email_send.py
     displayName: 'Run backend tests'
 
