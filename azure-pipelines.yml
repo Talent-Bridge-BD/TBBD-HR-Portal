@@ -17,9 +17,11 @@ variables:
   nodeVersion: '20.x'
 
 steps:
+  # Checkout repository
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
 
+  # Display build information
   - script: |
       echo "=========================================="
       echo "TBBD HR Portal - Azure DevOps CI"
@@ -33,10 +35,12 @@ steps:
       echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Python 3.11 environment
+  # Verify Python 3.11 environment
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
+
+      echo "Checking Python environment..."
 
       command -v python3.11
       python3.11 --version
@@ -44,43 +48,81 @@ steps:
       python3.11 -c "import platform; print('Architecture:', platform.machine())"
     displayName: 'Verify Python 3.11 environment'
 
-  # Backend dependencies and CI-only pytest
+  # Install backend dependencies and CI-only pytest
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install -r requirements.txt
+
+      # Install pytest for CI testing only.
+      # Keep pytest out of production requirements.txt.
       python3.11 -m pip install pytest
+
+      # Verify pytest is available.
       python3.11 -m pytest --version
     displayName: 'Install backend dependencies'
 
-  # Node.js 20
+  # Set Node.js 20
   - task: UseNode@1
     displayName: 'Set Node.js version'
     inputs:
       version: '$(nodeVersion)'
 
+  # Verify Node.js environment
   - script: |
+      set -eu
+
       node --version
       npm --version
     displayName: 'Verify Node.js environment'
 
-  # Build frontend BEFORE importing the application in pytest.
+  # Install frontend dependencies
   - script: |
+      set -eu
+
       npm ci
     workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
 
+  # Build React frontend
   - script: |
+      set -eu
+
       npm run build
     workingDirectory: 'frontend'
     displayName: 'Build React frontend'
+
+  # Copy Vite output to the root directory expected by main.py
+  - script: |
+      set -eu
+
+      echo "Checking Vite build output..."
+
+      test -f frontend/dist/index.html
+      test -f frontend/dist/redirect.html
+      test -d frontend/dist/assets
+
+      echo "Copying frontend build into root dist directory..."
+
+      mkdir -p dist
+      cp -R frontend/dist/. dist/
+
+      echo "Verifying application frontend assets..."
+
+      test -f dist/index.html
+      test -f dist/redirect.html
+      test -d dist/assets
+
+      echo "Frontend assets are ready for backend tests."
+    displayName: 'Prepare frontend assets for backend tests'
 
   # Validate Python source
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
+
       python3.11 -m compileall -q .
     displayName: 'Validate Python source'
 
@@ -88,6 +130,7 @@ steps:
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
+
       python3.11 -m pytest -q --ignore=test_email_send.py
     displayName: 'Run backend tests'
 
@@ -99,5 +142,6 @@ steps:
       echo "Python source validation: completed"
       echo "Backend tests: passed"
       echo "Frontend production build: completed"
+      echo "Frontend assets: verified"
       echo "No deployment or production changes performed."
     displayName: 'CI build summary'
