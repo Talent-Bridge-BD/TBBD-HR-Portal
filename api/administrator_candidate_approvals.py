@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
@@ -9,6 +10,16 @@ from services.local_auth import get_request_principal
 
 
 logger = logging.getLogger(__name__)
+
+
+def _log_approval_failure(message: str, error: Exception) -> None:
+    """Log stack frames and exception type without untrusted message text."""
+    logger.error(
+        "%s; exception_type=%s; traceback=%s",
+        message,
+        type(error).__name__,
+        "".join(traceback.format_tb(error.__traceback__)),
+    )
 
 
 router = APIRouter(
@@ -62,8 +73,8 @@ def list_candidate_approvals(
             limit=limit + 1,
             offset=offset,
         )
-    except ValueError:
-        logger.exception("Candidate approval list query failed")
+    except ValueError as exc:
+        _log_approval_failure("Candidate approval list query failed", exc)
         raise HTTPException(
             status_code=422,
             detail="The candidate approval request could not be processed.",
@@ -99,8 +110,8 @@ def review_candidate(
             reviewed_by=_reviewer_id(request),
             approval_notes=payload.approval_notes,
         )
-    except ValueError:
-        logger.exception("Candidate review request failed")
+    except ValueError as exc:
+        _log_approval_failure("Candidate review request failed", exc)
         raise HTTPException(
             status_code=422,
             detail="The candidate review could not be completed.",
@@ -145,8 +156,8 @@ def bulk_approve_candidates(
                 reviewed_by=reviewer,
                 approval_notes=payload.approval_notes,
             )
-        except ValueError:
-            logger.exception("Bulk candidate approval operation failed")
+        except ValueError as exc:
+            _log_approval_failure("Bulk candidate approval operation failed", exc)
             results.append({
                 "entra_object_id": entra_object_id,
                 "status": "error",
