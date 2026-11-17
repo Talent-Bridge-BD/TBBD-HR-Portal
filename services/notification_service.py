@@ -6,6 +6,33 @@ from repositories.administrator_notifications import (
 )
 
 
+MAX_NOTIFICATION_HTML_LENGTH = 1_000_000
+MAX_NOTIFICATION_VALUE_LENGTH = 100_000
+
+
+def _strip_html_tags(value: str) -> str:
+    """Remove complete HTML-like tags in one linear pass.
+
+    An unmatched '<' is retained, matching the previous regex behavior.
+    """
+    chunks = []
+    segment_start = 0
+    tag_start = -1
+
+    for index, character in enumerate(value):
+        if tag_start < 0:
+            if character == "<":
+                tag_start = index
+        elif character == ">":
+            if index > tag_start + 1:
+                chunks.append(value[segment_start:tag_start])
+                segment_start = index + 1
+            tag_start = -1
+
+    chunks.append(value[segment_start:])
+    return "".join(chunks)
+
+
 EMAIL_SENDERS = {
     "APPLICATION_RECEIVED": "applications@talentbridgebd.com",
     "INTERVIEW_SCHEDULED": "interviews@talentbridgebd.com",
@@ -68,7 +95,7 @@ class NotificationService:
             r"\s+",
             " ",
             html_module.unescape(
-                re.sub(r"<[^>]+>", " ", html_body)
+                _strip_html_tags(html_body).replace("<", " ")
             ),
         ).strip() or subject
 
