@@ -10,6 +10,7 @@ from api.employer_access_requests import (
 )
 
 import os
+import logging
 from fastapi import FastAPI
 from pathlib import Path
 
@@ -48,6 +49,9 @@ from api.notifications import router as notifications_router
 from api.administrator_notifications import (
     router as administrator_notifications_router
 )
+
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI()
 
@@ -183,9 +187,21 @@ async def get_current_user(request: Request):
                 )
             )
         except Exception as ex:
-            print(
-                f"[ROLE LOOKUP FAILED] {type(ex).__name__}: {ex}",
-                flush=True,
+            sqlstate = next(
+                (
+                    argument
+                    for argument in getattr(ex, "args", ())
+                    if isinstance(argument, str)
+                    and len(argument) == 5
+                    and argument.isascii()
+                    and argument.isalnum()
+                ),
+                "unavailable",
+            )
+            logger.error(
+                "Candidate role lookup failed; exception_type=%s sqlstate=%s",
+                type(ex).__name__,
+                sqlstate,
             )
             candidate_role_active = False
 
