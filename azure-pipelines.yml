@@ -1,4 +1,3 @@
-
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
 # CI validation only - no deployment or production changes
@@ -17,10 +16,14 @@ variables:
   nodeVersion: '20.x'
 
 steps:
+  # Checkout repository
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
 
+  # Display build and agent information
   - script: |
+      set -eu
+
       echo "=========================================="
       echo "TBBD HR Portal - Azure DevOps CI"
       echo "=========================================="
@@ -33,8 +36,8 @@ steps:
       echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Python 3.11 - native ARM64 Homebrew installation
-
+  # Verify native ARM64 Homebrew Python 3.11
+  # Create an isolated CI virtual environment
   - script: |
       set -eu
 
@@ -42,85 +45,94 @@ steps:
 
       echo "Checking Python environment..."
 
+      test -x /opt/homebrew/bin/python3.11
+
       command -v python3.11
       python3.11 --version
-      python3.11 -m pip --version
 
-      python3.11 -c "import platform; print('Architecture:', platform.machine())"
+      python3.11 -c "import platform; print('Architecture:', platform.machine()); assert platform.machine() == 'arm64', 'Expected Apple Silicon ARM64 Python'"
+
+      python3.11 -m venv "$(Agent.TempDirectory)/tbbd-ci-venv"
+
+      "$(Agent.TempDirectory)/tbbd-ci-venv/bin/python" -m pip --version
 
     displayName: 'Verify Python 3.11 environment'
 
-  # Install application dependencies and CI-only test dependency
-
+  # Install backend dependencies in the isolated CI environment
   - script: |
       set -eu
 
-      export PATH="/opt/homebrew/bin:$PATH"
+      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
 
-      python3.11 -m pip install --upgrade pip
-      python3.11 -m pip install -r requirements.txt
+      "$PYTHON" -m pip install --upgrade pip
+      "$PYTHON" -m pip install -r requirements.txt
 
       # Install pytest for CI testing only.
       # Keep pytest out of production requirements.txt.
-      python3.11 -m pip install pytest
+      "$PYTHON" -m pip install pytest
 
-      # Verify pytest is available before running backend tests.
-      python3.11 -m pytest --version
+      # Verify pytest is available.
+      "$PYTHON" -m pytest --version
 
     displayName: 'Install backend dependencies'
 
   # Validate Python source
-
   - script: |
       set -eu
 
-      export PATH="/opt/homebrew/bin:$PATH"
+      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
 
-      python3.11 -m compileall -q .
+      "$PYTHON" -m compileall -q .
 
     displayName: 'Validate Python source'
 
   # Run backend tests
-
   - script: |
       set -eu
 
-      export PATH="/opt/homebrew/bin:$PATH"
+      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
 
-      python3.11 -m pytest -q --ignore=test_email_send.py
+      "$PYTHON" -m pytest -q --ignore=test_email_send.py
 
     displayName: 'Run backend tests'
 
-  # Node.js 20 - supported Azure DevOps installer
-
+  # Install Node.js 20
   - task: UseNode@1
     displayName: 'Set Node.js version'
     inputs:
       version: '$(nodeVersion)'
 
+  # Verify Node.js and npm
   - script: |
+      set -eu
+
       node --version
       npm --version
 
     displayName: 'Verify Node.js environment'
 
-  # React frontend validation
-
+  # Install frontend dependencies
   - script: |
+      set -eu
+
       npm ci
 
     workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
 
+  # Build React frontend
   - script: |
+      set -eu
+
       npm run build
 
     workingDirectory: 'frontend'
     displayName: 'Build React frontend'
 
-  # Final CI summary - only runs if previous steps succeed
-
+  # Final CI summary - runs only if previous steps succeed
   - script: |
+      set -eu
+
       echo "=========================================="
       echo "TBBD HR Portal CI validation completed."
       echo "=========================================="
