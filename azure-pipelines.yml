@@ -1,3 +1,4 @@
+
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
 # CI validation only - no deployment or production changes
@@ -32,66 +33,29 @@ steps:
       echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Python 3.11 - native ARM64 Homebrew installation
-
+  # Python 3.11 environment
   - script: |
       set -eu
-
       export PATH="/opt/homebrew/bin:$PATH"
-
-      echo "Checking Python environment..."
 
       command -v python3.11
       python3.11 --version
       python3.11 -m pip --version
-
       python3.11 -c "import platform; print('Architecture:', platform.machine())"
-
     displayName: 'Verify Python 3.11 environment'
 
-  # Install application dependencies and CI-only test dependency
-
+  # Backend dependencies and CI-only pytest
   - script: |
       set -eu
-
       export PATH="/opt/homebrew/bin:$PATH"
 
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install -r requirements.txt
-
-      # Install pytest for CI testing only.
-      # Keep pytest out of production requirements.txt.
       python3.11 -m pip install pytest
-
-      # Verify pytest is available before running backend tests.
       python3.11 -m pytest --version
-
     displayName: 'Install backend dependencies'
 
-  # Validate Python source
-
-  - script: |
-      set -eu
-
-      export PATH="/opt/homebrew/bin:$PATH"
-
-      python3.11 -m compileall -q .
-
-    displayName: 'Validate Python source'
-
-  # Run backend tests
-
-  - script: |
-      set -eu
-
-      export PATH="/opt/homebrew/bin:$PATH"
-
-      python3.11 -m pytest -q --ignore=test_email_send.py
-
-    displayName: 'Run backend tests'
-
-  # Node.js 20 - supported Azure DevOps installer
-
+  # Node.js 20
   - task: UseNode@1
     displayName: 'Set Node.js version'
     inputs:
@@ -100,25 +64,34 @@ steps:
   - script: |
       node --version
       npm --version
-
     displayName: 'Verify Node.js environment'
 
-  # React frontend validation
-
+  # Build frontend BEFORE importing the application in pytest.
   - script: |
       npm ci
-
     workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
 
   - script: |
       npm run build
-
     workingDirectory: 'frontend'
     displayName: 'Build React frontend'
 
-  # Final CI summary - only runs if previous steps succeed
+  # Validate Python source
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+      python3.11 -m compileall -q .
+    displayName: 'Validate Python source'
 
+  # Run backend tests after frontend assets exist
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+      python3.11 -m pytest -q --ignore=test_email_send.py
+    displayName: 'Run backend tests'
+
+  # Final CI summary
   - script: |
       echo "=========================================="
       echo "TBBD HR Portal CI validation completed."
@@ -127,5 +100,4 @@ steps:
       echo "Backend tests: passed"
       echo "Frontend production build: completed"
       echo "No deployment or production changes performed."
-
     displayName: 'CI build summary'
