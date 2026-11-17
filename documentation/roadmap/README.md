@@ -1,10 +1,11 @@
 # Roadmap Documentation
 
-> Product vision, future capabilities, strategic initiatives, and release planning framework for the TBBD HR Portal platform.
+> Product vision, future capabilities, strategic initiatives, and release
+> planning framework for the TBBD HR Portal platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +18,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal roadmap defines the future direction, planned capabilities, strategic improvements, and long-term evolution of the platform.
+The TBBD HR Portal roadmap defines the future direction, planned capabilities,
+strategic improvements, and long-term evolution of the platform.
 
-The roadmap aligns business requirements, Microsoft cloud innovation, AI capabilities, security improvements, and enterprise workplace transformation objectives.
+The roadmap aligns business requirements, Microsoft cloud innovation, AI
+capabilities, security improvements, and enterprise workplace transformation
+objectives.
 
 ---
 
-# Roadmap Objectives
+## Roadmap Objectives
 
 The roadmap aims to:
 
@@ -38,7 +42,7 @@ The roadmap aims to:
 
 ---
 
-# Roadmap Areas
+## Roadmap Areas
 
 | Area | Description |
 |------|-------------|
@@ -48,11 +52,11 @@ The roadmap aims to:
 
 ---
 
-# Strategic Themes
+## Strategic Themes
 
 The TBBD HR Portal roadmap focuses on:
 
-## Digital Employee Experience
+### Digital Employee Experience
 
 Enhancing:
 
@@ -63,7 +67,7 @@ Enhancing:
 
 ---
 
-## Artificial Intelligence
+### Artificial Intelligence
 
 Expanding:
 
@@ -75,7 +79,7 @@ Expanding:
 
 ---
 
-## Enterprise Automation
+### Enterprise Automation
 
 Improving:
 
@@ -86,7 +90,7 @@ Improving:
 
 ---
 
-## Data and Analytics
+### Data and Analytics
 
 Developing:
 
@@ -97,7 +101,7 @@ Developing:
 
 ---
 
-## Security and Governance
+### Security and Governance
 
 Strengthening:
 
@@ -108,7 +112,7 @@ Strengthening:
 
 ---
 
-# Roadmap Documentation
+## Roadmap Documentation
 
 | Document | Purpose |
 |----------|---------|
@@ -118,7 +122,7 @@ Strengthening:
 
 ---
 
-# Technology Direction
+## Technology Direction
 
 Future platform evolution may include:
 
@@ -132,7 +136,7 @@ Future platform evolution may include:
 
 ---
 
-# Review Cycle
+## Review Cycle
 
 The roadmap should be reviewed:
 
@@ -143,26 +147,26 @@ The roadmap should be reviewed:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Azure-Deployment-Architecture.md
 
-## Governance
+### Governance
 
 - Governance-Framework.md
 - Responsible-AI.md
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Release-Management.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|
