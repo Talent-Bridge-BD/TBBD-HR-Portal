@@ -11,7 +11,6 @@ from api.employer_access_requests import (
 
 import os
 from fastapi import FastAPI
-...
 from pathlib import Path
 
 import requests
