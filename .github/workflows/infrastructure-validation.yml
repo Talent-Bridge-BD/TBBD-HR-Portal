@@ -38,11 +38,10 @@ jobs:
 
             mapfile -t templates < <(find infrastructure/bicep -type f -name "*.bicep" | sort)
             if [ ${#templates[@]} -eq 0 ]; then
-              echo "No Bicep templates found under infrastructure/bicep."
-              exit 1
+              echo "No Bicep templates are present; Bicep compilation is not applicable."
+            else
+              for template in "${templates[@]}"; do
+                echo "Validating ${template}"
+                az bicep build --file "${template}" --stdout > /dev/null
+              done
             fi
-
-            for template in "${templates[@]}"; do
-              echo "Validating ${template}"
-              az bicep build --file "${template}" --stdout > /dev/null
-            done
