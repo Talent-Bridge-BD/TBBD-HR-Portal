@@ -281,13 +281,20 @@ clear navigation.
 
 ## Documentation Library
 
-| Category | Description |
-|----------|-------------|
-| 📐 [Architecture](documentation/architecture/README.md) | Architecture, Azure, identity, security, AI, data, integration, DevOps, and monitoring |
-| 🛡️ [Governance](documentation/governance/README.md) | Governance framework, Responsible AI, compliance, risk management, data governance, and enterprise standards |
-| ⚙️ [Operations](documentation/operations/README.md) | Operational procedures, monitoring, backup, disaster recovery, incident response, business continuity, and maintenance |
-| 💻 [Development](documentation/development/README.md) | Development lifecycle, repository standards, CI/CD, branching strategy, coding standards, and release management |
-| 🚀 [Roadmap](documentation/roadmap/README.md) | Product vision, future capabilities, strategic roadmap, and release planning |
+**Documentation areas**
+
+- 📐 [Architecture](documentation/architecture/README.md) — Architecture, Azure,
+  identity, security, AI, data, integration, DevOps, and monitoring.
+- 🛡️ [Governance](documentation/governance/README.md) — Governance framework,
+  Responsible AI, compliance, risk management, data governance, and standards.
+- ⚙️ [Operations](documentation/operations/README.md) — Operational procedures,
+  monitoring, backup, disaster recovery, incident response, continuity, and
+  maintenance.
+- 💻 [Development](documentation/development/README.md) — Development lifecycle,
+  repository standards, CI/CD, branching, coding standards, and release
+  management.
+- 🚀 [Roadmap](documentation/roadmap/README.md) — Product vision, future
+  capabilities, strategic roadmap, and release planning.
 
 ---
 
