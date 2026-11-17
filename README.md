@@ -15,19 +15,25 @@
 
 ---
 
-# Welcome
+## Welcome
 
 Welcome to the **TBBD HR Portal** repository.
 
-This repository serves as the central documentation and engineering hub for the Talent Bridge BD Human Resources platform.
+This repository serves as the central documentation and engineering hub for the
+Talent Bridge BD Human Resources platform.
 
-It brings together enterprise architecture guidance, governance standards, operational procedures, development practices, infrastructure references, security documentation, AI guidance, and deployment resources required to build and operate a modern HR platform.
+It brings together enterprise architecture guidance, governance standards,
+operational procedures, development practices, infrastructure references,
+security documentation, AI guidance, and deployment resources required to build
+and operate a modern HR platform.
 
-Whether you are an architect, developer, administrator, security engineer, project manager, or stakeholder, this repository provides the resources needed to understand, deploy, manage, and continuously improve the TBBD HR Portal.
+Whether you are an architect, developer, administrator, security engineer,
+project manager, or stakeholder, this repository provides the resources needed
+to understand, deploy, manage, and continuously improve the TBBD HR Portal.
 
 ---
 
-# Table of Contents
+## Table of Contents
 
 - Repository Information
 - Repository Highlights
@@ -46,7 +52,7 @@ Whether you are an architect, developer, administrator, security engineer, proje
 
 ---
 
-# Repository Information
+## Repository Information
 
 | Property | Value |
 |----------|-------|
@@ -63,7 +69,7 @@ Whether you are an architect, developer, administrator, security engineer, proje
 
 ---
 
-# Repository Highlights
+## Repository Highlights
 
 - Enterprise Human Resources Platform
 - Microsoft Azure Native Architecture
@@ -85,9 +91,10 @@ Whether you are an architect, developer, administrator, security engineer, proje
 
 ---
 
-# Overview
+## Overview
 
-TBBD HR Portal is the official enterprise Human Resources platform developed for Talent Bridge BD (TBBD).
+TBBD HR Portal is the official enterprise Human Resources platform developed for
+Talent Bridge BD (TBBD).
 
 The platform modernizes HR operations by combining:
 
@@ -110,13 +117,16 @@ This repository acts as the authoritative source for:
 
 ---
 
-# Vision
+## Vision
 
-To build a secure, intelligent, scalable, and cloud-native Human Resources platform that empowers employees, HR professionals, recruiters, managers, and administrators through Microsoft cloud technologies while maintaining enterprise governance, operational excellence, and responsible AI.
+To build a secure, intelligent, scalable, and cloud-native Human Resources
+platform that empowers employees, HR professionals, recruiters, managers, and
+administrators through Microsoft cloud technologies while maintaining enterprise
+governance, operational excellence, and responsible AI.
 
 ---
 
-# Objectives
+## Objectives
 
 The TBBD HR Portal aims to:
 
@@ -134,9 +144,10 @@ The TBBD HR Portal aims to:
 
 ---
 
-# Project Scope
+## Project Scope
 
-This repository provides enterprise documentation and technical guidance covering:
+This repository provides enterprise documentation and technical guidance
+covering:
 
 - Solution Architecture
 - Azure Deployment Architecture
@@ -157,11 +168,13 @@ This repository provides enterprise documentation and technical guidance coverin
 - Infrastructure as Code
 - Product Roadmap
 
-As the platform evolves, application source code, infrastructure definitions, automation scripts, and reusable enterprise assets will continue to be maintained alongside the documentation.
+As the platform evolves, application source code, infrastructure definitions,
+automation scripts, and reusable enterprise assets will continue to be
+maintained alongside the documentation.
 
 ---
 
-# Key Capabilities
+## Key Capabilities
 
 ## Human Resources
 
@@ -225,7 +238,7 @@ Capabilities include:
 
 ---
 
-# Technology Stack
+## Technology Stack
 
 | Area | Technologies |
 |------|--------------|
@@ -242,7 +255,7 @@ Capabilities include:
 
 ---
 
-# Quick Start
+## Quick Start
 
 For new contributors and stakeholders, review documentation in this order:
 
@@ -256,25 +269,27 @@ For new contributors and stakeholders, review documentation in this order:
 
 ---
 
-# Documentation
+## Documentation
 
 The repository follows a modular enterprise documentation approach.
 
-Technical, operational, governance, security, and strategic content is organized into dedicated documentation areas to ensure maintainability, scalability, and clear navigation.
+Technical, operational, governance, security, and strategic content is organized
+into dedicated documentation areas to ensure maintainability, scalability, and
+clear navigation.
 
 ## Documentation Library
 
 | Category | Description |
 |----------|-------------|
-| 📐 [Architecture](documentation/architecture/README.md) | Enterprise architecture, Azure design, identity, security, AI, data, integration, DevOps, and monitoring architecture |
-| 🛡️ [Governance](documentation/governance/README.md) | Governance framework, Responsible AI, compliance, risk management, data governance, and enterprise standards |
-| ⚙️ [Operations](documentation/operations/README.md) | Operational procedures, monitoring, backup, disaster recovery, incident response, business continuity, and maintenance |
-| 💻 [Development](documentation/development/README.md) | Development lifecycle, repository standards, CI/CD, branching strategy, coding standards, and release management |
-| 🚀 [Roadmap](documentation/roadmap/README.md) | Product vision, future capabilities, strategic roadmap, and release planning |
+- **[Architecture](documentation/architecture/README.md):** Enterprise architecture, Azure design, identity, security, AI, data, integration, DevOps, and monitoring.
+- **[Governance](documentation/governance/README.md):** Governance framework, Responsible AI, compliance, risk management, data governance, and standards.
+- **[Operations](documentation/operations/README.md):** Procedures, monitoring, backup, disaster recovery, incident response, continuity, and maintenance.
+- **[Development](documentation/development/README.md):** Development lifecycle, repository standards, CI/CD, branching, coding standards, and releases.
+- **[Roadmap](documentation/roadmap/README.md):** Product vision, future capabilities, strategic roadmap, and release planning.
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```text
 TBBD-HR-Portal
@@ -309,7 +324,7 @@ TBBD-HR-Portal
 
 ---
 
-# Current Status
+## Current Status
 
 | Component | Status |
 |-----------|:------:|
@@ -326,9 +341,11 @@ TBBD-HR-Portal
 
 ---
 
-# Support
+## Support
 
-For technical assistance, architecture discussions, documentation updates, security reviews, or platform improvements, contact the Talent Bridge BD Technology Team through approved internal communication channels.
+For technical assistance, architecture discussions, documentation updates,
+security reviews, or platform improvements, contact the Talent Bridge BD
+Technology Team through approved internal communication channels.
 
 Support areas:
 
@@ -341,11 +358,13 @@ Support areas:
 
 ---
 
-# License
+## License
 
 Copyright © 2026 Talent Bridge BD (TBBD).
 
-This repository contains proprietary documentation, reference architectures, deployment guidance, and enterprise resources intended for authorized use within Talent Bridge BD.
+This repository contains proprietary documentation, reference architectures,
+deployment guidance, and enterprise resources intended for authorized use within
+Talent Bridge BD.
 
 See the `LICENSE` file for licensing terms and conditions.
 
@@ -357,7 +376,8 @@ See the `LICENSE` file for licensing terms and conditions.
 
 ### Building Intelligent, Secure, and Modern Human Resources Solutions
 
-Microsoft Azure • Microsoft 365 • Microsoft Entra ID • Power Platform • Azure AI • GitHub
+Microsoft Azure • Microsoft 365 • Microsoft Entra ID • Power Platform • Azure AI
+• GitHub
 
 ---
 
