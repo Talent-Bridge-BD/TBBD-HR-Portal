@@ -20,43 +20,64 @@ steps:
     displayName: 'Checkout TBBD HR Portal repository'
 
   - script: |
+      echo "=========================================="
       echo "TBBD HR Portal - Azure DevOps CI"
+      echo "=========================================="
       echo "Repository: $(Build.Repository.Name)"
       echo "Branch: $(Build.SourceBranch)"
       echo "Commit: $(Build.SourceVersion)"
       echo "Build ID: $(Build.BuildId)"
       echo "Agent: $(Agent.Name)"
-      echo "Operating system: $(Agent.OS)"
-      echo "Architecture: $(Agent.OSArchitecture)"
+      echo "Agent OS: $(Agent.OS)"
+      echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Use native Apple Silicon Homebrew Python 3.11.
-  # Do not use UsePythonVersion@0 on this agent.
+  # Python 3.11 - native ARM64 Homebrew installation
 
   - script: |
+      set -eu
+
       export PATH="/opt/homebrew/bin:$PATH"
+
+      echo "Checking Python environment..."
+
       command -v python3.11
       python3.11 --version
       python3.11 -m pip --version
-    displayName: 'Verify native Python 3.11'
+
+      python3.11 -c "import platform; print('Architecture:', platform.machine())"
+
+    displayName: 'Verify Python 3.11 environment'
 
   - script: |
+      set -eu
+
       export PATH="/opt/homebrew/bin:$PATH"
+
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install -r requirements.txt
+
     displayName: 'Install backend dependencies'
 
   - script: |
+      set -eu
+
       export PATH="/opt/homebrew/bin:$PATH"
+
       python3.11 -m compileall -q .
+
     displayName: 'Validate Python source'
 
   - script: |
+      set -eu
+
       export PATH="/opt/homebrew/bin:$PATH"
+
       python3.11 -m pytest -q --ignore=test_email_send.py
+
     displayName: 'Run backend tests'
 
-  # Use Node.js 20 for the React frontend build.
+  # Node.js 20 - supported Azure DevOps installer
 
   - task: UseNode@1
     displayName: 'Set Node.js version'
@@ -66,19 +87,32 @@ steps:
   - script: |
       node --version
       npm --version
+
     displayName: 'Verify Node.js environment'
+
+  # React frontend validation
 
   - script: |
       npm ci
+
     workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
 
   - script: |
       npm run build
+
     workingDirectory: 'frontend'
     displayName: 'Build React frontend'
 
+  # Final CI summary - only runs if previous steps succeed
+
   - script: |
-      echo "TBBD HR Portal CI validation completed successfully."
-      echo "No deployment or production changes were performed."
-    displayName: 'CI validation summary'
+      echo "=========================================="
+      echo "TBBD HR Portal CI validation completed."
+      echo "=========================================="
+      echo "Python source validation: completed"
+      echo "Backend tests: passed"
+      echo "Frontend production build: completed"
+      echo "No deployment or production changes performed."
+
+    displayName: 'CI build summary'
