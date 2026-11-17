@@ -210,8 +210,8 @@ async def list_organizations(request: Request):
             if claim.get("typ") == claim_type
         ]
 
-    group_ids = set(claim_values("groups"))
-    token_roles = set(claim_values("roles"))
+    group_ids = set(principal.get("groups") or []) | set(claim_values("groups"))
+    token_roles = set(principal.get("roles") or []) | set(claim_values("roles"))
 
     authorization_groups = {
         "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",

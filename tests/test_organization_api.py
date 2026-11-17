@@ -399,3 +399,39 @@ def test_invalid_membership_role_is_rejected(monkeypatch):
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Unsupported membership role"
+
+
+def test_administrator_top_level_role_can_list_organizations(monkeypatch):
+    import main as main_module
+
+    repository = make_repository()
+    monkeypatch.setattr(
+        main_module,
+        "_organization_repository",
+        repository,
+    )
+
+    principal = {
+        "roles": ["Administrator"],
+        "claims": [
+            {"typ": "name", "val": "Test Administrator"},
+        ],
+    }
+
+    encoded_principal = base64.b64encode(
+        json.dumps(principal).encode("utf-8")
+    ).decode("utf-8")
+
+    headers = {
+        "X-MS-CLIENT-PRINCIPAL-ID": ADMIN_ID,
+        "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+    }
+
+    response = TestClient(app).get(
+        "/api/organizations",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert len(response.json()["organizations"]) == 1
+    assert response.json()["organizations"][0]["id"] == ORG_ID

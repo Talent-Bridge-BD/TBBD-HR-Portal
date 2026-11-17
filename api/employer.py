@@ -50,8 +50,8 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
             if claim.get("typ") == claim_type and claim.get("val")
         }
 
-    group_ids = claim_values("groups")
-    token_roles = claim_values("roles")
+    group_ids = set(principal.get("groups") or []) | claim_values("groups")
+    token_roles = set(principal.get("roles") or []) | claim_values("roles")
 
     roles = set(token_roles)
 
