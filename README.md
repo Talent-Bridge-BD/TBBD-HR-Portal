@@ -1,6 +1,8 @@
 # TBBD HR Portal
 
-> Enterprise Human Resources platform for Talent Bridge BD (TBBD) built on Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI to deliver secure, intelligent, and modern workplace experiences.
+> Enterprise Human Resources platform for Talent Bridge BD (TBBD), built on
+> Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI
+> to deliver secure, intelligent, and modern workplace experiences.
 
 ![Platform](https://img.shields.io/badge/Platform-Microsoft%20365-D83B01)
 ![Cloud](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4)
@@ -281,11 +283,20 @@ clear navigation.
 
 | Category | Description |
 |----------|-------------|
-- **[Architecture](documentation/architecture/README.md):** Enterprise architecture, Azure design, identity, security, AI, data, integration, DevOps, and monitoring.
-- **[Governance](documentation/governance/README.md):** Governance framework, Responsible AI, compliance, risk management, data governance, and standards.
-- **[Operations](documentation/operations/README.md):** Procedures, monitoring, backup, disaster recovery, incident response, continuity, and maintenance.
-- **[Development](documentation/development/README.md):** Development lifecycle, repository standards, CI/CD, branching, coding standards, and releases.
-- **[Roadmap](documentation/roadmap/README.md):** Product vision, future capabilities, strategic roadmap, and release planning.
+- [Architecture](documentation/architecture/README.md)
+  - Enterprise architecture, Azure design, identity, security, AI, data,
+    integration, DevOps, and monitoring.
+- [Governance](documentation/governance/README.md)
+  - Governance framework, Responsible AI, compliance, risk management, data
+    governance, and enterprise standards.
+- [Operations](documentation/operations/README.md)
+  - Procedures, monitoring, backup, disaster recovery, incident response,
+    business continuity, and maintenance.
+- [Development](documentation/development/README.md)
+  - Development lifecycle, repository standards, CI/CD, branching, coding
+    standards, and release management.
+- [Roadmap](documentation/roadmap/README.md)
+  - Product vision, future capabilities, strategic roadmap, and release planning.
 
 ---
 
@@ -370,14 +381,12 @@ See the `LICENSE` file for licensing terms and conditions.
 
 ---
 
-<div align="center">
-
 ## Talent Bridge BD (TBBD)
 
 ### Building Intelligent, Secure, and Modern Human Resources Solutions
 
-Microsoft Azure • Microsoft 365 • Microsoft Entra ID • Power Platform • Azure AI
-• GitHub
+Microsoft Azure • Microsoft 365 • Microsoft Entra ID • Power Platform
+• Azure AI • GitHub
 
 ---
 
@@ -385,5 +394,3 @@ Repository: TBBD-HR-Portal
 Version: v1.0.0  
 Status: Active Development  
 Maintained by: Talent Bridge BD Technology Team
-
-</div>
