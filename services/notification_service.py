@@ -26,6 +26,7 @@ def _strip_html_tags(value: str) -> str:
         elif character == ">":
             if index > tag_start + 1:
                 chunks.append(value[segment_start:tag_start])
+                chunks.append(" ")
                 segment_start = index + 1
             tag_start = -1
 
@@ -95,7 +96,7 @@ class NotificationService:
             r"\s+",
             " ",
             html_module.unescape(
-                _strip_html_tags(html_body).replace("<", " ")
+                _strip_html_tags(html_body)
             ),
         ).strip() or subject
 
