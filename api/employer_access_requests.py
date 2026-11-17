@@ -256,9 +256,11 @@ def review_employer_access_request(
                     notification_status,
                     failure_reason,
                 )
-            except Exception:
-                logger.exception(
-                    "Failed to update employer access request delivery status"
+            except Exception as exc:
+                logger.error(
+                    "Employer access request delivery status update failed; "
+                    "exception_type=%s",
+                    type(exc).__name__,
                 )
 
     if notification_status == "SENT":
