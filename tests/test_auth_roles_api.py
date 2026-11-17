@@ -1,3 +1,5 @@
+import logging
+
 import main
 from fastapi.testclient import TestClient
 from api import candidate as candidate_api
@@ -144,3 +146,40 @@ def test_workforce_user_keeps_employee_default(monkeypatch):
     assert response.status_code == 200
     assert "Employee" in response.json()["roles"]
     assert "Candidate" not in response.json()["roles"]
+
+
+def test_candidate_role_lookup_failure_is_nonfatal_and_logs_safely(
+    monkeypatch, caplog
+):
+    class FailingRoleRepository:
+        def has_role(self, user_id, role):
+            raise RuntimeError("SQL Server password=internal-secret")
+
+    principal = {
+        "id": "test-candidate-failure",
+        "email": "candidate-failure@example.test",
+        "tenant_id": CANDIDATE_TENANT_ID,
+        "claims": [{"typ": "tid", "val": CANDIDATE_TENANT_ID}],
+    }
+    monkeypatch.setattr(
+        candidate_api, "_application_role_repository", FailingRoleRepository()
+    )
+    monkeypatch.setattr(
+        main._user_profile_repository, "get_by_email", lambda email: None
+    )
+    monkeypatch.setattr(
+        main, "get_request_principal", lambda request: principal
+    )
+    monkeypatch.setattr(
+        main._organization_repository, "get_active_memberships", lambda user_id: []
+    )
+
+    with caplog.at_level(logging.ERROR, logger="main"):
+        response = client.get("/api/me")
+
+    assert response.status_code == 200
+    assert response.json()["authenticated"] is True
+    assert "Candidate" not in response.json()["roles"]
+    assert "RuntimeError" in caplog.text
+    assert "SQL Server" not in caplog.text
+    assert "internal-secret" not in caplog.text
