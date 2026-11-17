@@ -2,7 +2,8 @@
 
 ## Overview
 
-TBBD HR Portal is committed to maintaining the confidentiality, integrity, and availability of enterprise systems, applications, data, and services.
+TBBD HR Portal is committed to maintaining the confidentiality, integrity, and
+availability of enterprise systems, applications, data, and services.
 
 This repository follows secure software development practices aligned with:
 
@@ -14,7 +15,7 @@ This repository follows secure software development practices aligned with:
 
 ---
 
-# Supported Versions
+## Supported Versions
 
 | Version | Supported |
 |---------|-----------|
@@ -22,11 +23,12 @@ This repository follows secure software development practices aligned with:
 | Development Branch | ✅ Yes |
 | Legacy Releases | ❌ No |
 
-Security updates and vulnerability fixes are provided for actively maintained branches.
+Security updates and vulnerability fixes are provided for actively maintained
+branches.
 
 ---
 
-# Security Principles
+## Security Principles
 
 TBBD HR Portal follows these core security principles:
 
@@ -43,7 +45,7 @@ TBBD HR Portal follows these core security principles:
 
 ---
 
-# Platform Security
+## Platform Security
 
 Security controls include:
 
@@ -85,11 +87,11 @@ Security controls include:
 
 ---
 
-# Secure Development Practices
+## Secure Development Practices
 
 Contributors and maintainers must follow secure development practices.
 
-## Do:
+### Do
 
 - Keep dependencies updated
 - Review pull requests before merging
@@ -99,7 +101,7 @@ Contributors and maintainers must follow secure development practices.
 - Follow approved architecture patterns
 - Report security issues responsibly
 
-## Do Not:
+### Do Not
 
 - Commit passwords or credentials
 - Store API keys in source code
@@ -109,7 +111,7 @@ Contributors and maintainers must follow secure development practices.
 
 ---
 
-# Vulnerability Reporting
+## Vulnerability Reporting
 
 If you discover a security vulnerability, please do not disclose it publicly.
 
@@ -126,7 +128,7 @@ Please include:
 
 ---
 
-# Security Contact
+## Security Contact
 
 Security issues should be reported through:
 
@@ -136,13 +138,14 @@ Security issues should be reported through:
 
 Repository:
 
-https://github.com/Talent-Bridge-BD/TBBD-HR-Portal
+[TBBD-HR-Portal on GitHub](https://github.com/Talent-Bridge-BD/TBBD-HR-Portal)
 
 ---
 
-# Responsible Disclosure
+## Responsible Disclosure
 
-TBBD appreciates responsible disclosure from security researchers, contributors, and community members.
+TBBD appreciates responsible disclosure from security researchers, contributors,
+and community members.
 
 We will:
 
@@ -151,13 +154,15 @@ We will:
 - Prioritize remediation based on impact
 - Communicate updates when appropriate
 
-Please allow reasonable time for investigation and remediation before public disclosure.
+Please allow reasonable time for investigation and remediation before public
+disclosure.
 
 ---
 
-# Compliance and Governance
+## Compliance and Governance
 
-TBBD HR Portal follows enterprise governance, security, and compliance practices aligned with:
+TBBD HR Portal follows enterprise governance, security, and compliance practices
+aligned with:
 
 - Microsoft Security Best Practices
 - Azure Security Recommendations
@@ -169,7 +174,7 @@ TBBD HR Portal follows enterprise governance, security, and compliance practices
 
 ---
 
-# Security Monitoring
+## Security Monitoring
 
 Security monitoring includes:
 
@@ -183,9 +188,10 @@ Security monitoring includes:
 
 ---
 
-# Administrative Accounts
+## Administrative Accounts
 
-Repository administration is performed using designated administrative and automation identities.
+Repository administration is performed using designated administrative and
+automation identities.
 
 ## LTBD-Admin
 
@@ -213,23 +219,24 @@ Automation identity responsible for:
 
 ---
 
-Administrative identities are used exclusively for governance and automation purposes and are not part of application runtime operations.
+Administrative identities are used exclusively for governance and automation
+purposes and are not part of application runtime operations.
 
 ---
 
-# Security Ownership
+## Security Ownership
 
 Security governance is managed by:
 
-**Organization**
+### Organization
 
 Talent-Bridge-BD
 
-**Company**
+### Company
 
 Loyal Trade Management Ltd. (LTBD)
 
-**Repository**
+### Repository
 
 TBBD-HR-Portal
 
@@ -243,7 +250,7 @@ Security responsibilities:
 
 ---
 
-# Security Resources
+## Security Resources
 
 Repository security features include:
 
@@ -256,7 +263,7 @@ Repository security features include:
 
 ---
 
-# License
+## License
 
 Copyright (c) 2026 Loyal Trade Management Ltd. (LTBD)
 
