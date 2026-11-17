@@ -1,8 +1,8 @@
 # TBBD HR Portal
 
 > Enterprise Human Resources platform for Talent Bridge BD (TBBD), built on
-> Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI
-> to deliver secure, intelligent, and modern workplace experiences.
+> Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and
+> Azure AI to deliver secure, intelligent, and modern workplace experiences.
 
 ![Platform](https://img.shields.io/badge/Platform-Microsoft%20365-D83B01)
 ![Cloud](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4)
@@ -296,7 +296,8 @@ clear navigation.
   - Development lifecycle, repository standards, CI/CD, branching, coding
     standards, and release management.
 - [Roadmap](documentation/roadmap/README.md)
-  - Product vision, future capabilities, strategic roadmap, and release planning.
+  - Product vision, future capabilities, strategic roadmap, and release
+    planning.
 
 ---
 
