@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import logging
 import re
 from typing import Literal
 
@@ -24,6 +25,9 @@ public_router = APIRouter(
     prefix="/api/public/employer-access-requests",
     tags=["public-employer-access-requests"],
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 _repository = EmployerAccessRequestRepository()
@@ -113,7 +117,7 @@ def review_employer_access_request(
     payload: EmployerAccessRequestReview,
 ):
     """Only global Administrators may approve or reject a request."""
-    context = require_admin(request)
+    require_admin(request)
 
     principal = None
     try:
@@ -163,7 +167,6 @@ def review_employer_access_request(
 
     # The review decision is saved. Logging or email failures must not undo it.
     notification_status = "FAILED"
-    failure_reason = "Email provider did not confirm success."
     delivery_log_id = None
 
     company_name = str(record.get("company_name") or "your organization")
@@ -254,7 +257,9 @@ def review_employer_access_request(
                     failure_reason,
                 )
             except Exception:
-                pass
+                logger.exception(
+                    "Failed to update employer access request delivery status"
+                )
 
     if notification_status == "SENT":
         message = (
