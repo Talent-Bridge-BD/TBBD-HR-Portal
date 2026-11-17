@@ -81,16 +81,23 @@ class NotificationService:
 
         subject = template["subject"]
         html_body = template.get("html_body") or ""
+        if len(html_body) > MAX_NOTIFICATION_HTML_LENGTH:
+            raise ValueError("Notification template exceeds the supported length")
 
         if subject_data:
             for key, value in subject_data.items():
                 placeholder = "{{" + key + "}}"
                 value_text = str(value)
+                if len(value_text) > MAX_NOTIFICATION_VALUE_LENGTH:
+                    raise ValueError("Notification value exceeds the supported length")
                 subject = subject.replace(placeholder, value_text)
                 html_body = html_body.replace(
                     placeholder,
                     html_module.escape(value_text),
                 )
+
+        if len(html_body) > MAX_NOTIFICATION_HTML_LENGTH:
+            raise ValueError("Notification content exceeds the supported length")
 
         plain_text = re.sub(
             r"\s+",
@@ -107,8 +114,6 @@ class NotificationService:
             status="PENDING",
             notification_id=None,
         )
-
-        final_status = "PENDING"
 
         try:
             sender = EMAIL_SENDERS.get(
