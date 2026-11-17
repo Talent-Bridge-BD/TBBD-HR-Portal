@@ -118,3 +118,26 @@ def test_send_notification_records_provider_failure(monkeypatch):
             "error_message": "Simulated provider failure",
         }
     ]
+
+
+def test_strip_html_tags_preserves_normal_and_malformed_text():
+    assert notification_service._strip_html_tags(
+        "<p>Hello</p> <strong>Candidate</strong>"
+    ) == "Hello Candidate"
+    assert notification_service._strip_html_tags(
+        "Hello <unfinished"
+    ) == "Hello <unfinished"
+
+
+def test_strip_html_tags_handles_repeated_opening_brackets_linearly():
+    repeated_opening_brackets = "<" * 200_000
+
+    assert notification_service._strip_html_tags(
+        repeated_opening_brackets
+    ) == repeated_opening_brackets
+
+
+def test_strip_html_tags_removes_a_tag_after_repeated_opening_brackets():
+    value = "<" * 200_000 + "<p>safe</p>"
+
+    assert notification_service._strip_html_tags(value) == "safe"
