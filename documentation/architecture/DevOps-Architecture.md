@@ -1,10 +1,12 @@
 # DevOps Architecture
 
-> DevOps architecture for the **TBBD HR Portal**, describing the software development lifecycle, CI/CD pipelines, infrastructure automation, deployment strategy, and operational practices supporting the platform.
+> DevOps architecture for the **TBBD HR Portal**, describing the software
+> development lifecycle, CI/CD pipelines, infrastructure automation,
+> deployment strategy, and operational practices supporting the platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +20,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal follows modern DevOps practices to deliver secure, reliable, and repeatable software deployments.
+The TBBD HR Portal follows modern DevOps practices to deliver secure,
+reliable, and repeatable software deployments.
 
-The DevOps architecture integrates GitHub, GitHub Actions, Microsoft Azure, Infrastructure as Code (IaC), and automated quality controls to support continuous integration, continuous delivery, and operational excellence.
+The DevOps architecture integrates GitHub, GitHub Actions, Microsoft Azure,
+Infrastructure as Code (IaC), and automated quality controls to support
+continuous integration, continuous delivery, and operational excellence.
 
 ---
 
-# Objectives
+## Objectives
 
 The DevOps architecture is designed to:
 
@@ -41,7 +46,7 @@ The DevOps architecture is designed to:
 
 ---
 
-# DevOps Principles
+## DevOps Principles
 
 The platform follows these principles:
 
@@ -58,7 +63,7 @@ The platform follows these principles:
 
 ---
 
-# DevOps Architecture
+## DevOps Architecture Diagram
 
 ```text
 Developers
@@ -98,7 +103,7 @@ Microsoft Sentinel
 
 ---
 
-# Source Control
+## Source Control
 
 The project uses GitHub for source control and collaboration.
 
@@ -113,7 +118,7 @@ Repository capabilities include:
 
 ---
 
-# Continuous Integration
+## Continuous Integration
 
 Continuous Integration (CI) automates:
 
@@ -127,7 +132,7 @@ Continuous Integration (CI) automates:
 
 ---
 
-# Continuous Delivery
+## Continuous Delivery
 
 Continuous Delivery (CD) automates:
 
@@ -139,7 +144,7 @@ Continuous Delivery (CD) automates:
 
 ---
 
-# Infrastructure as Code
+## Infrastructure as Code
 
 Infrastructure is managed using:
 
@@ -158,7 +163,7 @@ Infrastructure automation includes:
 
 ---
 
-# Environment Strategy
+## Environment Strategy
 
 Typical deployment environments include:
 
@@ -171,7 +176,7 @@ Typical deployment environments include:
 
 ---
 
-# Security
+## Security
 
 DevOps security includes:
 
@@ -186,7 +191,7 @@ DevOps security includes:
 
 ---
 
-# Release Management
+## Release Management
 
 Release activities include:
 
@@ -199,7 +204,7 @@ Release activities include:
 
 ---
 
-# Monitoring
+## Monitoring
 
 Deployment health is monitored using:
 
@@ -211,7 +216,7 @@ Deployment health is monitored using:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future improvements may include:
 
@@ -225,7 +230,7 @@ Future improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -235,7 +240,7 @@ Future improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

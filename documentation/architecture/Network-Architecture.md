@@ -1,10 +1,12 @@
 # Network Architecture
 
-> Network architecture for the **TBBD HR Portal**, describing connectivity, network segmentation, secure communications, DNS, traffic flow, and integration across Microsoft Azure and Microsoft 365.
+> Network architecture for the **TBBD HR Portal**, describing connectivity,
+> network segmentation, secure communications, DNS, traffic flow, and
+> integration across Microsoft Azure and Microsoft 365.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +20,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal network architecture is designed to provide secure, reliable, and scalable connectivity between users, Microsoft 365 services, Azure resources, and integrated enterprise applications.
+The TBBD HR Portal network architecture is designed to provide secure,
+reliable, and scalable connectivity between users, Microsoft 365 services,
+Azure resources, and integrated enterprise applications.
 
-The architecture follows Microsoft Azure networking best practices and Zero Trust principles by ensuring secure communication, encrypted data transmission, and controlled access to resources.
+The architecture follows Microsoft Azure networking best practices and Zero
+Trust principles by ensuring secure communication, encrypted data
+transmission, and controlled access to resources.
 
 ---
 
-# Network Objectives
+## Network Objectives
 
 The network architecture is designed to:
 
@@ -41,7 +47,7 @@ The network architecture is designed to:
 
 ---
 
-# Network Principles
+## Network Principles
 
 The solution follows these principles:
 
@@ -56,7 +62,7 @@ The solution follows these principles:
 
 ---
 
-# High-Level Network Topology
+## High-Level Network Topology
 
 ```text
                 Internet
@@ -86,7 +92,7 @@ The solution follows these principles:
 
 ---
 
-# Core Network Components
+## Core Network Components
 
 | Component | Purpose |
 |----------|---------|
@@ -100,7 +106,7 @@ The solution follows these principles:
 
 ---
 
-# DNS Architecture
+## DNS Architecture
 
 DNS provides secure name resolution for the platform.
 
@@ -114,7 +120,7 @@ Key components include:
 
 ---
 
-# Secure Communications
+## Secure Communications
 
 All communications are protected using:
 
@@ -126,7 +132,7 @@ All communications are protected using:
 
 ---
 
-# Microsoft 365 Connectivity
+## Microsoft 365 Connectivity
 
 The platform securely integrates with:
 
@@ -140,7 +146,7 @@ These services enable collaboration, communication, and document management.
 
 ---
 
-# Azure Connectivity
+## Azure Connectivity
 
 Azure services communicate using secure, authenticated connections.
 
@@ -157,7 +163,7 @@ Primary services include:
 
 ---
 
-# Traffic Flow
+## Traffic Flow
 
 Typical request flow:
 
@@ -181,7 +187,7 @@ TBBD HR Portal
 
 ---
 
-# Network Security
+## Network Security
 
 Network protection includes:
 
@@ -195,7 +201,7 @@ Network protection includes:
 
 ---
 
-# Monitoring
+## Monitoring
 
 Network health is monitored through:
 
@@ -208,7 +214,7 @@ Network health is monitored through:
 
 ---
 
-# High Availability
+## High Availability
 
 The network architecture supports:
 
@@ -219,7 +225,7 @@ The network architecture supports:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Potential future improvements include:
 
@@ -233,7 +239,7 @@ Potential future improvements include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -243,7 +249,7 @@ Potential future improvements include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

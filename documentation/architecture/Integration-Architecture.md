@@ -1,10 +1,13 @@
 # Integration Architecture
 
-> Integration architecture for the **TBBD HR Portal**, describing how Microsoft 365, Azure services, enterprise applications, APIs, and AI services work together to deliver a secure and intelligent Human Resources platform.
+> Integration architecture for the **TBBD HR Portal**, describing how
+> Microsoft 365, Azure services, enterprise applications, APIs, and AI
+> services work together to deliver a secure and intelligent Human Resources
+> platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +21,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal integrates Microsoft cloud technologies, enterprise services, and AI capabilities into a unified platform for Human Resources operations.
+The TBBD HR Portal integrates Microsoft cloud technologies, enterprise
+services, and AI capabilities into a unified platform for Human Resources
+operations.
 
-The architecture enables secure communication between users, Microsoft 365 services, Azure resources, enterprise applications, and automation platforms while maintaining governance, scalability, and operational excellence.
+The architecture enables secure communication between users, Microsoft 365
+services, Azure resources, enterprise applications, and automation platforms
+while maintaining governance, scalability, and operational excellence.
 
 ---
 
-# Integration Objectives
+## Integration Objectives
 
 The integration architecture is designed to:
 
@@ -41,7 +48,7 @@ The integration architecture is designed to:
 
 ---
 
-# Integration Principles
+## Integration Principles
 
 The platform follows these principles:
 
@@ -57,7 +64,7 @@ The platform follows these principles:
 
 ---
 
-# High-Level Integration Architecture
+## High-Level Integration Architecture
 
 ```text
 Employees
@@ -92,7 +99,7 @@ Microsoft Purview
 
 ---
 
-# Microsoft 365 Integration
+## Microsoft 365 Integration
 
 The HR Portal integrates with Microsoft 365 services including:
 
@@ -109,9 +116,10 @@ These integrations support collaboration, communication, identity, and document 
 
 ---
 
-# Azure Integration
+## Azure Integration
 
-Azure services provide the application hosting, storage, automation, AI, and monitoring capabilities.
+Azure services provide the application hosting, storage, automation, AI, and
+monitoring capabilities.
 
 Key integrations include:
 
@@ -127,9 +135,10 @@ Key integrations include:
 
 ---
 
-# Power Platform Integration
+## Power Platform Integration
 
-The solution leverages Microsoft Power Platform for low-code development and workflow automation.
+The solution leverages Microsoft Power Platform for low-code development and
+workflow automation.
 
 Supported services include:
 
@@ -140,7 +149,7 @@ Supported services include:
 
 ---
 
-# AI Integration
+## AI Integration
 
 AI capabilities include:
 
@@ -153,11 +162,12 @@ AI capabilities include:
 - Knowledge Search
 - HR Policy Assistant
 
-AI services provide recommendations and decision support while maintaining human oversight.
+AI services provide recommendations and decision support while maintaining
+human oversight.
 
 ---
 
-# API Integration
+## API Integration
 
 The platform uses secure APIs to exchange data across Microsoft and Azure services.
 
@@ -178,7 +188,7 @@ API security includes:
 
 ---
 
-# Data Flow
+## Data Flow
 
 ```text
 User
@@ -201,7 +211,7 @@ TBBD HR Portal
 
 ---
 
-# Security Considerations
+## Security Considerations
 
 Integration security includes:
 
@@ -217,7 +227,7 @@ Integration security includes:
 
 ---
 
-# Monitoring and Diagnostics
+## Monitoring and Diagnostics
 
 Integration health is monitored using:
 
@@ -231,7 +241,7 @@ Integration health is monitored using:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future integration opportunities include:
 
@@ -246,7 +256,7 @@ Future integration opportunities include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -256,7 +266,7 @@ Future integration opportunities include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

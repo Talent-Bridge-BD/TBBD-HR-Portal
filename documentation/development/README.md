@@ -1,10 +1,13 @@
 # Development Documentation
 
-> Development standards and engineering practices for the TBBD HR Portal platform covering software lifecycle management, repository standards, CI/CD automation, coding practices, branching strategy, and release management.
+> Development standards and engineering practices for the TBBD HR
+> Portal platform covering software lifecycle management, repository
+> standards, CI/CD automation, coding practices, branching strategy,
+> and release management.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +20,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The Development documentation defines the engineering standards and practices used to design, build, test, deploy, and maintain the TBBD HR Portal platform.
+The Development documentation defines the engineering standards and
+practices used to design, build, test, deploy, and maintain the TBBD HR
+Portal platform.
 
-It provides guidance for developers, architects, DevOps engineers, and technical contributors working on the platform.
+It provides guidance for developers, architects, DevOps engineers, and
+technical contributors working on the platform.
 
 ---
 
-# Development Objectives
+## Development Objectives
 
 The development framework aims to:
 
@@ -39,7 +45,7 @@ The development framework aims to:
 
 ---
 
-# Development Areas
+## Development Areas
 
 | Area | Description |
 |------|-------------|
@@ -52,7 +58,7 @@ The development framework aims to:
 
 ---
 
-# Engineering Principles
+## Engineering Principles
 
 TBBD HR Portal development follows:
 
@@ -66,7 +72,7 @@ TBBD HR Portal development follows:
 
 ---
 
-# Development Technology Stack
+## Development Technology Stack
 
 | Area | Technology |
 |------|------------|
@@ -81,7 +87,7 @@ TBBD HR Portal development follows:
 
 ---
 
-# Development Workflow
+## Development Workflow
 
 ```text
 Developer
@@ -125,7 +131,7 @@ Production Release
 
 ---
 
-# Repository Development Model
+## Repository Development Model
 
 Development follows:
 
@@ -137,38 +143,38 @@ Development follows:
 
 ---
 
-# Documentation Library
+## Documentation Library
 
 | Document | Purpose |
 |----------|---------|
 | Development-Lifecycle.md | Software development process |
 | Repository-Standards.md | Repository management standards |
 | Deployment-Pipeline.md | CI/CD workflow |
-| Branching-Strategy.md | Git workflow |
+| Repository-Standards.md | Git workflow |
 | Coding-Standards.md | Coding practices |
 | Release-Management.md | Release lifecycle |
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Azure-Deployment-Architecture.md
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
 
-## Governance
+### Governance
 
 - Enterprise-Standards.md
 
 ---
 
-# Review Cycle
+## Review Cycle
 
 Development documentation should be reviewed:
 
@@ -179,7 +185,7 @@ Development documentation should be reviewed:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

@@ -1,10 +1,12 @@
 # Backup & Disaster Recovery
 
-> Backup and disaster recovery strategy for the TBBD HR Portal platform supporting Microsoft Azure, Microsoft 365, Microsoft Entra ID, application services, data protection, and business continuity requirements.
+> Backup and disaster recovery strategy for the TBBD HR Portal platform
+> supporting Microsoft Azure, Microsoft 365, Microsoft Entra ID, application
+> services, data protection, and business continuity requirements.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Backup and Disaster Recovery framework defines the approach for protecting business-critical services, recovering from failures, and maintaining operational continuity.
+The TBBD HR Portal Backup and Disaster Recovery framework defines the approach
+for protecting business-critical services, recovering from failures, and
+maintaining operational continuity.
 
-The strategy follows Microsoft cloud resilience practices and supports secure recovery of applications, configurations, and enterprise data.
+The strategy follows Microsoft cloud resilience practices and supports secure
+recovery of applications, configurations, and enterprise data.
 
 ---
 
-# Objectives
+## Objectives
 
 The Backup and Disaster Recovery strategy aims to:
 
@@ -39,7 +44,7 @@ The Backup and Disaster Recovery strategy aims to:
 
 ---
 
-# Recovery Principles
+## Recovery Principles
 
 The platform follows these principles:
 
@@ -52,9 +57,9 @@ The platform follows these principles:
 
 ---
 
-# Recovery Objectives
+## Recovery Objectives
 
-## Recovery Time Objective (RTO)
+### Recovery Time Objective (RTO)
 
 RTO defines the maximum acceptable time required to restore services.
 
@@ -69,7 +74,7 @@ Examples:
 
 ---
 
-## Recovery Point Objective (RPO)
+### Recovery Point Objective (RPO)
 
 RPO defines acceptable data loss between backups.
 
@@ -82,11 +87,11 @@ Considerations:
 
 ---
 
-# Backup Scope
+## Backup Scope
 
 Backup considerations include:
 
-## Application Components
+### Application Components
 
 - Application configuration
 - Deployment settings
@@ -95,7 +100,7 @@ Backup considerations include:
 
 ---
 
-## Azure Resources
+### Azure Resources
 
 Protected resources may include:
 
@@ -107,7 +112,7 @@ Protected resources may include:
 
 ---
 
-## Microsoft 365 Services
+### Microsoft 365 Services
 
 Protection considerations:
 
@@ -118,7 +123,7 @@ Protection considerations:
 
 ---
 
-## Identity Services
+### Identity Services
 
 Protection considerations:
 
@@ -129,7 +134,7 @@ Protection considerations:
 
 ---
 
-# Backup Strategy
+## Backup Strategy
 
 The backup approach includes:
 
@@ -157,7 +162,7 @@ Recovery Validation
 
 ---
 
-# Azure Backup
+## Azure Backup
 
 Azure backup capabilities may include:
 
@@ -169,7 +174,7 @@ Azure backup capabilities may include:
 
 ---
 
-# Infrastructure Recovery
+## Infrastructure Recovery
 
 Infrastructure recovery should use:
 
@@ -185,7 +190,7 @@ Benefits:
 
 ---
 
-# Application Recovery
+## Application Recovery
 
 Application recovery steps:
 
@@ -198,9 +203,9 @@ Application recovery steps:
 
 ---
 
-# Disaster Scenarios
+## Disaster Scenarios
 
-## Application Failure
+### Application Failure
 
 Response:
 
@@ -211,7 +216,7 @@ Response:
 
 ---
 
-## Data Loss
+### Data Loss
 
 Response:
 
@@ -222,7 +227,7 @@ Response:
 
 ---
 
-## Identity Service Issue
+### Identity Service Issue
 
 Response:
 
@@ -233,7 +238,7 @@ Response:
 
 ---
 
-## Azure Service Outage
+### Azure Service Outage
 
 Response:
 
@@ -244,7 +249,7 @@ Response:
 
 ---
 
-# Recovery Testing
+## Recovery Testing
 
 Recovery procedures should be tested regularly.
 
@@ -257,7 +262,7 @@ Testing includes:
 
 ---
 
-# Disaster Recovery Responsibilities
+## Disaster Recovery Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -268,7 +273,7 @@ Testing includes:
 
 ---
 
-# Recovery Documentation
+## Recovery Documentation
 
 Maintain:
 
@@ -280,7 +285,7 @@ Maintain:
 
 ---
 
-# Security Considerations
+## Security Considerations
 
 Recovery activities must follow:
 
@@ -292,7 +297,7 @@ Recovery activities must follow:
 
 ---
 
-# Continuous Improvement
+## Continuous Improvement
 
 The recovery strategy should be reviewed:
 
@@ -303,24 +308,24 @@ The recovery strategy should be reviewed:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
 - Incident-Response.md
 - Business-Continuity.md
-- Maintenance.md
+- Operations-Guide.md
 
-## Architecture
+### Architecture
 
 - Azure-Deployment-Architecture.md
 - Security-Architecture.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

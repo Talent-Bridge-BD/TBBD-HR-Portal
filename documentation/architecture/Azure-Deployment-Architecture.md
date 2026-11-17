@@ -1,10 +1,12 @@
 # Azure Deployment Architecture
 
-> Azure deployment architecture for the **TBBD HR Portal**, describing the cloud infrastructure, resource organization, networking, identity integration, AI services, monitoring, and deployment approach.
+> Azure deployment architecture for the **TBBD HR Portal**, describing the
+> cloud infrastructure, resource organization, networking, identity
+> integration, AI services, monitoring, and deployment approach.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,17 +20,21 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal is deployed on Microsoft Azure using a secure, scalable, and cloud-native architecture.
+The TBBD HR Portal is deployed on Microsoft Azure using a secure, scalable,
+and cloud-native architecture.
 
-The deployment architecture is designed to support enterprise Human Resources workloads while integrating seamlessly with Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI services.
+The deployment architecture is designed to support enterprise Human Resources
+workloads while integrating seamlessly with Microsoft 365, Microsoft Entra ID,
+Power Platform, and Azure AI services.
 
-The solution follows Microsoft Cloud Adoption Framework (CAF), Azure Well-Architected Framework, and Zero Trust principles.
+The solution follows Microsoft Cloud Adoption Framework (CAF), Azure
+Well-Architected Framework, and Zero Trust principles.
 
 ---
 
-# Architecture Goals
+## Architecture Goals
 
 The Azure deployment architecture is designed to:
 
@@ -44,7 +50,7 @@ The Azure deployment architecture is designed to:
 
 ---
 
-# Azure Subscription
+## Azure Subscription
 
 | Component | Configuration |
 |-----------|---------------|
@@ -56,7 +62,7 @@ The Azure deployment architecture is designed to:
 
 ---
 
-# Resource Organization
+## Resource Organization
 
 ```text
 TBBD Core Subscription
@@ -78,7 +84,7 @@ TBBD Core Subscription
 
 ---
 
-# Core Azure Services
+## Core Azure Services
 
 | Service | Purpose |
 |---------|---------|
@@ -95,7 +101,7 @@ TBBD Core Subscription
 
 ---
 
-# Identity Integration
+## Identity Integration
 
 Authentication and authorization are managed using Microsoft Entra ID.
 
@@ -110,7 +116,7 @@ Capabilities include:
 
 ---
 
-# Microsoft 365 Integration
+## Microsoft 365 Integration
 
 The platform integrates with:
 
@@ -124,7 +130,7 @@ The platform integrates with:
 
 ---
 
-# Networking
+## Networking
 
 The Azure environment follows a secure networking model.
 
@@ -140,7 +146,7 @@ Key principles include:
 
 ---
 
-# Security Services
+## Security Services
 
 The deployment uses Microsoft security services including:
 
@@ -153,7 +159,7 @@ The deployment uses Microsoft security services including:
 
 ---
 
-# Monitoring and Observability
+## Monitoring and Observability
 
 Operational visibility is provided through:
 
@@ -167,7 +173,7 @@ Operational visibility is provided through:
 
 ---
 
-# CI/CD Deployment
+## CI/CD Deployment
 
 Application deployment is automated through GitHub.
 
@@ -198,7 +204,7 @@ Deployment activities include:
 
 ---
 
-# Infrastructure as Code
+## Infrastructure as Code
 
 Infrastructure is managed using:
 
@@ -216,7 +222,7 @@ Benefits include:
 
 ---
 
-# High-Level Deployment Diagram
+## High-Level Deployment Diagram
 
 ```text
 Users
@@ -244,7 +250,7 @@ Log Analytics
 
 ---
 
-# Availability and Resilience
+## Availability and Resilience
 
 The deployment is designed to support:
 
@@ -257,7 +263,7 @@ The deployment is designed to support:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Planned improvements include:
 
@@ -272,7 +278,7 @@ Planned improvements include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Identity Architecture
@@ -282,7 +288,7 @@ Planned improvements include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

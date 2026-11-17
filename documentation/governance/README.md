@@ -1,18 +1,24 @@
 # Governance Documentation
 
-> Enterprise governance documentation for the **TBBD HR Portal**, providing policies, standards, compliance guidance, Responsible AI principles, and governance frameworks supporting secure and sustainable platform operations.
+> Enterprise governance documentation for the **TBBD HR Portal**, providing
+> policies, standards, compliance guidance, Responsible AI principles, and
+> governance frameworks supporting secure and sustainable platform operations.
 
 ---
 
-# Overview
+## Overview
 
-The Governance documentation establishes the principles, policies, standards, and management practices that guide the planning, implementation, operation, and continuous improvement of the TBBD HR Portal.
+The Governance documentation establishes the principles, policies, standards,
+and management practices that guide the planning, implementation, operation,
+and continuous improvement of the TBBD HR Portal.
 
-Governance ensures that technology decisions align with business objectives while maintaining security, compliance, operational excellence, and responsible use of Microsoft cloud technologies and Artificial Intelligence.
+Governance ensures that technology decisions align with business objectives
+while maintaining security, compliance, operational excellence, and
+responsible use of Microsoft cloud technologies and Artificial Intelligence.
 
 ---
 
-# Objectives
+## Objectives
 
 The Governance documentation aims to:
 
@@ -27,7 +33,7 @@ The Governance documentation aims to:
 
 ---
 
-# Governance Areas
+## Governance Areas
 
 | Area | Description |
 |------|-------------|
@@ -36,11 +42,11 @@ The Governance documentation aims to:
 | Compliance | Regulatory and organizational compliance guidance |
 | Risk Management | Risk identification, assessment, and mitigation |
 | Data Governance | Data ownership, quality, protection, and lifecycle |
-| Enterprise Standards | Documentation, development, architecture, and operational standards |
+| Enterprise Standards | Docs, development, architecture, and operations |
 
 ---
 
-# Governance Principles
+## Governance Principles
 
 The TBBD HR Portal follows these governance principles:
 
@@ -57,7 +63,7 @@ The TBBD HR Portal follows these governance principles:
 
 ---
 
-# Governance Structure
+## Governance Structure
 
 ```text
 Executive Leadership
@@ -79,7 +85,7 @@ Platform Users
 
 ---
 
-# Documentation Library
+## Documentation Library
 
 | Document | Purpose |
 |----------|---------|
@@ -92,7 +98,7 @@ Platform Users
 
 ---
 
-# Governance Lifecycle
+## Governance Lifecycle
 
 ```text
 Plan
@@ -118,7 +124,7 @@ Improve
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 ### Architecture
 
@@ -128,13 +134,13 @@ Improve
 - Identity Architecture
 - AI Architecture
 
-### Operations
+#### Operations
 
 - Operations Guide
 - Monitoring
 - Backup and Disaster Recovery
 
-### Development
+#### Development
 
 - Development Lifecycle
 - Deployment Pipeline
@@ -142,7 +148,7 @@ Improve
 
 ---
 
-# Review Process
+## Review Process
 
 Governance documentation should be reviewed when:
 
@@ -157,7 +163,7 @@ A formal governance review should be performed at least quarterly.
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

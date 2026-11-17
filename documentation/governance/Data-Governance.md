@@ -1,10 +1,12 @@
 # Data Governance Framework
 
-> Enterprise data governance framework defining the principles, controls, ownership, lifecycle management, and protection practices for data used within the TBBD HR Portal platform.
+> Enterprise data governance framework defining the principles, controls,
+> ownership, lifecycle management, and protection practices for data used
+> within the TBBD HR Portal platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,11 +19,14 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Data Governance Framework establishes standards for managing enterprise information throughout its lifecycle.
+The TBBD HR Portal Data Governance Framework establishes standards for
+managing enterprise information throughout its lifecycle.
 
-The framework ensures that HR data, employee information, candidate records, documents, AI knowledge sources, and operational data are handled securely, consistently, and responsibly.
+The framework ensures that HR data, employee information, candidate records,
+documents, AI knowledge sources, and operational data are handled securely,
+consistently, and responsibly.
 
 Data governance supports:
 
@@ -34,7 +39,7 @@ Data governance supports:
 
 ---
 
-# Data Governance Objectives
+## Data Governance Objectives
 
 The objectives are to:
 
@@ -48,9 +53,9 @@ The objectives are to:
 
 ---
 
-# Data Governance Principles
+## Data Governance Principles
 
-## Data Ownership
+### Data Ownership
 
 Every critical data asset should have an accountable owner.
 
@@ -64,7 +69,7 @@ Responsibilities include:
 
 ---
 
-## Data Security
+### Data Security
 
 Enterprise data must be protected through:
 
@@ -76,7 +81,7 @@ Enterprise data must be protected through:
 
 ---
 
-## Data Quality
+### Data Quality
 
 Data should be:
 
@@ -88,7 +93,7 @@ Data should be:
 
 ---
 
-## Data Privacy
+### Data Privacy
 
 Privacy controls include:
 
@@ -100,9 +105,9 @@ Privacy controls include:
 
 ---
 
-# Data Domains
+## Data Domains
 
-## Employee Data
+### Employee Data
 
 Examples:
 
@@ -120,7 +125,7 @@ Protection:
 
 ---
 
-## Candidate Data
+### Candidate Data
 
 Examples:
 
@@ -137,7 +142,7 @@ Protection:
 
 ---
 
-## HR Documents
+### HR Documents
 
 Examples:
 
@@ -154,7 +159,7 @@ Technology:
 
 ---
 
-## Application Data
+### Application Data
 
 Examples:
 
@@ -171,7 +176,7 @@ Protection:
 
 ---
 
-## AI Knowledge Data
+### AI Knowledge Data
 
 Examples:
 
@@ -188,7 +193,7 @@ AI controls:
 
 ---
 
-# Data Lifecycle Management
+## Data Lifecycle Management
 
 ```text
 Create
@@ -232,7 +237,7 @@ Dispose
 
 ---
 
-# Data Classification
+## Data Classification
 
 Recommended classification levels:
 
@@ -245,7 +250,7 @@ Recommended classification levels:
 
 ---
 
-# Access Governance
+## Access Governance
 
 Data access follows:
 
@@ -264,11 +269,11 @@ Technology:
 
 ---
 
-# Data Protection Controls
+## Data Protection Controls
 
 Controls include:
 
-## Encryption
+### Encryption
 
 - Encryption at rest
 - Encryption in transit
@@ -281,7 +286,7 @@ Technology:
 
 ---
 
-## Information Protection
+### Information Protection
 
 Technology:
 
@@ -291,7 +296,7 @@ Technology:
 
 ---
 
-## Monitoring
+### Monitoring
 
 Technology:
 
@@ -301,7 +306,7 @@ Technology:
 
 ---
 
-# AI Data Governance
+## AI Data Governance
 
 AI data usage follows:
 
@@ -315,7 +320,7 @@ AI systems must not expose unauthorized HR information.
 
 ---
 
-# Backup and Recovery
+## Backup and Recovery
 
 Data resilience includes:
 
@@ -326,7 +331,7 @@ Data resilience includes:
 
 ---
 
-# Data Governance Responsibilities
+## Data Governance Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -338,7 +343,7 @@ Data resilience includes:
 
 ---
 
-# Data Governance Review
+## Data Governance Review
 
 Reviews should occur:
 
@@ -349,7 +354,7 @@ Reviews should occur:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future improvements may include:
 
@@ -361,7 +366,7 @@ Future improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance-Framework.md
 - Responsible-AI.md
@@ -371,7 +376,7 @@ Future improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

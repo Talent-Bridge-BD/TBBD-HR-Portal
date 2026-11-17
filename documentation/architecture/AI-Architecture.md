@@ -1,32 +1,38 @@
 # AI Architecture
 
-> Artificial Intelligence (AI) architecture for the **TBBD HR Portal**, describing the design, services, governance, and responsible use of AI capabilities across the platform.
+> Artificial Intelligence (AI) architecture for the **TBBD HR Portal**,
+> describing the design, services, governance, and responsible use
+> of AI capabilities across the platform.
 
 ---
 
-# Document Information
+## Document Information
 
-| Property | Value |
+|Property|Value|
 |----------|-------|
-| Repository | TBBD-HR-Portal |
-| Document | AI Architecture |
-| Version | 1.0.0 |
-| Owner | Talent Bridge BD Technology Team |
-| Classification | Internal |
-| Last Updated | August 2026 |
-| Review Cycle | Quarterly |
+|Repository|TBBD-HR-Portal|
+|Document|AI Architecture|
+|Version|1.0.0|
+|Owner|Talent Bridge BD Technology Team|
+|Classification|Internal|
+|Last Updated|August 2026|
+|Review Cycle|Quarterly|
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal incorporates Microsoft AI technologies to improve employee experiences, support Human Resources professionals, automate routine tasks, and provide intelligent workplace assistance.
+The TBBD HR Portal incorporates Microsoft AI technologies to improve
+employee experiences, support Human Resources professionals,
+automate routine tasks, and provide intelligent workplace assistance.
 
-The AI architecture combines Azure AI services, Microsoft 365, enterprise knowledge, and governance controls to deliver secure, scalable, and responsible AI solutions.
+The AI architecture combines Azure AI services, Microsoft 365,
+enterprise knowledge, and governance controls to deliver secure,
+scalable, and responsible AI solutions.
 
 ---
 
-# Objectives
+## Objectives
 
 The AI architecture is designed to:
 
@@ -41,7 +47,7 @@ The AI architecture is designed to:
 
 ---
 
-# AI Design Principles
+## AI Design Principles
 
 The platform follows these AI principles:
 
@@ -58,7 +64,7 @@ The platform follows these AI principles:
 
 ---
 
-# AI Platform Architecture
+## AI Platform Architecture
 
 ```text
 Employees
@@ -92,7 +98,7 @@ Microsoft Purview
 
 ---
 
-# AI Components
+## AI Components
 
 The AI platform includes:
 
@@ -106,7 +112,7 @@ The AI platform includes:
 
 ---
 
-# AI Capabilities
+## AI Capabilities
 
 The platform supports:
 
@@ -122,7 +128,7 @@ The platform supports:
 
 ---
 
-# Enterprise Knowledge Sources
+## Enterprise Knowledge Sources
 
 AI responses may utilize:
 
@@ -137,7 +143,7 @@ AI responses may utilize:
 
 ---
 
-# AI Workflow
+## AI Workflow
 
 ```text
 User Request
@@ -167,7 +173,7 @@ User Review
 
 ---
 
-# Responsible AI
+## Responsible AI
 
 AI services follow Microsoft's Responsible AI principles.
 
@@ -185,7 +191,7 @@ Key practices include:
 
 ---
 
-# Security
+## Security
 
 AI services are protected through:
 
@@ -201,7 +207,7 @@ AI services are protected through:
 
 ---
 
-# Monitoring
+## Monitoring
 
 AI services are monitored using:
 
@@ -214,7 +220,7 @@ AI services are monitored using:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future AI capabilities may include:
 
@@ -229,7 +235,7 @@ Future AI capabilities may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -239,11 +245,11 @@ Future AI capabilities may include:
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+| Version | Date        | Description     |
+| ------- | ----------- | --------------- |
+| 1.0.0   | August 2026 | Initial release |
 
 ---
 

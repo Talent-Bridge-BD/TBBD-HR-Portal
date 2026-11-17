@@ -1,31 +1,36 @@
 # Operations Guide
 
-> Operational procedures and administration guidance for maintaining the TBBD HR Portal platform across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, Azure AI services, and GitHub engineering environments.
+> Operational procedures and administration guidance for maintaining the TBBD HR
+Portal platform across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power
+Platform, Azure AI services, and GitHub engineering environments.
 
 ---
 
-# Document Information
+## Document Information
 
-| Property | Value |
+|Property|Value|
 |----------|-------|
-| Repository | TBBD-HR-Portal |
-| Document | Operations Guide |
-| Version | v1.0.0 |
-| Owner | Talent Bridge BD Technology Team |
-| Classification | Internal Enterprise Documentation |
-| Last Updated | August 2026 |
+|Repository|TBBD-HR-Portal|
+|Document|Operations Guide|
+|Version|v1.0.0|
+|--------------|---------------------------------|
+|Classification|Internal Enterprise Documentation|
+|Last Updated|August 2026|
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Operations Guide defines the standard operational practices required to manage, maintain, monitor, and support the platform.
+The TBBD HR Portal Operations Guide defines the standard operational practices
+required to manage, maintain, monitor, and support the platform.
 
-This document provides guidance for administrators, engineers, security teams, and operational stakeholders responsible for ensuring platform reliability and availability.
+This document provides guidance for administrators, engineers, security teams,
+and operational stakeholders responsible for ensuring platform reliability and
+availability.
 
 ---
 
-# Operational Objectives
+## Operational Objectives
 
 The operational objectives are:
 
@@ -39,18 +44,18 @@ The operational objectives are:
 
 ---
 
-# Platform Operations Scope
+## Platform Operations Scope
 
 Operations cover:
 
-## Application Platform
+### Application Platform
 
 - TBBD HR Portal application
 - API services
 - Application components
 - Supporting services
 
-## Microsoft Azure
+### Microsoft Azure
 
 - Resource groups
 - Compute services
@@ -58,14 +63,14 @@ Operations cover:
 - Azure AI services
 - Monitoring services
 
-## Microsoft 365
+### Microsoft 365
 
 - Microsoft Teams
 - SharePoint Online
 - Exchange Online
 - OneDrive
 
-## Identity
+### Identity
 
 - Microsoft Entra ID
 - Users
@@ -73,7 +78,7 @@ Operations cover:
 - Roles
 - Access policies
 
-## DevOps
+### DevOps
 
 - GitHub repositories
 - GitHub Actions
@@ -82,7 +87,7 @@ Operations cover:
 
 ---
 
-# Operational Model
+## Operational Model
 
 ```text
 Users
@@ -122,9 +127,9 @@ Continuous Improvement
 
 ---
 
-# Daily Operations Checklist
+## Daily Operations Checklist
 
-## Application Health
+### Application Health
 
 Review:
 
@@ -136,7 +141,7 @@ Review:
 
 ---
 
-## Azure Health
+### Azure Health
 
 Check:
 
@@ -148,7 +153,7 @@ Check:
 
 ---
 
-## Identity Operations
+### Identity Operations
 
 Review:
 
@@ -159,7 +164,7 @@ Review:
 
 ---
 
-## Security Operations
+### Security Operations
 
 Review:
 
@@ -170,9 +175,9 @@ Review:
 
 ---
 
-# Administration Activities
+## Administration Activities
 
-## User Management
+### User Management
 
 Administrators manage:
 
@@ -189,7 +194,7 @@ Principles:
 
 ---
 
-# Application Administration
+## Application Administration
 
 Activities include:
 
@@ -201,7 +206,7 @@ Activities include:
 
 ---
 
-# Change Management
+## Change Management
 
 All production changes should follow:
 
@@ -241,7 +246,7 @@ Validation
 
 ---
 
-# Release Management
+## Release Management
 
 Releases should include:
 
@@ -253,7 +258,7 @@ Releases should include:
 
 ---
 
-# Operational Security
+## Operational Security
 
 Operations follow:
 
@@ -272,7 +277,7 @@ Security technologies:
 
 ---
 
-# Backup Responsibilities
+## Backup Responsibilities
 
 Operations teams should ensure:
 
@@ -283,7 +288,7 @@ Operations teams should ensure:
 
 ---
 
-# Incident Handling
+## Incident Handling
 
 Operational incidents should follow:
 
@@ -300,7 +305,7 @@ Detailed procedures are defined in:
 
 ---
 
-# Monitoring Responsibilities
+## Monitoring Responsibilities
 
 Monitoring includes:
 
@@ -316,7 +321,131 @@ Detailed monitoring guidance:
 
 ---
 
-# Operational Documentation Standards
+## Maintenance Management
+
+The maintenance framework defines the activities required to maintain platform
+reliability, security, performance, and operational readiness. Regular
+maintenance supports business requirements while accommodating technology
+changes and security improvements.
+
+### Maintenance Objectives
+
+Maintenance activities aim to:
+
+- Maintain platform stability.
+- Apply security improvements.
+- Reduce operational risks.
+- Keep dependencies updated.
+- Improve performance.
+- Maintain documentation accuracy.
+
+### Maintenance Categories
+
+Maintenance activities cover:
+
+- **Application maintenance:** Application updates, bug fixes, performance
+  improvements, feature enhancements, and configuration reviews.
+- **Infrastructure maintenance:** Resource health, configuration, capacity,
+  performance, and security recommendations across Azure services.
+- **Security maintenance:** Vulnerability reviews, security recommendations,
+  access reviews, policy validation, and threat monitoring.
+- **Identity maintenance:** User-access reviews, privileged-role validation,
+  Conditional Access reviews, and authentication-event monitoring.
+- **Dependency management:** Application packages, APIs, Microsoft service
+  updates, and Azure platform changes.
+- **Documentation maintenance:** Updates to README files, architecture
+  documents, operational procedures, and governance documents.
+
+Application maintenance must follow development standards, code review, testing
+procedures, and deployment approvals.
+
+Security and identity maintenance must follow least-privilege, Zero Trust, and
+secure-administration principles.
+
+### Infrastructure as Code Maintenance
+
+Maintain the platform's infrastructure definitions and deployment resources,
+including:
+
+- Azure Bicep templates.
+- Terraform configurations.
+- Deployment scripts.
+- Environment definitions.
+
+Infrastructure definitions should remain version-controlled and subject to
+review and validation. Maintaining them supports consistent deployments and
+repeatable recovery.
+
+### Dependency Management Procedures
+
+Review application dependencies, packages, APIs, Microsoft service updates, and
+Azure platform changes.
+
+Dependency updates should include:
+
+- Testing.
+- Compatibility validation.
+- Change documentation.
+
+### Documentation Maintenance Triggers
+
+Review and update operational documentation when:
+
+- Architecture changes.
+- New services are introduced.
+- Operational processes change.
+- Security controls are updated.
+
+Keep operational procedures aligned with the implemented platform and approved
+governance requirements.
+
+### Maintenance Schedule
+
+The following schedule is recommended:
+
+|Frequency|Activity|
+|---|---|
+|Daily|Health monitoring and alert review|
+|Weekly|Operational review|
+|Monthly|Security and configuration review|
+|Quarterly|Architecture and governance review|
+|Annually|Full platform assessment|
+
+The schedule complements the daily operational checks elsewhere in this guide.
+Teams should document completed reviews and track follow-up actions.
+
+### Maintenance Responsibilities
+
+|Role|Responsibility|
+|---|---|
+|Technology Team|Platform maintenance|
+|Developers|Application updates|
+|Security Team|Security validation|
+|Administrators|Configuration management|
+|Business Owners|Functional validation|
+
+Responsibilities should be coordinated with the platform's existing operational,
+security, and change-approval processes.
+
+### Operational Health Review
+
+Review the following as part of ongoing maintenance:
+
+- Availability.
+- Performance.
+- Security posture.
+- User feedback.
+- Technical debt.
+
+Record material findings and track agreed improvement actions.
+
+### Maintenance Best Practices
+
+Follow an automation-first approach, maintain documented procedures, control
+changes, conduct regular reviews, prioritize security, and pursue continuous
+improvement.
+
+## Operational Documentation Standards
 
 Operational documents should include:
 
@@ -329,7 +458,7 @@ Operational documents should include:
 
 ---
 
-# Operational Best Practices
+## Operational Best Practices
 
 The TBBD HR Portal follows:
 
@@ -342,33 +471,32 @@ The TBBD HR Portal follows:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Monitoring.md
 - Backup-Disaster-Recovery.md
 - Incident-Response.md
 - Business-Continuity.md
-- Maintenance.md
 
-## Governance
+### Governance
 
 - Governance-Framework.md
 - Enterprise-Standards.md
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Azure-Deployment-Architecture.md
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+|Version|Date|Description|
+|-------|-----------|---------------|
+|1.0.0|August 2026|Initial release|
 
 ---
 

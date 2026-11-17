@@ -1,10 +1,12 @@
 # Coding Standards
 
-> Enterprise coding standards for the TBBD HR Portal platform defining secure development practices, code quality guidelines, naming conventions, testing expectations, and maintainability principles.
+> Enterprise coding standards for the TBBD HR Portal platform defining
+> secure development practices, code quality guidelines, naming
+> conventions, testing expectations, and maintainability principles.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,17 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal follows standardized coding practices to ensure secure, reliable, maintainable, and scalable software development.
+The TBBD HR Portal follows standardized coding practices to ensure
+secure, reliable, maintainable, and scalable software development.
 
-These standards apply to application code, APIs, automation scripts, infrastructure code, and supporting development resources.
+These standards apply to application code, APIs, automation scripts,
+infrastructure code, and supporting development resources.
 
 ---
 
-# Coding Objectives
+## Coding Objectives
 
 Coding standards aim to:
 
@@ -38,7 +42,7 @@ Coding standards aim to:
 
 ---
 
-# Core Development Principles
+## Core Development Principles
 
 Developers should follow:
 
@@ -51,7 +55,7 @@ Developers should follow:
 
 ---
 
-# General Coding Guidelines
+## General Coding Guidelines
 
 All code should be:
 
@@ -70,9 +74,9 @@ Avoid:
 
 ---
 
-# Naming Conventions
+## Naming Conventions
 
-## General Rules
+### General Rules
 
 Use:
 
@@ -88,17 +92,17 @@ Avoid:
 
 ---
 
-# File Naming
+## File Naming
 
 Documentation:
 
-```
+```text
 Pascal-Case-With-Hyphen.md
 ```
 
 Examples:
 
-```
+```text
 Security-Architecture.md
 
 Deployment-Pipeline.md
@@ -106,13 +110,13 @@ Deployment-Pipeline.md
 
 ---
 
-# Code Naming
+## Code Naming
 
 Follow language-specific standards.
 
 Examples:
 
-## JavaScript / TypeScript
+### JavaScript / TypeScript
 
 Variables:
 
@@ -134,7 +138,7 @@ EmployeeService
 
 ---
 
-## Python
+### Python
 
 Variables:
 
@@ -156,7 +160,7 @@ EmployeeService
 
 ---
 
-# Application Structure
+## Application Structure
 
 Applications should separate:
 
@@ -184,7 +188,7 @@ Benefits:
 
 ---
 
-# API Development Standards
+## API Development Standards
 
 APIs should follow:
 
@@ -196,7 +200,7 @@ APIs should follow:
 
 Example:
 
-```
+```text
 GET    /api/employees
 
 POST   /api/employees
@@ -208,7 +212,7 @@ DELETE /api/employees/{id}
 
 ---
 
-# Error Handling
+## Error Handling
 
 Applications should:
 
@@ -226,7 +230,7 @@ Never expose:
 
 ---
 
-# Security Coding Practices
+## Security Coding Practices
 
 Follow:
 
@@ -244,7 +248,7 @@ Avoid:
 
 ---
 
-# Secret Management
+## Secret Management
 
 Secrets must be stored using:
 
@@ -260,7 +264,7 @@ Never store secrets in:
 
 ---
 
-# Dependency Management
+## Dependency Management
 
 Dependencies should be:
 
@@ -271,7 +275,7 @@ Dependencies should be:
 
 ---
 
-# Infrastructure Code Standards
+## Infrastructure Code Standards
 
 Infrastructure code should follow:
 
@@ -287,25 +291,25 @@ Supported:
 
 ---
 
-# Testing Standards
+## Testing Standards
 
 Code should include appropriate testing:
 
-## Unit Testing
+### Unit Testing
 
 Validate individual components.
 
-## Integration Testing
+### Integration Testing
 
 Validate service communication.
 
-## Security Testing
+### Security Testing
 
 Validate security controls.
 
 ---
 
-# Code Review Standards
+## Code Review Standards
 
 Review should check:
 
@@ -317,7 +321,7 @@ Review should check:
 
 ---
 
-# Documentation Requirements
+## Documentation Requirements
 
 Developers should update:
 
@@ -328,7 +332,7 @@ Developers should update:
 
 ---
 
-# AI Development Standards
+## AI Development Standards
 
 For AI-enabled features:
 
@@ -349,7 +353,7 @@ Applicable services:
 
 ---
 
-# Code Quality Tools
+## Code Quality Tools
 
 Recommended tools:
 
@@ -363,7 +367,7 @@ Recommended tools:
 
 ---
 
-# Best Practices
+## Best Practices
 
 Developers should:
 
@@ -375,19 +379,18 @@ Developers should:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Repository-Standards.md
 - Deployment-Pipeline.md
-- Branching-Strategy.md
 - Release-Management.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

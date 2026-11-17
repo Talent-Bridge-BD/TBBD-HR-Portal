@@ -1,10 +1,12 @@
 # Responsible AI
 
-> Responsible AI framework defining the principles, controls, and governance practices for the safe, ethical, transparent, and secure use of Artificial Intelligence within the TBBD HR Portal platform.
+> Responsible AI framework defining the principles, controls, and governance
+> practices for the safe, ethical, transparent, and secure use of Artificial
+> Intelligence within the TBBD HR Portal platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,17 +19,22 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal incorporates Artificial Intelligence capabilities to improve employee experiences, automate HR processes, enhance knowledge discovery, and support workplace productivity.
+The TBBD HR Portal incorporates Artificial Intelligence capabilities to
+improve employee experiences, automate HR processes, enhance knowledge
+discovery, and support workplace productivity.
 
-Responsible AI governance ensures that AI technologies are designed, deployed, and operated with appropriate human oversight, security controls, privacy protection, and ethical considerations.
+Responsible AI governance ensures that AI technologies are designed, deployed,
+and operated with appropriate human oversight, security controls, privacy
+protection, and ethical considerations.
 
-The TBBD AI governance approach aligns with Microsoft Responsible AI principles and enterprise AI governance practices.
+The TBBD AI governance approach aligns with Microsoft Responsible AI
+principles and enterprise AI governance practices.
 
 ---
 
-# AI Governance Objectives
+## AI Governance Objectives
 
 The Responsible AI framework aims to:
 
@@ -41,9 +48,9 @@ The Responsible AI framework aims to:
 
 ---
 
-# TBBD AI Principles
+## TBBD AI Principles
 
-## Fairness
+### Fairness
 
 AI systems should support fair and consistent experiences.
 
@@ -56,7 +63,7 @@ Controls:
 
 ---
 
-## Reliability and Safety
+### Reliability and Safety
 
 AI services must operate reliably and securely.
 
@@ -70,7 +77,7 @@ Controls:
 
 ---
 
-## Privacy and Security
+### Privacy and Security
 
 AI solutions must protect enterprise and personal information.
 
@@ -84,7 +91,7 @@ Controls:
 
 ---
 
-## Transparency
+### Transparency
 
 Users should understand when AI is being used.
 
@@ -97,7 +104,7 @@ Practices:
 
 ---
 
-## Accountability
+### Accountability
 
 Human responsibility remains central.
 
@@ -110,7 +117,7 @@ Principles:
 
 ---
 
-# TBBD AI Services
+## TBBD AI Services
 
 The Responsible AI framework applies to:
 
@@ -126,7 +133,7 @@ The Responsible AI framework applies to:
 
 ---
 
-# AI Usage Governance
+## AI Usage Governance
 
 AI solutions should follow these lifecycle stages:
 
@@ -172,7 +179,7 @@ Continuous Improvement
 
 ---
 
-# Human Oversight
+## Human Oversight
 
 AI capabilities provide assistance and recommendations.
 
@@ -188,7 +195,7 @@ AI does not replace appropriate human judgment.
 
 ---
 
-# AI Data Governance
+## AI Data Governance
 
 AI data management includes:
 
@@ -201,7 +208,7 @@ AI data management includes:
 
 ---
 
-# AI Security Controls
+## AI Security Controls
 
 AI security includes:
 
@@ -221,7 +228,7 @@ Technology:
 
 ---
 
-# AI Risk Management
+## AI Risk Management
 
 Potential AI risks are managed through:
 
@@ -235,7 +242,7 @@ Potential AI risks are managed through:
 
 ---
 
-# AI Monitoring
+## AI Monitoring
 
 AI services are monitored for:
 
@@ -248,7 +255,7 @@ AI services are monitored for:
 
 ---
 
-# AI Governance Responsibilities
+## AI Governance Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -260,7 +267,7 @@ AI services are monitored for:
 
 ---
 
-# Future AI Governance Enhancements
+## Future AI Governance Enhancements
 
 Future improvements may include:
 
@@ -273,7 +280,7 @@ Future improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance-Framework.md
 - Compliance.md
@@ -283,7 +290,7 @@ Future improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

@@ -1,10 +1,13 @@
 # Monitoring Architecture
 
-> Monitoring architecture for the **TBBD HR Portal**, describing the observability strategy, monitoring services, logging, alerting, dashboards, and operational health across Microsoft Azure, Microsoft 365, and integrated platform services.
+> Monitoring architecture for the **TBBD HR Portal**, describing the
+> observability strategy, monitoring services, logging, alerting, dashboards,
+> and operational health across Microsoft Azure, Microsoft 365, and integrated
+> platform services.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,17 +21,22 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal monitoring architecture provides centralized observability for applications, infrastructure, identity, security, AI services, and Microsoft 365 integrations.
+The TBBD HR Portal monitoring architecture provides centralized observability
+for applications, infrastructure, identity, security, AI services, and
+Microsoft 365 integrations.
 
-The platform uses Microsoft monitoring and security services to provide real-time visibility into application performance, infrastructure health, security events, operational metrics, and user experience.
+The platform uses Microsoft monitoring and security services to provide
+real-time visibility into application performance, infrastructure health,
+security events, operational metrics, and user experience.
 
-The monitoring strategy supports proactive issue detection, rapid incident response, operational excellence, and continuous improvement.
+The monitoring strategy supports proactive issue detection, rapid incident
+response, operational excellence, and continuous improvement.
 
 ---
 
-# Objectives
+## Objectives
 
 The monitoring architecture is designed to:
 
@@ -43,7 +51,7 @@ The monitoring architecture is designed to:
 
 ---
 
-# Monitoring Principles
+## Monitoring Principles
 
 The platform follows these monitoring principles:
 
@@ -58,7 +66,7 @@ The platform follows these monitoring principles:
 
 ---
 
-# Monitoring Architecture
+## Monitoring Architecture Diagram
 
 ```text
 Users
@@ -94,7 +102,7 @@ Operations Team
 
 ---
 
-# Monitoring Components
+## Monitoring Components
 
 | Component | Purpose |
 |----------|---------|
@@ -109,7 +117,7 @@ Operations Team
 
 ---
 
-# Application Monitoring
+## Application Monitoring
 
 Application monitoring includes:
 
@@ -124,7 +132,7 @@ Application monitoring includes:
 
 ---
 
-# Infrastructure Monitoring
+## Infrastructure Monitoring
 
 Infrastructure monitoring includes:
 
@@ -139,7 +147,7 @@ Infrastructure monitoring includes:
 
 ---
 
-# Identity Monitoring
+## Identity Monitoring
 
 Identity services are monitored through Microsoft Entra ID.
 
@@ -154,7 +162,7 @@ Capabilities include:
 
 ---
 
-# Security Monitoring
+## Security Monitoring
 
 Security monitoring includes:
 
@@ -168,7 +176,7 @@ Security monitoring includes:
 
 ---
 
-# AI Monitoring
+## AI Monitoring
 
 AI services are monitored using:
 
@@ -182,7 +190,7 @@ AI services are monitored using:
 
 ---
 
-# Logging Strategy
+## Logging Strategy
 
 Logs are collected from:
 
@@ -199,7 +207,7 @@ Logs are centralized in Azure Monitor and Log Analytics for analysis and retenti
 
 ---
 
-# Alerting Strategy
+## Alerting Strategy
 
 Alerts may be configured for:
 
@@ -221,7 +229,7 @@ Alerts can be delivered through:
 
 ---
 
-# Dashboards
+## Dashboards
 
 Operational dashboards may include:
 
@@ -236,7 +244,7 @@ Operational dashboards may include:
 
 ---
 
-# Reporting
+## Reporting
 
 Regular reporting includes:
 
@@ -250,7 +258,7 @@ Regular reporting includes:
 
 ---
 
-# Operational Response
+## Operational Response
 
 The monitoring process follows a structured operational workflow.
 
@@ -278,7 +286,7 @@ Continuous Improvement
 
 ---
 
-# Best Practices
+## Best Practices
 
 The platform follows these monitoring best practices:
 
@@ -293,7 +301,7 @@ The platform follows these monitoring best practices:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future monitoring capabilities may include:
 
@@ -308,7 +316,7 @@ Future monitoring capabilities may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -318,7 +326,7 @@ Future monitoring capabilities may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

@@ -1,20 +1,28 @@
 # Architecture Documentation
 
-> Architecture documentation for the **TBBD HR Portal**, providing a comprehensive overview of the platform's enterprise architecture, solution design, Microsoft cloud integration, security model, and deployment patterns.
+> Architecture documentation for the **TBBD HR Portal**, providing a
+> comprehensive overview of the platform's enterprise architecture, solution
+> design, Microsoft cloud integration, security model, and deployment
+> patterns.
 
 ---
 
 ## Overview
 
-The Architecture documentation describes how the TBBD HR Portal is designed, deployed, integrated, secured, and operated across Microsoft Azure and Microsoft 365.
+The Architecture documentation describes how the TBBD HR Portal is designed,
+deployed, integrated, secured, and operated across Microsoft Azure and
+Microsoft 365.
 
-This section provides architects, developers, administrators, and project stakeholders with the technical foundation required to understand the platform's overall design and implementation.
+This section provides architects, developers, administrators, and project
+stakeholders with the technical foundation required to understand the
+platform's overall design and implementation.
 
-The architecture follows Microsoft Cloud Adoption Framework (CAF), Azure Well-Architected Framework, and Zero Trust security principles.
+The architecture follows Microsoft Cloud Adoption Framework (CAF), Azure
+Well-Architected Framework, and Zero Trust security principles.
 
 ---
 
-# Architecture Principles
+## Architecture Principles
 
 The TBBD HR Portal is designed using the following principles:
 
@@ -33,7 +41,7 @@ The TBBD HR Portal is designed using the following principles:
 
 ---
 
-# Architecture Domains
+## Architecture Domains
 
 The architecture is organized into the following domains.
 
@@ -52,9 +60,9 @@ The architecture is organized into the following domains.
 
 ---
 
-# Architecture Documents
+## Architecture Documents
 
-## Enterprise Architecture
+### Enterprise Architecture
 
 | Document | Purpose |
 |----------|---------|
@@ -71,7 +79,7 @@ The architecture is organized into the following domains.
 
 ---
 
-# High-Level Architecture
+## High-Level Architecture
 
 ```text
 Users
@@ -109,7 +117,7 @@ Enterprise Security & Governance
 
 ---
 
-# Design Goals
+## Design Goals
 
 The architecture is designed to:
 
@@ -124,7 +132,7 @@ The architecture is designed to:
 
 ---
 
-# Microsoft Technologies
+## Microsoft Technologies
 
 The architecture integrates:
 
@@ -147,7 +155,7 @@ The architecture integrates:
 
 ---
 
-# Design Standards
+## Design Standards
 
 The architecture aligns with:
 
@@ -161,7 +169,7 @@ The architecture aligns with:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance Documentation
 - Operations Documentation
@@ -171,7 +179,7 @@ The architecture aligns with:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

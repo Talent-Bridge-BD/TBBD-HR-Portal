@@ -1,10 +1,13 @@
 # Deployment Pipeline
 
-> Continuous Integration and Continuous Deployment (CI/CD) framework for the TBBD HR Portal platform covering source control, automated validation, infrastructure deployment, application deployment, security checks, and release management.
+> Continuous Integration and Continuous Deployment (CI/CD) framework
+> for the TBBD HR Portal platform covering source control, automated
+> validation, infrastructure deployment, application deployment,
+> security checks, and release management.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +20,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal deployment pipeline provides an automated and controlled process for delivering application updates, infrastructure changes, and platform improvements.
+The TBBD HR Portal deployment pipeline provides an automated and
+controlled process for delivering application updates, infrastructure
+changes, and platform improvements.
 
-The pipeline integrates GitHub, GitHub Actions, Microsoft Azure, Infrastructure as Code, security validation, and operational monitoring.
+The pipeline integrates GitHub, GitHub Actions, Microsoft Azure,
+Infrastructure as Code, security validation, and operational
+monitoring.
 
 ---
 
-# Deployment Objectives
+## Deployment Objectives
 
 The deployment pipeline aims to:
 
@@ -38,7 +45,7 @@ The deployment pipeline aims to:
 
 ---
 
-# CI/CD Model
+## CI/CD Model
 
 The TBBD HR Portal follows a continuous delivery approach:
 
@@ -84,7 +91,7 @@ Monitoring & Operations
 
 ---
 
-# Pipeline Components
+## Pipeline Components
 
 | Component | Technology |
 |-----------|------------|
@@ -98,7 +105,7 @@ Monitoring & Operations
 
 ---
 
-# Environment Strategy
+## Environment Strategy
 
 Recommended environments:
 
@@ -120,7 +127,7 @@ Production
 
 ---
 
-# Development Environment
+## Development Environment
 
 Purpose:
 
@@ -136,7 +143,7 @@ Activities:
 
 ---
 
-# Testing Environment
+## Testing Environment
 
 Purpose:
 
@@ -152,7 +159,7 @@ Activities:
 
 ---
 
-# Production Environment
+## Production Environment
 
 Purpose:
 
@@ -168,7 +175,7 @@ Requirements:
 
 ---
 
-# Pull Request Pipeline
+## Pull Request Pipeline
 
 When a pull request is created:
 
@@ -208,7 +215,7 @@ Review Approval
 
 ---
 
-# Build Process
+## Build Process
 
 The build process validates:
 
@@ -219,17 +226,17 @@ The build process validates:
 
 ---
 
-# Testing Pipeline
+## Testing Pipeline
 
 Testing stages include:
 
-## Unit Testing
+### Unit Testing
 
 Validates individual components.
 
 ---
 
-## Integration Testing
+### Integration Testing
 
 Validates:
 
@@ -240,7 +247,7 @@ Validates:
 
 ---
 
-## Security Testing
+### Security Testing
 
 Validates:
 
@@ -251,7 +258,7 @@ Validates:
 
 ---
 
-# Infrastructure Deployment
+## Infrastructure Deployment
 
 Infrastructure deployment uses:
 
@@ -284,11 +291,11 @@ Azure Resources
 
 ---
 
-# GitHub Actions Workflow
+## GitHub Actions Workflow
 
 Workflow location:
 
-```
+```text
 .github/workflows/
 ```
 
@@ -306,7 +313,7 @@ infrastructure-deploy.yml
 
 ---
 
-# Deployment Security
+## Deployment Security
 
 Pipeline security controls include:
 
@@ -318,7 +325,7 @@ Pipeline security controls include:
 
 ---
 
-# Azure Authentication
+## Azure Authentication
 
 Recommended authentication:
 
@@ -333,23 +340,23 @@ Avoid:
 
 ---
 
-# Deployment Validation
+## Deployment Validation
 
 After deployment validate:
 
-## Application
+### Application
 
 - Availability
 - Functionality
 - Performance
 
-## Infrastructure
+### Infrastructure
 
 - Resource health
 - Configuration
 - Monitoring
 
-## Security
+### Security
 
 - Access controls
 - Policies
@@ -357,7 +364,7 @@ After deployment validate:
 
 ---
 
-# Rollback Strategy
+## Rollback Strategy
 
 Rollback should include:
 
@@ -368,7 +375,7 @@ Rollback should include:
 
 ---
 
-# Monitoring Integration
+## Monitoring Integration
 
 Deployment monitoring uses:
 
@@ -385,7 +392,7 @@ Monitor:
 
 ---
 
-# Release Approval
+## Release Approval
 
 Production deployment requires:
 
@@ -396,7 +403,7 @@ Production deployment requires:
 
 ---
 
-# Best Practices
+## Best Practices
 
 Follow:
 
@@ -409,24 +416,23 @@ Follow:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Repository-Standards.md
-- Branching-Strategy.md
 - Coding-Standards.md
 - Release-Management.md
 
-## Operations
+### Operations
 
 - Monitoring.md
 - Operations-Guide.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

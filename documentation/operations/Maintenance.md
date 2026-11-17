@@ -1,10 +1,12 @@
 # Maintenance
 
-> Maintenance framework for the TBBD HR Portal platform covering application updates, Azure resource management, security improvements, documentation lifecycle, dependency management, and operational health activities.
+> Maintenance framework for the TBBD HR Portal platform covering application
+> updates, Azure resource management, security improvements, documentation
+> lifecycle, dependency management, and operational health activities.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,17 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Maintenance framework defines the activities required to maintain platform reliability, security, performance, and operational readiness.
+The TBBD HR Portal Maintenance framework defines the activities required to
+maintain platform reliability, security, performance, and operational readiness.
 
-Regular maintenance ensures the platform continues to meet business requirements while adapting to technology changes and security improvements.
+Regular maintenance ensures the platform continues to meet business requirements
+while adapting to technology changes and security improvements.
 
 ---
 
-# Maintenance Objectives
+## Maintenance Objectives
 
 The maintenance process aims to:
 
@@ -38,7 +42,7 @@ The maintenance process aims to:
 
 ---
 
-# Maintenance Categories
+## Maintenance Categories
 
 Maintenance activities are divided into:
 
@@ -51,7 +55,7 @@ Maintenance activities are divided into:
 
 ---
 
-# Application Maintenance
+## Application Maintenance
 
 Activities include:
 
@@ -70,11 +74,11 @@ Application maintenance should follow:
 
 ---
 
-# Infrastructure Maintenance
+## Infrastructure Maintenance
 
 Infrastructure maintenance includes:
 
-## Azure Resources
+### Azure Resources
 
 Review:
 
@@ -94,7 +98,7 @@ Services:
 
 ---
 
-# Infrastructure as Code Maintenance
+## Infrastructure as Code Maintenance
 
 Maintain:
 
@@ -111,7 +115,7 @@ Benefits:
 
 ---
 
-# Security Maintenance
+## Security Maintenance
 
 Security activities include:
 
@@ -130,7 +134,7 @@ Security platforms:
 
 ---
 
-# Identity Maintenance
+## Identity Maintenance
 
 Identity activities:
 
@@ -148,7 +152,7 @@ Principles:
 
 ---
 
-# Dependency Management
+## Dependency Management
 
 Review:
 
@@ -166,7 +170,7 @@ Dependency updates should include:
 
 ---
 
-# Documentation Maintenance
+## Documentation Maintenance
 
 Documentation should be updated when:
 
@@ -184,7 +188,7 @@ Maintain:
 
 ---
 
-# Maintenance Schedule
+## Maintenance Schedule
 
 Recommended schedule:
 
@@ -198,7 +202,7 @@ Recommended schedule:
 
 ---
 
-# Change Management
+## Change Management
 
 Maintenance changes should follow:
 
@@ -238,7 +242,7 @@ Validate
 
 ---
 
-# Release Maintenance
+## Release Maintenance
 
 Release activities include:
 
@@ -249,7 +253,7 @@ Release activities include:
 
 ---
 
-# Operational Health Review
+## Operational Health Review
 
 Review:
 
@@ -261,7 +265,7 @@ Review:
 
 ---
 
-# Maintenance Responsibilities
+## Maintenance Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -273,7 +277,7 @@ Review:
 
 ---
 
-# Best Practices
+## Best Practices
 
 Follow:
 
@@ -286,9 +290,9 @@ Follow:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
@@ -296,19 +300,19 @@ Follow:
 - Incident-Response.md
 - Business-Continuity.md
 
-## Governance
+### Governance
 
 - Governance-Framework.md
 - Enterprise-Standards.md
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Deployment-Pipeline.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

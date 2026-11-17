@@ -1,10 +1,12 @@
 # Incident Response
 
-> Incident management framework for the TBBD HR Portal platform covering operational issues, security events, application failures, Microsoft Azure incidents, Microsoft 365 issues, and service disruptions.
+> Incident management framework for the TBBD HR Portal platform covering
+> operational issues, security events, application failures, Microsoft Azure
+> incidents, Microsoft 365 issues, and service disruptions.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Incident Response framework defines the processes required to identify, analyze, respond to, recover from, and learn from incidents affecting the platform.
+The TBBD HR Portal Incident Response framework defines the processes required
+to identify, analyze, respond to, recover from, and learn from incidents
+affecting the platform.
 
-The objective is to restore normal service operation quickly while maintaining security, transparency, and continuous improvement.
+The objective is to restore normal service operation quickly while maintaining
+security, transparency, and continuous improvement.
 
 ---
 
-# Incident Response Objectives
+## Incident Response Objectives
 
 The incident response process aims to:
 
@@ -39,9 +44,9 @@ The incident response process aims to:
 
 ---
 
-# Incident Categories
+## Incident Categories
 
-## Application Incidents
+### Application Incidents
 
 Examples:
 
@@ -52,7 +57,7 @@ Examples:
 
 ---
 
-## Infrastructure Incidents
+### Infrastructure Incidents
 
 Examples:
 
@@ -63,7 +68,7 @@ Examples:
 
 ---
 
-## Identity Incidents
+### Identity Incidents
 
 Examples:
 
@@ -74,7 +79,7 @@ Examples:
 
 ---
 
-## Security Incidents
+### Security Incidents
 
 Examples:
 
@@ -85,7 +90,7 @@ Examples:
 
 ---
 
-## Integration Incidents
+### Integration Incidents
 
 Examples:
 
@@ -96,7 +101,7 @@ Examples:
 
 ---
 
-# Incident Severity Classification
+## Incident Severity Classification
 
 | Severity | Description | Response |
 |----------|-------------|----------|
@@ -107,7 +112,7 @@ Examples:
 
 ---
 
-# Incident Lifecycle
+## Incident Lifecycle
 
 ```text
 Detection
@@ -145,23 +150,23 @@ Post-Incident Review
 
 ---
 
-# Detection Sources
+## Detection Sources
 
 Incidents may be detected through:
 
-## Monitoring Systems
+### Monitoring Systems
 
 - Azure Monitor
 - Application Insights
 - Log Analytics
 - Microsoft Sentinel
 
-## Security Platforms
+### Security Platforms
 
 - Microsoft Defender
 - Microsoft Purview
 
-## User Reports
+### User Reports
 
 - Employees
 - HR teams
@@ -170,7 +175,7 @@ Incidents may be detected through:
 
 ---
 
-# Initial Response
+## Initial Response
 
 The responder should:
 
@@ -182,7 +187,7 @@ The responder should:
 
 ---
 
-# Investigation Process
+## Investigation Process
 
 Investigation activities:
 
@@ -202,7 +207,7 @@ Tools:
 
 ---
 
-# Containment
+## Containment
 
 Containment actions may include:
 
@@ -213,7 +218,7 @@ Containment actions may include:
 
 ---
 
-# Resolution Process
+## Resolution Process
 
 Resolution includes:
 
@@ -224,7 +229,7 @@ Resolution includes:
 
 ---
 
-# Communication Process
+## Communication Process
 
 Incident communication should include:
 
@@ -236,7 +241,7 @@ Incident communication should include:
 
 ---
 
-# Security Incident Handling
+## Security Incident Handling
 
 Security incidents require:
 
@@ -248,7 +253,7 @@ Security incidents require:
 
 ---
 
-# Post-Incident Review
+## Post-Incident Review
 
 After resolution:
 
@@ -268,7 +273,7 @@ Document:
 
 ---
 
-# Incident Responsibilities
+## Incident Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -280,7 +285,7 @@ Document:
 
 ---
 
-# Incident Documentation
+## Incident Documentation
 
 Every significant incident should record:
 
@@ -293,7 +298,7 @@ Every significant incident should record:
 
 ---
 
-# Best Practices
+## Best Practices
 
 Follow:
 
@@ -305,24 +310,24 @@ Follow:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
 - Backup-Disaster-Recovery.md
 - Business-Continuity.md
-- Maintenance.md
+- Operations-Guide.md
 
-## Security
+### Security
 
 - Security-Architecture.md
 - Compliance.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

@@ -1,31 +1,36 @@
 # Future Roadmap
 
-> Strategic evolution roadmap for the TBBD HR Portal platform defining future capabilities, technology expansion, innovation priorities, and enterprise transformation initiatives.
+> Strategic evolution roadmap for the TBBD HR Portal platform defining future
+> capabilities, technology expansion, innovation priorities, and enterprise
+> transformation initiatives.
 
 ---
 
-# Document Information
+## Document Information
 
-| Property | Value |
+|Property|Value|
 |----------|-------|
-| Repository | TBBD-HR-Portal |
-| Document | Future Roadmap |
-| Version | v1.0.0 |
-| Owner | Talent Bridge BD Technology Team |
-| Classification | Internal Enterprise Documentation |
-| Last Updated | August 2026 |
+|Repository|TBBD-HR-Portal|
+|Document|Future Roadmap|
+|Version|v1.0.0|
+|Owner|Talent Bridge BD Technology Team|
+|Classification|Internal Enterprise Documentation|
+|Last Updated|August 2026|
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Future Roadmap defines the planned evolution of the platform from a modern HR solution into an intelligent, AI-enabled, enterprise workforce platform.
+The TBBD HR Portal Future Roadmap defines the planned evolution of the platform
+from a modern HR solution into an intelligent, AI-enabled, enterprise workforce
+platform.
 
-The roadmap aligns business transformation objectives with Microsoft Azure, Microsoft 365, Power Platform, and Azure AI capabilities.
+The roadmap aligns business transformation objectives with Microsoft Azure,
+Microsoft 365, Power Platform, and Azure AI capabilities.
 
 ---
 
-# Roadmap Vision
+## Roadmap Vision
 
 Build an intelligent workforce platform that enables:
 
@@ -37,7 +42,7 @@ Build an intelligent workforce platform that enables:
 
 ---
 
-# Strategic Roadmap
+## Strategic Roadmap
 
 ```text
 Foundation
@@ -69,13 +74,13 @@ Continuous Innovation
 
 ---
 
-# Phase 1: Platform Foundation
+## Phase 1: Platform Foundation
 
-## Objective
+### Phase 1 Objective
 
 Establish a secure, scalable, and governed HR platform foundation.
 
-## Key Initiatives
+### Key Initiatives
 
 - Enterprise architecture implementation
 - Microsoft Entra ID integration
@@ -84,7 +89,7 @@ Establish a secure, scalable, and governed HR platform foundation.
 - Secure application foundation
 - DevOps automation
 
-## Expected Outcomes
+### Expected Outcomes
 
 - Secure HR platform foundation
 - Standardized development processes
@@ -92,15 +97,15 @@ Establish a secure, scalable, and governed HR platform foundation.
 
 ---
 
-# Phase 2: Digital HR Experience
+## Phase 2: Digital HR Experience
 
-## Objective
+### Phase 2 Objective
 
 Improve employee and HR team experiences through digital services.
 
-## Planned Capabilities
+### Phase 2 Planned Capabilities
 
-### Employee Self-Service
+#### Employee Self-Service
 
 - Employee profile management
 - Digital HR requests
@@ -109,7 +114,7 @@ Improve employee and HR team experiences through digital services.
 
 ---
 
-### HR Operations
+#### HR Operations
 
 - Recruitment workflows
 - Candidate management
@@ -118,7 +123,7 @@ Improve employee and HR team experiences through digital services.
 
 ---
 
-### Collaboration
+#### Collaboration
 
 Integration with:
 
@@ -128,15 +133,15 @@ Integration with:
 
 ---
 
-# Phase 3: AI-Powered Workforce
+## Phase 3: AI-Powered Workforce
 
-## Objective
+### Phase 3 Objective
 
 Introduce intelligent automation and AI-assisted HR experiences.
 
-## Planned Capabilities
+### Phase 3 Planned Capabilities
 
-### TBBD TalentAI
+#### TBBD TalentAI
 
 Expansion of:
 
@@ -147,7 +152,7 @@ Expansion of:
 
 ---
 
-### HR Copilot
+#### HR Copilot
 
 Capabilities:
 
@@ -158,7 +163,7 @@ Capabilities:
 
 ---
 
-### AI Services
+#### AI Services
 
 Potential integration:
 
@@ -169,15 +174,15 @@ Potential integration:
 
 ---
 
-# Phase 4: Enterprise Intelligence
+## Phase 4: Enterprise Intelligence
 
-## Objective
+### Phase 4 Objective
 
 Enable advanced workforce insights and data-driven decisions.
 
-## Planned Capabilities
+### Phase 4 Planned Capabilities
 
-### Analytics
+#### Analytics
 
 - Workforce dashboards
 - Recruitment analytics
@@ -186,7 +191,7 @@ Enable advanced workforce insights and data-driven decisions.
 
 ---
 
-### Automation
+#### Automation
 
 - Intelligent workflows
 - Automated approvals
@@ -195,7 +200,7 @@ Enable advanced workforce insights and data-driven decisions.
 
 ---
 
-### Data Platform
+#### Data Platform
 
 Future capabilities:
 
@@ -205,9 +210,9 @@ Future capabilities:
 
 ---
 
-# Phase 5: Continuous Innovation
+## Phase 5: Continuous Innovation
 
-## Objective
+### Phase 5 Objective
 
 Continuously improve the platform through technology evolution.
 
@@ -221,9 +226,9 @@ Focus areas:
 
 ---
 
-# Future Technology Areas
+## Future Technology Areas
 
-## Artificial Intelligence
+### Artificial Intelligence
 
 Explore:
 
@@ -234,7 +239,7 @@ Explore:
 
 ---
 
-## Microsoft Cloud
+### Microsoft Cloud
 
 Expand:
 
@@ -245,7 +250,7 @@ Expand:
 
 ---
 
-## User Experience
+### User Experience
 
 Improve:
 
@@ -255,7 +260,7 @@ Improve:
 
 ---
 
-# Security Evolution
+## Security Evolution
 
 Future security improvements:
 
@@ -266,7 +271,7 @@ Future security improvements:
 
 ---
 
-# Governance Evolution
+## Governance Evolution
 
 Future governance areas:
 
@@ -277,7 +282,7 @@ Future governance areas:
 
 ---
 
-# Roadmap Review
+## Roadmap Review
 
 The roadmap should be reviewed:
 
@@ -288,7 +293,7 @@ The roadmap should be reviewed:
 
 ---
 
-# Success Measures
+## Success Measures
 
 Success will be measured through:
 
@@ -301,30 +306,30 @@ Success will be measured through:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Roadmap
+### Roadmap
 
 - Product-Vision.md
 - Release-Plan.md
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Azure-Deployment-Architecture.md
 
-## Governance
+### Governance
 
 - Responsible-AI.md
 - Governance-Framework.md
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+| Version | Date        | Description     |
+| ------- | ----------- | --------------- |
+| 1.0.0   | August 2026 | Initial release |
 
 ---
 

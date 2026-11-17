@@ -1,18 +1,24 @@
 # Operations Documentation
 
-> Enterprise operations documentation for the **TBBD HR Portal**, covering platform administration, monitoring, maintenance, incident response, business continuity, and operational best practices across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI services.
+> Enterprise operations documentation for the **TBBD HR Portal**, covering
+> platform administration, monitoring, maintenance, incident response,
+> business continuity, and operational best practices across Microsoft Azure,
+> Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI services.
 
 ---
 
-# Overview
+## Overview
 
-The Operations documentation provides guidance for managing the TBBD HR Portal throughout its operational lifecycle.
+The Operations documentation provides guidance for managing the TBBD HR Portal
+throughout its operational lifecycle.
 
-It defines operational processes, responsibilities, monitoring practices, maintenance procedures, and recovery strategies required to maintain a secure, reliable, and scalable enterprise platform.
+It defines operational processes, responsibilities, monitoring practices,
+maintenance procedures, and recovery strategies required to maintain a secure,
+reliable, and scalable enterprise platform.
 
 ---
 
-# Objectives
+## Objectives
 
 The Operations documentation aims to:
 
@@ -26,20 +32,20 @@ The Operations documentation aims to:
 
 ---
 
-# Operations Areas
+## Operations Areas
 
-| Area | Description |
-|------|-------------|
-| Operations Guide | Daily administration and platform management |
-| Monitoring | Health monitoring, logging, and alerting |
-| Backup & Disaster Recovery | Data protection and recovery planning |
-| Incident Response | Incident handling and resolution process |
-| Business Continuity | Service resilience and continuity planning |
-| Maintenance | Regular maintenance activities |
+| Area                       | Description                                  |
+| -------------------------- | -------------------------------------------- |
+| Operations Guide           | Daily administration and platform management |
+| Monitoring                 | Health monitoring, logging, and alerting     |
+| Backup & Disaster Recovery | Data protection and recovery planning        |
+| Incident Response          | Incident handling and resolution process     |
+| Business Continuity        | Service resilience and continuity planning   |
+| Maintenance                | Regular maintenance activities               |
 
 ---
 
-# Operational Principles
+## Operational Principles
 
 The TBBD HR Portal follows these principles:
 
@@ -53,7 +59,7 @@ The TBBD HR Portal follows these principles:
 
 ---
 
-# Operations Model
+## Operations Model
 
 ```text
 Business Users
@@ -91,53 +97,52 @@ Continuous Improvement
 
 ---
 
-# Operational Responsibilities
+## Operational Responsibilities
 
-| Role | Responsibility |
-|------|----------------|
-| Technology Team | Platform operations |
-| Administrators | Configuration and support |
-| Security Team | Security monitoring |
-| Developers | Application support |
-| Business Owners | Functional validation |
+| Role            | Responsibility            |
+| --------------- | ------------------------- |
+| Technology Team | Platform operations       |
+| Administrators  | Configuration and support |
+| Security Team   | Security monitoring       |
+| Developers      | Application support       |
+| Business Owners | Functional validation     |
 
 ---
 
-# Documentation Library
+## Documentation Library
 
-| Document | Purpose |
-|----------|---------|
-| Operations-Guide.md | Operational procedures |
-| Monitoring.md | Monitoring and observability |
+| Document                    | Purpose                      |
+| --------------------------- | ---------------------------- |
+| Operations-Guide.md         | Operational procedures       |
+| Monitoring.md               | Monitoring and observability |
 | Backup-Disaster-Recovery.md | Backup and recovery planning |
-| Incident-Response.md | Incident management |
-| Business-Continuity.md | Continuity planning |
-| Maintenance.md | Platform maintenance |
+| Incident-Response.md        | Incident management          |
+| Business-Continuity.md      | Continuity planning          |
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Architecture
+### Architecture
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
 - Security Architecture
 
-## Governance
+### Governance
 
 - Governance Framework
 - Compliance
 - Risk Management
 
-## Development
+### Development
 
 - Development Lifecycle
 - Deployment Pipeline
 
 ---
 
-# Review Cycle
+## Review Cycle
 
 Operations documentation should be reviewed:
 
@@ -149,11 +154,11 @@ Operations documentation should be reviewed:
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+| Version | Date        | Description     |
+| ------- | ----------- | --------------- |
+| 1.0.0   | August 2026 | Initial release |
 
 ---
 

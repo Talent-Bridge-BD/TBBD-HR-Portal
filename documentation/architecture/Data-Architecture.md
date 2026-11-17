@@ -1,10 +1,12 @@
 # Data Architecture
 
-> Data architecture for the **TBBD HR Portal**, describing enterprise data domains, information lifecycle, storage services, governance, security, and data integration across Microsoft Azure and Microsoft 365.
+> Data architecture for the **TBBD HR Portal**, describing enterprise data
+> domains, information lifecycle, storage services, governance, security, and
+> data integration across Microsoft Azure and Microsoft 365.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +20,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal data architecture defines how enterprise Human Resources information is collected, processed, stored, protected, shared, and retained throughout its lifecycle.
+The TBBD HR Portal data architecture defines how enterprise Human Resources
+information is collected, processed, stored, protected, shared, and retained
+throughout its lifecycle.
 
-The architecture provides a secure, scalable, and governed approach to managing structured and unstructured data while supporting Microsoft 365 collaboration, Azure services, AI capabilities, and regulatory compliance.
+The architecture provides a secure, scalable, and governed approach to
+managing structured and unstructured data while supporting Microsoft 365
+collaboration, Azure services, AI capabilities, and regulatory compliance.
 
 ---
 
-# Objectives
+## Objectives
 
 The data architecture is designed to:
 
@@ -41,7 +47,7 @@ The data architecture is designed to:
 
 ---
 
-# Data Principles
+## Data Principles
 
 The platform follows these principles:
 
@@ -57,7 +63,7 @@ The platform follows these principles:
 
 ---
 
-# Enterprise Data Domains
+## Enterprise Data Domains
 
 The HR Portal manages several key data domains.
 
@@ -74,7 +80,7 @@ The HR Portal manages several key data domains.
 
 ---
 
-# Data Architecture
+## Data Architecture Diagram
 
 ```text
 Employees
@@ -103,7 +109,7 @@ Microsoft Entra ID
 
 ---
 
-# Data Lifecycle
+## Data Lifecycle
 
 The platform manages information through the following lifecycle:
 
@@ -131,7 +137,7 @@ Dispose
 
 ---
 
-# Data Storage
+## Data Storage
 
 Enterprise information may be stored using:
 
@@ -145,7 +151,7 @@ Enterprise information may be stored using:
 
 ---
 
-# Data Integration
+## Data Integration
 
 The platform exchanges information with:
 
@@ -159,7 +165,7 @@ The platform exchanges information with:
 
 ---
 
-# Data Security
+## Data Security
 
 Enterprise data is protected through:
 
@@ -174,7 +180,7 @@ Enterprise data is protected through:
 
 ---
 
-# Data Governance
+## Data Governance
 
 The platform follows enterprise governance practices including:
 
@@ -188,7 +194,7 @@ The platform follows enterprise governance practices including:
 
 ---
 
-# Data Retention
+## Data Retention
 
 Information retention follows organizational policies and applicable regulatory requirements.
 
@@ -201,11 +207,12 @@ Examples include:
 - Audit records
 - AI interaction logs
 
-Retention schedules should be reviewed periodically and managed through Microsoft Purview and Microsoft 365 retention capabilities where applicable.
+Retention schedules should be reviewed periodically and managed through
+Microsoft Purview and Microsoft 365 retention capabilities where applicable.
 
 ---
 
-# Analytics
+## Analytics
 
 Enterprise reporting may include:
 
@@ -218,7 +225,7 @@ Enterprise reporting may include:
 
 ---
 
-# Monitoring
+## Monitoring
 
 Data services are monitored using:
 
@@ -231,7 +238,7 @@ Data services are monitored using:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future improvements may include:
 
@@ -245,7 +252,7 @@ Future improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -255,7 +262,7 @@ Future improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

@@ -1,10 +1,12 @@
 # Enterprise Standards
 
-> Enterprise standards defining the technical, documentation, security, development, and operational practices used to maintain consistency, quality, and governance across the TBBD HR Portal platform.
+> Enterprise standards defining the technical, documentation, security,
+> development, and operational practices used to maintain consistency,
+> quality, and governance across the TBBD HR Portal platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,9 +19,10 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Enterprise Standards provide a common framework for designing, developing, deploying, securing, and operating the platform.
+The TBBD HR Portal Enterprise Standards provide a common framework for
+designing, developing, deploying, securing, and operating the platform.
 
 These standards ensure that platform components remain:
 
@@ -32,7 +35,7 @@ These standards ensure that platform components remain:
 
 ---
 
-# Standard Categories
+## Standard Categories
 
 The enterprise standards cover:
 
@@ -48,7 +51,7 @@ The enterprise standards cover:
 
 ---
 
-# Architecture Standards
+## Architecture Standards
 
 Architecture decisions should follow:
 
@@ -69,13 +72,13 @@ Architecture documentation should include:
 
 ---
 
-# Azure Standards
+## Azure Standards
 
 Azure resources should follow enterprise practices.
 
 Standards include:
 
-## Resource Organization
+### Resource Organization
 
 - Subscription-based governance
 - Resource group organization
@@ -84,19 +87,19 @@ Standards include:
 
 Example:
 
-```
+```text
 TBBD-<Service>-<Environment>-<Region>
 ```
 
 Example:
 
-```
+```text
 TBBD-HR-Portal-PRD-SEA
 ```
 
 ---
 
-## Infrastructure as Code
+### Infrastructure as Code
 
 Infrastructure should use:
 
@@ -112,7 +115,7 @@ Benefits:
 
 ---
 
-# Identity Standards
+## Identity Standards
 
 Identity management follows:
 
@@ -130,7 +133,7 @@ Controls:
 
 ---
 
-# Security Standards
+## Security Standards
 
 Security practices include:
 
@@ -149,7 +152,7 @@ Technology:
 
 ---
 
-# Development Standards
+## Development Standards
 
 Software development follows:
 
@@ -168,13 +171,13 @@ Development practices:
 
 ---
 
-# GitHub Repository Standards
+## GitHub Repository Standards
 
 Repositories should maintain:
 
 Required files:
 
-```
+```text
 README.md
 LICENSE
 SECURITY.md
@@ -184,7 +187,7 @@ CHANGELOG.md
 
 Recommended:
 
-```
+```text
 .github/
 ├── workflows/
 ├── ISSUE_TEMPLATE/
@@ -194,19 +197,19 @@ Recommended:
 
 ---
 
-# Git Standards
+## Git Standards
 
 Commit messages should be clear and descriptive.
 
 Recommended format:
 
-```
+```text
 type: description
 ```
 
 Examples:
 
-```
+```text
 docs: update architecture documentation
 
 feat: add employee search capability
@@ -218,7 +221,7 @@ chore: update repository structure
 
 ---
 
-# Documentation Standards
+## Documentation Standards
 
 Documentation should:
 
@@ -239,7 +242,7 @@ Required sections:
 
 ---
 
-# Deployment Standards
+## Deployment Standards
 
 Deployment processes should use:
 
@@ -250,7 +253,7 @@ Deployment processes should use:
 
 Deployment flow:
 
-```
+```text
 Development
 
       │
@@ -274,7 +277,7 @@ Production
 
 ---
 
-# Operations Standards
+## Operations Standards
 
 Operational practices include:
 
@@ -293,7 +296,7 @@ Technology:
 
 ---
 
-# Security Review Standards
+## Security Review Standards
 
 Security reviews should occur:
 
@@ -311,17 +314,17 @@ Reviews include:
 
 ---
 
-# Naming Standards
+## Naming Standards
 
 Recommended naming format:
 
-```
+```text
 TBBD-<Workload>-<Component>-<Environment>
 ```
 
 Examples:
 
-```
+```text
 TBBD-HR-Portal-RG
 TBBD-TalentAI-PRD
 TBBD-HR-Apps-SEA
@@ -329,7 +332,7 @@ TBBD-HR-Apps-SEA
 
 ---
 
-# Environment Standards
+## Environment Standards
 
 Supported environments:
 
@@ -342,7 +345,7 @@ Supported environments:
 
 ---
 
-# Compliance Alignment
+## Compliance Alignment
 
 Standards support:
 
@@ -354,7 +357,7 @@ Standards support:
 
 ---
 
-# Continuous Improvement
+## Continuous Improvement
 
 Standards should evolve through:
 
@@ -366,7 +369,7 @@ Standards should evolve through:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance-Framework.md
 - Responsible-AI.md
@@ -376,7 +379,7 @@ Standards should evolve through:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

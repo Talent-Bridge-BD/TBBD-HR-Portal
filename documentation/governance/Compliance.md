@@ -1,10 +1,13 @@
 # Compliance Framework
 
-> Enterprise compliance framework defining the policies, controls, and practices used to maintain regulatory alignment, information protection, security assurance, and operational governance for the TBBD HR Portal platform.
+> Enterprise compliance framework defining the policies, controls, and
+> practices used to maintain regulatory alignment, information
+> protection, security assurance, and operational governance for the
+> TBBD HR Portal platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,9 +20,11 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal compliance framework establishes the controls required to support secure, reliable, and responsible operation of the platform.
+The TBBD HR Portal compliance framework establishes the controls
+required to support secure, reliable, and responsible operation of the
+platform.
 
 The framework covers:
 
@@ -35,7 +40,7 @@ The compliance approach follows Microsoft security and governance best practices
 
 ---
 
-# Compliance Objectives
+## Compliance Objectives
 
 The compliance framework aims to:
 
@@ -49,9 +54,9 @@ The compliance framework aims to:
 
 ---
 
-# Compliance Principles
+## Compliance Principles
 
-## Security by Design
+### Security by Design
 
 Security controls are integrated throughout the platform lifecycle.
 
@@ -65,7 +70,7 @@ Practices:
 
 ---
 
-## Privacy by Design
+### Privacy by Design
 
 Privacy protection is considered during system design and operation.
 
@@ -79,7 +84,7 @@ Practices:
 
 ---
 
-## Compliance by Design
+### Compliance by Design
 
 Compliance requirements are incorporated into:
 
@@ -90,9 +95,9 @@ Compliance requirements are incorporated into:
 
 ---
 
-# Compliance Domains
+## Compliance Domains
 
-## Identity and Access Management
+### Identity and Access Management
 
 Controls:
 
@@ -111,7 +116,7 @@ Objectives:
 
 ---
 
-# Information Protection
+## Information Protection
 
 Information protection controls include:
 
@@ -129,7 +134,7 @@ Technology:
 
 ---
 
-# Security Compliance
+## Security Compliance
 
 Security controls include:
 
@@ -147,7 +152,7 @@ Technology:
 
 ---
 
-# Application Compliance
+## Application Compliance
 
 Application lifecycle controls include:
 
@@ -165,7 +170,7 @@ Technology:
 
 ---
 
-# Infrastructure Compliance
+## Infrastructure Compliance
 
 Infrastructure governance includes:
 
@@ -184,7 +189,7 @@ Technology:
 
 ---
 
-# AI Compliance
+## AI Compliance
 
 AI governance controls include:
 
@@ -202,7 +207,7 @@ Technology:
 
 ---
 
-# Audit and Logging
+## Audit and Logging
 
 Audit capabilities include:
 
@@ -216,7 +221,7 @@ Audit capabilities include:
 
 ---
 
-# Compliance Monitoring
+## Compliance Monitoring
 
 Compliance activities include:
 
@@ -228,7 +233,7 @@ Compliance activities include:
 
 ---
 
-# Compliance Responsibilities
+## Compliance Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -241,7 +246,7 @@ Compliance activities include:
 
 ---
 
-# Compliance Lifecycle
+## Compliance Lifecycle
 
 ```text
 Identify Requirements
@@ -273,7 +278,7 @@ Review and Improve
 
 ---
 
-# Continuous Improvement
+## Continuous Improvement
 
 Compliance maturity is improved through:
 
@@ -285,7 +290,7 @@ Compliance maturity is improved through:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance-Framework.md
 - Responsible-AI.md
@@ -295,7 +300,7 @@ Compliance maturity is improved through:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

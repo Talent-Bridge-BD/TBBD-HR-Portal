@@ -1,10 +1,12 @@
 # Branching Strategy
 
-> Git branching model for the TBBD HR Portal platform defining source control practices, branch management, collaboration workflows, pull request standards, and release processes.
+> Git branching model for the TBBD HR Portal platform defining source
+> control practices, branch management, collaboration workflows, pull
+> request standards, and release processes.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal uses a structured Git branching strategy to support secure collaboration, controlled releases, continuous integration, and reliable software delivery.
+The TBBD HR Portal uses a structured Git branching strategy to support
+secure collaboration, controlled releases, continuous integration, and
+reliable software delivery.
 
-The branching model provides clear separation between development activities, testing, and production releases.
+The branching model provides clear separation between development
+activities, testing, and production releases.
 
 ---
 
-# Objectives
+## Objectives
 
 The branching strategy aims to:
 
@@ -38,7 +43,7 @@ The branching strategy aims to:
 
 ---
 
-# Branch Model
+## Branch Model
 
 The recommended branch structure:
 
@@ -68,11 +73,11 @@ main
 
 ---
 
-# Main Branch
+## Main Branch
 
 Branch:
 
-```
+```text
 main
 ```
 
@@ -93,11 +98,11 @@ Direct commits should not be used.
 
 ---
 
-# Develop Branch
+## Develop Branch
 
 Branch:
 
-```
+```text
 develop
 ```
 
@@ -115,17 +120,17 @@ Used for:
 
 ---
 
-# Feature Branches
+## Feature Branches
 
 Pattern:
 
-```
+```text
 feature/<name>
 ```
 
 Examples:
 
-```
+```text
 feature/employee-dashboard
 
 feature/hr-copilot
@@ -165,17 +170,17 @@ Review & Merge
 
 ---
 
-# Bugfix Branches
+## Bugfix Branches
 
 Pattern:
 
-```
+```text
 bugfix/<name>
 ```
 
 Examples:
 
-```
+```text
 bugfix/login-error
 
 bugfix/api-timeout
@@ -188,17 +193,17 @@ Purpose:
 
 ---
 
-# Release Branches
+## Release Branches
 
 Pattern:
 
-```
+```text
 release/<version>
 ```
 
 Examples:
 
-```
+```text
 release/v1.1.0
 
 release/v2.0.0
@@ -219,17 +224,17 @@ Activities:
 
 ---
 
-# Hotfix Branches
+## Hotfix Branches
 
 Pattern:
 
-```
+```text
 hotfix/<name>
 ```
 
 Examples:
 
-```
+```text
 hotfix/security-patch
 
 hotfix/service-outage
@@ -272,7 +277,7 @@ Merge back to develop
 
 ---
 
-# Pull Request Workflow
+## Pull Request Workflow
 
 All changes should follow:
 
@@ -318,7 +323,7 @@ Merge
 
 ---
 
-# Pull Request Requirements
+## Pull Request Requirements
 
 Each pull request should include:
 
@@ -330,17 +335,17 @@ Each pull request should include:
 
 ---
 
-# Commit Standards
+## Commit Standards
 
 Commit format:
 
-```
+```text
 type: description
 ```
 
 Examples:
 
-```
+```text
 feat: add employee profile
 
 fix: resolve authentication issue
@@ -352,7 +357,7 @@ security: update access policy
 
 ---
 
-# Merge Strategy
+## Merge Strategy
 
 Recommended:
 
@@ -362,7 +367,7 @@ Recommended:
 
 ---
 
-# Branch Protection
+## Branch Protection
 
 Protected branches should require:
 
@@ -373,17 +378,17 @@ Protected branches should require:
 
 ---
 
-# Version Management
+## Version Management
 
 Releases follow semantic versioning:
 
-```
+```text
 MAJOR.MINOR.PATCH
 ```
 
 Example:
 
-```
+```text
 v1.0.0
 ```
 
@@ -395,7 +400,7 @@ Meaning:
 
 ---
 
-# Repository Collaboration Rules
+## Repository Collaboration Rules
 
 Contributors should:
 
@@ -407,9 +412,9 @@ Contributors should:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Repository-Standards.md
@@ -419,7 +424,7 @@ Contributors should:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

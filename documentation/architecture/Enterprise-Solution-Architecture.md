@@ -1,10 +1,12 @@
 # Enterprise Solution Architecture
 
-> Enterprise architecture for the **TBBD HR Portal**, describing the overall solution design, business capabilities, Microsoft cloud services, security model, integration architecture, and deployment approach.
+> Enterprise architecture for the **TBBD HR Portal**, describing the overall
+> solution design, business capabilities, Microsoft cloud services, security
+> model, integration architecture, and deployment approach.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +20,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal is the enterprise Human Resources platform for **Talent Bridge BD (TBBD)**. It provides a centralized digital workplace for employees, recruiters, managers, HR administrators, and approved external collaborators.
+The TBBD HR Portal is the enterprise Human Resources platform for **Talent
+Bridge BD (TBBD)**. It provides a centralized digital workplace for employees,
+recruiters, managers, HR administrators, and approved external collaborators.
 
-The solution is designed using Microsoft cloud technologies and follows enterprise architecture principles focused on security, scalability, operational excellence, and intelligent automation.
+The solution is designed using Microsoft cloud technologies and follows
+enterprise architecture principles focused on security, scalability,
+operational excellence, and intelligent automation.
 
 ---
 
-# Business Objectives
+## Business Objectives
 
 The platform aims to:
 
@@ -42,7 +48,7 @@ The platform aims to:
 
 ---
 
-# Solution Principles
+## Solution Principles
 
 The architecture follows these core principles:
 
@@ -59,11 +65,11 @@ The architecture follows these core principles:
 
 ---
 
-# Business Capabilities
+## Business Capabilities
 
 The platform delivers capabilities across multiple business domains.
 
-## Human Resources
+### Human Resources
 
 - Employee Directory
 - Employee Profiles
@@ -73,7 +79,7 @@ The platform delivers capabilities across multiple business domains.
 - HR Policy Management
 - Employee Document Management
 
-## Recruitment
+### Recruitment
 
 - Vacancy Management
 - Candidate Tracking
@@ -82,7 +88,7 @@ The platform delivers capabilities across multiple business domains.
 - Offer Management
 - Recruitment Analytics
 
-## Employee Self-Service
+### Employee Self-Service
 
 - Leave Requests
 - Personal Information Updates
@@ -90,7 +96,7 @@ The platform delivers capabilities across multiple business domains.
 - Employee Documents
 - Service Requests
 
-## Administration
+### Administration
 
 - User Management
 - Role Management
@@ -101,7 +107,7 @@ The platform delivers capabilities across multiple business domains.
 
 ---
 
-# High-Level Solution Architecture
+## High-Level Solution Architecture
 
 ```text
 Employees
@@ -133,7 +139,7 @@ Security • Governance • Monitoring
 
 ---
 
-# Microsoft Technology Stack
+## Microsoft Technology Stack
 
 | Area | Technology |
 |------|------------|
@@ -156,7 +162,7 @@ Security • Governance • Monitoring
 
 ---
 
-# Identity Architecture
+## Identity Architecture
 
 Authentication and authorization are managed through Microsoft Entra ID.
 
@@ -171,7 +177,7 @@ Capabilities include:
 
 ---
 
-# Security Architecture
+## Security Architecture
 
 Security follows Microsoft's Zero Trust model.
 
@@ -189,7 +195,7 @@ Security capabilities include:
 
 ---
 
-# Integration Architecture
+## Integration Architecture
 
 The platform integrates with:
 
@@ -205,7 +211,7 @@ The platform integrates with:
 
 ---
 
-# DevOps Architecture
+## DevOps Architecture
 
 Application lifecycle management is supported through:
 
@@ -221,7 +227,7 @@ Application lifecycle management is supported through:
 
 ---
 
-# Operational Excellence
+## Operational Excellence
 
 The solution emphasizes:
 
@@ -236,7 +242,7 @@ The solution emphasizes:
 
 ---
 
-# Future Architecture
+## Future Architecture
 
 Planned enhancements include:
 
@@ -251,7 +257,7 @@ Planned enhancements include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Azure Deployment Architecture
 - Security Architecture
@@ -262,7 +268,7 @@ Planned enhancements include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

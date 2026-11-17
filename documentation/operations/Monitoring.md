@@ -1,31 +1,33 @@
 # Monitoring
 
-> Monitoring and observability framework for the TBBD HR Portal platform across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Azure AI services, applications, and security operations.
+> Monitoring and observability framework for the TBBD HR Portal platform across
+> Microsoft Azure, Microsoft 365, Microsoft Entra ID, Azure AI services,
+> applications, and security operations.
 
 ---
 
-# Document Information
+## Document Information
 
-| Property | Value |
-|----------|-------|
-| Repository | TBBD-HR-Portal |
-| Document | Monitoring |
-| Version | v1.0.0 |
-| Owner | Talent Bridge BD Technology Team |
+| Property       | Value                             |
+| -------------- | --------------------------------- |
+| Document       | Monitoring                        |
+| Version        | v1.0.0                            |
 | Classification | Internal Enterprise Documentation |
-| Last Updated | August 2026 |
+| Last Updated   | August 2026                       |
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal monitoring framework provides visibility into platform health, application performance, security events, and operational activities.
+The TBBD HR Portal monitoring framework provides visibility into platform
+health, application performance, security events, and operational activities.
 
-The monitoring approach follows Microsoft cloud monitoring best practices and supports proactive issue detection, troubleshooting, and continuous improvement.
+The monitoring approach follows Microsoft cloud monitoring best practices and
+supports proactive issue detection, troubleshooting, and continuous improvement.
 
 ---
 
-# Monitoring Objectives
+## Monitoring Objectives
 
 The monitoring framework aims to:
 
@@ -39,7 +41,7 @@ The monitoring framework aims to:
 
 ---
 
-# Monitoring Architecture
+## Monitoring Architecture
 
 ```text
 TBBD HR Portal
@@ -80,9 +82,9 @@ Defender for Cloud
 
 ---
 
-# Monitoring Services
+## Monitoring Services
 
-## Azure Monitor
+### Azure Monitor
 
 Azure Monitor provides:
 
@@ -102,7 +104,7 @@ Monitored resources include:
 
 ---
 
-# Application Insights
+## Application Insights
 
 Application Insights provides application-level observability.
 
@@ -124,7 +126,7 @@ Key capabilities:
 
 ---
 
-# Log Analytics Workspace
+## Log Analytics Workspace
 
 Log Analytics provides centralized log collection and analysis.
 
@@ -138,7 +140,7 @@ Collected data may include:
 
 ---
 
-# Microsoft Sentinel Integration
+## Microsoft Sentinel Integration
 
 Microsoft Sentinel provides security monitoring and threat detection.
 
@@ -159,7 +161,7 @@ Data sources:
 
 ---
 
-# Microsoft Defender Monitoring
+## Microsoft Defender Monitoring
 
 Microsoft Defender provides security posture monitoring.
 
@@ -173,7 +175,7 @@ Monitor:
 
 ---
 
-# Microsoft Entra ID Monitoring
+## Microsoft Entra ID Monitoring
 
 Identity monitoring includes:
 
@@ -185,23 +187,23 @@ Identity monitoring includes:
 
 ---
 
-# Microsoft 365 Monitoring
+## Microsoft 365 Monitoring
 
 Monitor:
 
-## Microsoft Teams
+### Microsoft Teams
 
 - Service health
 - Collaboration availability
 - Application integration
 
-## SharePoint Online
+### SharePoint Online
 
 - Site availability
 - Access issues
 - Storage utilization
 
-## Exchange Online
+### Exchange Online
 
 - Mail flow
 - Service health
@@ -209,7 +211,7 @@ Monitor:
 
 ---
 
-# Azure AI Monitoring
+## Azure AI Monitoring
 
 AI services should monitor:
 
@@ -228,11 +230,11 @@ Applicable services:
 
 ---
 
-# Alert Management
+## Alert Management
 
 Alerts should be configured for:
 
-## Availability
+### Availability
 
 Examples:
 
@@ -240,7 +242,7 @@ Examples:
 - Service outage
 - Endpoint failure
 
-## Performance
+### Performance
 
 Examples:
 
@@ -248,7 +250,7 @@ Examples:
 - Resource pressure
 - API failures
 
-## Security
+### Security
 
 Examples:
 
@@ -258,11 +260,11 @@ Examples:
 
 ---
 
-# Monitoring Dashboard
+## Monitoring Dashboard
 
 Recommended dashboards:
 
-## Platform Dashboard
+### Platform Dashboard
 
 Includes:
 
@@ -270,7 +272,7 @@ Includes:
 - Azure resources
 - Availability metrics
 
-## Security Dashboard
+### Security Dashboard
 
 Includes:
 
@@ -278,7 +280,7 @@ Includes:
 - Defender alerts
 - Identity risks
 
-## Operations Dashboard
+### Operations Dashboard
 
 Includes:
 
@@ -288,7 +290,7 @@ Includes:
 
 ---
 
-# Log Retention
+## Log Retention
 
 Retention policies should follow:
 
@@ -304,18 +306,18 @@ Review:
 
 ---
 
-# Monitoring Responsibilities
+## Monitoring Responsibilities
 
-| Role | Responsibility |
+|Role|Responsibility|
 |------|----------------|
-| Operations Team | Platform monitoring |
-| Security Team | Threat monitoring |
-| Developers | Application monitoring |
-| Administrators | Configuration monitoring |
+|Operations Team|Platform monitoring|
+|Security Team|Threat monitoring|
+|Developers|Application monitoring|
+|Administrators|Configuration monitoring|
 
 ---
 
-# Operational Review
+## Operational Review
 
 Monitoring should be reviewed:
 
@@ -326,7 +328,7 @@ Monitoring should be reviewed:
 
 ---
 
-# Best Practices
+## Best Practices
 
 Follow:
 
@@ -338,28 +340,27 @@ Follow:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Backup-Disaster-Recovery.md
 - Incident-Response.md
 - Business-Continuity.md
-- Maintenance.md
+- Operations-Guide.md
 
-## Security
+### Security Documentation
 
 - Security-Architecture.md
 - Compliance.md
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+| Version | Date        | Description     |
+| ------- | ----------- | --------------- |
 
 ---
 

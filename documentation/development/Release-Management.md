@@ -1,31 +1,35 @@
 # Release Management
 
-> Enterprise release management framework for the TBBD HR Portal platform covering version control, release planning, approval workflows, deployment governance, rollback procedures, and post-release validation.
+> Enterprise release management framework for the TBBD HR Portal platform
+> covering version control, release planning, approval workflows, deployment
+> governance, rollback procedures, and post-release validation.
 
 ---
 
-# Document Information
+## Document Information
 
-| Property | Value |
+|Property|Value|
 |----------|-------|
-| Repository | TBBD-HR-Portal |
-| Document | Release Management |
-| Version | v1.0.0 |
-| Owner | Talent Bridge BD Technology Team |
-| Classification | Internal Enterprise Documentation |
-| Last Updated | August 2026 |
+|Repository|TBBD-HR-Portal|
+|Document|Release Management|
+|Version|v1.0.0|
+|Owner|Talent Bridge BD Technology Team|
+|Classification|Internal Enterprise Documentation|
+|Last Updated|August 2026|
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Release Management framework defines the processes required to plan, validate, approve, deploy, and maintain software releases.
+The TBBD HR Portal Release Management framework defines the processes required
+to plan, validate, approve, deploy, and maintain software releases.
 
-The framework ensures predictable, secure, and controlled delivery of new features, improvements, and fixes.
+The framework ensures predictable, secure, and controlled delivery of new
+features, improvements, and fixes.
 
 ---
 
-# Release Objectives
+## Release Objectives
 
 Release management aims to:
 
@@ -38,7 +42,7 @@ Release management aims to:
 
 ---
 
-# Release Lifecycle
+## Release Lifecycle
 
 ```text
 Planning
@@ -82,13 +86,13 @@ Review
 
 ---
 
-# Release Types
+## Release Types
 
-## Major Release
+### Major Release
 
 Example:
 
-```
+```text
 v2.0.0
 ```
 
@@ -100,11 +104,11 @@ Used for:
 
 ---
 
-## Minor Release
+### Minor Release
 
 Example:
 
-```
+```text
 v1.5.0
 ```
 
@@ -116,11 +120,11 @@ Used for:
 
 ---
 
-## Patch Release
+### Patch Release
 
 Example:
 
-```
+```text
 v1.0.1
 ```
 
@@ -132,31 +136,31 @@ Used for:
 
 ---
 
-# Versioning Standard
+## Versioning Standard
 
 TBBD HR Portal follows Semantic Versioning:
 
-```
+```text
 MAJOR.MINOR.PATCH
 ```
 
 Example:
 
-```
+```text
 v1.0.0
 ```
 
 Meaning:
 
-| Version | Purpose |
+|Version|Purpose|
 |---------|---------|
-| MAJOR | Breaking changes |
-| MINOR | New features |
-| PATCH | Fixes |
+|MAJOR|Breaking changes|
+|MINOR|New features|
+|PATCH|Fixes|
 
 ---
 
-# Release Planning
+## Release Planning
 
 Release planning includes:
 
@@ -168,7 +172,7 @@ Release planning includes:
 
 ---
 
-# Release Preparation
+## Release Preparation
 
 Before release:
 
@@ -182,17 +186,17 @@ Validate:
 
 ---
 
-# Release Branch
+## Release Branch
 
 For planned releases:
 
-```
+```text
 release/<version>
 ```
 
 Example:
 
-```
+```text
 release/v1.1.0
 ```
 
@@ -205,7 +209,7 @@ Activities:
 
 ---
 
-# Deployment Approval
+## Deployment Approval
 
 Production releases require:
 
@@ -216,7 +220,7 @@ Production releases require:
 
 ---
 
-# Deployment Process
+## Deployment Process
 
 ```text
 Release Package
@@ -242,23 +246,23 @@ Production Validation
 
 ---
 
-# Release Validation
+## Release Validation
 
 After deployment validate:
 
-## Application
+### Application
 
 - User access
 - Core functionality
 - Performance
 
-## Infrastructure
+### Infrastructure
 
 - Resource health
 - Configuration
 - Monitoring
 
-## Security
+### Security
 
 - Identity controls
 - Security alerts
@@ -266,7 +270,7 @@ After deployment validate:
 
 ---
 
-# Rollback Strategy
+## Rollback Strategy
 
 Rollback may be required when:
 
@@ -283,7 +287,7 @@ Rollback actions:
 
 ---
 
-# Release Documentation
+## Release Documentation
 
 Each release should include:
 
@@ -297,7 +301,7 @@ Each release should include:
 
 ---
 
-# Change Management
+## Change Management
 
 Release changes should maintain:
 
@@ -308,7 +312,7 @@ Release changes should maintain:
 
 ---
 
-# Release Automation
+## Release Automation
 
 Recommended automation:
 
@@ -319,13 +323,13 @@ Recommended automation:
 
 ---
 
-# Git Tags
+## Git Tags
 
 Production releases should use tags:
 
 Example:
 
-```
+```text
 v1.0.0
 ```
 
@@ -337,7 +341,7 @@ Tags provide:
 
 ---
 
-# Post-Release Review
+## Post-Release Review
 
 After release:
 
@@ -351,20 +355,20 @@ Review:
 
 ---
 
-# Release Responsibilities
+## Release Responsibilities
 
-| Role | Responsibility |
+|Role|Responsibility|
 |------|----------------|
-| Product Owner | Release requirements |
-| Architect | Technical validation |
-| Developers | Code readiness |
-| DevOps Team | Deployment |
-| Security Team | Security approval |
-| Operations Team | Production monitoring |
+|Product Owner|Release requirements|
+|Architect|Technical validation|
+|Developers|Code readiness|
+|DevOps Team|Deployment|
+|Security Team|Security approval|
+|Operations Team|Production monitoring|
 
 ---
 
-# Best Practices
+## Best Practices
 
 Follow:
 
@@ -377,17 +381,16 @@ Follow:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Development
+### Development
 
 - Development-Lifecycle.md
 - Repository-Standards.md
 - Deployment-Pipeline.md
-- Branching-Strategy.md
 - Coding-Standards.md
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
@@ -395,11 +398,11 @@ Follow:
 
 ---
 
-# Revision History
+## Revision History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | August 2026 | Initial release |
+| Version | Date        | Description     |
+| ------- | ----------- | --------------- |
+| 1.0.0   | August 2026 | Initial release |
 
 ---
 

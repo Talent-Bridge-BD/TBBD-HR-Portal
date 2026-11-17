@@ -2,9 +2,12 @@
 
 ## Purpose
 
-This document defines the authoritative hostname ownership and routing policy for Talent Bridge BD (TBBD).
+This document defines the authoritative hostname ownership and routing policy
+for Talent Bridge BD (TBBD).
 
-The purpose is to prevent hostname conflicts between the public website, employee platform, employer platform, AI services, legal services, and legacy systems.
+The purpose is to prevent hostname conflicts between the public website,
+employee platform, employer platform, AI services, legal services, and legacy
+systems.
 
 ## Canonical Domain Map
 
@@ -15,7 +18,7 @@ The purpose is to prevent hostname conflicts between the public website, employe
 | `portal.talentbridgebd.com` | **Employee Workplace Hub** | Active |
 | `talentbot.talentbridgebd.com` | **TBBD TalentBot AI** | Active |
 | `employer.talentbridgebd.com` | **Employer Portal** | Reserved / Future |
-| `hr.talentbridgebd.com` | **HR Services / Legacy HR namespace** | Legacy / Reserved |
+| `hr.talentbridgebd.com` | **HR / Legacy namespace** | Legacy / Reserved |
 | `legal.talentbridgebd.com` | **Legal / Privacy / Terms** | Reserved / Future |
 
 ## Employee Platform
@@ -50,7 +53,8 @@ It must not be assigned to `TBBD-HR-Portal`.
 
 It must not be used as an alias for `portal.talentbridgebd.com`.
 
-When implemented, the Employer Portal should have its own Front Door route and application backend.
+When implemented, the Employer Portal should have its own Front Door route and
+application backend.
 
 ## HR Namespace
 
@@ -62,7 +66,8 @@ is a legacy HR hostname associated with the former EventMachine environment.
 
 It must not be repurposed as the canonical employee portal.
 
-It may be retained as an HR-specific namespace for a future architecture decision, subject to dependency and security review.
+It may be retained as an HR-specific namespace for a future architecture
+decision, subject to dependency and security review.
 
 ## TalentBot AI
 
@@ -105,7 +110,8 @@ The following are legacy and are not part of the new employee architecture:
 
 The legacy EventMachine must remain isolated from the new Workplace Hub.
 
-Legacy resources and hostname bindings must not be removed until dependency checks are complete.
+Legacy resources and hostname bindings must not be removed until dependency
+checks are complete.
 
 ## Architecture Rules
 
@@ -116,10 +122,12 @@ Legacy resources and hostname bindings must not be removed until dependency chec
 5. `legal.talentbridgebd.com` means Legal / Privacy / Terms.
 6. No wildcard routing may send unrelated TBBD subdomains to `TBBD-HR-Portal`.
 7. The Employer Portal must have a separate application boundary.
-8. Legacy EventMachine hostnames must not be reused for new production services without explicit architecture approval.
+8. Legacy EventMachine hostnames must not be reused for new production
+services without explicit architecture approval.
 9. Azure Front Door is the global application entry point.
 10. Southeast Asia is the primary application region.
-11. No second application region or new authentication region is required by the current architecture.
+11. No second application region or new authentication region is required by
+the current architecture.
 
 ## Authoritative Employee Route
 

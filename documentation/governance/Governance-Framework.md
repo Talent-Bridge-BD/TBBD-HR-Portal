@@ -1,10 +1,13 @@
 # Governance Framework
 
-> Enterprise governance framework defining the principles, processes, controls, and responsibilities for managing the TBBD HR Portal platform across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform, and Azure AI services.
+> Enterprise governance framework defining the principles, processes,
+> controls, and responsibilities for managing the TBBD HR Portal platform
+> across Microsoft Azure, Microsoft 365, Microsoft Entra ID, Power Platform,
+> and Azure AI services.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,17 +20,22 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Governance Framework establishes the operating model required to ensure secure, compliant, reliable, and scalable management of the platform.
+The TBBD HR Portal Governance Framework establishes the operating model
+required to ensure secure, compliant, reliable, and scalable management of the
+platform.
 
-The framework aligns technology decisions with business objectives while maintaining security, identity governance, operational excellence, and responsible technology adoption.
+The framework aligns technology decisions with business objectives while
+maintaining security, identity governance, operational excellence, and
+responsible technology adoption.
 
-The governance model follows Microsoft Cloud Adoption Framework principles and enterprise governance best practices.
+The governance model follows Microsoft Cloud Adoption Framework principles and
+enterprise governance best practices.
 
 ---
 
-# Governance Objectives
+## Governance Objectives
 
 The framework supports the following objectives:
 
@@ -43,9 +51,9 @@ The framework supports the following objectives:
 
 ---
 
-# Governance Principles
+## Governance Principles
 
-## Security First
+### Security First
 
 Security controls are integrated throughout the platform lifecycle.
 
@@ -59,7 +67,7 @@ Principles:
 
 ---
 
-## Identity Governance
+### Identity Security Principles
 
 Identity is the primary security boundary.
 
@@ -74,7 +82,7 @@ Controls include:
 
 ---
 
-## Least Privilege Access
+### Least Privilege Access
 
 Users and applications receive only the permissions required for their responsibilities.
 
@@ -87,7 +95,7 @@ Access decisions follow:
 
 ---
 
-## Information Protection
+### Information Protection
 
 Enterprise data protection is maintained through:
 
@@ -99,9 +107,9 @@ Enterprise data protection is maintained through:
 
 ---
 
-# Governance Domains
+## Governance Domains
 
-## Identity Governance
+### Identity Governance
 
 Responsible for:
 
@@ -120,7 +128,7 @@ Technology:
 
 ---
 
-## Azure Resource Governance
+### Azure Resource Governance
 
 Responsible for:
 
@@ -139,7 +147,7 @@ Technology:
 
 ---
 
-## Security Governance
+### Security Governance
 
 Responsible for:
 
@@ -157,7 +165,7 @@ Technology:
 
 ---
 
-## Application Governance
+### Application Governance
 
 Responsible for:
 
@@ -176,7 +184,7 @@ Practices:
 
 ---
 
-## AI Governance
+### AI Governance
 
 Responsible for:
 
@@ -195,7 +203,7 @@ Technology:
 
 ---
 
-# Governance Operating Model
+## Governance Operating Model
 
 ```text
 Business Leadership
@@ -229,7 +237,7 @@ TBBD HR Portal Platform
 
 ---
 
-# Governance Responsibilities
+## Governance Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -242,7 +250,7 @@ TBBD HR Portal Platform
 
 ---
 
-# Change Governance
+## Change Governance
 
 All platform changes should follow controlled change processes.
 
@@ -258,7 +266,7 @@ Change activities include:
 
 ---
 
-# Governance Controls
+## Governance Controls
 
 | Control Area | Implementation |
 |-------------|----------------|
@@ -272,7 +280,7 @@ Change activities include:
 
 ---
 
-# Continuous Improvement
+## Continuous Improvement
 
 Governance maturity improves through:
 
@@ -285,7 +293,7 @@ Governance maturity improves through:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Responsible-AI.md
 - Compliance.md
@@ -295,7 +303,7 @@ Governance maturity improves through:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

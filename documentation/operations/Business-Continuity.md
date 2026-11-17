@@ -1,10 +1,12 @@
 # Business Continuity
 
-> Business continuity framework for the TBBD HR Portal platform ensuring operational resilience, service availability, and continued delivery of critical Human Resources capabilities during disruptions.
+> Business continuity framework for the TBBD HR Portal platform ensuring
+> operational resilience, service availability, and continued delivery of
+> critical Human Resources capabilities during disruptions.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Business Continuity framework defines the strategies, processes, and responsibilities required to maintain essential HR services during operational disruptions.
+The TBBD HR Portal Business Continuity framework defines the strategies,
+processes, and responsibilities required to maintain essential HR services
+during operational disruptions.
 
-The framework supports organizational resilience by ensuring critical services can continue or be restored within acceptable recovery objectives.
+The framework supports organizational resilience by ensuring critical services
+can continue or be restored within acceptable recovery objectives.
 
 ---
 
-# Objectives
+## Objectives
 
 The Business Continuity strategy aims to:
 
@@ -38,7 +43,7 @@ The Business Continuity strategy aims to:
 
 ---
 
-# Business Continuity Principles
+## Business Continuity Principles
 
 The platform follows:
 
@@ -51,30 +56,30 @@ The platform follows:
 
 ---
 
-# Critical Business Services
+## Critical Business Services
 
 The TBBD HR Portal supports:
 
-## Employee Services
+### Employee Services
 
 - Employee information access
 - HR requests
 - HR documents
 - Workplace information
 
-## Recruitment Services
+### Recruitment Services
 
 - Candidate management
 - Recruitment workflows
 - Hiring activities
 
-## Collaboration Services
+### Collaboration Services
 
 - Microsoft Teams collaboration
 - SharePoint document services
 - Microsoft 365 integration
 
-## AI Services
+### AI Services
 
 - HR knowledge assistance
 - AI-powered workplace support
@@ -82,7 +87,7 @@ The TBBD HR Portal supports:
 
 ---
 
-# Service Dependency Model
+## Service Dependency Model
 
 ```text
 TBBD HR Portal
@@ -112,9 +117,9 @@ Security & Monitoring
 
 ---
 
-# Critical Dependencies
+## Critical Dependencies
 
-## Identity
+### Identity
 
 Dependency:
 
@@ -128,7 +133,7 @@ Required for:
 
 ---
 
-## Microsoft 365
+### Microsoft 365
 
 Dependencies:
 
@@ -145,7 +150,7 @@ Required for:
 
 ---
 
-## Azure Platform
+### Azure Platform
 
 Dependencies:
 
@@ -162,11 +167,11 @@ Required for:
 
 ---
 
-# Continuity Strategy
+## Continuity Strategy
 
 The continuity approach includes:
 
-## Prevention
+### Prevention
 
 Activities:
 
@@ -177,7 +182,7 @@ Activities:
 
 ---
 
-## Response
+### Response
 
 Activities:
 
@@ -188,7 +193,7 @@ Activities:
 
 ---
 
-## Recovery
+### Recovery
 
 Activities:
 
@@ -199,7 +204,7 @@ Activities:
 
 ---
 
-# Operational Continuity Model
+## Operational Continuity Model
 
 ```text
 Disruption
@@ -237,7 +242,7 @@ Business Validation
 
 ---
 
-# Business Impact Considerations
+## Business Impact Considerations
 
 Consider:
 
@@ -249,7 +254,7 @@ Consider:
 
 ---
 
-# Recovery Priorities
+## Recovery Priorities
 
 Recommended recovery priority:
 
@@ -263,7 +268,7 @@ Recommended recovery priority:
 
 ---
 
-# Communication Strategy
+## Communication Strategy
 
 During major disruptions communicate:
 
@@ -275,7 +280,7 @@ During major disruptions communicate:
 
 ---
 
-# Testing and Validation
+## Testing and Validation
 
 Business continuity plans should be tested:
 
@@ -291,7 +296,7 @@ Testing includes:
 
 ---
 
-# Roles and Responsibilities
+## Roles and Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -303,7 +308,7 @@ Testing includes:
 
 ---
 
-# Continuous Improvement
+## Continuous Improvement
 
 The continuity framework should improve through:
 
@@ -315,24 +320,24 @@ The continuity framework should improve through:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Operations
+### Operations
 
 - Operations-Guide.md
 - Monitoring.md
 - Backup-Disaster-Recovery.md
 - Incident-Response.md
-- Maintenance.md
+- Operations-Guide.md
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Azure-Deployment-Architecture.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

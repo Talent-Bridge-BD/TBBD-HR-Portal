@@ -1,10 +1,12 @@
 # Identity Architecture
 
-> Identity architecture for the **TBBD HR Portal**, describing authentication, authorization, Microsoft Entra ID integration, identity governance, privileged access, and secure access to enterprise resources.
+> Identity architecture for the **TBBD HR Portal**, describing authentication,
+> authorization, Microsoft Entra ID integration, identity governance,
+> privileged access, and secure access to enterprise resources.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +20,20 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal uses **Microsoft Entra ID** as its centralized identity provider, delivering secure authentication, authorization, identity governance, and access management across Microsoft Azure, Microsoft 365, and integrated enterprise applications.
+The TBBD HR Portal uses **Microsoft Entra ID** as its centralized identity
+provider, delivering secure authentication, authorization, identity
+governance, and access management across Microsoft Azure, Microsoft 365, and
+integrated enterprise applications.
 
-The identity architecture follows Microsoft's **Zero Trust** principles, ensuring every identity is authenticated, authorized, and continuously evaluated before access is granted.
+The identity architecture follows Microsoft's **Zero Trust** principles,
+ensuring every identity is authenticated, authorized, and continuously
+evaluated before access is granted.
 
 ---
 
-# Identity Principles
+## Identity Principles
 
 The identity architecture is designed around the following principles:
 
@@ -43,7 +50,7 @@ The identity architecture is designed around the following principles:
 
 ---
 
-# Identity Components
+## Identity Components
 
 | Component | Purpose |
 |----------|---------|
@@ -60,7 +67,7 @@ The identity architecture is designed around the following principles:
 
 ---
 
-# Identity Architecture
+## Identity Architecture Diagram
 
 ```text
 Users
@@ -93,7 +100,7 @@ Graph API       Key Vault
 
 ---
 
-# Authentication
+## Authentication
 
 Authentication is centralized through Microsoft Entra ID.
 
@@ -110,7 +117,7 @@ Supported capabilities include:
 
 ---
 
-# Authorization
+## Authorization
 
 Authorization is implemented using Role-Based Access Control (RBAC).
 
@@ -129,7 +136,7 @@ Access permissions follow the **Principle of Least Privilege**.
 
 ---
 
-# Conditional Access
+## Conditional Access
 
 Conditional Access policies help protect identities by evaluating:
 
@@ -150,7 +157,7 @@ Common policies include:
 
 ---
 
-# Identity Governance
+## Identity Governance
 
 Identity governance supports secure lifecycle management.
 
@@ -166,7 +173,7 @@ Capabilities include:
 
 ---
 
-# Privileged Identity Management (PIM)
+## Privileged Identity Management (PIM)
 
 Administrative access is protected through Microsoft Entra PIM.
 
@@ -181,7 +188,7 @@ Key capabilities:
 
 ---
 
-# Managed Identities
+## Managed Identities
 
 Azure Managed Identities are used for secure communication between Azure services.
 
@@ -194,7 +201,7 @@ Benefits include:
 
 ---
 
-# Application Identity
+## Application Identity
 
 Enterprise applications use:
 
@@ -206,7 +213,7 @@ Enterprise applications use:
 
 ---
 
-# Microsoft Graph Integration
+## Microsoft Graph Integration
 
 Microsoft Graph enables secure access to Microsoft 365 resources.
 
@@ -223,7 +230,7 @@ Supported integrations include:
 
 ---
 
-# Security Best Practices
+## Security Best Practices
 
 Identity security includes:
 
@@ -239,7 +246,7 @@ Identity security includes:
 
 ---
 
-# Monitoring
+## Monitoring
 
 Identity events are monitored using:
 
@@ -251,7 +258,7 @@ Identity events are monitored using:
 
 ---
 
-# Compliance
+## Compliance
 
 The identity architecture supports:
 
@@ -264,7 +271,7 @@ The identity architecture supports:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Planned improvements include:
 
@@ -277,7 +284,7 @@ Planned improvements include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -287,7 +294,7 @@ Planned improvements include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

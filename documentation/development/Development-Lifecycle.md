@@ -1,10 +1,12 @@
 # Development Lifecycle
 
-> Software Development Lifecycle (SDLC) framework for the TBBD HR Portal platform covering planning, architecture, development, testing, deployment, operations, and continuous improvement.
+> Software Development Lifecycle (SDLC) framework for the TBBD HR
+> Portal platform covering planning, architecture, development, testing,
+> deployment, operations, and continuous improvement.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,15 +19,18 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal follows a structured Software Development Lifecycle to ensure secure, reliable, scalable, and maintainable platform delivery.
+The TBBD HR Portal follows a structured Software Development Lifecycle
+to ensure secure, reliable, scalable, and maintainable platform delivery.
 
-The lifecycle combines modern DevOps practices, cloud-native development principles, Microsoft engineering guidance, and enterprise governance requirements.
+The lifecycle combines modern DevOps practices, cloud-native development
+principles, Microsoft engineering guidance, and enterprise governance
+requirements.
 
 ---
 
-# SDLC Objectives
+## SDLC Objectives
 
 The development lifecycle aims to:
 
@@ -38,7 +43,7 @@ The development lifecycle aims to:
 
 ---
 
-# Development Lifecycle Model
+## Development Lifecycle Model
 
 ```text
 Planning
@@ -82,7 +87,7 @@ Continuous Improvement
 
 ---
 
-# Phase 1: Planning
+## Phase 1: Planning
 
 Activities:
 
@@ -100,7 +105,7 @@ Outputs:
 
 ---
 
-# Phase 2: Architecture and Design
+## Phase 2: Architecture and Design
 
 Activities:
 
@@ -125,7 +130,7 @@ Outputs:
 
 ---
 
-# Phase 3: Development
+## Phase 3: Development
 
 Development activities include:
 
@@ -144,11 +149,11 @@ Development practices:
 
 ---
 
-# Phase 4: Testing
+## Phase 4: Testing
 
 Testing includes:
 
-## Functional Testing
+### Functional Testing
 
 Validate:
 
@@ -158,7 +163,7 @@ Validate:
 
 ---
 
-## Integration Testing
+### Integration Testing
 
 Validate:
 
@@ -169,7 +174,7 @@ Validate:
 
 ---
 
-## Security Testing
+### Security Testing
 
 Validate:
 
@@ -180,7 +185,7 @@ Validate:
 
 ---
 
-## Performance Testing
+### Performance Testing
 
 Validate:
 
@@ -190,7 +195,7 @@ Validate:
 
 ---
 
-# Phase 5: Deployment
+## Phase 5: Deployment
 
 Deployment follows controlled processes:
 
@@ -219,7 +224,7 @@ Deployment practices:
 
 ---
 
-# Phase 6: Operations
+## Phase 6: Operations
 
 Operational activities:
 
@@ -238,7 +243,7 @@ Supported platforms:
 
 ---
 
-# Phase 7: Continuous Improvement
+## Phase 7: Continuous Improvement
 
 Continuous improvement includes:
 
@@ -250,7 +255,7 @@ Continuous improvement includes:
 
 ---
 
-# Secure Development Practices
+## Secure Development Practices
 
 The platform follows:
 
@@ -263,7 +268,7 @@ The platform follows:
 
 ---
 
-# DevOps Integration
+## DevOps Integration
 
 Development integrates with:
 
@@ -278,7 +283,7 @@ Development integrates with:
 
 ---
 
-# Documentation Requirements
+## Documentation Requirements
 
 Each development activity should maintain:
 
@@ -290,7 +295,7 @@ Each development activity should maintain:
 
 ---
 
-# Quality Gates
+## Quality Gates
 
 Before release:
 
@@ -302,7 +307,7 @@ Before release:
 
 ---
 
-# Roles and Responsibilities
+## Roles and Responsibilities
 
 | Role | Responsibility |
 |------|----------------|
@@ -315,24 +320,23 @@ Before release:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
-## Development
+### Development
 
 - Repository-Standards.md
 - Deployment-Pipeline.md
-- Branching-Strategy.md
 - Coding-Standards.md
 - Release-Management.md
 
-## Architecture
+### Architecture
 
 - Enterprise-Solution-Architecture.md
 - Security-Architecture.md
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

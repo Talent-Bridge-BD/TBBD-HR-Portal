@@ -1,10 +1,12 @@
 # Risk Management Framework
 
-> Enterprise risk management framework defining the approach used to identify, assess, mitigate, and monitor risks associated with the TBBD HR Portal platform.
+> Enterprise risk management framework defining the approach used to identify,
+> assess, mitigate, and monitor risks associated with the TBBD HR Portal
+> platform.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -17,11 +19,14 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal Risk Management Framework provides a structured approach for managing technology, security, operational, compliance, and AI-related risks.
+The TBBD HR Portal Risk Management Framework provides a structured approach
+for managing technology, security, operational, compliance, and AI-related
+risks.
 
-The framework enables proactive risk identification and supports informed decision-making throughout the platform lifecycle.
+The framework enables proactive risk identification and supports informed
+decision-making throughout the platform lifecycle.
 
 Risk management is integrated into:
 
@@ -34,7 +39,7 @@ Risk management is integrated into:
 
 ---
 
-# Risk Management Objectives
+## Risk Management Objectives
 
 The framework aims to:
 
@@ -48,9 +53,9 @@ The framework aims to:
 
 ---
 
-# Risk Management Principles
+## Risk Management Principles
 
-## Proactive Management
+### Proactive Management
 
 Risks should be identified before they become incidents.
 
@@ -63,7 +68,7 @@ Practices:
 
 ---
 
-## Risk-Based Decision Making
+### Risk-Based Decision Making
 
 Technology decisions should consider:
 
@@ -74,7 +79,7 @@ Technology decisions should consider:
 
 ---
 
-## Continuous Improvement
+### Continuous Improvement
 
 Risk management evolves through:
 
@@ -85,9 +90,9 @@ Risk management evolves through:
 
 ---
 
-# Risk Categories
+## Risk Categories
 
-## Security Risks
+### Security Risks
 
 Examples:
 
@@ -107,7 +112,7 @@ Controls:
 
 ---
 
-# Identity Risks
+## Identity Risks
 
 Examples:
 
@@ -126,7 +131,7 @@ Controls:
 
 ---
 
-# Data Risks
+## Data Risks
 
 Examples:
 
@@ -145,7 +150,7 @@ Controls:
 
 ---
 
-# Application Risks
+## Application Risks
 
 Examples:
 
@@ -164,7 +169,7 @@ Controls:
 
 ---
 
-# Infrastructure Risks
+## Infrastructure Risks
 
 Examples:
 
@@ -182,7 +187,7 @@ Controls:
 
 ---
 
-# AI Risks
+## AI Risks
 
 Examples:
 
@@ -201,7 +206,7 @@ Controls:
 
 ---
 
-# Risk Assessment Process
+## Risk Assessment Process
 
 ```text
 Identify Risk
@@ -239,7 +244,7 @@ Monitor and Review
 
 ---
 
-# Risk Classification
+## Risk Classification
 
 | Level | Description |
 |------|-------------|
@@ -250,7 +255,7 @@ Monitor and Review
 
 ---
 
-# Risk Register
+## Risk Register
 
 Example risk tracking:
 
@@ -263,7 +268,7 @@ Example risk tracking:
 
 ---
 
-# Risk Ownership
+## Risk Ownership
 
 | Role | Responsibility |
 |------|----------------|
@@ -276,7 +281,7 @@ Example risk tracking:
 
 ---
 
-# Incident Relationship
+## Incident Relationship
 
 Risk management supports incident response through:
 
@@ -288,7 +293,7 @@ Risk management supports incident response through:
 
 ---
 
-# Review Frequency
+## Review Frequency
 
 Risk reviews should occur:
 
@@ -300,7 +305,7 @@ Risk reviews should occur:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future improvements may include:
 
@@ -312,7 +317,7 @@ Future improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Governance-Framework.md
 - Responsible-AI.md
@@ -322,7 +327,7 @@ Future improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|

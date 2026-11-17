@@ -1,10 +1,13 @@
 # Security Architecture
 
-> Security architecture for the **TBBD HR Portal**, describing the enterprise security model, Zero Trust principles, identity protection, data security, infrastructure security, monitoring, and compliance across Microsoft Azure and Microsoft 365.
+> Security architecture for the **TBBD HR Portal**, describing the enterprise
+> security model, Zero Trust principles, identity protection, data security,
+> infrastructure security, monitoring, and compliance across Microsoft Azure
+> and Microsoft 365.
 
 ---
 
-# Document Information
+## Document Information
 
 | Property | Value |
 |----------|-------|
@@ -18,15 +21,19 @@
 
 ---
 
-# Overview
+## Overview
 
-The TBBD HR Portal is designed with a security-first approach, leveraging Microsoft security technologies and industry best practices to protect users, applications, data, and infrastructure.
+The TBBD HR Portal is designed with a security-first approach, leveraging
+Microsoft security technologies and industry best practices to protect users,
+applications, data, and infrastructure.
 
-The security architecture aligns with Microsoft's **Zero Trust** model and incorporates layered security controls across identity, devices, applications, data, infrastructure, and monitoring.
+The security architecture aligns with Microsoft's **Zero Trust** model and
+incorporates layered security controls across identity, devices, applications,
+data, infrastructure, and monitoring.
 
 ---
 
-# Security Objectives
+## Security Objectives
 
 The security architecture aims to:
 
@@ -41,7 +48,7 @@ The security architecture aims to:
 
 ---
 
-# Security Principles
+## Security Principles
 
 The TBBD HR Portal follows these principles:
 
@@ -58,7 +65,7 @@ The TBBD HR Portal follows these principles:
 
 ---
 
-# Security Architecture
+## Security Architecture Diagram
 
 ```text
 Users
@@ -98,7 +105,7 @@ Azure Monitor
 
 ---
 
-# Identity Security
+## Identity Security
 
 Identity security is provided through Microsoft Entra ID.
 
@@ -115,7 +122,7 @@ Capabilities include:
 
 ---
 
-# Application Security
+## Application Security
 
 Application security controls include:
 
@@ -132,7 +139,7 @@ Application security controls include:
 
 ---
 
-# Infrastructure Security
+## Infrastructure Security
 
 Azure infrastructure security includes:
 
@@ -147,7 +154,7 @@ Azure infrastructure security includes:
 
 ---
 
-# Data Protection
+## Data Protection
 
 Sensitive HR information is protected using:
 
@@ -162,7 +169,7 @@ Sensitive HR information is protected using:
 
 ---
 
-# Network Security
+## Network Security
 
 The networking model includes:
 
@@ -176,7 +183,7 @@ The networking model includes:
 
 ---
 
-# Threat Protection
+## Threat Protection
 
 Microsoft security services provide threat detection and response.
 
@@ -190,7 +197,7 @@ Microsoft security services provide threat detection and response.
 
 ---
 
-# Security Monitoring
+## Security Monitoring
 
 Security monitoring includes:
 
@@ -205,7 +212,7 @@ Security monitoring includes:
 
 ---
 
-# Compliance
+## Compliance
 
 The platform supports enterprise compliance through:
 
@@ -220,7 +227,7 @@ The platform supports enterprise compliance through:
 
 ---
 
-# Incident Response
+## Incident Response
 
 Security incidents follow a structured response process.
 
@@ -245,7 +252,7 @@ Lessons Learned
 
 ---
 
-# Security Best Practices
+## Security Best Practices
 
 The TBBD HR Portal follows these best practices:
 
@@ -262,7 +269,7 @@ The TBBD HR Portal follows these best practices:
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 Future security improvements may include:
 
@@ -277,7 +284,7 @@ Future security improvements may include:
 
 ---
 
-# Related Documentation
+## Related Documentation
 
 - Enterprise Solution Architecture
 - Azure Deployment Architecture
@@ -287,7 +294,7 @@ Future security improvements may include:
 
 ---
 
-# Revision History
+## Revision History
 
 | Version | Date | Description |
 |---------|------|-------------|
