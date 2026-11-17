@@ -1,3 +1,5 @@
+import pytest
+
 import services.notification_service as notification_service
 
 
@@ -92,6 +94,7 @@ def test_send_notification_records_success_without_real_email(monkeypatch):
     assert email_client.message["content"]["subject"] == (
         "Interview for Test Candidate"
     )
+    assert email_client.message["content"]["plainText"] == "Hello Test Candidate"
 
 
 def test_send_notification_records_provider_failure(monkeypatch):
@@ -141,3 +144,24 @@ def test_strip_html_tags_removes_a_tag_after_repeated_opening_brackets():
     value = "<" * 200_000 + "<p>safe</p>"
 
     assert notification_service._strip_html_tags(value) == " safe "
+
+
+def test_send_notification_rejects_oversized_template(monkeypatch):
+    repository = FakeRepository()
+    repository.list_templates = lambda: [{
+        "event_type": "INTERVIEW_SCHEDULED",
+        "is_active": True,
+        "subject": "Interview",
+        "html_body": "<p>" + "x" * notification_service.MAX_NOTIFICATION_HTML_LENGTH,
+    }]
+    email_client = FakeEmailClient()
+    configure_service(monkeypatch, repository, email_client)
+
+    service = notification_service.NotificationService()
+    with pytest.raises(ValueError, match="supported length"):
+        service.send_notification(
+            event_type="INTERVIEW_SCHEDULED",
+            recipient="candidate@example.test",
+        )
+
+    assert repository.created_log is None
