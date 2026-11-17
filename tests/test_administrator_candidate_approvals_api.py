@@ -141,7 +141,7 @@ def test_invalid_review_status_is_rejected_by_api(monkeypatch):
     )
 
 
-def test_bulk_approval_does_not_expose_repository_exception(monkeypatch):
+def test_bulk_approval_does_not_expose_repository_exception(monkeypatch, caplog):
     repository, client = setup_api(monkeypatch)
     repository.ensure_candidate("candidate-001")
 
@@ -163,3 +163,5 @@ def test_bulk_approval_does_not_expose_repository_exception(monkeypatch):
     )
     assert "SQL Server" not in response.text
     assert "internal-secret" not in response.text
+    assert "SQL Server" not in caplog.text
+    assert "internal-secret" not in caplog.text
