@@ -1,3 +1,4 @@
+
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
 # CI validation only - no deployment or production changes
@@ -56,6 +57,13 @@ steps:
 
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install -r requirements.txt
+
+      # Install CI-only test dependency.
+      # Keep pytest out of production requirements.txt.
+      python3.11 -m pip install pytest
+
+      # Confirm pytest is available before running backend tests.
+      python3.11 -m pytest --version
 
     displayName: 'Install backend dependencies'
 
