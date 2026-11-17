@@ -139,3 +139,27 @@ def test_invalid_review_status_is_rejected_by_api(monkeypatch):
         repository.get_approval("candidate-001")["approval_status"]
         == "pending"
     )
+
+
+def test_bulk_approval_does_not_expose_repository_exception(monkeypatch):
+    repository, client = setup_api(monkeypatch)
+    repository.ensure_candidate("candidate-001")
+
+    def fail_review(*args, **kwargs):
+        raise ValueError("SQL Server password=internal-secret")
+
+    monkeypatch.setattr(repository, "review_candidate", fail_review)
+
+    response = client.post(
+        "/api/administrator/candidate-approvals/bulk-approve",
+        json={"entra_object_ids": ["candidate-001"]},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["error_count"] == 1
+    assert body["results"][0]["detail"] == (
+        "Candidate approval could not be completed."
+    )
+    assert "SQL Server" not in response.text
+    assert "internal-secret" not in response.text
