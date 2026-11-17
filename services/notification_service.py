@@ -1,3 +1,4 @@
+import logging
 import os
 from azure.communication.email import EmailClient
 
@@ -32,6 +33,9 @@ def _strip_html_tags(value: str) -> str:
 
     chunks.append(value[segment_start:])
     return "".join(chunks)
+
+
+logger = logging.getLogger(__name__)
 
 
 EMAIL_SENDERS = {
@@ -153,7 +157,7 @@ class NotificationService:
 
             result = poller.result()
 
-            print(f"[ACS EMAIL] {result}")
+            logger.info("ACS email provider response received; status=%s", result.get("status"))
 
             if result["status"] == "Succeeded":
                 final_status = "SENT"
@@ -171,7 +175,10 @@ class NotificationService:
 
         except Exception as email_error:
             final_status = "FAILED"
-            print(f"[ACS EMAIL ERROR] {email_error}")
+            logger.error(
+                "ACS email delivery failed; exception_type=%s",
+                type(email_error).__name__,
+            )
 
             self.repository.update_delivery_status(
                 delivery_log["id"],
