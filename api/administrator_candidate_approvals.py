@@ -1,9 +1,14 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from api.administrator_organizations import require_admin
 from repositories.candidate_approvals import SqlCandidateApprovalRepository
 from services.local_auth import get_request_principal
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -57,8 +62,12 @@ def list_candidate_approvals(
             limit=limit + 1,
             offset=offset,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ValueError:
+        logger.exception("Candidate approval list query failed")
+        raise HTTPException(
+            status_code=422,
+            detail="The candidate approval request could not be processed.",
+        ) from None
 
     has_more = len(rows) > limit
     return {
@@ -90,8 +99,12 @@ def review_candidate(
             reviewed_by=_reviewer_id(request),
             approval_notes=payload.approval_notes,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ValueError:
+        logger.exception("Candidate review request failed")
+        raise HTTPException(
+            status_code=422,
+            detail="The candidate review could not be completed.",
+        ) from None
 
     if result is None:
         raise HTTPException(
@@ -132,11 +145,12 @@ def bulk_approve_candidates(
                 reviewed_by=reviewer,
                 approval_notes=payload.approval_notes,
             )
-        except ValueError as exc:
+        except ValueError:
+            logger.exception("Bulk candidate approval operation failed")
             results.append({
                 "entra_object_id": entra_object_id,
                 "status": "error",
-                "detail": str(exc),
+                "detail": "Candidate approval could not be completed.",
             })
             continue
 
