@@ -281,7 +281,7 @@ clear navigation.
 
 ## Documentation Library
 
-**Documentation areas**
+### Documentation areas
 
 - 📐 [Architecture](documentation/architecture/README.md) — Architecture, Azure,
   identity, security, AI, data, integration, DevOps, and monitoring.
