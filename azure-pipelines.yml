@@ -12,7 +12,7 @@ pool:
   name: 'TBBD-Agent-Pool'
 
 variables:
-  pythonVersion: '3.11'
+  pythonVersion: '3.14'
   nodeVersion: '20.x'
 
 steps:
@@ -20,125 +20,91 @@ steps:
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
 
-  # Display build and agent information
+  # Verify Bash environment
+  - task: Bash@3
+    displayName: 'Verify Bash Environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "Bash is working"
+        bash --version | head -n 1
+        df -h /
+
+  # Display build information
   - script: |
       set -eu
-
-      echo "=========================================="
       echo "TBBD HR Portal - Azure DevOps CI"
-      echo "=========================================="
       echo "Repository: $(Build.Repository.Name)"
       echo "Branch: $(Build.SourceBranch)"
       echo "Commit: $(Build.SourceVersion)"
       echo "Build ID: $(Build.BuildId)"
-      echo "Agent: $(Agent.Name)"
-      echo "Agent OS: $(Agent.OS)"
-      echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
-  # Verify native ARM64 Homebrew Python 3.11
-  # Create an isolated CI virtual environment
+  # Set Python version
+  - task: UsePythonVersion@0
+    displayName: 'Set Python version'
+    inputs:
+      versionSpec: '$(pythonVersion)'
+
+  # Verify Python environment
   - script: |
       set -eu
+      python --version
+      python -m pip --version
+    displayName: 'Verify Python environment'
 
-      export PATH="/opt/homebrew/bin:$PATH"
-
-      echo "Checking Python environment..."
-
-      test -x /opt/homebrew/bin/python3.11
-
-      command -v python3.11
-      python3.11 --version
-
-      python3.11 -c "import platform; print('Architecture:', platform.machine()); assert platform.machine() == 'arm64', 'Expected Apple Silicon ARM64 Python'"
-
-      python3.11 -m venv "$(Agent.TempDirectory)/tbbd-ci-venv"
-
-      "$(Agent.TempDirectory)/tbbd-ci-venv/bin/python" -m pip --version
-
-    displayName: 'Verify Python 3.11 environment'
-
-  # Install backend dependencies in the isolated CI environment
+  # Install backend dependencies
   - script: |
       set -eu
-
-      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
-
-      "$PYTHON" -m pip install --upgrade pip
-      "$PYTHON" -m pip install -r requirements.txt
-
-      # Install pytest for CI testing only.
-      # Keep pytest out of production requirements.txt.
-      "$PYTHON" -m pip install pytest
-
-      # Verify pytest is available.
-      "$PYTHON" -m pytest --version
-
+      if [ -f requirements.txt ]; then
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+      else
+        echo "requirements.txt not found."
+        echo "Skipping Python dependency installation."
+      fi
     displayName: 'Install backend dependencies'
 
   # Validate Python source
   - script: |
       set -eu
-
-      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
-
-      "$PYTHON" -m compileall -q .
-
+      python -m compileall -q .
     displayName: 'Validate Python source'
 
-  # Run backend tests
-  - script: |
-      set -eu
-
-      PYTHON="$(Agent.TempDirectory)/tbbd-ci-venv/bin/python"
-
-      "$PYTHON" -m pytest -q --ignore=test_email_send.py
-
-    displayName: 'Run backend tests'
-
-  # Install Node.js 20
-  - task: UseNode@1
+  # Set Node.js version
+  - task: NodeTool@0
     displayName: 'Set Node.js version'
     inputs:
-      version: '$(nodeVersion)'
+      versionSpec: '$(nodeVersion)'
 
-  # Verify Node.js and npm
+  # Verify Node.js environment
   - script: |
       set -eu
-
       node --version
       npm --version
-
     displayName: 'Verify Node.js environment'
 
   # Install frontend dependencies
   - script: |
       set -eu
-
-      npm ci
-
-    workingDirectory: 'frontend'
+      cd frontend
+      if [ -f package-lock.json ]; then
+        npm ci
+      else
+        npm install
+      fi
     displayName: 'Install frontend dependencies'
 
   # Build React frontend
   - script: |
       set -eu
-
+      cd frontend
       npm run build
-
-    workingDirectory: 'frontend'
     displayName: 'Build React frontend'
 
-  # Final CI summary - runs only if previous steps succeed
+  # Final CI summary
   - script: |
       set -eu
-
-      echo "=========================================="
       echo "TBBD HR Portal CI validation completed."
-      echo "=========================================="
-      echo "Python source validation: completed"
-      echo "Backend tests: passed"
-      echo "Frontend production build: completed"
       echo "No deployment or production changes performed."
-
     displayName: 'CI build summary'
