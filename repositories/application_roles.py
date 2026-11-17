@@ -1,9 +1,27 @@
 """Application-managed roles, separate from approval status and memberships."""
+import logging
 import os
 import struct
 
 import pyodbc
 from azure.identity import AzureCliCredential, DefaultAzureCredential
+
+
+logger = logging.getLogger(__name__)
+
+
+def _sqlstate(error):
+    return next(
+        (
+            argument
+            for argument in getattr(error, "args", ())
+            if isinstance(argument, str)
+            and len(argument) == 5
+            and argument.isascii()
+            and argument.isalnum()
+        ),
+        "unavailable",
+    )
 
 
 class InMemoryApplicationRoleRepository:
@@ -45,8 +63,12 @@ class SqlApplicationRoleRepository:
             self.credential = AzureCliCredential()
 
     def _connection(self):
-        print(f"[APP ROLE SQL] server={self.server} database={self.database}", flush=True)
-        print(f"[APP ROLE SQL] credential={type(self.credential).__name__}", flush=True)
+        logger.info(
+            "Azure SQL role repository connection target server=%s database=%s credential=%s",
+            self.server,
+            self.database,
+            type(self.credential).__name__,
+        )
 
         connection_string = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
@@ -58,20 +80,51 @@ class SqlApplicationRoleRepository:
         )
 
         if os.environ.get("WEBSITE_SITE_NAME"):
-            return pyodbc.connect(
-                connection_string + "Authentication=ActiveDirectoryMsi;"
-            )
+            try:
+                return pyodbc.connect(
+                    connection_string + "Authentication=ActiveDirectoryMsi;"
+                )
+            except pyodbc.Error as error:
+                logger.error(
+                    "Azure SQL managed identity connection failed; "
+                    "exception_type=%s sqlstate=%s",
+                    type(error).__name__,
+                    _sqlstate(error),
+                )
+                raise
 
-        token = self.credential.get_token(self.SQL_SCOPE).token
-        print("[APP ROLE SQL] token acquired", flush=True)
+        try:
+            token = self.credential.get_token(self.SQL_SCOPE).token
+        except Exception as error:
+            logger.error(
+                "Azure SQL access token acquisition failed; credential=%s "
+                "exception_type=%s",
+                type(self.credential).__name__,
+                type(error).__name__,
+            )
+            raise
+
+        logger.info(
+            "Azure SQL access token acquired; credential=%s",
+            type(self.credential).__name__,
+        )
         token_bytes = token.encode("utf-16-le")
         token_struct = struct.pack(
             f"<I{len(token_bytes)}s", len(token_bytes), token_bytes
         )
-        return pyodbc.connect(
-            connection_string,
-            attrs_before={self.SQL_ACCESS_TOKEN_ATTRIBUTE: token_struct},
-        )
+        try:
+            return pyodbc.connect(
+                connection_string,
+                attrs_before={self.SQL_ACCESS_TOKEN_ATTRIBUTE: token_struct},
+            )
+        except pyodbc.Error as error:
+            logger.error(
+                "Azure SQL token-authenticated connection failed; "
+                "exception_type=%s sqlstate=%s",
+                type(error).__name__,
+                _sqlstate(error),
+            )
+            raise
 
 
     def assignment_status(self, user_id, role):
