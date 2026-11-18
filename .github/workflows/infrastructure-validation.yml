@@ -33,5 +33,27 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
+            set -euo pipefail
+
+            echo "===== Install Bicep CLI if missing ====="
+            if ! az bicep version >/dev/null 2>&1; then
+              az bicep install
+            fi
+
+            echo "===== Verify Bicep CLI ====="
             az bicep version
-            find infrastructure/bicep -name "*.bicep" -print
+
+            echo "===== Validate Bicep Templates ====="
+            found=0
+
+            while IFS= read -r -d '' template; do
+              found=1
+              echo "Validating: $template"
+              az bicep build --file "$template" --stdout >/dev/null
+            done < <(find infrastructure/bicep -type f -name "*.bicep" -print0)
+
+            if [ "$found" -eq 0 ]; then
+              echo "INFO: No Bicep templates found. Validation skipped."
+            else
+              echo "All Bicep templates validated successfully."
+            fi
