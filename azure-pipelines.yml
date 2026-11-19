@@ -1,6 +1,8 @@
+
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
-# CI validation only - no deployment or production changes
+# Microsoft-hosted CI validation only
+# No deployment or production changes
 
 trigger:
   - main
@@ -9,7 +11,7 @@ pr:
   - main
 
 pool:
-  name: 'TBBD-Agent-Pool'
+  vmImage: 'ubuntu-latest'
 
 variables:
   pythonVersion: '3.14'
@@ -26,6 +28,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
+        set -eu
         echo "Bash is working"
         bash --version | head -n 1
         df -h /
@@ -45,6 +48,7 @@ steps:
     displayName: 'Set Python version'
     inputs:
       versionSpec: '$(pythonVersion)'
+      architecture: 'x64'
 
   # Verify Python environment
   - script: |
@@ -106,5 +110,6 @@ steps:
   - script: |
       set -eu
       echo "TBBD HR Portal CI validation completed."
+      echo "Agent: Microsoft-hosted Ubuntu"
       echo "No deployment or production changes performed."
     displayName: 'CI build summary'
