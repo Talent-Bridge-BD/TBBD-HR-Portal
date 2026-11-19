@@ -1,7 +1,6 @@
-
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
-# Microsoft-hosted CI validation only
+# Self-hosted Mac CI validation only
 # No deployment or production changes
 
 trigger:
@@ -11,10 +10,10 @@ pr:
   - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'TBBD-Agent-Pool'
 
 variables:
-  pythonVersion: '3.14'
+  pythonVersion: '3.11'
   nodeVersion: '20.x'
 
 steps:
@@ -22,15 +21,22 @@ steps:
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
 
-  # Verify Bash environment
+  # Verify Mac agent environment
   - task: Bash@3
-    displayName: 'Verify Bash Environment'
+    displayName: 'Verify Mac Agent Environment'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
+        export PATH="/opt/homebrew/bin:$PATH"
+
         echo "Bash is working"
         bash --version | head -n 1
+        echo "Operating system:"
+        uname -a
+        echo "Architecture:"
+        uname -m
+        echo "Available disk space:"
         df -h /
 
   # Display build information
@@ -43,26 +49,23 @@ steps:
       echo "Build ID: $(Build.BuildId)"
     displayName: 'Display build information'
 
-  # Set Python version
-  - task: UsePythonVersion@0
-    displayName: 'Set Python version'
-    inputs:
-      versionSpec: '$(pythonVersion)'
-      architecture: 'x64'
-
-  # Verify Python environment
+  # Verify Python 3.11
   - script: |
       set -eu
-      python --version
-      python -m pip --version
+      export PATH="/opt/homebrew/bin:$PATH"
+
+      python3.11 --version
+      python3.11 -m pip --version
     displayName: 'Verify Python environment'
 
   # Install backend dependencies
   - script: |
       set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
       if [ -f requirements.txt ]; then
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python3.11 -m pip install --upgrade pip
+        python3.11 -m pip install -r requirements.txt
       else
         echo "requirements.txt not found."
         echo "Skipping Python dependency installation."
@@ -72,18 +75,16 @@ steps:
   # Validate Python source
   - script: |
       set -eu
-      python -m compileall -q .
-    displayName: 'Validate Python source'
+      export PATH="/opt/homebrew/bin:$PATH"
 
-  # Set Node.js version
-  - task: NodeTool@0
-    displayName: 'Set Node.js version'
-    inputs:
-      versionSpec: '$(nodeVersion)'
+      python3.11 -m compileall -q .
+    displayName: 'Validate Python source'
 
   # Verify Node.js environment
   - script: |
       set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
       node --version
       npm --version
     displayName: 'Verify Node.js environment'
@@ -91,6 +92,8 @@ steps:
   # Install frontend dependencies
   - script: |
       set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
       cd frontend
       if [ -f package-lock.json ]; then
         npm ci
@@ -102,6 +105,8 @@ steps:
   # Build React frontend
   - script: |
       set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
       cd frontend
       npm run build
     displayName: 'Build React frontend'
@@ -110,6 +115,7 @@ steps:
   - script: |
       set -eu
       echo "TBBD HR Portal CI validation completed."
-      echo "Agent: Microsoft-hosted Ubuntu"
+      echo "Agent pool: TBBD-Agent-Pool"
+      echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
       echo "No deployment or production changes performed."
     displayName: 'CI build summary'
