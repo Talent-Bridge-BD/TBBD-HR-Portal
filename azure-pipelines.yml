@@ -1,3 +1,9 @@
+
+# Talent Bridge BD - HR Portal
+# Azure DevOps CI Pipeline
+# Native macOS ARM64 self-hosted agent
+# CI validation only - no deployment
+
 trigger:
   - main
 
@@ -31,17 +37,21 @@ steps:
         uname -a
         echo "Architecture: $(uname -m)"
         echo "Bash: ${BASH_VERSION:-unknown}"
+
         df -h .
 
-  - script: |
-      set -eu
-
-      echo "Build ID: $(Build.BuildId)"
-      echo "Build number: $(Build.BuildNumber)"
-      echo "Branch: $(Build.SourceBranch)"
-      echo "Commit: $(Build.SourceVersion)"
-      echo "Repository: $(Build.Repository.Name)"
+  - task: Bash@3
     displayName: 'Display build information'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        echo "Build ID: $(Build.BuildId)"
+        echo "Build number: $(Build.BuildNumber)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Repository: $(Build.Repository.Name)"
 
   - task: Bash@3
     displayName: 'Create native Python 3.11 ARM64 environment'
@@ -73,7 +83,7 @@ steps:
         echo "Native Python 3.11 ARM64 environment created."
 
   - task: Bash@3
-    displayName: 'Install backend dependencies'
+    displayName: 'Install backend and test dependencies'
     inputs:
       targetType: 'inline'
       script: |
@@ -86,11 +96,20 @@ steps:
           exit 1
         fi
 
+        if [ ! -f requirements-dev.txt ]; then
+          echo "ERROR: requirements-dev.txt is missing."
+          exit 1
+        fi
+
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
+
+        "$(TBBD_PYTHON)" -m pip install -r requirements-dev.txt
 
         "$(TBBD_PYTHON)" -m pip check
 
-        echo "Backend dependencies installed successfully."
+        "$(TBBD_PYTHON)" -m pytest --version
+
+        echo "Backend and test dependencies installed successfully."
 
   - task: UseNode@1
     displayName: 'Use Node.js 20'
@@ -128,6 +147,8 @@ steps:
 
         npm ci
 
+        echo "Frontend dependencies installed successfully."
+
   - task: Bash@3
     displayName: 'Build frontend'
     inputs:
@@ -144,6 +165,8 @@ steps:
           exit 1
         fi
 
+        echo "Frontend build completed successfully."
+
   - task: Bash@3
     displayName: 'Prepare frontend assets'
     inputs:
@@ -159,6 +182,7 @@ steps:
         fi
 
         mkdir -p dist
+
         cp -R frontend/dist/. dist/
 
         if [ ! -f dist/index.html ]; then
@@ -169,16 +193,23 @@ steps:
         echo "Frontend assets prepared successfully."
 
   - task: Bash@3
-    displayName: 'Compile Python backend'
+    displayName: 'Compile maintained Python backend'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
         cd "$(Build.SourcesDirectory)"
-        "$(TBBD_PYTHON)" -m compileall -q .
 
-        echo "Python backend compilation completed."
+        "$(TBBD_PYTHON)" -m compileall -q \
+          main.py \
+          api \
+          services \
+          models \
+          repositories \
+          tests
+
+        echo "Python backend compilation completed successfully."
 
   - task: Bash@3
     displayName: 'Run backend tests'
@@ -188,6 +219,7 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
+
         "$(TBBD_PYTHON)" -m pytest -q --ignore=test_email_send.py
 
   - task: Bash@3
@@ -205,7 +237,8 @@ steps:
         echo "Commit: $(Build.SourceVersion)"
         echo "Native Python 3.11 ARM64 verified."
         echo "Node.js 20 verified."
+        echo "Backend dependencies installed."
         echo "Frontend build completed."
-        echo "Backend compilation completed."
+        echo "Python compilation completed."
         echo "Backend tests completed."
         echo "No Azure deployment was performed."
