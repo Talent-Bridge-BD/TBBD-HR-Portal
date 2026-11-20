@@ -1,6 +1,6 @@
 import base64
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
@@ -55,6 +55,11 @@ class JobRequest(BaseModel):
     contract_duration: str = ""
     work_location: str = ""
     project_name: str = ""
+
+
+class ApplicationDeadlineUpdate(BaseModel):
+    organization_id: str
+    closing_at: datetime
 
 
 def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
@@ -179,6 +184,84 @@ async def get_job(
 
     return {
         "job": job.__dict__
+    }
+
+
+@router.patch("/{job_id}/application-deadline")
+async def extend_application_deadline(
+    job_id: str,
+    payload: ApplicationDeadlineUpdate,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        payload.organization_id,
+    )
+
+    existing = _job_service.get_job(
+        payload.organization_id,
+        job_id,
+    )
+
+    if existing is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found",
+        )
+
+    if existing.status != "open":
+        raise HTTPException(
+            status_code=400,
+            detail="Application date can only be extended for an open job",
+        )
+
+    if existing.closing_at is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Job does not have an existing application deadline",
+        )
+
+    new_closing_at = payload.closing_at
+
+    if new_closing_at.tzinfo is not None:
+        new_closing_at = new_closing_at.astimezone(timezone.utc).replace(
+            tzinfo=None
+        )
+
+    existing_closing_at = existing.closing_at
+
+    if existing_closing_at.tzinfo is not None:
+        existing_closing_at = existing_closing_at.astimezone(
+            timezone.utc
+        ).replace(tzinfo=None)
+
+    if new_closing_at <= existing_closing_at:
+        raise HTTPException(
+            status_code=400,
+            detail="New application date must be later than the current application date",
+        )
+
+    if new_closing_at <= datetime.now(timezone.utc).replace(tzinfo=None):
+        raise HTTPException(
+            status_code=400,
+            detail="New application date must be in the future",
+        )
+
+    updated = _job_service.extend_application_deadline(
+        payload.organization_id,
+        job_id,
+        new_closing_at,
+    )
+
+    if updated is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Application deadline could not be extended",
+        )
+
+    return {
+        "job": updated.__dict__,
+        "message": "Application date extended",
     }
 
 

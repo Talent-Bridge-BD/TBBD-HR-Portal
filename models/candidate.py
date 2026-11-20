@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -12,6 +13,11 @@ class CandidateProfile:
     email: str = ""
     phone: str = ""
     location: str = ""
+    date_of_birth: Optional[str] = None
+    gender: str = ""
+    nationality: str = "Bangladeshi"
+    nid_number: str = ""
+    full_address: str = ""
 
     # Professional profile
     professional_title: str = ""
@@ -22,6 +28,7 @@ class CandidateProfile:
     # Passport / international mobility
     passport_number: str = ""
     passport_country: str = ""
+    passport_issue_date: Optional[str] = None
     passport_expiry_date: Optional[str] = None
     passport_status: str = ""
     international_travel_readiness: str = ""

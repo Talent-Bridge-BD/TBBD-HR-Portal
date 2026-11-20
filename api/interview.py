@@ -12,6 +12,7 @@ from services.authorization import (
     is_global_administrator,
 )
 from services.interview import InterviewService
+from services.notification_service import NotificationService
 from services.local_auth import get_request_principal
 
 
@@ -181,6 +182,19 @@ async def get_interview(
         raise HTTPException(
             status_code=404,
             detail="Interview not found",
+        )
+
+    try:
+        NotificationService().send_notification(
+            event_type="INTERVIEW_SCHEDULED",
+            recipient="interviews@talentbridgebd.com",
+            subject_data={
+                "interview_type": payload.interview_type,
+            },
+        )
+    except Exception as notification_error:
+        print(
+            f"[INTERVIEW NOTIFICATION ERROR] {notification_error}"
         )
 
     return {

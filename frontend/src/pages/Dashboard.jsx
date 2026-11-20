@@ -59,15 +59,57 @@ export default function Dashboard({ auth, onNavigate }) {
       .then((data) => setPipeline(data))
       .catch((error) => console.error(error))
   }, [isAdministrator, isHRManager])
-  const employeeName =
-    employeeDashboard.employee.name || getEmployeeDisplayName()
+  const [workplaceNotifications, setWorkplaceNotifications] = useState([])
+  const [workplaceNotificationsLoading, setWorkplaceNotificationsLoading] = useState(true)
+  const [workplaceNotificationsError, setWorkplaceNotificationsError] = useState('')
 
+  useEffect(() => {
+    if (!isAdministrator && !isHRManager) return
+
+    let cancelled = false
+
+    async function loadWorkplaceNotifications() {
+      try {
+        setWorkplaceNotificationsLoading(true)
+        setWorkplaceNotificationsError('')
+
+        const response = await authenticatedFetch('/api/notifications')
+        if (!response.ok) {
+          throw new Error(`Failed to load notifications: ${response.status}`)
+        }
+
+        const data = await response.json()
+        if (!cancelled) {
+          setWorkplaceNotifications(Array.isArray(data) ? data : [])
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setWorkplaceNotificationsError(error.message || 'Unable to load notifications.')
+        }
+      } finally {
+        if (!cancelled) {
+          setWorkplaceNotificationsLoading(false)
+        }
+      }
+    }
+
+    loadWorkplaceNotifications()
+    return () => { cancelled = true }
+  }, [isAdministrator, isHRManager])
+
+  const authenticatedUser = auth?.user || {}
+  const authenticatedName =
+    authenticatedUser.name && authenticatedUser.name !== authenticatedUser.email
+      ? authenticatedUser.name
+      : authenticatedUser.email?.split('@')[0]?.replace(/[._-]+/g, ' ')
+
+  const employeeName =
+    authenticatedName || employeeDashboard.employee.name || getEmployeeDisplayName()
   const {
     attendance,
     leave,
     schedule,
-    tasks,
-    notifications,
+
     applications,
     announcements,
   } = employeeDashboard
@@ -120,6 +162,7 @@ export default function Dashboard({ auth, onNavigate }) {
     },
   ]
 
+
   if (isEmployerManager) {
     return <EmployerDashboard onNavigate={onNavigate} />
   }
@@ -163,24 +206,28 @@ export default function Dashboard({ auth, onNavigate }) {
               icon="◈"
               label="Active Candidates"
               value={operations.candidates_pipeline}
+              onClick={() => onNavigate('Recruitment Candidates')}
               detail="Candidates in active recruitment"
             />
             <StatCard
               icon="◉"
               label="Interviews"
               value={operations.interviews_upcoming}
+              onClick={() => onNavigate('Recruitment Interviews')}
               detail="Upcoming scheduled interviews"
             />
             <StatCard
               icon="◌"
               label="Pending"
               value={operations.new_applications}
+              onClick={() => onNavigate('Recruitment Applications')}
               detail="Applications awaiting review"
             />
             <StatCard
               icon="✓"
               label="Completed"
               value={pipeline.Completed}
+              onClick={() => onNavigate('Recruitment Candidates')}
               detail="Completed recruitment stages"
             />
           </div>
@@ -291,37 +338,47 @@ export default function Dashboard({ auth, onNavigate }) {
             <DashboardCard title="My Tasks">
               <div className="workplace-summary-card">
                 <div>
-                  <strong>{tasks.pending}</strong>
+                  <strong>—</strong>
                   <span>Pending tasks</span>
-                  <small>Tasks that may need your attention</small>
                 </div>
-                <button
-                  className="card-link"
-                  type="button"
-                  onClick={() => onNavigate('My Tasks')}
-                >
-                  View tasks →
-                </button>
+                <p>Task management is not configured yet.</p>
               </div>
             </DashboardCard>
 
             <DashboardCard title="Notifications">
-              <div className="workplace-notification-summary">
-                {notifications.slice(0, 3).map((notification) => (
-                  <button
-                    className="workplace-notification-item"
-                    type="button"
-                    key={notification.id}
-                    onClick={() => onNavigate('Notifications')}
-                  >
-                    <span className="workplace-notification-dot" />
-                    <span>
-                      <strong>{notification.title}</strong>
-                      <small>{notification.message}</small>
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {workplaceNotificationsLoading ? (
+                <div className="empty-state">
+                  <strong>Loading notifications</strong>
+                  <span>Please wait while workplace notifications are loaded.</span>
+                </div>
+              ) : workplaceNotificationsError ? (
+                <div className="empty-state">
+                  <strong>Unable to load notifications</strong>
+                  <span>{workplaceNotificationsError}</span>
+                </div>
+              ) : workplaceNotifications.length === 0 ? (
+                <div className="empty-state">
+                  <strong>No notifications</strong>
+                  <span>Workplace updates and important notifications will appear here.</span>
+                </div>
+              ) : (
+                <div className="workplace-notification-summary">
+                  {workplaceNotifications.slice(0, 3).map((notification) => (
+                    <button
+                      className="workplace-notification-item"
+                      type="button"
+                      key={notification.id}
+                      onClick={() => onNavigate('Notifications')}
+                    >
+                      <span className="workplace-notification-dot" />
+                      <span>
+                        <strong>{notification.title}</strong>
+                        <small>{notification.message}</small>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <button
                 className="card-link"
                 type="button"
@@ -345,19 +402,13 @@ export default function Dashboard({ auth, onNavigate }) {
             </DashboardCard>
 
             <DashboardCard title="Recent Activity">
-              <div className="workplace-activity-list">
-                {announcements.slice(0, 3).map((announcement) => (
-                  <article
-                    className="workplace-activity-item"
-                    key={announcement.id}
-                  >
-                    <span className="workplace-activity-icon">•</span>
-                    <div>
-                      <strong>{announcement.title}</strong>
-                      <small>{announcement.message}</small>
-                    </div>
-                  </article>
-                ))}
+              <div className="workplace-empty-card">
+                <span className="workplace-empty-icon">•</span>
+                <strong>No recent activity</strong>
+                <p>
+                  Recent workplace activity will appear here when an approved
+                  activity source is available.
+                </p>
               </div>
             </DashboardCard>
           </section>
@@ -478,37 +529,47 @@ export default function Dashboard({ auth, onNavigate }) {
             <DashboardCard title="My Tasks">
               <div className="workplace-summary-card">
                 <div>
-                  <strong>{tasks.pending}</strong>
+                  <strong>—</strong>
                   <span>Pending tasks</span>
-                  <small>Tasks that may need your attention</small>
                 </div>
-                <button
-                  className="card-link"
-                  type="button"
-                  onClick={() => onNavigate('My Tasks')}
-                >
-                  View tasks →
-                </button>
+                <p>Task management is not configured yet.</p>
               </div>
             </DashboardCard>
 
             <DashboardCard title="Notifications">
-              <div className="workplace-notification-summary">
-                {notifications.slice(0, 3).map((notification) => (
-                  <button
-                    className="workplace-notification-item"
-                    type="button"
-                    key={notification.id}
-                    onClick={() => onNavigate('Notifications')}
-                  >
-                    <span className="workplace-notification-dot" />
-                    <span>
-                      <strong>{notification.title}</strong>
-                      <small>{notification.message}</small>
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {workplaceNotificationsLoading ? (
+                <div className="empty-state">
+                  <strong>Loading notifications</strong>
+                  <span>Please wait while workplace notifications are loaded.</span>
+                </div>
+              ) : workplaceNotificationsError ? (
+                <div className="empty-state">
+                  <strong>Unable to load notifications</strong>
+                  <span>{workplaceNotificationsError}</span>
+                </div>
+              ) : workplaceNotifications.length === 0 ? (
+                <div className="empty-state">
+                  <strong>No notifications</strong>
+                  <span>Workplace updates and important notifications will appear here.</span>
+                </div>
+              ) : (
+                <div className="workplace-notification-summary">
+                  {workplaceNotifications.slice(0, 3).map((notification) => (
+                    <button
+                      className="workplace-notification-item"
+                      type="button"
+                      key={notification.id}
+                      onClick={() => onNavigate('Notifications')}
+                    >
+                      <span className="workplace-notification-dot" />
+                      <span>
+                        <strong>{notification.title}</strong>
+                        <small>{notification.message}</small>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <button
                 className="card-link"
                 type="button"
@@ -532,19 +593,13 @@ export default function Dashboard({ auth, onNavigate }) {
             </DashboardCard>
 
             <DashboardCard title="Recent Activity">
-              <div className="workplace-activity-list">
-                {announcements.slice(0, 3).map((announcement) => (
-                  <article
-                    className="workplace-activity-item"
-                    key={announcement.id}
-                  >
-                    <span className="workplace-activity-icon">•</span>
-                    <div>
-                      <strong>{announcement.title}</strong>
-                      <small>{announcement.message}</small>
-                    </div>
-                  </article>
-                ))}
+              <div className="workplace-empty-card">
+                <span className="workplace-empty-icon">•</span>
+                <strong>No recent activity</strong>
+                <p>
+                  Recent workplace activity will appear here when an approved
+                  activity source is available.
+                </p>
               </div>
             </DashboardCard>
           </section>

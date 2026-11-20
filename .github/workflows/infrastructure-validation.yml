@@ -33,5 +33,6 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
+            az bicep install
             az bicep version
             find infrastructure/bicep -name "*.bicep" -print
