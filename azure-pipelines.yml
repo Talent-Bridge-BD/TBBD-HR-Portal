@@ -10,6 +10,7 @@ pool:
     - Agent.Name -equals TBBD-Mac-Agent-01-ARM-native
 
 variables:
+  pythonExecutable: '/opt/homebrew/bin/python3.11'
   nodeVersion: '20.x'
 
 steps:
@@ -43,39 +44,33 @@ steps:
     displayName: 'Display build information'
 
   - task: Bash@3
-    displayName: 'Verify native Python 3.11 ARM64'
+    displayName: 'Create native Python 3.11 ARM64 environment'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
-        PYTHON_BIN="$(command -v python3.11 || true)"
+        PYTHON_BIN="$(pythonExecutable)"
 
-        if [ -z "$PYTHON_BIN" ]; then
-          echo "ERROR: Native Python 3.11 was not found."
+        if [ ! -x "$PYTHON_BIN" ]; then
+          echo "ERROR: Python executable not found: $PYTHON_BIN"
           exit 1
         fi
 
-        echo "Python executable: $PYTHON_BIN"
+        "$PYTHON_BIN" -c "import sys, platform; print('Executable:', sys.executable); print('Version:', sys.version); print('Architecture:', platform.machine()); assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'; assert platform.machine() == 'arm64', 'ARM64 Python is required'"
 
-        "$PYTHON_BIN" --version
+        VENV_DIR="$(Agent.TempDirectory)/tbbd-ci-venv-$(Build.BuildId)"
 
-        "$PYTHON_BIN" -c "import sys, platform, sysconfig; print('Executable:', sys.executable); print('Architecture:', platform.machine()); print('Platform:', sysconfig.get_platform()); assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'; assert platform.machine() == 'arm64', 'Native ARM64 Python is required'; print('Native Python 3.11 ARM64 verified')"
+        "$PYTHON_BIN" -m venv "$VENV_DIR"
 
-        "$PYTHON_BIN" -m pip --version
+        CI_PYTHON="$VENV_DIR/bin/python"
 
-        echo "##vso[task.setvariable variable=TBBD_PYTHON]$PYTHON_BIN"
+        "$CI_PYTHON" --version
+        "$CI_PYTHON" -m pip --version
 
-  - task: Bash@3
-    displayName: 'Verify Python package environment'
-    inputs:
-      targetType: 'inline'
-      script: |
-        set -eu
+        echo "##vso[task.setvariable variable=TBBD_PYTHON]$CI_PYTHON"
 
-        "$TBBD_PYTHON" -m pip list
-
-        "$TBBD_PYTHON" -m pip check
+        echo "Native Python 3.11 ARM64 environment created."
 
   - task: Bash@3
     displayName: 'Install backend dependencies'
@@ -91,9 +86,11 @@ steps:
           exit 1
         fi
 
-        "$TBBD_PYTHON" -m pip install -r requirements.txt
+        "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
-        "$TBBD_PYTHON" -m pip check
+        "$(TBBD_PYTHON)" -m pip check
+
+        echo "Backend dependencies installed successfully."
 
   - task: UseNode@1
     displayName: 'Use Node.js 20'
@@ -179,7 +176,9 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
-        "$TBBD_PYTHON" -m compileall -q .
+        "$(TBBD_PYTHON)" -m compileall -q .
+
+        echo "Python backend compilation completed."
 
   - task: Bash@3
     displayName: 'Run backend tests'
@@ -189,7 +188,7 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
-        "$TBBD_PYTHON" -m pytest -q --ignore=test_email_send.py
+        "$(TBBD_PYTHON)" -m pytest -q --ignore=test_email_send.py
 
   - task: Bash@3
     displayName: 'Final CI summary'
