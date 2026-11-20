@@ -10,7 +10,6 @@ pool:
     - Agent.Name -equals TBBD-Mac-Agent-01-ARM-native
 
 variables:
-  pythonVersion: '3.11'
   nodeVersion: '20.x'
 
 steps:
@@ -43,23 +42,40 @@ steps:
       echo "Repository: $(Build.Repository.Name)"
     displayName: 'Display build information'
 
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.11'
-    inputs:
-      versionSpec: '$(pythonVersion)'
-      addToPath: true
-
   - task: Bash@3
-    displayName: 'Verify Python environment'
+    displayName: 'Verify native Python 3.11 ARM64'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
-        python --version
-        python -c "import sys; assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'; print('Python version verified')"
-        python -m pip --version
-        python -m pip check
+        PYTHON_BIN="$(command -v python3.11 || true)"
+
+        if [ -z "$PYTHON_BIN" ]; then
+          echo "ERROR: Native Python 3.11 was not found."
+          exit 1
+        fi
+
+        echo "Python executable: $PYTHON_BIN"
+
+        "$PYTHON_BIN" --version
+
+        "$PYTHON_BIN" -c "import sys, platform, sysconfig; print('Executable:', sys.executable); print('Architecture:', platform.machine()); print('Platform:', sysconfig.get_platform()); assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'; assert platform.machine() == 'arm64', 'Native ARM64 Python is required'; print('Native Python 3.11 ARM64 verified')"
+
+        "$PYTHON_BIN" -m pip --version
+
+        echo "##vso[task.setvariable variable=TBBD_PYTHON]$PYTHON_BIN"
+
+  - task: Bash@3
+    displayName: 'Verify Python package environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        "$TBBD_PYTHON" -m pip list
+
+        "$TBBD_PYTHON" -m pip check
 
   - task: Bash@3
     displayName: 'Install backend dependencies'
@@ -70,19 +86,19 @@ steps:
 
         cd "$(Build.SourcesDirectory)"
 
-        if [ -f requirements.txt ]; then
-          python -m pip install -r requirements.txt
-        else
+        if [ ! -f requirements.txt ]; then
           echo "ERROR: requirements.txt is missing."
           exit 1
         fi
 
-        python -m pip check
+        "$TBBD_PYTHON" -m pip install -r requirements.txt
 
-  - task: NodeTool@0
+        "$TBBD_PYTHON" -m pip check
+
+  - task: UseNode@1
     displayName: 'Use Node.js 20'
     inputs:
-      versionSpec: '$(nodeVersion)'
+      version: '$(nodeVersion)'
       checkLatest: false
 
   - task: Bash@3
@@ -96,6 +112,8 @@ steps:
         npm --version
 
         node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 20) { console.error('Node.js 20 is required.'); process.exit(1); }"
+
+        echo "Node.js 20 verified."
 
   - task: Bash@3
     displayName: 'Install frontend dependencies'
@@ -161,7 +179,7 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
-        python -m compileall -q .
+        "$TBBD_PYTHON" -m compileall -q .
 
   - task: Bash@3
     displayName: 'Run backend tests'
@@ -171,7 +189,7 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
-        python -m pytest -q --ignore=test_email_send.py
+        "$TBBD_PYTHON" -m pytest -q --ignore=test_email_send.py
 
   - task: Bash@3
     displayName: 'Final CI summary'
@@ -186,7 +204,7 @@ steps:
         echo "Build ID: $(Build.BuildId)"
         echo "Branch: $(Build.SourceBranch)"
         echo "Commit: $(Build.SourceVersion)"
-        echo "Python 3.11 verified."
+        echo "Native Python 3.11 ARM64 verified."
         echo "Node.js 20 verified."
         echo "Frontend build completed."
         echo "Backend compilation completed."
