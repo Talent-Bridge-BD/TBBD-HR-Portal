@@ -11,6 +11,8 @@ pr:
 
 pool:
   name: 'TBBD-Agent-Pool'
+  demands:
+    - Agent.Name -equals TBBD-Mac-Agent-01-ARM-native
 
 variables:
   pythonVersion: '3.11'
@@ -21,32 +23,47 @@ steps:
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
 
-  # Verify Mac agent environment
+  # Verify self-hosted Mac agent environment
   - task: Bash@3
-    displayName: 'Verify Mac Agent Environment'
+    displayName: 'Verify TBBD Mac Agent Environment'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
         export PATH="/opt/homebrew/bin:$PATH"
 
-        echo "Bash is working"
+        echo "TBBD self-hosted Mac agent is running."
+        echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
+
+        echo "Bash:"
         bash --version | head -n 1
+
         echo "Operating system:"
         uname -a
+
         echo "Architecture:"
         uname -m
+
+        echo "Python:"
+        python3.11 --version
+
+        echo "Node.js:"
+        node --version
+
         echo "Available disk space:"
         df -h /
 
   # Display build information
   - script: |
       set -eu
+
       echo "TBBD HR Portal - Azure DevOps CI"
       echo "Repository: $(Build.Repository.Name)"
       echo "Branch: $(Build.SourceBranch)"
       echo "Commit: $(Build.SourceVersion)"
       echo "Build ID: $(Build.BuildId)"
+      echo "Agent pool: TBBD-Agent-Pool"
+      echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
     displayName: 'Display build information'
 
   # Verify Python 3.11
@@ -56,50 +73,41 @@ steps:
 
       python3.11 --version
       python3.11 -m pip --version
-    displayName: 'Verify Python environment'
+      python3.11 -c "import platform; print('Architecture:', platform.machine())"
+    displayName: 'Verify Python 3.11 environment'
 
-  # Install backend dependencies
+  # Install backend dependencies and CI-only pytest
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
-      if [ -f requirements.txt ]; then
-        python3.11 -m pip install --upgrade pip
-        python3.11 -m pip install -r requirements.txt
-      else
-        echo "requirements.txt not found."
-        echo "Skipping Python dependency installation."
-      fi
+      python3.11 -m pip install --upgrade pip
+      python3.11 -m pip install -r requirements.txt
+
+      # Keep pytest as a CI-only dependency.
+      # Do not add it to production requirements.txt.
+      python3.11 -m pip install pytest
+      python3.11 -m pytest --version
     displayName: 'Install backend dependencies'
 
-  # Validate Python source
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
-
-      python3.11 -m compileall -q .
-    displayName: 'Validate Python source'
-
-  # Verify Node.js environment
+  # Verify Node.js 20
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
       node --version
       npm --version
-    displayName: 'Verify Node.js environment'
+
+      node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 20) { console.error('Node.js 20 is required.'); process.exit(1); }"
+    displayName: 'Verify Node.js 20 environment'
 
   # Install frontend dependencies
   - script: |
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
-      cd frontend
-      if [ -f package-lock.json ]; then
-        npm ci
-      else
-        npm install
-      fi
+      npm ci
+    workingDirectory: 'frontend'
     displayName: 'Install frontend dependencies'
 
   # Build React frontend
@@ -107,15 +115,58 @@ steps:
       set -eu
       export PATH="/opt/homebrew/bin:$PATH"
 
-      cd frontend
       npm run build
+    workingDirectory: 'frontend'
     displayName: 'Build React frontend'
+
+  # Prepare frontend assets expected by main.py
+  - script: |
+      set -eu
+
+      echo "Checking Vite build output..."
+      test -f frontend/dist/index.html
+      test -f frontend/dist/redirect.html
+      test -d frontend/dist/assets
+
+      echo "Copying frontend build into root dist directory..."
+      mkdir -p dist
+      cp -R frontend/dist/. dist/
+
+      echo "Verifying application frontend assets..."
+      test -f dist/index.html
+      test -f dist/redirect.html
+      test -d dist/assets
+
+      echo "Frontend assets are ready for backend tests."
+    displayName: 'Prepare frontend assets for backend tests'
+
+  # Validate Python source after frontend build
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
+      python3.11 -m compileall -q .
+    displayName: 'Validate Python source'
+
+  # Run backend tests after frontend assets exist
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
+      python3.11 -m pytest -q --ignore=test_email_send.py
+    displayName: 'Run backend tests'
 
   # Final CI summary
   - script: |
       set -eu
+
       echo "TBBD HR Portal CI validation completed."
+      echo "=========================================="
       echo "Agent pool: TBBD-Agent-Pool"
-      echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
+      echo "Agent: TBBD-Mac-Agent-01-ARM-native"
+      echo "Python source validation: completed"
+      echo "Backend tests: passed"
+      echo "Frontend production build: completed"
+      echo "Frontend assets: verified"
       echo "No deployment or production changes performed."
     displayName: 'CI build summary'
