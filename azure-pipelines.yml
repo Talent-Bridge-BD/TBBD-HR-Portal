@@ -1,6 +1,7 @@
 # TBBD HR Portal
 # Azure DevOps CI Pipeline
-# CI validation only - no deployment or production changes
+# Self-hosted Mac CI validation only
+# No deployment or production changes
 
 trigger:
   - main
@@ -22,16 +23,12 @@ steps:
 
   # Display build information
   - script: |
-      echo "=========================================="
+      set -eu
       echo "TBBD HR Portal - Azure DevOps CI"
-      echo "=========================================="
       echo "Repository: $(Build.Repository.Name)"
       echo "Branch: $(Build.SourceBranch)"
       echo "Commit: $(Build.SourceVersion)"
       echo "Build ID: $(Build.BuildId)"
-      echo "Agent: $(Agent.Name)"
-      echo "Agent OS: $(Agent.OS)"
-      echo "Agent Architecture: $(Agent.OSArchitecture)"
     displayName: 'Display build information'
 
   - task: UsePythonVersion@0
@@ -39,6 +36,7 @@ steps:
     inputs:
       versionSpec: '$(pythonVersion)'
       architecture: 'x64'
+
   # Python 3.11 - Microsoft-hosted Ubuntu environment
   - script: |
       set -eu
@@ -125,9 +123,9 @@ steps:
 
   # Final CI summary
   - script: |
-      echo "=========================================="
+      set -eu
       echo "TBBD HR Portal CI validation completed."
-      echo "=========================================="
+      echo 
       echo "Python source validation: completed"
       echo "Backend tests: passed"
       echo "Frontend production build: completed"
