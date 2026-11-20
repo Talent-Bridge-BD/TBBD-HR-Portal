@@ -1,8 +1,3 @@
-# TBBD HR Portal
-# Azure DevOps CI Pipeline
-# Self-hosted Mac CI validation only
-# No deployment or production changes
-
 trigger:
   - main
 
@@ -19,154 +14,181 @@ variables:
   nodeVersion: '20.x'
 
 steps:
-  # Checkout repository
   - checkout: self
-    displayName: 'Checkout TBBD HR Portal repository'
+    clean: true
+    fetchDepth: 1
 
-  # Verify self-hosted Mac agent environment
   - task: Bash@3
-    displayName: 'Verify TBBD Mac Agent Environment'
+    displayName: 'Verify Mac agent environment'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
-        export PATH="/opt/homebrew/bin:$PATH"
 
-        echo "TBBD self-hosted Mac agent is running."
-        echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
-
-        echo "Bash:"
-        bash --version | head -n 1
-
+        echo "Agent: ${AGENT_NAME:-unknown}"
+        echo "Machine: ${AGENT_MACHINENAME:-unknown}"
         echo "Operating system:"
         uname -a
+        echo "Architecture: $(uname -m)"
+        echo "Bash: ${BASH_VERSION:-unknown}"
+        df -h .
 
-        echo "Architecture:"
-        uname -m
-
-        echo "Python:"
-        python3.11 --version
-
-        echo "Node.js:"
-        node --version
-
-        echo "Available disk space:"
-        df -h /
-
-  # Display build information
   - script: |
       set -eu
 
-      echo "TBBD HR Portal - Azure DevOps CI"
-      echo "Repository: $(Build.Repository.Name)"
+      echo "Build ID: $(Build.BuildId)"
+      echo "Build number: $(Build.BuildNumber)"
       echo "Branch: $(Build.SourceBranch)"
       echo "Commit: $(Build.SourceVersion)"
-      echo "Build ID: $(Build.BuildId)"
-      echo "Agent pool: TBBD-Agent-Pool"
-      echo "Expected agent: TBBD-Mac-Agent-01-ARM-native"
+      echo "Repository: $(Build.Repository.Name)"
     displayName: 'Display build information'
 
-  # Verify Python 3.11
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.11'
+    inputs:
+      versionSpec: '$(pythonVersion)'
+      addToPath: true
 
-      python3.11 --version
-      python3.11 -m pip --version
-      python3.11 -c "import platform; print('Architecture:', platform.machine())"
-    displayName: 'Verify Python 3.11 environment'
+  - task: Bash@3
+    displayName: 'Verify Python environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-  # Install backend dependencies and CI-only pytest
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+        python --version
+        python -c "import sys; assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'; print('Python version verified')"
+        python -m pip --version
+        python -m pip check
 
-      python3.11 -m pip install --upgrade pip
-      python3.11 -m pip install -r requirements.txt
-
-      # Keep pytest as a CI-only dependency.
-      # Do not add it to production requirements.txt.
-      python3.11 -m pip install pytest
-      python3.11 -m pytest --version
+  - task: Bash@3
     displayName: 'Install backend dependencies'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-  # Verify Node.js 20
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+        cd "$(Build.SourcesDirectory)"
 
-      node --version
-      npm --version
+        if [ -f requirements.txt ]; then
+          python -m pip install -r requirements.txt
+        else
+          echo "ERROR: requirements.txt is missing."
+          exit 1
+        fi
 
-      node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 20) { console.error('Node.js 20 is required.'); process.exit(1); }"
-    displayName: 'Verify Node.js 20 environment'
+        python -m pip check
 
-  # Install frontend dependencies
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+  - task: NodeTool@0
+    displayName: 'Use Node.js 20'
+    inputs:
+      versionSpec: '$(nodeVersion)'
+      checkLatest: false
 
-      npm ci
-    workingDirectory: 'frontend'
+  - task: Bash@3
+    displayName: 'Verify Node.js environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        node --version
+        npm --version
+
+        node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 20) { console.error('Node.js 20 is required.'); process.exit(1); }"
+
+  - task: Bash@3
     displayName: 'Install frontend dependencies'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-  # Build React frontend
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+        cd "$(Build.SourcesDirectory)/frontend"
 
-      npm run build
-    workingDirectory: 'frontend'
-    displayName: 'Build React frontend'
+        if [ ! -f package-lock.json ]; then
+          echo "ERROR: frontend/package-lock.json is missing."
+          exit 1
+        fi
 
-  # Prepare frontend assets expected by main.py
-  - script: |
-      set -eu
+        npm ci
 
-      echo "Checking Vite build output..."
-      test -f frontend/dist/index.html
-      test -f frontend/dist/redirect.html
-      test -d frontend/dist/assets
+  - task: Bash@3
+    displayName: 'Build frontend'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-      echo "Copying frontend build into root dist directory..."
-      mkdir -p dist
-      cp -R frontend/dist/. dist/
+        cd "$(Build.SourcesDirectory)/frontend"
 
-      echo "Verifying application frontend assets..."
-      test -f dist/index.html
-      test -f dist/redirect.html
-      test -d dist/assets
+        npm run build
 
-      echo "Frontend assets are ready for backend tests."
-    displayName: 'Prepare frontend assets for backend tests'
+        if [ ! -f dist/index.html ]; then
+          echo "ERROR: frontend build did not produce dist/index.html."
+          exit 1
+        fi
 
-  # Validate Python source after frontend build
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+  - task: Bash@3
+    displayName: 'Prepare frontend assets'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-      python3.11 -m compileall -q .
-    displayName: 'Validate Python source'
+        cd "$(Build.SourcesDirectory)"
 
-  # Run backend tests after frontend assets exist
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
+        if [ ! -d frontend/dist ]; then
+          echo "ERROR: frontend/dist does not exist."
+          exit 1
+        fi
 
-      python3.11 -m pytest -q --ignore=test_email_send.py
+        mkdir -p dist
+        cp -R frontend/dist/. dist/
+
+        if [ ! -f dist/index.html ]; then
+          echo "ERROR: root dist/index.html is missing."
+          exit 1
+        fi
+
+        echo "Frontend assets prepared successfully."
+
+  - task: Bash@3
+    displayName: 'Compile Python backend'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)"
+        python -m compileall -q .
+
+  - task: Bash@3
     displayName: 'Run backend tests'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-  # Final CI summary
-  - script: |
-      set -eu
+        cd "$(Build.SourcesDirectory)"
+        python -m pytest -q --ignore=test_email_send.py
 
-      echo "TBBD HR Portal CI validation completed."
-      echo "=========================================="
-      echo "Agent pool: TBBD-Agent-Pool"
-      echo "Agent: TBBD-Mac-Agent-01-ARM-native"
-      echo "Python source validation: completed"
-      echo "Backend tests: passed"
-      echo "Frontend production build: completed"
-      echo "Frontend assets: verified"
-      echo "No deployment or production changes performed."
-    displayName: 'CI build summary'
+  - task: Bash@3
+    displayName: 'Final CI summary'
+    condition: succeeded()
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        echo "TBBD HR Portal CI completed successfully."
+        echo "Agent: ${AGENT_NAME:-unknown}"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Python 3.11 verified."
+        echo "Node.js 20 verified."
+        echo "Frontend build completed."
+        echo "Backend compilation completed."
+        echo "Backend tests completed."
+        echo "No Azure deployment was performed."
