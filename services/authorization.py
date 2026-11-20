@@ -99,3 +99,25 @@ def build_authorization_context(
         organization_ids=frozenset(organization_ids),
         is_global_administrator="Administrator" in normalized_roles,
     )
+
+
+
+
+
+def build_authorization_context_from_principal(
+    principal: dict,
+    memberships: Iterable[object],
+) -> AuthorizationContext:
+    user_id = principal.get("id") or ""
+    roles = set(principal.get("roles") or [])
+    groups = set(principal.get("groups") or [])
+
+    for role_name, group_id in AUTHORIZATION_GROUPS.items():
+        if group_id in groups:
+            roles.add(role_name)
+
+    return build_authorization_context(
+        user_id=user_id,
+        roles=roles,
+        memberships=memberships,
+    )

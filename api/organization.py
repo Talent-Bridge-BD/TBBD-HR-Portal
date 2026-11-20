@@ -5,7 +5,8 @@ from pydantic import BaseModel
 
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    build_authorization_context,
+    AUTHORIZATION_GROUPS,
+    build_authorization_context_from_principal,
     is_global_administrator,
 )
 from services.local_auth import get_request_principal
@@ -14,14 +15,6 @@ from services.local_auth import get_request_principal
 router = APIRouter(prefix="/api/organizations", tags=["organizations"])
 
 _organization_repository = SqlOrganizationRepository()
-
-
-AUTHORIZATION_GROUPS = {
-    "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
-    "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-    "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-    "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-}
 
 
 class CreateMembershipRequest(BaseModel):
@@ -42,22 +35,15 @@ def _get_administrator(request: Request) -> dict:
             detail="Authenticated user identity is required",
         )
 
-    roles = set(principal.get("roles") or [])
-    group_ids = set(principal.get("groups") or [])
-
-    for role, group_id in AUTHORIZATION_GROUPS.items():
-        if group_id in group_ids:
-            roles.add(role)
     principal_id = principal.get("id") or ""
 
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
 
-    context = build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    context = build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
 
     if not is_global_administrator(context):
