@@ -99,6 +99,17 @@ def build_authorization_context(
         )
     }
 
+ pr20-conflict-resolution-20261117
+
+
+    role_aliases = {
+        "HR.Manager": "HR Manager",
+    }
+    normalized_roles = frozenset(
+        role_aliases.get(role, role) for role in roles
+    )
+
+ main
     return AuthorizationContext(
         user_id=user_id,
         roles=normalized_roles,
@@ -107,6 +118,7 @@ def build_authorization_context(
     )
 
 
+ pr20-conflict-resolution-20261117
 def normalize_role(role):
     """Normalize known role aliases while preserving unknown role names."""
     if role is None:
@@ -122,3 +134,25 @@ def normalize_role(role):
     }
 
     return aliases.get(value.casefold(), value)
+
+
+
+
+def build_authorization_context_from_principal(
+    principal: dict,
+    memberships: Iterable[object],
+) -> AuthorizationContext:
+    user_id = principal.get("id") or ""
+    roles = set(principal.get("roles") or [])
+    groups = set(principal.get("groups") or [])
+
+    for role_name, group_id in AUTHORIZATION_GROUPS.items():
+        if group_id in groups:
+            roles.add(role_name)
+
+    return build_authorization_context(
+        user_id=user_id,
+        roles=roles,
+        memberships=memberships,
+    )
+main

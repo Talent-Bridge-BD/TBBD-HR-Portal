@@ -3,7 +3,12 @@ from fastapi import APIRouter, HTTPException, Request
 
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
+ pr20-conflict-resolution-20261117
     build_authorization_context,
+
+    AUTHORIZATION_GROUPS,
+    build_authorization_context_from_principal,
+ main
     is_global_administrator,
 )
 from services.local_auth import get_request_principal
@@ -18,6 +23,7 @@ router = APIRouter(
 _organization_repository = SqlOrganizationRepository()
 
 
+pr20-conflict-resolution-20261117
 AUTHORIZATION_GROUPS = {
     "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
     "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
@@ -26,6 +32,7 @@ AUTHORIZATION_GROUPS = {
 }
 
 
+ main
 def _get_administrator_context(request: Request):
     principal = get_request_principal(request)
 
@@ -37,6 +44,7 @@ def _get_administrator_context(request: Request):
 
     principal_id = principal["id"]
 
+ pr20-conflict-resolution-20261117
     groups = principal.get("groups") or []
     roles_claim = principal.get("roles") or []
 
@@ -46,14 +54,21 @@ def _get_administrator_context(request: Request):
         if group_id in groups:
             roles.add(role_name)
 
+ main
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
 
+ pr20-conflict-resolution-20261117
     context = build_authorization_context(
         user_id=principal_id,
         roles=roles,
         memberships=memberships,
+
+    context = build_authorization_context_from_principal(
+        principal,
+        memberships,
+ main
     )
 
     if not is_global_administrator(context):
