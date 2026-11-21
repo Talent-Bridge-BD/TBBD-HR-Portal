@@ -25,8 +25,6 @@ candidate_api._application_role_repository = InMemoryApplicationRoleRepository()
 
 client = TestClient(app)
 
-CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
-
 
 def build_principal_header():
     principal = {
@@ -40,8 +38,8 @@ def build_principal_header():
                 "val": "test-principal-001",
             },
             {
-                "typ": "groups",
-                "val": CANDIDATE_GROUP_ID,
+                "typ": "roles",
+                "val": "Candidate",
             },
             {
                 "typ": "name",

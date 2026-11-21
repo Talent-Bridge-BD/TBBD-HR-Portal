@@ -1,4 +1,4 @@
-﻿import base64
+import base64
 import json
 from datetime import datetime
 
@@ -13,7 +13,7 @@ from repositories.job import SqlJobRepository
 from repositories.job_request import SqlJobRequestRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    build_authorization_context,
+    build_authorization_context_from_principal,
     is_global_administrator,
 )
 
@@ -35,9 +35,7 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
-HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+
 
 
 class JobRequestPayload(BaseModel):
@@ -50,18 +48,6 @@ class JobRequestPayload(BaseModel):
     number_of_positions: int | None = None
     working_hours: str = ""
     benefits: str = ""
-
-
-def _claim_values(
-    claims: list[dict],
-    claim_type: str,
-) -> set[str]:
-    return {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == claim_type
-        and claim.get("val")
-    }
 
 
 def get_job_request_authorization_context(request: Request):
@@ -81,20 +67,10 @@ def get_job_request_authorization_context(request: Request):
             detail="Authenticated user identity is required",
         )
 
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
-
-    roles = set(token_roles)
-
-    if EMPLOYER_MANAGER_GROUP_ID in group_ids:
-        roles.add("Employer Manager")
-
-    if HR_MANAGER_GROUP_ID in group_ids:
-        roles.add("HR Manager")
-
-    if ADMINISTRATOR_GROUP_ID in group_ids:
-        roles.add("Administrator")
+    preliminary_context = build_authorization_context_from_principal(
+        principal,
+        [],
+    )
 
     allowed_roles = {
         "Employer Manager",
@@ -102,7 +78,7 @@ def get_job_request_authorization_context(request: Request):
         "Administrator",
     }
 
-    if not roles.intersection(allowed_roles):
+    if not preliminary_context.roles.intersection(allowed_roles):
         raise HTTPException(
             status_code=403,
             detail="Employer management role is required",
@@ -112,12 +88,10 @@ def get_job_request_authorization_context(request: Request):
         principal_id
     )
 
-    return build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    return build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
-
 
 def _require_organization_access(
     request: Request,

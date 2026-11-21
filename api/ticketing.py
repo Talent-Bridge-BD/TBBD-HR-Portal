@@ -7,7 +7,10 @@ from pydantic import BaseModel
 from repositories.application import SqlApplicationRepository
 from repositories.organization import SqlOrganizationRepository
 from repositories.ticketing import SqlTicketingRepository
-from services.authorization import build_authorization_context, is_global_administrator
+from services.authorization import (
+    build_authorization_context_from_principal,
+    is_global_administrator,
+)
 from services.local_auth import get_request_principal
 from services.ticketing import TicketingService
 
@@ -21,23 +24,6 @@ _repository = SqlTicketingRepository()
 _service = TicketingService(_repository)
 _application_repository = SqlApplicationRepository()
 _organization_repository = SqlOrganizationRepository()
-
-
-def _claim_values(claims, claim_type: str) -> set[str]:
-    values = set()
-
-    for claim in claims or []:
-        if not isinstance(claim, dict):
-            continue
-
-        if claim.get("typ") != claim_type:
-            continue
-
-        value = claim.get("val")
-        if value:
-            values.add(str(value).lower())
-
-    return values
 
 
 def _get_authorization_context(request: Request):
@@ -57,20 +43,10 @@ def _get_authorization_context(request: Request):
             detail="Authenticated user identity is required",
         )
 
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
-
-    roles = set(token_roles)
-
-    if "7088ce1f-8e01-4c7c-88fd-a257721a35df" in group_ids:
-        roles.add("Employer Manager")
-
-    if "9a977cf0-7c9f-4024-9415-357a8a4292bc" in group_ids:
-        roles.add("HR Manager")
-
-    if "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66" in group_ids:
-        roles.add("Administrator")
+    preliminary_context = build_authorization_context_from_principal(
+        principal,
+        [],
+    )
 
     allowed_roles = {
         "Employer Manager",
@@ -78,7 +54,7 @@ def _get_authorization_context(request: Request):
         "Administrator",
     }
 
-    if not roles.intersection(allowed_roles):
+    if not preliminary_context.roles.intersection(allowed_roles):
         raise HTTPException(
             status_code=403,
             detail="Recruitment management role is required",
@@ -88,12 +64,10 @@ def _get_authorization_context(request: Request):
         principal_id,
     )
 
-    return build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    return build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
-
 
 def _require_application_access(
     request: Request,

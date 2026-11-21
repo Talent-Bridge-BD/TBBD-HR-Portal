@@ -79,8 +79,6 @@ _experience_service = CandidateExperienceService(_experience_repository)
 _preferences_repository = SqlCandidatePreferencesRepository()
 _preferences_service = CandidatePreferencesService(_preferences_repository)
 
-CANDIDATE_GROUP_ID = "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6"
-
 
 class CandidateApplicationRequest(BaseModel):
     job_id: str
@@ -533,14 +531,6 @@ class CandidateProfileRequest(BaseModel):
         return value
 
 
-def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
-    return {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == claim_type and claim.get("val")
-    }
-
-
 def get_candidate_role_identity(request: Request) -> str:
     """Require a trusted Candidate claim or an active database assignment."""
     principal = get_request_principal(request)
@@ -551,11 +541,14 @@ def get_candidate_role_identity(request: Request) -> str:
         )
 
     principal_id = str(principal["id"])
-    claims = principal.get("claims") or []
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
+    token_roles = principal.get("roles") or []
     trusted_claim = (
-        CANDIDATE_GROUP_ID in group_ids or "Candidate" in token_roles
+        isinstance(token_roles, (list, tuple, set))
+        and "Candidate" in {
+            role.strip()
+            for role in token_roles
+            if isinstance(role, str)
+        }
     )
 
     try:

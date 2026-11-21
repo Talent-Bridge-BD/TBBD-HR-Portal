@@ -368,11 +368,20 @@ def _get_candidate_external_id_principal(
     if not isinstance(email, str):
         email = ""
 
-    roles = ["Candidate"]
+    raw_roles = claims.get("roles", [])
+    roles = (
+        [value for value in raw_roles if isinstance(value, str) and value.strip()]
+        if isinstance(raw_roles, list)
+        else []
+    )
+
     principal_claims = [
-        {"typ": "roles", "val": "Candidate"},
-        {"typ": "tid", "val": CANDIDATE_EXTERNAL_TENANT_ID},
+        {"typ": "roles", "val": role}
+        for role in roles
     ]
+    principal_claims.append(
+        {"typ": "tid", "val": CANDIDATE_EXTERNAL_TENANT_ID}
+    )
 
     if claims.get("oid"):
         principal_claims.append(

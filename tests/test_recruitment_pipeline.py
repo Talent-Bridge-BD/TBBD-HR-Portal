@@ -11,6 +11,7 @@ from services.authorization import AuthorizationContext
 
 def make_principal(principal_id, name, groups=None, roles=None):
     principal = {
+        "auth_typ": "aad",
         "claims": [
             {"typ": "name", "val": name},
             *[
@@ -21,7 +22,7 @@ def make_principal(principal_id, name, groups=None, roles=None):
                 {"typ": "roles", "val": role}
                 for role in (roles or [])
             ],
-        ]
+        ],
     }
     return base64.b64encode(
         json.dumps(principal).encode("utf-8")
@@ -213,7 +214,7 @@ def test_employer_manager_can_access_recruitment_pipeline(monkeypatch):
     principal = make_principal(
         "employer-001",
         "Test Employer Manager",
-        groups=["7088ce1f-8e01-4c7c-88fd-a257721a35df"],
+        roles=["Employer Manager"],
     )
 
     client = TestClient(app)

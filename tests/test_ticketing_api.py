@@ -12,7 +12,7 @@ from models.ticketing import Ticketing
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
 
 
 def make_principal(
@@ -259,3 +259,129 @@ def test_update_ticketing_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Ticketing record not found"
+
+def authorization_headers(groups=None, roles=None):
+    return {
+        "X-MS-CLIENT-PRINCIPAL-ID": "user-001",
+        "X-MS-CLIENT-PRINCIPAL-NAME": "test-user@example.test",
+        "X-MS-CLIENT-PRINCIPAL": make_principal(
+            "user-001",
+            "Test User",
+            groups=groups,
+            roles=roles,
+        ),
+    }
+
+
+def test_ticketing_authorization_requires_authentication(client):
+    response = client.get(
+        "/api/ticketing",
+        params={"application_id": "application-001"},
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == (
+        "Authenticated user identity is required"
+    )
+
+
+def test_ticketing_rejects_user_without_management_role_before_membership_lookup(
+    client,
+    monkeypatch,
+):
+    def unexpected_membership_lookup(user_id):
+        raise AssertionError(
+            "Membership lookup must not run before role authorization"
+        )
+
+    monkeypatch.setattr(
+        ticketing_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {
+                "get_active_memberships": (
+                    lambda self, user_id: unexpected_membership_lookup(user_id)
+                )
+            },
+        )(),
+    )
+
+    response = client.get(
+        "/api/ticketing",
+        params={"application_id": "application-001"},
+        headers=authorization_headers(),
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == (
+        "Recruitment management role is required"
+    )
+
+
+def test_ticketing_employer_manager_requires_organization_membership(
+    client,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        ticketing_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {
+                "get_active_memberships": lambda self, user_id: [],
+            },
+        )(),
+    )
+
+    response = client.get(
+        "/api/ticketing",
+        params={"application_id": "application-001"},
+        headers=authorization_headers(roles=["Employer Manager"]),
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == (
+        "You do not have access to this application"
+    )
+
+
+def test_ticketing_accepts_normalized_hr_manager_role(
+    client,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        ticketing_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {
+                "get_active_memberships": lambda self, user_id: [
+                    type(
+                        "Membership",
+                        (),
+                        {
+                            "user_id": user_id,
+                            "organization_id": ORGANIZATION_ID,
+                            "status": "active",
+                            "role": "HR Manager",
+                        },
+                    )()
+                ],
+            },
+        )(),
+    )
+
+    ticketing_api._repository.list_by_application.return_value = []
+
+    response = client.get(
+        "/api/ticketing",
+        params={"application_id": "application-001"},
+        headers=authorization_headers(roles=["HR.Manager"]),
+    )
+
+    assert response.status_code == 200
+    assert response.json() == []

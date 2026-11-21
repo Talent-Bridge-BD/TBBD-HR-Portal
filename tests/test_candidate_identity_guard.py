@@ -44,6 +44,7 @@ def set_principal(monkeypatch, principal):
 def candidate_principal(principal_id, **extra):
     return {
         "id": principal_id,
+        "roles": ["Candidate"],
         "claims": [{"typ": "roles", "val": "Candidate"}],
         **extra,
     }

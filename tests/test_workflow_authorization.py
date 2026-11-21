@@ -66,6 +66,7 @@ def test_workflow_apis_normalize_supported_role_aliases(
         "get_request_principal",
         lambda request: {
             "id": "user-001",
+            "roles": [token_role],
             "claims": [
                 {"typ": "roles", "val": token_role},
             ],
@@ -146,6 +147,7 @@ def test_workflow_apis_preserve_administrator_group_mapping(
         "get_request_principal",
         lambda request: {
             "id": "admin-001",
+            "groups": [ADMINISTRATOR_GROUP_ID],
             "claims": [
                 {"typ": "groups", "val": ADMINISTRATOR_GROUP_ID},
             ],

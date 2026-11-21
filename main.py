@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from services.authorization import (
+    AUTHORIZATION_GROUPS,
     build_authorization_context,
     is_global_administrator,
 )
@@ -113,52 +114,54 @@ async def get_current_user(request: Request):
 
     principal_id = principal.get("id") or ""
     principal_name = principal.get("email") or ""
-
     claims = principal.get("claims", [])
 
     def claim_values(claim_type):
-        return [
-            claim.get("val")
-            for claim in claims
-            if claim.get("typ") == claim_type
-        ]
+        values = []
+        if not isinstance(claims, list):
+            return values
 
- pr20-conflict-resolution-20261117
-    # Use the normalized principal fields as well as its original claims.
-    # Easy Auth and the bearer resolver populate these fields consistently.
-    group_ids = set(principal.get("groups") or []) | set(
-        claim_values("groups")
-    )
-    token_roles = set(principal.get("roles") or []) | set(
-        claim_values("roles")
-    )
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
 
-    authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+            claim_name = str(claim.get("typ", "")).strip().lower()
+            claim_name = claim_name.rsplit("/", 1)[-1]
+            claim_name = claim_name.rsplit(":", 1)[-1]
 
-    group_ids = set(claim_values("groups"))
-    token_roles = set(claim_values("roles"))
+            if claim_name != claim_type.lower():
+                continue
 
-    authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
-main
-        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-    }
+            value = claim.get("val")
+            if isinstance(value, str) and value.strip():
+                values.append(value.strip())
 
-    # Resolve Candidate separately so a revoked or inactive assignment
-    # cannot be overridden by a token claim.
-    roles = set(token_roles) - {"Candidate"}
+        return values
 
-    for role, group_id in authorization_groups.items():
-        if role != "Candidate" and group_id in group_ids:
-            roles.add(role)
+    def principal_values(field):
+        value = principal.get(field) or []
+        if isinstance(value, str):
+            value = [value]
+        if not isinstance(value, (list, tuple, set)):
+            return set()
+        return {
+            item.strip()
+            for item in value
+            if isinstance(item, str) and item.strip()
+        }
 
-    trusted_candidate_claim = (
-        "Candidate" in token_roles
-        or authorization_groups["Candidate"] in group_ids
-    )
+    group_ids = principal_values("groups") | set(claim_values("groups"))
+    token_roles = principal_values("roles") | set(claim_values("roles"))
+
+    roles = set(token_roles)
+
+    # Only verified internal Tenant 1 groups are mapped here.
+    for role_name, group_id in AUTHORIZATION_GROUPS.items():
+        if group_id in group_ids:
+            roles.add(role_name)
+
+    # Candidate access remains subject to the application-managed assignment.
+    # An inactive/revoked assignment cannot be overridden by a token role.
     try:
         candidate_status = (
             _application_role_assignment_repository.assignment_status(
@@ -166,13 +169,14 @@ main
             )
         )
     except Exception:
-        # Fail closed for Candidate; other role checks can still work.
         candidate_status = "unavailable"
 
     if candidate_status == "active" or (
-        candidate_status is None and trusted_candidate_claim
+        candidate_status is None and "Candidate" in token_roles
     ):
         roles.add("Candidate")
+    else:
+        roles.discard("Candidate")
 
     if not roles:
         roles.add("Employee")
@@ -203,7 +207,6 @@ main
     }
 
 
-
 @app.get("/api/organizations")
 async def list_organizations(request: Request):
     principal = get_request_principal(request)
@@ -218,35 +221,52 @@ async def list_organizations(request: Request):
     claims = principal.get("claims", [])
 
     def claim_values(claim_type):
-        return [
-            claim.get("val")
-            for claim in claims
-            if claim.get("typ") == claim_type
-        ]
+        values = []
+        if not isinstance(claims, list):
+            return values
 
-    group_ids = set(principal.get("groups") or []) | set(claim_values("groups"))
-    token_roles = set(principal.get("roles") or []) | set(claim_values("roles"))
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
 
-    authorization_groups = {
-pr20-conflict-resolution-20261117
-        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
+            claim_name = str(claim.get("typ", "")).strip().lower()
+            claim_name = claim_name.rsplit("/", 1)[-1]
+            claim_name = claim_name.rsplit(":", 1)[-1]
 
-main
-        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-    }
+            if claim_name != claim_type.lower():
+                continue
+
+            value = claim.get("val")
+            if isinstance(value, str) and value.strip():
+                values.append(value.strip())
+
+        return values
+
+    def principal_values(field):
+        value = principal.get(field) or []
+        if isinstance(value, str):
+            value = [value]
+        if not isinstance(value, (list, tuple, set)):
+            return set()
+        return {
+            item.strip()
+            for item in value
+            if isinstance(item, str) and item.strip()
+        }
+
+    group_ids = principal_values("groups") | set(claim_values("groups"))
+    token_roles = principal_values("roles") | set(claim_values("roles"))
 
     roles = set(token_roles)
 
-    for role, group_id in authorization_groups.items():
+    # Internal roles come only from the central Tenant 1 group mapping.
+    for role_name, group_id in AUTHORIZATION_GROUPS.items():
         if group_id in group_ids:
-            roles.add(role)
+            roles.add(role_name)
 
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
-
     authorization_context = build_authorization_context(
         user_id=principal_id,
         roles=roles,
@@ -270,22 +290,22 @@ main
             detail="Organization access is required",
         )
 
-
     return {
-    "organizations": [
-        {
-            "id": organization.id,
-            "name": organization.name,
-            "status": organization.status,
-            "member_count": len(
-                _organization_repository.list_members(
-                    organization.id
-                )
-            ),
-        }
-        for organization in organizations
-    ]
-}
+        "organizations": [
+            {
+                "id": organization.id,
+                "name": organization.name,
+                "status": organization.status,
+                "member_count": len(
+                    _organization_repository.list_members(
+                        organization.id
+                    )
+                ),
+            }
+            for organization in organizations
+        ]
+    }
+
 
 @app.get("/api/organizations/{organization_id}")
 async def get_organization(organization_id: str, request: Request):

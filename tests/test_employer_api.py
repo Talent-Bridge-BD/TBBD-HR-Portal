@@ -73,7 +73,7 @@ def test_employer_manager_can_access_dashboard(monkeypatch):
     encoded_principal = make_principal(
         "user-001",
         "Test Employer",
-        groups=["7088ce1f-8e01-4c7c-88fd-a257721a35df"],
+        roles=["Employer Manager"],
     )
 
     client = TestClient(app)
@@ -209,7 +209,7 @@ def test_administrator_normalized_group_can_access_employer_dashboard(monkeypatc
             "id": "admin-002",
             "name": "Test Administrator",
             "roles": [],
-            "groups": ["2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"],
+            "groups": ["2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"],
             "claims": [],
         },
     )

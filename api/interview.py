@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from repositories.interview import SqlInterviewRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    build_authorization_context,
+    build_authorization_context_from_principal,
     is_global_administrator,
 )
 from services.interview import InterviewService
@@ -28,9 +28,6 @@ _interview_service = InterviewService(
 _organization_repository = SqlOrganizationRepository()
 
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
-HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 class InterviewRequest(BaseModel):
@@ -85,20 +82,14 @@ def get_interview_authorization_context(
             detail="Authenticated user identity is required",
         )
 
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
+    memberships = _organization_repository.get_active_memberships(
+        principal_id,
+    )
 
-    roles = set(token_roles)
-
-    if EMPLOYER_MANAGER_GROUP_ID in group_ids:
-        roles.add("Employer Manager")
-
-    if HR_MANAGER_GROUP_ID in group_ids:
-        roles.add("HR Manager")
-
-    if ADMINISTRATOR_GROUP_ID in group_ids:
-        roles.add("Administrator")
+    context = build_authorization_context_from_principal(
+        principal=principal,
+        memberships=memberships,
+    )
 
     allowed_roles = {
         "Employer Manager",
@@ -106,21 +97,13 @@ def get_interview_authorization_context(
         "Administrator",
     }
 
-    if not roles.intersection(allowed_roles):
+    if not context.roles.intersection(allowed_roles):
         raise HTTPException(
             status_code=403,
             detail="Employer management role is required",
         )
 
-    memberships = _organization_repository.get_active_memberships(
-        principal_id,
-    )
-
-    return build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
-    )
+    return context
 
 def _require_organization_access(
     request: Request,

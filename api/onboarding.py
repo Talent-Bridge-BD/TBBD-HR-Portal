@@ -7,7 +7,7 @@ from repositories.application import SqlApplicationRepository
 from repositories.onboarding import SqlOnboardingRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    build_authorization_context,
+    build_authorization_context_from_principal,
     is_global_administrator,
 )
 from services.local_auth import get_request_principal
@@ -56,23 +56,6 @@ class OnboardingUpdateRequest(BaseModel):
     completed_at: datetime | None = None
 
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
-HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
-
-
-def _claim_values(
-    claims: list[dict],
-    claim_type: str,
-) -> set[str]:
-    return {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == claim_type
-        and claim.get("val")
-    }
-
-
 def _get_authorization_context(
     request: Request,
 ):
@@ -92,20 +75,10 @@ def _get_authorization_context(
             detail="Authenticated user identity is required",
         )
 
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
-
-    roles = set(token_roles)
-
-    if EMPLOYER_MANAGER_GROUP_ID in group_ids:
-        roles.add("Employer Manager")
-
-    if HR_MANAGER_GROUP_ID in group_ids:
-        roles.add("HR Manager")
-
-    if ADMINISTRATOR_GROUP_ID in group_ids:
-        roles.add("Administrator")
+    preliminary_context = build_authorization_context_from_principal(
+        principal,
+        [],
+    )
 
     allowed_roles = {
         "Employer Manager",
@@ -113,7 +86,7 @@ def _get_authorization_context(
         "Administrator",
     }
 
-    if not roles.intersection(allowed_roles):
+    if not preliminary_context.roles.intersection(allowed_roles):
         raise HTTPException(
             status_code=403,
             detail="Recruitment management role is required",
@@ -123,12 +96,10 @@ def _get_authorization_context(
         principal_id,
     )
 
-    return build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    return build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
-
 
 def _require_organization_access(
     request: Request,
