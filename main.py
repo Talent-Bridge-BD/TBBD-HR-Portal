@@ -123,11 +123,17 @@ async def get_current_user(request: Request):
             if claim.get("typ") == claim_type
         ]
 
-    group_ids = set(claim_values("groups"))
-    token_roles = set(claim_values("roles"))
+    # Use the normalized principal fields as well as its original claims.
+    # Easy Auth and the bearer resolver populate these fields consistently.
+    group_ids = set(principal.get("groups") or []) | set(
+        claim_values("groups")
+    )
+    token_roles = set(principal.get("roles") or []) | set(
+        claim_values("roles")
+    )
 
     authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
+        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
         "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
         "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
         "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
@@ -214,7 +220,7 @@ async def list_organizations(request: Request):
     token_roles = set(principal.get("roles") or []) | set(claim_values("roles"))
 
     authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
+        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
         "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
         "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
         "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
