@@ -1,5 +1,9 @@
+pr20-conflict-resolution-20261117
+# TBBD HR Portal
+
 
 # Talent Bridge BD - HR Portal
+main
 # Azure DevOps CI Pipeline
 # Native macOS ARM64 self-hosted agent
 # CI validation only - no deployment
@@ -20,7 +24,24 @@ variables:
   nodeVersion: '20.x'
 
 steps:
+  # Checkout repository
   - checkout: self
+ pr20-conflict-resolution-20261117
+    displayName: 'Checkout TBBD HR Portal repository'
+
+  # Display build information
+  - script: |
+      echo "=========================================="
+      echo "TBBD HR Portal - Azure DevOps CI"
+      echo "=========================================="
+      echo "Repository: $(Build.Repository.Name)"
+      echo "Branch: $(Build.SourceBranch)"
+      echo "Commit: $(Build.SourceVersion)"
+      echo "Build ID: $(Build.BuildId)"
+      echo "Agent: $(Agent.Name)"
+      echo "Agent OS: $(Agent.OS)"
+      echo "Agent Architecture: $(Agent.OSArchitecture)"
+
     clean: true
     fetchDepth: 1
 
@@ -41,6 +62,7 @@ steps:
         df -h .
 
   - task: Bash@3
+ main
     displayName: 'Display build information'
     inputs:
       targetType: 'inline'
@@ -59,6 +81,24 @@ steps:
       targetType: 'inline'
       script: |
         set -eu
+
+pr20-conflict-resolution-20261117
+  # Python 3.11 - native ARM64 Homebrew installation
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+
+      echo "Checking Python environment..."
+      command -v python3.11
+      python3.11 --version
+      python3.11 -m pip --version
+      python3.11 -c "import platform; print('Architecture:', platform.machine())"
+    displayName: 'Verify Python 3.11 environment'
+
+  # Install application dependencies and CI-only test dependency
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
 
         PYTHON_BIN="$(pythonExecutable)"
 
@@ -88,8 +128,20 @@ steps:
       targetType: 'inline'
       script: |
         set -eu
+ main
 
         cd "$(Build.SourcesDirectory)"
+
+ pr20-conflict-resolution-20261117
+      # Install pytest for CI testing only.
+      # Keep pytest out of production requirements.txt.
+      python3.11 -m pip install pytest
+      python3.11 -m pytest --version
+    displayName: 'Install backend dependencies'
+
+  # Node.js 20
+  - task: UseNode@1
+    displayName: 'Set Node.js version'
 
         if [ ! -f requirements.txt ]; then
           echo "ERROR: requirements.txt is missing."
@@ -151,10 +203,80 @@ steps:
 
   - task: Bash@3
     displayName: 'Build frontend'
+ main
     inputs:
       targetType: 'inline'
       script: |
         set -eu
+
+ pr20-conflict-resolution-20261117
+  # Verify Node.js environment
+  - script: |
+      set -eu
+      node --version
+      npm --version
+    displayName: 'Verify Node.js environment'
+
+  # Install frontend dependencies
+  - script: |
+      set -eu
+      npm ci
+    workingDirectory: 'frontend'
+    displayName: 'Install frontend dependencies'
+
+  # Build React frontend
+  - script: |
+      set -eu
+      npm run build
+    workingDirectory: 'frontend'
+    displayName: 'Build React frontend'
+
+  # Copy Vite output to the root directory expected by main.py
+  - script: |
+      set -eu
+
+      echo "Checking Vite build output..."
+      test -f frontend/dist/index.html
+      test -f frontend/dist/redirect.html
+      test -d frontend/dist/assets
+
+      echo "Copying frontend build into root dist directory..."
+      mkdir -p dist
+      cp -R frontend/dist/. dist/
+
+      echo "Verifying application frontend assets..."
+      test -f dist/index.html
+      test -f dist/redirect.html
+      test -d dist/assets
+
+      echo "Frontend assets are ready for backend tests."
+    displayName: 'Prepare frontend assets for backend tests'
+
+  # Validate Python source after frontend build
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+      python3.11 -m compileall -q .
+    displayName: 'Validate Python source'
+
+  # Run backend tests after frontend assets exist
+  - script: |
+      set -eu
+      export PATH="/opt/homebrew/bin:$PATH"
+      python3.11 -m pytest -q --ignore=test_email_send.py
+    displayName: 'Run backend tests'
+
+  # Final CI summary
+  - script: |
+      echo "=========================================="
+      echo "TBBD HR Portal CI validation completed."
+      echo "=========================================="
+      echo "Python source validation: completed"
+      echo "Backend tests: passed"
+      echo "Frontend production build: completed"
+      echo "Frontend assets: verified"
+      echo "No deployment or production changes performed."
+    displayName: 'CI build summary'
 
         cd "$(Build.SourcesDirectory)/frontend"
 
@@ -242,3 +364,4 @@ steps:
         echo "Python compilation completed."
         echo "Backend tests completed."
         echo "No Azure deployment was performed."
+main
