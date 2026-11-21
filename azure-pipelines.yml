@@ -1,9 +1,5 @@
-pr20-conflict-resolution-20261117
-# TBBD HR Portal
-
 
 # Talent Bridge BD - HR Portal
-main
 # Azure DevOps CI Pipeline
 # Native macOS ARM64 self-hosted agent
 # CI validation only - no deployment
@@ -24,24 +20,7 @@ variables:
   nodeVersion: '20.x'
 
 steps:
-  # Checkout repository
   - checkout: self
- pr20-conflict-resolution-20261117
-    displayName: 'Checkout TBBD HR Portal repository'
-
-  # Display build information
-  - script: |
-      echo "=========================================="
-      echo "TBBD HR Portal - Azure DevOps CI"
-      echo "=========================================="
-      echo "Repository: $(Build.Repository.Name)"
-      echo "Branch: $(Build.SourceBranch)"
-      echo "Commit: $(Build.SourceVersion)"
-      echo "Build ID: $(Build.BuildId)"
-      echo "Agent: $(Agent.Name)"
-      echo "Agent OS: $(Agent.OS)"
-      echo "Agent Architecture: $(Agent.OSArchitecture)"
-
     clean: true
     fetchDepth: 1
 
@@ -58,11 +37,9 @@ steps:
         uname -a
         echo "Architecture: $(uname -m)"
         echo "Bash: ${BASH_VERSION:-unknown}"
-
         df -h .
 
   - task: Bash@3
- main
     displayName: 'Display build information'
     inputs:
       targetType: 'inline'
@@ -81,24 +58,6 @@ steps:
       targetType: 'inline'
       script: |
         set -eu
-
-pr20-conflict-resolution-20261117
-  # Python 3.11 - native ARM64 Homebrew installation
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
-
-      echo "Checking Python environment..."
-      command -v python3.11
-      python3.11 --version
-      python3.11 -m pip --version
-      python3.11 -c "import platform; print('Architecture:', platform.machine())"
-    displayName: 'Verify Python 3.11 environment'
-
-  # Install application dependencies and CI-only test dependency
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
 
         PYTHON_BIN="$(pythonExecutable)"
 
@@ -128,49 +87,24 @@ pr20-conflict-resolution-20261117
       targetType: 'inline'
       script: |
         set -eu
- main
 
-        cd "$(Build.SourcesDirectory)"
+        CI_PYTHON="$(TBBD_PYTHON)"
 
- pr20-conflict-resolution-20261117
-      # Install pytest for CI testing only.
-      # Keep pytest out of production requirements.txt.
-      python3.11 -m pip install pytest
-      python3.11 -m pytest --version
-    displayName: 'Install backend dependencies'
+        "$CI_PYTHON" -m pip install --upgrade pip
+        "$CI_PYTHON" -m pip install -r requirements.txt
+        "$CI_PYTHON" -m pip install -r requirements-dev.txt
+        "$CI_PYTHON" -m pip check
+        "$CI_PYTHON" -m pytest --version
 
-  # Node.js 20
-  - task: UseNode@1
-    displayName: 'Set Node.js version'
-
-        if [ ! -f requirements.txt ]; then
-          echo "ERROR: requirements.txt is missing."
-          exit 1
-        fi
-
-        if [ ! -f requirements-dev.txt ]; then
-          echo "ERROR: requirements-dev.txt is missing."
-          exit 1
-        fi
-
-        "$(TBBD_PYTHON)" -m pip install -r requirements.txt
-
-        "$(TBBD_PYTHON)" -m pip install -r requirements-dev.txt
-
-        "$(TBBD_PYTHON)" -m pip check
-
-        "$(TBBD_PYTHON)" -m pytest --version
-
-        echo "Backend and test dependencies installed successfully."
+        echo "Backend and test dependencies installed."
 
   - task: UseNode@1
-    displayName: 'Use Node.js 20'
+    displayName: 'Install Node.js'
     inputs:
       version: '$(nodeVersion)'
-      checkLatest: false
 
   - task: Bash@3
-    displayName: 'Verify Node.js environment'
+    displayName: 'Verify Node.js version'
     inputs:
       targetType: 'inline'
       script: |
@@ -179,7 +113,12 @@ pr20-conflict-resolution-20261117
         node --version
         npm --version
 
-        node -e "const major = Number(process.versions.node.split('.')[0]); if (major !== 20) { console.error('Node.js 20 is required.'); process.exit(1); }"
+        NODE_MAJOR="$(node -p "process.versions.node.split('.')[0]")"
+
+        if [ "$NODE_MAJOR" != "20" ]; then
+          echo "ERROR: Node.js 20 is required; found major version $NODE_MAJOR"
+          exit 1
+        fi
 
         echo "Node.js 20 verified."
 
@@ -190,113 +129,38 @@ pr20-conflict-resolution-20261117
       script: |
         set -eu
 
-        cd "$(Build.SourcesDirectory)/frontend"
-
-        if [ ! -f package-lock.json ]; then
-          echo "ERROR: frontend/package-lock.json is missing."
-          exit 1
-        fi
+        cd frontend
 
         npm ci
 
-        echo "Frontend dependencies installed successfully."
+        echo "Frontend dependencies installed."
 
   - task: Bash@3
     displayName: 'Build frontend'
- main
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
- pr20-conflict-resolution-20261117
-  # Verify Node.js environment
-  - script: |
-      set -eu
-      node --version
-      npm --version
-    displayName: 'Verify Node.js environment'
-
-  # Install frontend dependencies
-  - script: |
-      set -eu
-      npm ci
-    workingDirectory: 'frontend'
-    displayName: 'Install frontend dependencies'
-
-  # Build React frontend
-  - script: |
-      set -eu
-      npm run build
-    workingDirectory: 'frontend'
-    displayName: 'Build React frontend'
-
-  # Copy Vite output to the root directory expected by main.py
-  - script: |
-      set -eu
-
-      echo "Checking Vite build output..."
-      test -f frontend/dist/index.html
-      test -f frontend/dist/redirect.html
-      test -d frontend/dist/assets
-
-      echo "Copying frontend build into root dist directory..."
-      mkdir -p dist
-      cp -R frontend/dist/. dist/
-
-      echo "Verifying application frontend assets..."
-      test -f dist/index.html
-      test -f dist/redirect.html
-      test -d dist/assets
-
-      echo "Frontend assets are ready for backend tests."
-    displayName: 'Prepare frontend assets for backend tests'
-
-  # Validate Python source after frontend build
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
-      python3.11 -m compileall -q .
-    displayName: 'Validate Python source'
-
-  # Run backend tests after frontend assets exist
-  - script: |
-      set -eu
-      export PATH="/opt/homebrew/bin:$PATH"
-      python3.11 -m pytest -q --ignore=test_email_send.py
-    displayName: 'Run backend tests'
-
-  # Final CI summary
-  - script: |
-      echo "=========================================="
-      echo "TBBD HR Portal CI validation completed."
-      echo "=========================================="
-      echo "Python source validation: completed"
-      echo "Backend tests: passed"
-      echo "Frontend production build: completed"
-      echo "Frontend assets: verified"
-      echo "No deployment or production changes performed."
-    displayName: 'CI build summary'
-
-        cd "$(Build.SourcesDirectory)/frontend"
+        cd frontend
 
         npm run build
 
-        if [ ! -f dist/index.html ]; then
-          echo "ERROR: frontend build did not produce dist/index.html."
-          exit 1
-        fi
+        test -s dist/index.html
+        test -s dist/redirect.html
+        test -d dist/assets
 
-        echo "Frontend build completed successfully."
+        echo "Frontend build completed."
+        echo "Verified frontend index.html."
+        echo "Verified frontend redirect.html."
+        echo "Verified frontend assets directory."
 
   - task: Bash@3
-    displayName: 'Prepare frontend assets'
+    displayName: 'Prepare root frontend distribution'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
-
-        cd "$(Build.SourcesDirectory)"
 
         if [ ! -d frontend/dist ]; then
           echo "ERROR: frontend/dist does not exist."
@@ -304,26 +168,24 @@ pr20-conflict-resolution-20261117
         fi
 
         mkdir -p dist
-
         cp -R frontend/dist/. dist/
 
-        if [ ! -f dist/index.html ]; then
-          echo "ERROR: root dist/index.html is missing."
-          exit 1
-        fi
+        test -s dist/index.html
+        test -s dist/redirect.html
+        test -d dist/assets
 
-        echo "Frontend assets prepared successfully."
+        echo "Root distribution prepared and verified."
 
   - task: Bash@3
-    displayName: 'Compile maintained Python backend'
+    displayName: 'Compile Python source'
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
-        cd "$(Build.SourcesDirectory)"
+        CI_PYTHON="$(TBBD_PYTHON)"
 
-        "$(TBBD_PYTHON)" -m compileall -q \
+        "$CI_PYTHON" -m compileall -q \
           main.py \
           api \
           services \
@@ -331,7 +193,7 @@ pr20-conflict-resolution-20261117
           repositories \
           tests
 
-        echo "Python backend compilation completed successfully."
+        echo "Python compilation completed."
 
   - task: Bash@3
     displayName: 'Run backend tests'
@@ -340,28 +202,27 @@ pr20-conflict-resolution-20261117
       script: |
         set -eu
 
-        cd "$(Build.SourcesDirectory)"
+        CI_PYTHON="$(TBBD_PYTHON)"
 
-        "$(TBBD_PYTHON)" -m pytest -q --ignore=test_email_send.py
+        "$CI_PYTHON" -m pytest -q --ignore=test_email_send.py
+
+        echo "Backend tests completed."
 
   - task: Bash@3
-    displayName: 'Final CI summary'
+    displayName: 'CI validation summary'
     condition: succeeded()
     inputs:
       targetType: 'inline'
       script: |
         set -eu
 
-        echo "TBBD HR Portal CI completed successfully."
-        echo "Agent: ${AGENT_NAME:-unknown}"
-        echo "Build ID: $(Build.BuildId)"
-        echo "Branch: $(Build.SourceBranch)"
-        echo "Commit: $(Build.SourceVersion)"
-        echo "Native Python 3.11 ARM64 verified."
-        echo "Node.js 20 verified."
-        echo "Backend dependencies installed."
+        echo "========================================"
+        echo "TALENT BRIDGE BD - CI SUMMARY"
+        echo "========================================"
+        echo "Python: 3.11 ARM64"
+        echo "Node.js: 20.x"
         echo "Frontend build completed."
         echo "Python compilation completed."
         echo "Backend tests completed."
         echo "No Azure deployment was performed."
-main
+        echo "========================================"
