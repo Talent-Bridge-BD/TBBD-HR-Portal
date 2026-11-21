@@ -16,6 +16,8 @@ from repositories.employer_access_requests import (
 from services.email_service import EmailService
 from repositories.administrator_notifications import AdministratorNotificationRepository
 from repositories.external_identity import SqlExternalIdentityMappingRepository
+from models.user_profile import UserProfile
+from repositories.user_profile import SqlUserProfileRepository
 from services.local_auth import (
     TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
     TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
@@ -37,6 +39,7 @@ _delivery_log_repository = AdministratorNotificationRepository()
 _identity_mapping_repository = SqlExternalIdentityMappingRepository(
     organization_api._organization_repository._connection
 )
+_user_profile_repository = SqlUserProfileRepository()
 
 
 class EmployerAccessRequestCreate(BaseModel):
@@ -425,26 +428,116 @@ def activate_approved_employer_request(
             audit_entity_id = str(mapping["id"])
             audit_target_user_id = application_user_id
         else:
-            # Preserve the existing new-employer activation behaviour.
+            # Profile-backed activation for a newly onboarded employer.
+            request_email = str(record.get("email") or "").strip()
+            existing_mapping = _identity_mapping_repository.get_mapping(
+                provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                external_object_id=entra_object_id,
+            )
+            if existing_mapping is not None:
+                raise HTTPException(
+                    status_code=409,
+                    detail=(
+                        "This external identity already has a mapping. "
+                        "Review it before making changes."
+                    ),
+                )
+
+            profile_to_create = None
+            profile = _user_profile_repository.get_profile(entra_object_id)
+
+            if profile is not None:
+                if (
+                    request_email
+                    and (
+                        not profile.primary_email
+                        or profile.primary_email.strip().casefold()
+                        != request_email.casefold()
+                    )
+                ):
+                    raise HTTPException(
+                        status_code=409,
+                        detail=(
+                            "The existing profile email does not match the "
+                            "approved request. Review the profile before activation."
+                        ),
+                    )
+            else:
+                email_profile = None
+                if request_email:
+                    try:
+                        email_profile = _user_profile_repository.get_by_email(
+                            request_email
+                        )
+                    except ValueError:
+                        raise HTTPException(
+                            status_code=409,
+                            detail=(
+                                "Multiple profiles match the approved representative "
+                                "email. Resolve the duplicate profiles before activation."
+                            ),
+                        ) from None
+
+                if email_profile is not None:
+                    if str(email_profile.user_id) != entra_object_id:
+                        raise HTTPException(
+                            status_code=409,
+                            detail=(
+                                "The approved representative email already belongs "
+                                "to another application account. Use the existing-"
+                                "account linking option instead."
+                            ),
+                        )
+                    profile = email_profile
+                else:
+                    profile_to_create = UserProfile(
+                        user_id=entra_object_id,
+                        full_name=str(
+                            record.get("representative_name") or ""
+                        ).strip(),
+                        primary_email=request_email,
+                        phone=str(record.get("phone") or "").strip(),
+                        office_phone="",
+                        organization_email="",
+                    )
+                    profile = profile_to_create
+
             existing = next(
-                (member for member in members if str(member.user_id) == entra_object_id),
+                (
+                    item for item in members
+                    if str(item.user_id) == str(profile.user_id)
+                ),
                 None,
             )
 
             if existing is not None:
-                if str(existing.status).lower() == "active":
+                if str(existing.status).strip().lower() == "active":
                     raise HTTPException(
                         status_code=409,
-                        detail="This Entra identity already has an active membership in the selected organization.",
+                        detail=(
+                            "The user already has an active membership "
+                            "in the selected organization."
+                        ),
                     )
-                if existing.role != "Employer Manager":
+                if str(existing.role).strip().lower() != "employer manager":
                     raise HTTPException(
                         status_code=409,
-                        detail="An inactive membership exists with a different role. Review it separately before activation.",
+                        detail=(
+                            "An inactive membership exists with a different role. "
+                            "Review it separately before activation."
+                        ),
                     )
+
+            if profile_to_create is not None:
+                profile = _user_profile_repository.save_profile(profile_to_create)
+
+            # Create or reactivate membership before creating the external
+            # mapping. Repository operations commit independently.
+            if existing is not None:
                 member = organization_api._organization_repository.update_membership_status(
                     organization_id=organization_id,
-                    user_id=entra_object_id,
+                    user_id=profile.user_id,
                     status="active",
                     role="Employer Manager",
                 )
@@ -452,13 +545,111 @@ def activate_approved_employer_request(
             else:
                 member = organization_api._organization_repository.add_membership(
                     organization_id=organization_id,
-                    user_id=entra_object_id,
+                    user_id=profile.user_id,
                     role="Employer Manager",
                 )
                 membership_action = "create"
+
+            try:
+                mapping = _identity_mapping_repository.create_active_mapping(
+                    provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                    tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                    external_object_id=entra_object_id,
+                    application_user_id=profile.user_id,
+                    verified_by=administrator_id,
+                    verification_method="administrator_attestation",
+                )
+            except Exception:
+                try:
+                    mapping_after_error = _identity_mapping_repository.get_mapping(
+                        provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                        tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                        external_object_id=entra_object_id,
+                    )
+                except Exception:
+                    raise HTTPException(
+                        status_code=503,
+                        detail=(
+                            "External identity mapping creation failed and its "
+                            "commit status could not be verified. The membership "
+                            "is active and requires administrator review."
+                        ),
+                    ) from None
+
+                if mapping_after_error is not None:
+                    mapping_user_id = str(
+                        mapping_after_error.get("application_user_id") or ""
+                    )
+                    mapping_status = str(
+                        mapping_after_error.get("status") or ""
+                    ).strip().lower()
+
+                    if (
+                        mapping_user_id == str(profile.user_id)
+                        and mapping_status == "active"
+                    ):
+                        # The insert may have committed before the repository
+                        # raised an exception. Accept only the intended user's
+                        # confirmed active mapping.
+                        mapping = mapping_after_error
+                    else:
+                        try:
+                            organization_api._organization_repository.update_membership_status(
+                                organization_id=organization_id,
+                                user_id=profile.user_id,
+                                status="inactive",
+                                role="Employer Manager",
+                            )
+                        except Exception:
+                            raise HTTPException(
+                                status_code=503,
+                                detail=(
+                                    "An external identity mapping conflict was "
+                                    "detected, and membership compensation also "
+                                    "failed. The active membership requires "
+                                    "administrator review."
+                                ),
+                            ) from None
+
+                        raise HTTPException(
+                            status_code=409,
+                            detail=(
+                                "The external identity is already mapped to "
+                                "another application account or is not active. "
+                                "The membership was deactivated; review the "
+                                "mapping before retrying."
+                            ),
+                        ) from None
+                else:
+                    try:
+                        organization_api._organization_repository.update_membership_status(
+                            organization_id=organization_id,
+                            user_id=profile.user_id,
+                            status="inactive",
+                            role="Employer Manager",
+                        )
+                    except Exception:
+                        raise HTTPException(
+                            status_code=503,
+                            detail=(
+                                "External identity mapping creation failed, and "
+                                "membership compensation also failed. The active "
+                                "membership requires administrator review."
+                            ),
+                        ) from None
+
+                    raise HTTPException(
+                        status_code=503,
+                        detail=(
+                            "External identity mapping creation failed. The "
+                            "membership was deactivated; review the activation "
+                            "before retrying."
+                        ),
+                    ) from None
+
             audit_entity_type = "organization_membership"
             audit_entity_id = str(member.id)
-            audit_target_user_id = entra_object_id
+            audit_target_user_id = profile.user_id
     except HTTPException:
         raise
     except Exception:
@@ -507,9 +698,11 @@ def activate_approved_employer_request(
     notification_status = "FAILED"
     failure_reason = "Email provider did not confirm success."
     delivery_log_id = None
+    delivery_log_status = "NOT_ATTEMPTED"
     recipient = str(record.get("email") or "").strip()
 
     if recipient:
+        delivery_log_status = "FAILED"
         try:
             log = _delivery_log_repository.create_delivery_log(
                 recipient=recipient,
@@ -518,6 +711,8 @@ def activate_approved_employer_request(
                 notification_id=None,
             )
             delivery_log_id = log.get("id") if log else None
+            if delivery_log_id is not None:
+                delivery_log_status = "PENDING"
         except Exception:
             delivery_log_id = None
 
@@ -566,8 +761,9 @@ def activate_approved_employer_request(
                     notification_status,
                     failure_reason,
                 )
+                delivery_log_status = "RECORDED"
             except Exception:
-                pass
+                delivery_log_status = "FAILED"
 
     return {
         "message": (
@@ -593,5 +789,11 @@ def activate_approved_employer_request(
             "name": organization.name,
         },
         "notification_status": notification_status,
+        "delivery_log_status": delivery_log_status,
+        "delivery_log_warning": (
+            "The activation email delivery record could not be saved or updated."
+            if delivery_log_status == "FAILED"
+            else None
+        ),
         "request": record,
     }

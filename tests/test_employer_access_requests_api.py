@@ -281,7 +281,20 @@ def _prepare_admin_activation_test(monkeypatch, *, status="Approved", fail_email
         "representative_name": "Test Representative",
         "email": "employer@example.com",
     }
-    captured = {"memberships": [], "emails": [], "audit": [], "delivery": []}
+    captured = {
+        "memberships": [],
+        "emails": [],
+        "audit": [],
+        "delivery": [],
+        "profiles": [],
+        "mappings": [],
+        "existing_members": [],
+        "membership_updates": [],
+        "mapping_error": False,
+        "fail_compensation": False,
+        "mapping_after_error": None,
+        "mapping_lookup_count": 0,
+    }
 
     monkeypatch.setattr(api, "require_admin", lambda request: {})
     monkeypatch.setattr(
@@ -306,7 +319,7 @@ def _prepare_admin_activation_test(monkeypatch, *, status="Approved", fail_email
             return [organization]
 
         def list_members(self, organization_id):
-            return []
+            return list(captured["existing_members"])
 
         def add_membership(self, *, organization_id, user_id, role):
             captured["memberships"].append({
@@ -323,7 +336,62 @@ def _prepare_admin_activation_test(monkeypatch, *, status="Approved", fail_email
             )
 
         def update_membership_status(self, **kwargs):
-            raise AssertionError("No inactive membership was expected in this test")
+            captured["membership_updates"].append(kwargs)
+            if kwargs.get("status") == "inactive" and captured["fail_compensation"]:
+                raise RuntimeError("simulated membership compensation failure")
+            return SimpleNamespace(
+                id="membership-test-id",
+                organization_id=kwargs["organization_id"],
+                user_id=kwargs["user_id"],
+                role=kwargs.get("role", "Employer Manager"),
+                status=kwargs["status"],
+            )
+
+    class FakeUserProfileRepository:
+        def __init__(self):
+            self.profiles = {}
+
+        def get_profile(self, user_id):
+            return self.profiles.get(user_id)
+
+        def get_by_email(self, email):
+            matches = [
+                profile for profile in self.profiles.values()
+                if profile.primary_email.casefold() == email.strip().casefold()
+            ]
+            if len(matches) > 1:
+                raise ValueError("Multiple profiles match this email.")
+            return matches[0] if matches else None
+
+        def save_profile(self, profile):
+            self.profiles[profile.user_id] = profile
+            captured["profiles"].append(profile)
+            return profile
+
+    class FakeMappingRepository:
+        def __init__(self):
+            self.mappings = {}
+
+        def get_mapping(self, *, provider, tenant_id, external_object_id):
+            captured["mapping_lookup_count"] += 1
+            if (
+                captured["mapping_lookup_count"] > 1
+                and captured["mapping_after_error"] is not None
+            ):
+                return captured["mapping_after_error"]
+            return self.mappings.get(external_object_id)
+
+        def create_active_mapping(self, **kwargs):
+            if captured["mapping_error"]:
+                raise RuntimeError("simulated mapping creation failure")
+            mapping = {
+                "id": "mapping-activation-test",
+                **kwargs,
+                "status": "Active",
+            }
+            self.mappings[kwargs["external_object_id"]] = mapping
+            captured["mappings"].append(mapping)
+            return mapping
 
     class FakeAuditRepository:
         def create_log(self, **kwargs):
@@ -347,14 +415,31 @@ def _prepare_admin_activation_test(monkeypatch, *, status="Approved", fail_email
             return {"status": "Succeeded"}
 
     monkeypatch.setattr(
-        api.organization_api, "_organization_repository",
+        api.organization_api,
+        "_organization_repository",
         FakeOrganizationRepository(),
     )
     monkeypatch.setattr(
-        api.organization_api, "_audit_log_repository",
+        api.organization_api,
+        "_audit_log_repository",
         FakeAuditRepository(),
     )
+    profile_repository = FakeUserProfileRepository()
+    mapping_repository = FakeMappingRepository()
+    organization_repository = FakeOrganizationRepository()
+
+    captured["profile_repository"] = profile_repository
+    captured["mapping_repository"] = mapping_repository
+    captured["organization_repository"] = organization_repository
+
+    monkeypatch.setattr(
+        api.organization_api,
+        "_organization_repository",
+        organization_repository,
+    )
     monkeypatch.setattr(api, "_delivery_log_repository", FakeDeliveryLogRepository())
+    monkeypatch.setattr(api, "_identity_mapping_repository", mapping_repository)
+    monkeypatch.setattr(api, "_user_profile_repository", profile_repository)
     monkeypatch.setattr(api, "EmailService", FakeEmailService)
 
     return captured
@@ -400,6 +485,17 @@ def test_admin_activation_creates_employer_manager_and_sends_email(monkeypatch):
         "user_id": "verified-entra-object-id",
         "role": "Employer Manager",
     }]
+    assert len(captured["profiles"]) == 1
+    profile = captured["profiles"][0]
+    assert profile.user_id == "verified-entra-object-id"
+    assert profile.full_name == "Test Representative"
+    assert profile.primary_email == "employer@example.com"
+    assert len(captured["mappings"]) == 1
+    mapping = captured["mappings"][0]
+    assert mapping["application_user_id"] == profile.user_id
+    assert mapping["external_object_id"] == "verified-entra-object-id"
+    assert mapping["verified_by"] == "admin-test-id"
+    assert mapping["verification_method"] == "administrator_attestation"
     assert captured["emails"][0]["recipient"] == "employer@example.com"
     assert captured["audit"][0]["action"] == "create"
 
@@ -583,3 +679,341 @@ def test_admin_activation_refuses_link_without_active_employer_manager_membershi
     )
     assert response.status_code == 409
     assert captured == []
+
+
+def test_admin_activation_reports_delivery_log_update_failure(monkeypatch):
+    import api.employer_access_requests as api
+
+    _prepare_admin_activation_test(monkeypatch)
+
+    class FailingDeliveryLogRepository:
+        def create_delivery_log(self, **kwargs):
+            return {"id": "activation-delivery-test"}
+
+        def update_delivery_status(self, *args, **kwargs):
+            raise RuntimeError("simulated delivery log update failure")
+
+    monkeypatch.setattr(
+        api,
+        "_delivery_log_repository",
+        FailingDeliveryLogRepository(),
+    )
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["membership_status"] == "ACTIVE"
+    assert body["notification_status"] == "SENT"
+    assert body["delivery_log_status"] == "FAILED"
+
+
+def test_admin_activation_reports_delivery_log_creation_failure(monkeypatch):
+    import api.employer_access_requests as api
+
+    _prepare_admin_activation_test(monkeypatch)
+
+    class FailingDeliveryLogRepository:
+        def create_delivery_log(self, **kwargs):
+            raise RuntimeError("simulated delivery log creation failure")
+
+        def update_delivery_status(self, *args, **kwargs):
+            raise AssertionError("No delivery log should be updated")
+
+    monkeypatch.setattr(
+        api,
+        "_delivery_log_repository",
+        FailingDeliveryLogRepository(),
+    )
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["membership_status"] == "ACTIVE"
+    assert body["notification_status"] == "SENT"
+    assert body["delivery_log_status"] == "FAILED"
+
+
+def test_admin_activation_skips_delivery_log_without_recipient(monkeypatch):
+    import api.employer_access_requests as api
+
+    captured = _prepare_admin_activation_test(monkeypatch)
+
+    monkeypatch.setattr(
+        api._repository,
+        "get_request",
+        lambda request_id: {
+            "id": "request-activation-test",
+            "status": "Approved",
+            "company_name": "Example Construction Ltd",
+            "representative_name": "Test Representative",
+            "email": "",
+        },
+    )
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+
+    assert body["membership_status"] == "ACTIVE"
+    assert body["delivery_log_status"] == "NOT_ATTEMPTED"
+    assert body["delivery_log_warning"] is None
+    assert captured["emails"] == []
+    assert captured["delivery"] == []
+
+
+def test_admin_activation_reuses_existing_profile_and_reactivates_membership(monkeypatch):
+    from types import SimpleNamespace
+
+    captured = _prepare_admin_activation_test(monkeypatch)
+    profile = SimpleNamespace(
+        user_id="verified-entra-object-id",
+        full_name="Existing Representative",
+        primary_email="employer@example.com",
+        phone="+8801700000000",
+    )
+    captured["profile_repository"].profiles[profile.user_id] = profile
+
+    captured["existing_members"].append(SimpleNamespace(
+        id="inactive-membership-id",
+        organization_id="org-activation-test",
+        user_id=profile.user_id,
+        role="Employer Manager",
+        status="inactive",
+    ))
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert captured["profiles"] == []
+    assert captured["memberships"] == []
+    assert captured["membership_updates"] == [{
+        "organization_id": "org-activation-test",
+        "user_id": profile.user_id,
+        "status": "active",
+        "role": "Employer Manager",
+    }]
+    assert len(captured["mappings"]) == 1
+    assert captured["mappings"][0]["application_user_id"] == profile.user_id
+
+
+def test_admin_activation_refuses_existing_active_membership(monkeypatch):
+    from types import SimpleNamespace
+
+    captured = _prepare_admin_activation_test(monkeypatch)
+    profile = SimpleNamespace(
+        user_id="verified-entra-object-id",
+        full_name="Existing Representative",
+        primary_email="employer@example.com",
+        phone="",
+    )
+    captured["profile_repository"].profiles[profile.user_id] = profile
+    captured["existing_members"].append(SimpleNamespace(
+        id="active-membership-id",
+        organization_id="org-activation-test",
+        user_id=profile.user_id,
+        role="Employer Manager",
+        status="active",
+    ))
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 409, response.text
+    assert captured["membership_updates"] == []
+    assert captured["mappings"] == []
+
+
+def test_admin_activation_refuses_inactive_membership_with_different_role(monkeypatch):
+    from types import SimpleNamespace
+
+    captured = _prepare_admin_activation_test(monkeypatch)
+    profile = SimpleNamespace(
+        user_id="verified-entra-object-id",
+        full_name="Existing Representative",
+        primary_email="employer@example.com",
+        phone="",
+    )
+    captured["profile_repository"].profiles[profile.user_id] = profile
+    captured["existing_members"].append(SimpleNamespace(
+        id="inactive-membership-id",
+        organization_id="org-activation-test",
+        user_id=profile.user_id,
+        role="Candidate",
+        status="inactive",
+    ))
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 409, response.text
+    assert captured["membership_updates"] == []
+    assert captured["mappings"] == []
+
+
+def test_admin_activation_compensates_when_mapping_creation_fails(monkeypatch):
+    captured = _prepare_admin_activation_test(monkeypatch)
+    captured["mapping_error"] = True
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 503, response.text
+    assert "membership was deactivated" in response.json()["detail"].lower()
+    assert len(captured["memberships"]) == 1
+    assert captured["membership_updates"] == [{
+        "organization_id": "org-activation-test",
+        "user_id": "verified-entra-object-id",
+        "status": "inactive",
+        "role": "Employer Manager",
+    }]
+    assert captured["mappings"] == []
+
+
+def test_admin_activation_reports_mapping_and_compensation_failure(monkeypatch):
+    captured = _prepare_admin_activation_test(monkeypatch)
+    captured["mapping_error"] = True
+    captured["fail_compensation"] = True
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 503, response.text
+    assert "compensation also failed" in response.json()["detail"].lower()
+    assert len(captured["memberships"]) == 1
+    assert len(captured["membership_updates"]) == 1
+    assert captured["membership_updates"][0]["status"] == "inactive"
+    assert captured["mappings"] == []
+
+
+def test_admin_activation_accepts_mapping_committed_for_same_user(monkeypatch):
+    captured = _prepare_admin_activation_test(monkeypatch)
+    captured["mapping_error"] = True
+    captured["mapping_after_error"] = {
+        "id": "mapping-committed-before-error",
+        "application_user_id": "verified-entra-object-id",
+        "status": "Active",
+    }
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert len(captured["memberships"]) == 1
+    assert captured["membership_updates"] == []
+    assert captured["mappings"] == []
+
+
+def test_admin_activation_compensates_when_mapping_belongs_to_another_user(
+    monkeypatch,
+):
+    captured = _prepare_admin_activation_test(monkeypatch)
+    captured["mapping_error"] = True
+    captured["mapping_after_error"] = {
+        "id": "mapping-owned-by-another-user",
+        "application_user_id": "different-application-user",
+        "status": "Active",
+    }
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 409, response.text
+    assert "membership was deactivated" in response.json()["detail"].lower()
+    assert len(captured["memberships"]) == 1
+    assert len(captured["membership_updates"]) == 1
+    assert captured["membership_updates"][0]["status"] == "inactive"
+    assert captured["mapping_after_error"]["application_user_id"] == (
+        "different-application-user"
+    )
+
+
+def test_admin_activation_reports_conflict_when_compensation_fails(monkeypatch):
+    captured = _prepare_admin_activation_test(monkeypatch)
+    captured["mapping_error"] = True
+    captured["fail_compensation"] = True
+    captured["mapping_after_error"] = {
+        "id": "mapping-owned-by-another-user",
+        "application_user_id": "different-application-user",
+        "status": "Active",
+    }
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "verified-entra-object-id",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 503, response.text
+    assert "compensation also failed" in response.json()["detail"].lower()
+    assert len(captured["membership_updates"]) == 1
+    assert captured["membership_updates"][0]["status"] == "inactive"
