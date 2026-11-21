@@ -5,10 +5,14 @@
 # CI validation only - no deployment
 
 trigger:
-  - main
+  branches:
+    include:
+      - main
 
 pr:
-  - main
+  branches:
+    include:
+      - main
 
 pool:
   name: 'TBBD-Agent-Pool'
@@ -51,6 +55,7 @@ steps:
         echo "Branch: $(Build.SourceBranch)"
         echo "Commit: $(Build.SourceVersion)"
         echo "Repository: $(Build.Repository.Name)"
+        echo "Reason: $(Build.Reason)"
 
   - task: Bash@3
     displayName: 'Create native Python 3.11 ARM64 environment'
