@@ -89,20 +89,17 @@ steps:
           exit 1
         fi
 
-        "$PYTHON_BIN" -c "
+        "$PYTHON_BIN" - <<'PY'
         import platform
         import sys
 
-        print('Python executable:', sys.executable)
-        print('Python version:', sys.version)
-        print('Architecture:', platform.machine())
+        print("Python executable:", sys.executable)
+        print("Python version:", sys.version)
+        print("Architecture:", platform.machine())
 
-        assert sys.version_info[:2] == (3, 11), \
-            'Python 3.11 is required'
-
-        assert platform.machine() == 'arm64', \
-            'Native ARM64 Python is required'
-        "
+        assert sys.version_info[:2] == (3, 11), "Python 3.11 is required"
+        assert platform.machine() == "arm64", "Native ARM64 Python is required"
+        PY
 
         VENV_DIR="$(Agent.TempDirectory)/tbbd-ci-venv-$(Build.BuildId)"
 
@@ -136,7 +133,13 @@ steps:
 
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
-        "$(TBBD_PYTHON)" -m pip install pytest
+        if [ -f requirements-dev.txt ]; then
+          echo "Installing development and test dependencies..."
+          "$(TBBD_PYTHON)" -m pip install -r requirements-dev.txt
+        else
+          echo "requirements-dev.txt not found; installing pytest."
+          "$(TBBD_PYTHON)" -m pip install pytest
+        fi
 
         "$(TBBD_PYTHON)" -m pip check
         "$(TBBD_PYTHON)" -m pytest --version
@@ -215,7 +218,7 @@ steps:
 
         echo "Frontend production build completed successfully."
 
-  # Prepare frontend assets for backend tests
+  # Prepare frontend assets for backend validation
   - task: Bash@3
     displayName: 'Prepare frontend assets'
     inputs:
@@ -250,7 +253,7 @@ steps:
 
         echo "Frontend assets prepared successfully."
 
-  # Compile maintained Python source
+  # Compile Python source
   - task: Bash@3
     displayName: 'Validate Python source'
     inputs:
