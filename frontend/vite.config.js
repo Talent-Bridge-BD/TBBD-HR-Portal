@@ -9,7 +9,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
 
     build: {
-      outDir: resolve(__dirname, '../dist'),
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
