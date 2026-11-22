@@ -137,7 +137,6 @@ steps:
 
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
-        # Install pytest separately for CI validation.
         "$(TBBD_PYTHON)" -m pip install pytest
 
         "$(TBBD_PYTHON)" -m pip check
@@ -252,7 +251,7 @@ steps:
 
         echo "Frontend assets prepared successfully."
 
-  # Compile all maintained Python source
+  # Compile maintained Python source
   - task: Bash@3
     displayName: 'Validate Python source'
     inputs:
