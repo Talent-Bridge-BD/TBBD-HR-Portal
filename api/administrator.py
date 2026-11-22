@@ -26,12 +26,9 @@ def _get_administrator_context(request: Request):
             detail="Authenticated user required",
         )
 
-    memberships = _organization_repository.get_active_memberships(
-        principal["id"]
-    )
     context = build_authorization_context_from_principal(
         principal,
-        memberships,
+        [],
     )
 
     if not is_global_administrator(context):
