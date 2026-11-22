@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from api.administrator_organizations import require_admin
 from repositories.employer_access_requests import (
+    EmployerOrganizationConflictError,
     SqlEmployerAccessRequestRepository,
 )
 from services.local_auth import get_request_principal
@@ -140,6 +141,8 @@ def review_employer_access_request(
             reviewed_by=reviewer,
             review_notes=payload.review_notes,
         )
+    except EmployerOrganizationConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
