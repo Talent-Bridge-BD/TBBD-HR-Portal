@@ -62,7 +62,8 @@ const STAFF_LOGIN_URL =
   '/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1'
 
 
-const EMPLOYER_LOGIN_URL = 'https://employer.talentbridgebd.com/.auth/login/TBBDEmployerExternalID'
+const EMPLOYER_LOGIN_URL =
+  'https://employer.talentbridgebd.com/.auth/login/TBBDEmployerExternalID'
 
 const CANDIDATE_LOGIN_URL = import.meta.env.DEV
   ? '/?authMode=candidate'

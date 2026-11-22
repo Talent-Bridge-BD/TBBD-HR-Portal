@@ -11,7 +11,7 @@ from api import administrator
 from main import app
 
 
-ADMIN_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+ADMIN_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
 
 
 class FakeOrganizationRepository:
@@ -138,5 +138,5 @@ def test_administrator_dashboard_endpoint_accepts_top_level_role(
     assert response.status_code == 200
     assert response.json()["organizations"]["active"] == 0
     assert response.json()["roles"]["total"] == len(
-        administrator.AUTHORIZATION_GROUPS
+        administrator.AUTHORIZATION_ROLES
     )

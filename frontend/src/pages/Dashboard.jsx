@@ -13,7 +13,9 @@ import EmployerDashboard from './EmployerDashboard'
 export default function Dashboard({ auth, onNavigate }) {
   const isAdministrator = auth?.roles?.includes('Administrator')
   const isHRManager = auth?.roles?.includes('HR Manager')
-  const isEmployerManager = auth?.roles?.includes('Employer Manager')
+  const isEmployerManager = auth?.roles?.some((role) =>
+    ['Employer Manager', 'Employer.Manager'].includes(role),
+  )
 
   const [operations, setOperations] = useState({
     active_jobs: 0,

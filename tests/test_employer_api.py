@@ -218,3 +218,48 @@ def test_administrator_normalized_group_can_access_employer_dashboard(monkeypatc
 
     assert response.status_code == 200
     assert response.json()["stats"]["active_jobs"] == 3
+
+
+def test_tenant_2_employer_manager_role_can_access_dashboard(monkeypatch):
+    dashboard = EmployerDashboard(
+        employer_name="Tenant 2 Employer",
+        organization_name="Tenant 2 Organization",
+        stats=EmployerDashboardStats(3, 5, 12, 2),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
+    )
+
+    repository = InMemoryEmployerDashboardRepository(dashboard)
+
+    monkeypatch.setattr(
+        employer_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {"get_active_memberships": lambda self, user_id: []},
+        )(),
+    )
+
+    monkeypatch.setattr(
+        employer_api,
+        "_service",
+        EmployerDashboardService(repository),
+    )
+
+    encoded_principal = make_principal(
+        "tenant2-manager-001",
+        "Tenant 2 Employer Manager",
+        roles=["Employer.Manager"],
+    )
+
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "tenant2-manager-001",
+            "X-MS-CLIENT-PRINCIPAL-NAME": "tenant2-manager",
+            "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["employer_name"] == "Tenant 2 Employer Manager"

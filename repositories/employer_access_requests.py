@@ -8,6 +8,11 @@ from datetime import datetime, timezone
 
 import pyodbc
 from azure.identity import AzureCliCredential, DefaultAzureCredential
+from models.organization import Organization
+
+
+class EmployerOrganizationConflictError(ValueError):
+    """Raised when an approved request cannot create a unique organization."""
 
 
 class EmployerAccessRequestRepository(ABC):
@@ -44,6 +49,7 @@ class InMemoryEmployerAccessRequestRepository(
 
     def __init__(self):
         self._requests: list[dict] = []
+        self._organizations: list[Organization] = []
 
     @staticmethod
     def _clean_payload(payload: dict) -> dict:
@@ -97,6 +103,7 @@ class InMemoryEmployerAccessRequestRepository(
             "id": str(uuid.uuid4()),
             **cleaned,
             "status": "pending",
+            "organization_id": None,
             "reviewed_by": None,
             "reviewed_at": None,
             "review_notes": None,
@@ -149,14 +156,36 @@ class InMemoryEmployerAccessRequestRepository(
         if item is None or item["status"] != "pending":
             return None
 
+        organization = None
+        if status == "approved":
+            company_key = item["company_name"].casefold()
+            if any(
+                existing.name.casefold() == company_key
+                for existing in self._organizations
+            ):
+                raise EmployerOrganizationConflictError(
+                    "An organization with this company name already exists"
+                )
+
+            organization = Organization(
+                id=str(uuid.uuid4()),
+                name=item["company_name"],
+                status="active",
+            )
+
         now = datetime.now(timezone.utc).isoformat()
         item.update({
             "status": status,
+            "organization_id": organization.id if organization else None,
             "reviewed_by": reviewer,
             "reviewed_at": now,
             "review_notes": notes,
             "updated_at": now,
         })
+
+        if organization is not None:
+            self._organizations.append(organization)
+
         return dict(item)
 
 
@@ -229,6 +258,9 @@ class SqlEmployerAccessRequestRepository(
             "review_notes": row.review_notes,
             "created_at": row.created_at.isoformat(),
             "updated_at": row.updated_at.isoformat(),
+            "organization_id": (
+                str(row.organization_id) if row.organization_id else None
+            ),
         }
 
     def create_request(self, payload: dict) -> dict:
@@ -270,7 +302,8 @@ class SqlEmployerAccessRequestRepository(
                         INSERTED.requested_roles, INSERTED.requirements,
                         INSERTED.status, INSERTED.reviewed_by,
                         INSERTED.reviewed_at, INSERTED.review_notes,
-                        INSERTED.created_at, INSERTED.updated_at
+                        INSERTED.created_at, INSERTED.updated_at,
+                        INSERTED.organization_id
                     VALUES (
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, N'pending',
                         SYSUTCDATETIME(), SYSUTCDATETIME()
@@ -312,7 +345,7 @@ class SqlEmployerAccessRequestRepository(
                 id, company_name, representative_name, email,
                 phone, country, industry, requested_roles, requirements,
                 status, reviewed_by, reviewed_at, review_notes,
-                created_at, updated_at
+                created_at, updated_at, organization_id
             FROM dbo.employer_access_requests
         """
         parameters = []
@@ -355,9 +388,52 @@ class SqlEmployerAccessRequestRepository(
             cursor = connection.cursor()
             cursor.execute(
                 """
+                SELECT company_name
+                FROM dbo.employer_access_requests WITH (UPDLOCK, HOLDLOCK)
+                WHERE id = ?
+                  AND status = N'pending'
+                  AND organization_id IS NULL
+                """,
+                parsed_id,
+            )
+            request_row = cursor.fetchone()
+            if request_row is None:
+                connection.rollback()
+                return None
+
+            organization_id = None
+
+            if status == "approved":
+                organization_id = str(uuid.uuid4())
+                try:
+                    cursor.execute(
+                        """
+                        INSERT INTO dbo.organizations (
+                            id, name, status, created_at, updated_at
+                        )
+                        VALUES (
+                            ?, ?, N'active',
+                            SYSUTCDATETIME(), SYSUTCDATETIME()
+                        )
+                        """,
+                        organization_id,
+                        request_row.company_name,
+                    )
+                except pyodbc.IntegrityError as exc:
+                    connection.rollback()
+                    raise EmployerOrganizationConflictError(
+                        "An organization with this company name already exists"
+                    ) from exc
+
+            cursor.execute(
+                """
                 UPDATE dbo.employer_access_requests
-                SET status = ?, reviewed_by = ?, reviewed_at = SYSUTCDATETIME(),
-                    review_notes = ?, updated_at = SYSUTCDATETIME()
+                SET status = ?,
+                    reviewed_by = ?,
+                    reviewed_at = SYSUTCDATETIME(),
+                    review_notes = ?,
+                    updated_at = SYSUTCDATETIME(),
+                    organization_id = ?
                 OUTPUT
                     INSERTED.id, INSERTED.company_name,
                     INSERTED.representative_name, INSERTED.email,
@@ -365,18 +441,23 @@ class SqlEmployerAccessRequestRepository(
                     INSERTED.requested_roles, INSERTED.requirements,
                     INSERTED.status, INSERTED.reviewed_by,
                     INSERTED.reviewed_at, INSERTED.review_notes,
-                    INSERTED.created_at, INSERTED.updated_at
-                WHERE id = ? AND status = N'pending'
+                    INSERTED.created_at, INSERTED.updated_at,
+                    INSERTED.organization_id
+                WHERE id = ?
+                  AND status = N'pending'
+                  AND organization_id IS NULL
                 """,
                 status,
                 reviewer,
                 notes,
+                organization_id,
                 parsed_id,
             )
             row = cursor.fetchone()
             if row is None:
                 connection.rollback()
                 return None
+
             result = self._serialize(row)
             connection.commit()
             return result
