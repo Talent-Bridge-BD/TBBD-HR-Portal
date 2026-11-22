@@ -2,6 +2,7 @@ import base64
 import json
 
 from fastapi import APIRouter, HTTPException, Request
+from services.authorization import normalize_role
 
 from repositories.employer_dashboard import SqlEmployerDashboardRepository
 from repositories.organization import SqlOrganizationRepository
@@ -18,9 +19,8 @@ _service = EmployerDashboardService(_dashboard_repository)
 
 
 AUTHORIZATION_GROUPS = {
-    "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
+    "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
     "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-    "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
     "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
 }
 
@@ -53,7 +53,7 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
     group_ids = set(principal.get("groups") or []) | claim_values("groups")
     token_roles = set(principal.get("roles") or []) | claim_values("roles")
 
-    roles = set(token_roles)
+    roles = {normalize_role(role) for role in token_roles}
 
     for role, group_id in AUTHORIZATION_GROUPS.items():
         if group_id in group_ids:

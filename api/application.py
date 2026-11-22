@@ -11,6 +11,7 @@ from services.application import ApplicationService
 from services.authorization import (
     build_authorization_context,
     is_global_administrator,
+    normalize_role,
 )
 from services.local_auth import get_request_principal
 
@@ -29,9 +30,8 @@ _candidate_document_repository = SqlCandidateDocumentRepository()
 _blob_repository = BlobStorageRepository()
 
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
 
 
 def _claim_values(
@@ -69,10 +69,8 @@ def get_application_authorization_context(
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
-    roles = set(token_roles)
+    roles = {normalize_role(role) for role in token_roles}
 
-    if EMPLOYER_MANAGER_GROUP_ID in group_ids:
-        roles.add("Employer Manager")
 
     if HR_MANAGER_GROUP_ID in group_ids:
         roles.add("HR Manager")

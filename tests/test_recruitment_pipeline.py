@@ -213,7 +213,7 @@ def test_employer_manager_can_access_recruitment_pipeline(monkeypatch):
     principal = make_principal(
         "employer-001",
         "Test Employer Manager",
-        groups=["7088ce1f-8e01-4c7c-88fd-a257721a35df"],
+        roles=["Employer.Manager"],
     )
 
     client = TestClient(app)

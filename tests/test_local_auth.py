@@ -65,7 +65,7 @@ def test_easy_auth_extracts_roles_and_groups_from_claims():
     request = make_request({
         "claims": [
             {"typ": "roles", "val": "Administrator"},
-            {"typ": "groups", "val": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"},
+            {"typ": "groups", "val": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"},
             {"typ": "name", "val": "Admin TBBD"},
             {"typ": "preferred_username", "val": "admin@example.test"},
         ]
@@ -75,7 +75,7 @@ def test_easy_auth_extracts_roles_and_groups_from_claims():
 
     assert principal["roles"] == ["Administrator"]
     assert principal["groups"] == [
-        "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
+        "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"
     ]
 
 

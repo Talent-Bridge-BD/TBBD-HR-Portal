@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from services.authorization import normalize_role
 from pydantic import BaseModel
 
 from repositories.application import SqlApplicationRepository
@@ -35,7 +36,11 @@ def _claim_values(claims, claim_type: str) -> set[str]:
 
         value = claim.get("val")
         if value:
-            values.add(str(value).lower())
+            values.add(
+                str(value).lower()
+                if claim_type == "groups"
+                else str(value)
+            )
 
     return values
 
@@ -61,15 +66,12 @@ def _get_authorization_context(request: Request):
     group_ids = _claim_values(claims, "groups")
     token_roles = _claim_values(claims, "roles")
 
-    roles = set(token_roles)
-
-    if "7088ce1f-8e01-4c7c-88fd-a257721a35df" in group_ids:
-        roles.add("Employer Manager")
+    roles = {normalize_role(role) for role in token_roles}
 
     if "9a977cf0-7c9f-4024-9415-357a8a4292bc" in group_ids:
         roles.add("HR Manager")
 
-    if "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66" in group_ids:
+    if "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66" in group_ids:
         roles.add("Administrator")
 
     allowed_roles = {
