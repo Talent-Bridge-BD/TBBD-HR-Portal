@@ -1,0 +1,845 @@
+import { useEffect, useState } from 'react'
+import PageHeader from '../components/PageHeader'
+import { authenticatedFetch } from '../utils/auth'
+import { useOrganization } from '../context/OrganizationContext'
+
+
+const INTERVIEW_STATUSES = [
+  'scheduled',
+  'completed',
+  'cancelled',
+  'rescheduled',
+  'no_show',
+]
+
+const INTERVIEW_OUTCOMES = [
+  'Pending',
+  'Pass',
+  'Fail',
+]
+
+
+export default function RecruitmentInterviews({ auth }) {
+
+  const {
+    selectedOrganizationId,
+    organizationLoading,
+  } = useOrganization()
+
+  const organizationId = selectedOrganizationId || ''
+
+  const [interviews, setInterviews] = useState([])
+  const [applications, setApplications] = useState([])
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const [showForm, setShowForm] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const [form, setForm] = useState({
+    application_id: '',
+    scheduled_start: '',
+    scheduled_end: '',
+    interview_type: 'Video',
+    location_or_link: '',
+    interviewer_name: '',
+    notes: '',
+  })
+
+
+  const loadInterviews = async () => {
+
+    if (organizationLoading || !organizationId) {
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+
+      const response = await authenticatedFetch(
+        `/api/interviews?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+        {
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to load interviews.'
+        )
+      }
+
+      setInterviews(data.interviews || [])
+
+    } catch (err) {
+
+      setError(err.message)
+
+    } finally {
+
+      setLoading(false)
+
+    }
+  }
+
+
+  const loadApplications = async () => {
+
+    if (organizationLoading || !organizationId) {
+      return
+    }
+
+    try {
+
+      const response = await authenticatedFetch(
+        `/api/applications?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+        {
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to load applications.'
+        )
+      }
+
+      setApplications(data.applications || [])
+
+    } catch (err) {
+
+      setError(err.message)
+
+    }
+  }
+
+
+  useEffect(() => {
+
+    loadInterviews()
+    loadApplications()
+
+  }, [organizationId, organizationLoading])
+
+
+  const resetForm = () => {
+
+    setForm({
+      application_id: '',
+      scheduled_start: '',
+      scheduled_end: '',
+      interview_type: 'Video',
+      location_or_link: '',
+      interviewer_name: '',
+      notes: '',
+    })
+
+  }
+
+
+  const openForm = () => {
+
+    resetForm()
+    setShowForm(true)
+
+  }
+
+
+  const closeForm = () => {
+
+    if (!saving) {
+      setShowForm(false)
+      resetForm()
+    }
+
+  }
+
+
+  const handleChange = (event) => {
+
+    const { name, value } = event.target
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }))
+
+  }
+
+
+  const handleSubmit = async (event) => {
+
+    event.preventDefault()
+
+    if (!form.application_id) {
+      setError('Please select an application.')
+      return
+    }
+
+    if (!form.scheduled_start) {
+      setError('Please select an interview date and time.')
+      return
+    }
+
+    if (
+      form.scheduled_end &&
+      new Date(form.scheduled_end) <= new Date(form.scheduled_start)
+    ) {
+      setError(
+        'Interview end time must be later than the start time.'
+      )
+      return
+    }
+
+    setSaving(true)
+    setError('')
+
+    try {
+
+      const payload = {
+        application_id: form.application_id,
+        scheduled_start: new Date(
+          form.scheduled_start
+        ).toISOString(),
+        scheduled_end: form.scheduled_end
+          ? new Date(form.scheduled_end).toISOString()
+          : null,
+        interview_type: form.interview_type,
+        location_or_link: form.location_or_link,
+        interviewer_name: form.interviewer_name,
+        notes: form.notes,
+      }
+
+      const response = await authenticatedFetch(
+        `/api/interviews?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to schedule interview.'
+        )
+      }
+
+      setShowForm(false)
+      resetForm()
+
+      await loadInterviews()
+
+    } catch (err) {
+
+      setError(err.message)
+
+    } finally {
+
+      setSaving(false)
+
+    }
+  }
+
+
+  const updateInterview = async (
+    interview,
+    status,
+    outcome
+  ) => {
+
+    try {
+
+      const response = await authenticatedFetch(
+        `/api/interviews/${encodeURIComponent(
+          interview.id
+        )}?organization_id=${encodeURIComponent(
+          organizationId
+        )}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            scheduled_start: interview.scheduled_start,
+            scheduled_end: interview.scheduled_end,
+            interview_type: interview.interview_type || '',
+            location_or_link: interview.location_or_link || '',
+            interviewer_name: interview.interviewer_name || '',
+            notes: interview.notes || '',
+            status,
+            outcome,
+          }),
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 'Unable to update interview.'
+        )
+      }
+
+      setInterviews((current) =>
+        current.map((item) =>
+          item.id === interview.id
+            ? data.interview
+            : item
+        )
+      )
+
+    } catch (err) {
+
+      setError(err.message)
+
+    }
+  }
+
+
+  const formatDateTime = (value) => {
+
+    if (!value) {
+      return '—'
+    }
+
+    return new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+
+  }
+
+
+  if (!organizationId) {
+
+    return (
+
+      <>
+
+        <PageHeader
+          title="Interviews"
+          subtitle="Schedule and manage candidate interviews."
+        />
+
+        <section className="placeholder-card">
+
+          <h2>Organization access required</h2>
+
+          <p>
+            Your account is not currently assigned to an organization.
+          </p>
+
+        </section>
+
+      </>
+
+    )
+
+  }
+
+
+  return (
+
+    <>
+
+      <PageHeader
+        title="Interviews"
+        subtitle="Schedule and manage candidate interviews through the recruitment process."
+      />
+
+      {error && (
+
+        <section className="placeholder-card">
+
+          <h2>Interview action needs attention</h2>
+
+          <p>{error}</p>
+
+        </section>
+
+      )}
+
+
+      <div className="interview-kpi-grid">
+        <div className="interview-kpi-card">
+          <h3>{interviews.length}</h3>
+          <p>Total Interviews</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'scheduled'
+              ).length
+            }
+          </h3>
+          <p>Scheduled</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'completed'
+              ).length
+            }
+          </h3>
+          <p>Completed</p>
+        </div>
+
+        <div className="interview-kpi-card">
+          <h3>
+            {
+              interviews.filter(
+                (i) => i.status?.toLowerCase() === 'cancelled'
+              ).length
+            }
+          </h3>
+          <p>Cancelled</p>
+        </div>
+      </div>
+
+      <section className="dashboard-card">
+
+        <div className="card-heading">
+
+          <div>
+
+            <h2>Interview Schedule</h2>
+
+            <p>
+              Coordinate interviews linked to candidate applications.
+            </p>
+
+          </div>
+
+          <button
+            type="button"
+            className="primary-button"
+            onClick={openForm}
+          >
+            Schedule Interview
+          </button>
+
+        </div>
+
+
+        {loading ? (
+
+          <div className="empty-state">
+
+            <strong>Loading interviews...</strong>
+
+          </div>
+
+        ) : interviews.length === 0 ? (
+
+          <div className="empty-state">
+
+            <strong>No interviews scheduled</strong>
+
+            <span>
+              Schedule an interview for a candidate application to begin the interview stage.
+            </span>
+
+          </div>
+
+        ) : (
+
+          <div className="interview-card-grid">
+
+            {interviews.map((interview) => (
+
+              <div
+                key={interview.id}
+                className="interview-card"
+              >
+
+                <div className="interview-card-header">
+
+                  <div>
+
+                    <div className="candidate-avatar-large">
+                      {`${interview.candidate_first_name?.[0] || ''}${
+                        interview.candidate_last_name?.[0] || ''
+                      }`}
+                    </div>
+
+                    <h3>
+                      {interview.candidate_first_name}{' '}
+                      {interview.candidate_last_name}
+                    </h3>
+
+                    <p>
+                      {interview.candidate_email}
+                    </p>
+
+                  </div>
+
+                  <span
+                    className={`status-badge status-${interview.status || 'scheduled'}`}
+                  >
+                    {(interview.status || 'scheduled')
+                      .replace('_', ' ')
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </span>
+
+                </div>
+
+                <div className="interview-card-body">
+
+                  <p>
+                    <strong>Position:</strong>{' '}
+                    {interview.job_title}
+                  </p>
+
+                  <p>
+                    <strong>Interview Outcome:</strong>{' '}
+                    {interview.outcome || 'Pending'}
+                  </p>
+
+                  <p>
+                    <strong>Date:</strong>{' '}
+                    {formatDateTime(interview.scheduled_start)}
+                  </p>
+
+                  <p>
+                    <strong>Interview Type:</strong>{' '}
+                    {interview.interview_type || 'Not specified'}
+                  </p>
+
+                  <p>
+                    <strong>Interviewer:</strong>{' '}
+                    {interview.interviewer_name || 'Not assigned'}
+                  </p>
+
+                </div>
+
+                <div className="interview-card-actions">
+
+                  <select
+                    value={interview.status || 'scheduled'}
+                    onChange={(event) => {
+                      const nextStatus = event.target.value
+                      const nextOutcome =
+                        nextStatus === 'completed'
+                          ? interview.outcome || 'Pending'
+                          : 'Pending'
+
+                      updateInterview(
+                        interview,
+                        nextStatus,
+                        nextOutcome
+                      )
+                    }}
+                    aria-label={`Interview status for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
+                  >
+
+                    {INTERVIEW_STATUSES.map((status) => (
+
+                      <option
+                        key={status}
+                        value={status}
+                      >
+                        {status === 'no_show'
+                          ? 'No Show'
+                          : status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
+
+                    ))}
+
+                  </select>
+
+                  <select
+                    value={interview.outcome || 'Pending'}
+                    onChange={(event) =>
+                      updateInterview(
+                        interview,
+                        interview.status || 'scheduled',
+                        event.target.value
+                      )
+                    }
+                    disabled={
+                      String(interview.status || 'scheduled').toLowerCase() !==
+                      'completed'
+                    }
+                    aria-label={`Interview outcome for ${interview.candidate_first_name || ''} ${interview.candidate_last_name || ''}`}
+                  >
+                    {INTERVIEW_OUTCOMES.map((outcome) => (
+                      <option
+                        key={outcome}
+                        value={outcome}
+                      >
+                        {outcome}
+                      </option>
+                    ))}
+                  </select>
+
+                  {interview.location_or_link && (
+                    <a
+                      href={interview.location_or_link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="secondary-button"
+                    >
+                      Open Interview
+                    </a>
+                  )}
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </section>
+
+
+      {showForm && (
+
+        <section className="dashboard-card">
+
+          <div className="card-heading">
+
+            <div>
+
+              <h2>Schedule Interview</h2>
+
+              <p>
+                Create an interview linked to an existing candidate application.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <form
+            className="job-opening-form recruitment-interview-form"
+            onSubmit={handleSubmit}
+          >
+
+            <div className="job-opening-grid">
+
+
+              <div className="job-form-card">
+
+                <h3>Candidate & Application</h3>
+
+                <div className="job-form-fields">
+
+                  <label>
+
+                    <span>Candidate Application *</span>
+
+                    <select
+                      name="application_id"
+                      value={form.application_id}
+                      onChange={handleChange}
+                      required
+                    >
+
+                      <option value="">
+                        Select an application
+                      </option>
+
+                      {applications.map((application) => (
+
+                        <option
+                          key={application.id}
+                          value={application.id}
+                        >
+
+                          {application.candidate_first_name}{' '}
+                          {application.candidate_last_name}
+                          {' — '}
+                          {application.job_title}
+
+                        </option>
+
+                      ))}
+
+                    </select>
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+              <div className="job-form-card">
+
+                <h3>Interview Details</h3>
+
+                <div className="job-form-fields">
+
+                  <label>
+
+                    <span>Start Date & Time *</span>
+
+                    <input
+                      type="datetime-local"
+                      name="scheduled_start"
+                      value={form.scheduled_start}
+                      onChange={handleChange}
+                      required
+                    />
+
+                  </label>
+
+
+                  <label>
+
+                    <span>End Date & Time</span>
+
+                    <input
+                      type="datetime-local"
+                      name="scheduled_end"
+                      value={form.scheduled_end}
+                      onChange={handleChange}
+                    />
+
+                  </label>
+
+
+                  <label>
+
+                    <span>Interview Type</span>
+
+                    <input
+                      type="text"
+                      name="interview_type"
+                      value={form.interview_type}
+                      onChange={handleChange}
+                      placeholder="Video, Phone, In-person"
+                    />
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+              <div className="job-form-card">
+
+                <h3>Interview Location</h3>
+
+                <div className="job-form-fields">
+
+                  <label>
+
+                    <span>Location / Meeting Link</span>
+
+                    <input
+                      type="text"
+                      name="location_or_link"
+                      value={form.location_or_link}
+                      onChange={handleChange}
+                      placeholder="Meeting link or interview location"
+                    />
+
+                  </label>
+
+
+                  <label>
+
+                    <span>Interviewer</span>
+
+                    <input
+                      type="text"
+                      name="interviewer_name"
+                      value={form.interviewer_name}
+                      onChange={handleChange}
+                      placeholder="Interviewer name"
+                    />
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+              <div className="job-form-card">
+
+                <h3>Notes</h3>
+
+                <div className="job-form-fields">
+
+                  <label>
+
+                    <span>Interview Notes</span>
+
+                    <textarea
+                      name="notes"
+                      value={form.notes}
+                      onChange={handleChange}
+                      rows="5"
+                      placeholder="Interview instructions or internal notes"
+                    />
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+            <div className="job-form-actions">
+
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeForm}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={saving}
+              >
+                {saving
+                  ? 'Scheduling...'
+                  : 'Schedule Interview'}
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+      )}
+
+    </>
+
+  )
+}

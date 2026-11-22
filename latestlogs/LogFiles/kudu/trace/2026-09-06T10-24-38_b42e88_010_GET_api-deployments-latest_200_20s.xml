@@ -1,0 +1,8 @@
+<step title="Incoming Request" date="2026-09-06T10:24:38.488" instance="b42e88" url="/api/deployments/latest" method="GET" type="request" pid="830,1,15" Accept="*/*" Host="tbbd-hr-portal.scm.azurewebsites.net" User-Agent="AZURECLI/2.86.0 (HOMEBREW)" Accept-Encoding="gzip, deflate" Authorization="Bea..." x-ms-client-request-id="1436f8ce-a9dd-11f1-83e2-f21038ba722a" X-ARR-LOG-ID="1436f8ce-a9dd-11f1-83e2-f21038ba722a" CLIENT-IP="103.211.29.90:52959" X-SITE-DEPLOYMENT-ID="TBBD-HR-Portal" WAS-DEFAULT-HOSTNAME="tbbd-hr-portal.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/deployments/latest" X-Client-IP="103.211.29.90" X-Client-Port="52959" >
+  <step title="DeploymentService.GetResult" date="2026-09-06T10:24:52.969" >
+    <step title="DeploymentService.GetLatestDeployment" date="2026-09-06T10:24:53.009" >
+      <step title="DeploymentManager.GetResults" date="2026-09-06T10:24:53.028" /><!-- duration: 1788ms -->
+    </step><!-- duration: 1979ms -->
+  </step><!-- duration: 2567ms -->
+  <step title="Outgoing response" date="2026-09-06T10:24:58.313" type="response" statusCode="200" statusText="OK" /><!-- duration: 51ms -->
+</step><!-- duration: 19888ms -->

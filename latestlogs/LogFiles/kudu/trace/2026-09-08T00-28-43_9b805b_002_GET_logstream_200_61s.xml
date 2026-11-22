@@ -1,0 +1,5 @@
+<step title="Incoming Request" date="2026-09-08T00:28:43.917" instance="9b805b" url="/logstream" method="GET" type="request" pid="831,1,5" Host="tbbd-hr-portal.scm.azurewebsites.net" User-Agent="AZURECLI/2.86.0 (HOMEBREW)" Accept-Encoding="identity" Authorization="Bea..." x-ms-client-request-id="3c3be218-ab1c-11f1-971f-f21038ba722a" X-ARR-LOG-ID="3c3be218-ab1c-11f1-971f-f21038ba722a" CLIENT-IP="103.211.29.90:64517" X-SITE-DEPLOYMENT-ID="TBBD-HR-Portal" WAS-DEFAULT-HOSTNAME="tbbd-hr-portal.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/logstream" X-Client-IP="103.211.29.90" X-Client-Port="64517" >
+  <step title="LogStreamHandlerMiddleware.Invoke" date="2026-09-08T00:28:43.997" /><!-- duration: 487ms -->
+  <step title="Error occurred" date="2026-09-08T00:29:44.588" type="error" text="LogStreamManager: ProcessRequest end" /><!-- duration: 2ms -->
+  <step title="Outgoing response" date="2026-09-08T00:29:44.599" type="response" statusCode="200" statusText="OK" /><!-- duration: 2ms -->
+</step><!-- duration: 60685ms -->
