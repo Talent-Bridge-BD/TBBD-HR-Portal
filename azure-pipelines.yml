@@ -5,10 +5,15 @@
 # CI validation only - no deployment
 
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - repair/main-python-syntax-20261122
 
 pr:
-  - main
+  branches:
+    include:
+      - main
 
 pool:
   name: 'TBBD-Agent-Pool'
