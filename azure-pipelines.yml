@@ -20,12 +20,12 @@ variables:
   nodeVersion: '20.x'
 
 steps:
-  # Checkout repository
+  # Checkout source
   - checkout: self
     displayName: 'Checkout TBBD HR Portal repository'
     fetchDepth: 1
 
-  # Display build information
+  # Display build and source information
   - task: Bash@3
     displayName: 'Display build information'
     inputs:
@@ -40,6 +40,7 @@ steps:
         echo "Branch: $(Build.SourceBranch)"
         echo "Commit: $(Build.SourceVersion)"
         echo "Build ID: $(Build.BuildId)"
+        echo "Reason: $(Build.Reason)"
         echo "Agent: $(Agent.Name)"
         echo "Agent OS: $(Agent.OS)"
         echo "Agent Architecture: $(Agent.OSArchitecture)"
@@ -55,16 +56,24 @@ steps:
         echo "Agent: ${AGENT_NAME:-unknown}"
         echo "Machine: ${AGENT_MACHINENAME:-unknown}"
 
+        echo
+        echo "Operating system:"
         uname -a
 
-        echo "Architecture:"
+        echo
+        echo "Machine architecture:"
         uname -m
 
-        echo "Bash: ${BASH_VERSION:-unknown}"
+        if [ "$(uname -m)" != "arm64" ]; then
+          echo "ERROR: Native ARM64 macOS agent is required."
+          exit 1
+        fi
 
+        echo
+        echo "Disk availability:"
         df -h .
 
-  # Verify and create native Python 3.11 environment
+  # Create isolated Python 3.11 ARM64 environment
   - task: Bash@3
     displayName: 'Create native Python 3.11 ARM64 environment'
     inputs:
@@ -82,15 +91,18 @@ steps:
         fi
 
         "$PYTHON_BIN" -c "
-        import sys
         import platform
+        import sys
 
-        print('Executable:', sys.executable)
-        print('Version:', sys.version)
+        print('Python executable:', sys.executable)
+        print('Python version:', sys.version)
         print('Architecture:', platform.machine())
 
-        assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'
-        assert platform.machine() == 'arm64', 'ARM64 Python is required'
+        assert sys.version_info[:2] == (3, 11), \
+            'Python 3.11 is required'
+
+        assert platform.machine() == 'arm64', \
+            'Native ARM64 Python is required'
         "
 
         VENV_DIR="$(Agent.TempDirectory)/tbbd-ci-venv-$(Build.BuildId)"
@@ -104,9 +116,9 @@ steps:
 
         echo "##vso[task.setvariable variable=TBBD_PYTHON]$CI_PYTHON"
 
-        echo "Native Python 3.11 ARM64 environment created."
+        echo "Native Python environment created successfully."
 
-  # Install backend and CI test dependencies
+  # Install backend and test dependencies
   - task: Bash@3
     displayName: 'Install backend and test dependencies'
     inputs:
@@ -125,8 +137,7 @@ steps:
 
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
-        # pytest is required for CI testing only.
-        # Keep CI-only test dependencies out of production requirements.
+        # Install pytest separately for CI validation.
         "$(TBBD_PYTHON)" -m pip install pytest
 
         "$(TBBD_PYTHON)" -m pip check
@@ -141,7 +152,7 @@ steps:
       version: '$(nodeVersion)'
       checkLatest: false
 
-  # Verify Node.js environment
+  # Verify Node.js version
   - task: Bash@3
     displayName: 'Verify Node.js environment'
     inputs:
@@ -156,12 +167,12 @@ steps:
         const major = Number(process.versions.node.split('.')[0]);
 
         if (major !== 20) {
-          console.error('Node.js 20 is required.');
+          console.error('ERROR: Node.js 20 is required.');
           process.exit(1);
         }
         "
 
-        echo "Node.js 20 verified."
+        echo "Node.js 20 verified successfully."
 
   # Install frontend dependencies
   - task: Bash@3
@@ -200,11 +211,11 @@ steps:
         npm run build
 
         if [ ! -f dist/index.html ]; then
-          echo "ERROR: frontend build did not produce dist/index.html."
+          echo "ERROR: Frontend build did not produce dist/index.html."
           exit 1
         fi
 
-        echo "Frontend build completed successfully."
+        echo "Frontend production build completed successfully."
 
   # Prepare frontend assets for backend tests
   - task: Bash@3
@@ -216,18 +227,18 @@ steps:
 
         cd "$(Build.SourcesDirectory)"
 
-        if [ ! -f frontend/dist/index.html ]; then
-          echo "ERROR: frontend/dist/index.html is missing."
-          exit 1
-        fi
-
-        if [ ! -f frontend/dist/redirect.html ]; then
-          echo "ERROR: frontend/dist/redirect.html is missing."
-          exit 1
-        fi
+        for required_file in \
+          frontend/dist/index.html \
+          frontend/dist/redirect.html
+        do
+          if [ ! -f "$required_file" ]; then
+            echo "ERROR: Required frontend file missing: $required_file"
+            exit 1
+          fi
+        done
 
         if [ ! -d frontend/dist/assets ]; then
-          echo "ERROR: frontend/dist/assets is missing."
+          echo "ERROR: frontend/dist/assets directory is missing."
           exit 1
         fi
 
@@ -241,7 +252,7 @@ steps:
 
         echo "Frontend assets prepared successfully."
 
-  # Compile maintained Python backend
+  # Compile all maintained Python source
   - task: Bash@3
     displayName: 'Validate Python source'
     inputs:
@@ -250,6 +261,8 @@ steps:
         set -eu
 
         cd "$(Build.SourcesDirectory)"
+
+        echo "Compiling Python backend and test source..."
 
         "$(TBBD_PYTHON)" -m compileall -q \
           main.py \
@@ -261,7 +274,7 @@ steps:
 
         echo "Python source compilation completed successfully."
 
-  # Run backend tests
+  # Run backend test suite
   - task: Bash@3
     displayName: 'Run backend tests'
     inputs:
@@ -271,7 +284,21 @@ steps:
 
         cd "$(Build.SourcesDirectory)"
 
-        "$(TBBD_PYTHON)" -m pytest -q --ignore=test_email_send.py
+        TEST_EXCLUSION=""
+
+        if [ -f test_email_send.py ]; then
+          TEST_EXCLUSION="test_email_send.py"
+        elif [ -f tests/test_email_send.py ]; then
+          TEST_EXCLUSION="tests/test_email_send.py"
+        fi
+
+        if [ -n "$TEST_EXCLUSION" ]; then
+          echo "Excluding: $TEST_EXCLUSION"
+          "$(TBBD_PYTHON)" -m pytest -q --ignore="$TEST_EXCLUSION"
+        else
+          echo "No test_email_send.py exclusion file found."
+          "$(TBBD_PYTHON)" -m pytest -q
+        fi
 
   # Final CI summary
   - task: Bash@3
@@ -283,20 +310,23 @@ steps:
         set -eu
 
         echo "=========================================="
-        echo "TBBD HR Portal CI completed successfully."
+        echo "TBBD HR PORTAL CI PASSED"
         echo "=========================================="
 
-        echo "Agent: ${AGENT_NAME:-unknown}"
-        echo "Build ID: $(Build.BuildId)"
+        echo "Repository: $(Build.Repository.Name)"
         echo "Branch: $(Build.SourceBranch)"
         echo "Commit: $(Build.SourceVersion)"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Agent: $(Agent.Name)"
 
-        echo "Native Python 3.11 ARM64: verified"
+        echo "Native macOS ARM64: verified"
+        echo "Python 3.11 ARM64: verified"
         echo "Node.js 20: verified"
         echo "Backend dependencies: installed"
         echo "Frontend production build: completed"
         echo "Frontend assets: verified"
-        echo "Python compilation: completed"
+        echo "Python compilation: passed"
         echo "Backend tests: passed"
 
-        echo "No deployment or production changes performed."
+        echo "Deployment: not performed"
+        echo "Production resources: not modified"
