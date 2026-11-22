@@ -100,6 +100,12 @@ app.include_router(employer_access_requests_router)
 
 _organization_repository = SqlOrganizationRepository()
 
+from services.authorization import (
+    build_authorization_context,
+    build_authorization_context_from_principal,
+    has_organization_access,
+    normalize_role,
+)
 @app.get("/api/me")
 async def get_current_user(request: Request):
     principal = get_request_principal(request)
@@ -113,52 +119,42 @@ async def get_current_user(request: Request):
 
     principal_id = principal.get("id") or ""
     principal_name = principal.get("email") or ""
-
-    claims = principal.get("claims", [])
+    claims = principal.get("claims") or []
 
     def claim_values(claim_type):
         return [
             claim.get("val")
             for claim in claims
-            if claim.get("typ") == claim_type
+            if claim.get("typ") == claim_type and claim.get("val")
         ]
 
- pr20-conflict-resolution-20261117
-    # Use the normalized principal fields as well as its original claims.
-    # Easy Auth and the bearer resolver populate these fields consistently.
-    group_ids = set(principal.get("groups") or []) | set(
-        claim_values("groups")
+    # Candidate is deliberately removed before shared role resolution.
+    # Neither a Candidate token role nor a Candidate group claim grants
+    # Candidate access without an active application-managed assignment.
+    authorization_principal = dict(principal)
+    authorization_principal["roles"] = [
+        role
+        for role in (principal.get("roles") or [])
+        if normalize_role(role) != "Candidate"
+    ]
+    authorization_principal["claims"] = [
+        claim
+        for claim in claims
+        if not (
+            claim.get("typ") == "roles"
+            and normalize_role(claim.get("val")) == "Candidate"
+        )
+    ]
+
+    memberships = _organization_repository.get_active_memberships(
+        principal_id
     )
-    token_roles = set(principal.get("roles") or []) | set(
-        claim_values("roles")
+    authorization_context = build_authorization_context_from_principal(
+        authorization_principal,
+        memberships,
     )
+    roles = set(authorization_context.roles)
 
-    authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
-
-    group_ids = set(claim_values("groups"))
-    token_roles = set(claim_values("roles"))
-
-    authorization_groups = {
-        "Administrator": "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66",
-main
-        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-    }
-
-    # Resolve Candidate separately so a revoked or inactive assignment
-    # cannot be overridden by a token claim.
-    roles = set(token_roles) - {"Candidate"}
-
-    for role, group_id in authorization_groups.items():
-        if role != "Candidate" and group_id in group_ids:
-            roles.add(role)
-
-    trusted_candidate_claim = (
-        "Candidate" in token_roles
-        or authorization_groups["Candidate"] in group_ids
-    )
     try:
         candidate_status = (
             _application_role_assignment_repository.assignment_status(
@@ -166,20 +162,15 @@ main
             )
         )
     except Exception:
-        # Fail closed for Candidate; other role checks can still work.
+        # Fail closed if the application-role store is unavailable.
         candidate_status = "unavailable"
 
-    if candidate_status == "active" or (
-        candidate_status is None and trusted_candidate_claim
-    ):
+    if candidate_status == "active":
         roles.add("Candidate")
 
     if not roles:
         roles.add("Employee")
 
-    memberships = _organization_repository.get_active_memberships(
-        principal_id
-    )
     authorization_context = build_authorization_context(
         user_id=principal_id,
         roles=roles,
@@ -191,10 +182,7 @@ main
         "user": {
             "id": principal_id,
             "email": principal_name,
-            "name": next(
-                iter(claim_values("name")),
-                principal_name,
-            ),
+            "name": next(iter(claim_values("name")), principal_name),
         },
         "roles": sorted(authorization_context.roles),
         "organization_ids": sorted(
@@ -203,66 +191,32 @@ main
     }
 
 
-
 @app.get("/api/organizations")
 async def list_organizations(request: Request):
     principal = get_request_principal(request)
 
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id") or ""
-    claims = principal.get("claims", [])
-
-    def claim_values(claim_type):
-        return [
-            claim.get("val")
-            for claim in claims
-            if claim.get("typ") == claim_type
-        ]
-
-    group_ids = set(principal.get("groups") or []) | set(claim_values("groups"))
-    token_roles = set(principal.get("roles") or []) | set(claim_values("roles"))
-
-    authorization_groups = {
-pr20-conflict-resolution-20261117
-        "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
-
-main
-        "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-        "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-        "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-    }
-
-    roles = set(token_roles)
-
-    for role, group_id in authorization_groups.items():
-        if group_id in group_ids:
-            roles.add(role)
-
+    principal_id = principal["id"]
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
-
-    authorization_context = build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    context = build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
 
-    if is_global_administrator(authorization_context):
+    if context.is_global_administrator:
         organizations = _organization_repository.list_active_organizations()
-    elif (
-        "HR Manager" in authorization_context.roles
-        or "Employer Manager" in authorization_context.roles
-    ) and authorization_context.organization_ids:
+    elif context.organization_ids:
         organizations = [
             organization
             for organization in _organization_repository.list_active_organizations()
-            if organization.id in authorization_context.organization_ids
+            if organization.id in context.organization_ids
         ]
     else:
         raise HTTPException(
@@ -270,58 +224,48 @@ main
             detail="Organization access is required",
         )
 
-
     return {
-    "organizations": [
-        {
-            "id": organization.id,
-            "name": organization.name,
-            "status": organization.status,
-            "member_count": len(
-                _organization_repository.list_members(
-                    organization.id
-                )
-            ),
-        }
-        for organization in organizations
-    ]
-}
+        "organizations": [
+            {
+                "id": organization.id,
+                "name": organization.name,
+                "status": organization.status,
+                "member_count": len(
+                    _organization_repository.list_members(organization.id)
+                ),
+            }
+            for organization in organizations
+        ]
+    }
+
 
 @app.get("/api/organizations/{organization_id}")
 async def get_organization(organization_id: str, request: Request):
     principal = get_request_principal(request)
 
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id") or ""
     memberships = _organization_repository.get_active_memberships(
-        principal_id
+        principal["id"]
+    )
+    context = build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
 
-    authorized = any(
-        membership.organization_id == organization_id
-        and membership.status == "active"
-        for membership in memberships
-    )
-
-    if not authorized:
+    if not has_organization_access(context, organization_id):
         raise HTTPException(
             status_code=403,
             detail="User is not authorized for this organization",
         )
 
     organizations = _organization_repository.list_active_organizations()
-
     organization = next(
-        (
-            item
-            for item in organizations
-            if item.id == organization_id
-        ),
+        (item for item in organizations if item.id == organization_id),
         None,
     )
 

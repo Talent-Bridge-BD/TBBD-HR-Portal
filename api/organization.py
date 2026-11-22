@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    AUTHORIZATION_GROUPS,
     build_authorization_context_from_principal,
     is_global_administrator,
 )
@@ -13,20 +12,9 @@ from services.local_auth import get_request_principal
 
 
 router = APIRouter(prefix="/api/organizations", tags=["organizations"])
-
 _organization_repository = SqlOrganizationRepository()
 
 
-pr20-conflict-resolution-20261117
-AUTHORIZATION_GROUPS = {
-    "Administrator": "2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66",
-    "HR Manager": "9a977cf0-7c9f-4024-9415-357a8a4292bc",
-    "Employer Manager": "7088ce1f-8e01-4c7c-88fd-a257721a35df",
-    "Candidate": "0869b2d7-2fa1-4c4a-acfd-f5370cf955a6",
-}
-
-
- main
 class CreateMembershipRequest(BaseModel):
     user_id: str
     role: str
@@ -39,26 +27,15 @@ class UpdateMembershipRequest(BaseModel):
 def _get_administrator(request: Request) -> dict:
     principal = get_request_principal(request)
 
-    if not principal:
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
- pr20-conflict-resolution-20261117
-    roles = set(principal.get("roles") or [])
-    group_ids = set(principal.get("groups") or [])
-
-    for role, group_id in AUTHORIZATION_GROUPS.items():
-        if group_id in group_ids:
-            roles.add(role)
- main
-    principal_id = principal.get("id") or ""
-
     memberships = _organization_repository.get_active_memberships(
-        principal_id
+        principal["id"]
     )
-
     context = build_authorization_context_from_principal(
         principal,
         memberships,
@@ -81,13 +58,8 @@ async def list_organization_members(
     _get_administrator(request)
 
     organizations = _organization_repository.list_active_organizations()
-
     organization = next(
-        (
-            organization
-            for organization in organizations
-            if organization.id == organization_id
-        ),
+        (item for item in organizations if item.id == organization_id),
         None,
     )
 
@@ -127,13 +99,8 @@ async def add_organization_member(
     _get_administrator(request)
 
     organizations = _organization_repository.list_active_organizations()
-
     organization = next(
-        (
-            organization
-            for organization in organizations
-            if organization.id == organization_id
-        ),
+        (item for item in organizations if item.id == organization_id),
         None,
     )
 
@@ -147,11 +114,7 @@ async def add_organization_member(
     role = payload.role.strip()
 
     if not user_id:
-        raise HTTPException(
-            status_code=400,
-            detail="User ID is required",
-        )
-
+        raise HTTPException(status_code=400, detail="User ID is required")
     if not role:
         raise HTTPException(
             status_code=400,
@@ -164,7 +127,6 @@ async def add_organization_member(
         "Employer Manager",
         "Candidate",
     }
-
     if role not in allowed_roles:
         raise HTTPException(
             status_code=400,
@@ -174,13 +136,8 @@ async def add_organization_member(
     existing_members = _organization_repository.list_members(
         organization_id
     )
-
     existing = next(
-        (
-            member
-            for member in existing_members
-            if member.user_id == user_id
-        ),
+        (member for member in existing_members if member.user_id == user_id),
         None,
     )
 
@@ -236,7 +193,6 @@ async def update_organization_member(
     _get_administrator(request)
 
     status = payload.status.strip().lower()
-
     if status not in {"active", "inactive", "revoked"}:
         raise HTTPException(
             status_code=400,
@@ -244,13 +200,8 @@ async def update_organization_member(
         )
 
     organizations = _organization_repository.list_active_organizations()
-
     organization = next(
-        (
-            organization
-            for organization in organizations
-            if organization.id == organization_id
-        ),
+        (item for item in organizations if item.id == organization_id),
         None,
     )
 
@@ -267,10 +218,7 @@ async def update_organization_member(
             status=status,
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=404,
-            detail=str(exc),
-        ) from exc
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     return {
         "membership": {
