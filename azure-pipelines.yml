@@ -1,3 +1,7 @@
+ TBBD-Admin-patch-1
+
+
+ main
 # TBBD HR Portal
 # Talent Bridge BD - Azure DevOps CI Pipeline
 # Native macOS ARM64 self-hosted agent
@@ -21,6 +25,31 @@ variables:
 steps:
   # Checkout source
   - checkout: self
+TBBD-Admin-patch-1
+    clean: true
+    fetchDepth: 1
+    displayName: 'Checkout TBBD HR Portal repository'
+
+  # Display build information
+  - task: Bash@3
+    displayName: 'Display build information'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        echo "=========================================="
+        echo "TBBD HR Portal - Azure DevOps CI"
+        echo "=========================================="
+        echo "Repository: $(Build.Repository.Name)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Agent: $(Agent.Name)"
+        echo "Agent OS: $(Agent.OS)"
+        echo "Agent Architecture: $(Agent.OSArchitecture)"
+
+
     displayName: 'Checkout TBBD HR Portal repository'
     fetchDepth: 1
 
@@ -44,6 +73,7 @@ steps:
         echo "Agent OS: $(Agent.OS)"
         echo "Agent Architecture: $(Agent.OSArchitecture)"
 
+ main
   # Verify native macOS ARM64 agent
   - task: Bash@3
     displayName: 'Verify Mac agent environment'
@@ -55,15 +85,27 @@ steps:
         echo "Agent: ${AGENT_NAME:-unknown}"
         echo "Machine: ${AGENT_MACHINENAME:-unknown}"
 
+ TBBD-Admin-patch-1
+        uname -a
+
+        echo "Architecture: $(uname -m)"
+        echo "Bash: ${BASH_VERSION:-unknown}"
+
         echo
         echo "Operating system:"
         uname -a
+ main
 
         echo
         echo "Machine architecture:"
         uname -m
 
         if [ "$(uname -m)" != "arm64" ]; then
+ TBBD-Admin-patch-1
+          echo "ERROR: A native ARM64 agent is required."
+          exit 1
+        fi
+
           echo "ERROR: Native ARM64 macOS agent is required."
           exit 1
         fi
@@ -71,6 +113,7 @@ steps:
         echo
         echo "Disk availability:"
         df -h .
+main
 
   # Create isolated Python 3.11 ARM64 environment
   - task: Bash@3
@@ -89,6 +132,19 @@ steps:
           exit 1
         fi
 
+ TBBD-Admin-patch-1
+        "$PYTHON_BIN" -c "
+        import sys
+        import platform
+
+        print('Executable:', sys.executable)
+        print('Version:', sys.version)
+        print('Architecture:', platform.machine())
+
+        assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'
+        assert platform.machine() == 'arm64', 'ARM64 Python is required'
+        "
+
         "$PYTHON_BIN" - <<'PY'
         import platform
         import sys
@@ -100,6 +156,7 @@ steps:
         assert sys.version_info[:2] == (3, 11), "Python 3.11 is required"
         assert platform.machine() == "arm64", "Native ARM64 Python is required"
         PY
+ main
 
         VENV_DIR="$(Agent.TempDirectory)/tbbd-ci-venv-$(Build.BuildId)"
 
@@ -114,7 +171,11 @@ steps:
 
         echo "Native Python environment created successfully."
 
+ TBBD-Admin-patch-1
+  # Install backend and development dependencies
+
   # Install backend and test dependencies
+main
   - task: Bash@3
     displayName: 'Install backend and test dependencies'
     inputs:
@@ -130,6 +191,12 @@ steps:
         fi
 
         "$(TBBD_PYTHON)" -m pip install --upgrade pip
+ TBBD-Admin-patch-1
+
+        "$(TBBD_PYTHON)" -m pip install --upgrade pip
+
+
+ main
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
         if [ -f requirements-dev.txt ]; then
@@ -152,7 +219,11 @@ steps:
       version: '$(nodeVersion)'
       checkLatest: false
 
+ TBBD-Admin-patch-1
+  # Verify Node.js environment
+
   # Verify Node.js version
+ main
   - task: Bash@3
     displayName: 'Verify Node.js environment'
     inputs:
@@ -167,7 +238,11 @@ steps:
         const major = Number(process.versions.node.split('.')[0]);
 
         if (major !== 20) {
+ TBBD-Admin-patch-1
+          console.error('Node.js 20 is required.');
+
           console.error('ERROR: Node.js 20 is required.');
+ main
           process.exit(1);
         }
         "
@@ -198,7 +273,11 @@ steps:
 
         echo "Frontend dependencies installed successfully."
 
+ TBBD-Admin-patch-1
+  # Build React/Vite frontend
+
   # Build React frontend
+ main
   - task: Bash@3
     displayName: 'Build frontend'
     inputs:
@@ -215,9 +294,25 @@ steps:
           exit 1
         fi
 
+ TBBD-Admin-patch-1
+        if [ ! -f dist/redirect.html ]; then
+          echo "ERROR: frontend build did not produce dist/redirect.html."
+          exit 1
+        fi
+
+        if [ ! -d dist/assets ]; then
+          echo "ERROR: frontend build did not produce dist/assets."
+          exit 1
+        fi
+
+        echo "Frontend production build completed successfully."
+
+  # Prepare frontend assets expected by the backend
+
         echo "Frontend production build completed successfully."
 
   # Prepare frontend assets for backend validation
+ main
   - task: Bash@3
     displayName: 'Prepare frontend assets'
     inputs:
@@ -250,11 +345,17 @@ steps:
         test -f dist/redirect.html
         test -d dist/assets
 
-        echo "Frontend assets prepared successfully."
+        echo "Frontend assets prepared and verified."
+
+TBBD-Admin-patch-1
+  # Compile maintained Python backend
+  - task: Bash@3
+    displayName: 'Compile Python backend'
 
   # Compile Python source
   - task: Bash@3
     displayName: 'Validate Python source'
+ main
     inputs:
       targetType: 'inline'
       script: |
@@ -274,7 +375,11 @@ steps:
 
         echo "Python source compilation completed successfully."
 
+ TBBD-Admin-patch-1
+  # Run backend tests
+
   # Run backend test suite
+ main
   - task: Bash@3
     displayName: 'Run backend tests'
     inputs:
@@ -310,6 +415,15 @@ steps:
         set -eu
 
         echo "=========================================="
+ TBBD-Admin-patch-1
+        echo "TBBD HR Portal CI completed successfully."
+        echo "=========================================="
+        echo "Agent: ${AGENT_NAME:-unknown}"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Native Python 3.11 ARM64: verified"
+
         echo "TBBD HR PORTAL CI PASSED"
         echo "=========================================="
 
@@ -321,12 +435,19 @@ steps:
 
         echo "Native macOS ARM64: verified"
         echo "Python 3.11 ARM64: verified"
+ main
         echo "Node.js 20: verified"
         echo "Backend dependencies: installed"
         echo "Frontend production build: completed"
         echo "Frontend assets: verified"
+ TBBD-Admin-patch-1
+        echo "Python compilation: completed"
+        echo "Backend tests: passed"
+        echo "No Azure deployment was performed."
+
         echo "Python compilation: passed"
         echo "Backend tests: passed"
 
         echo "Deployment: not performed"
         echo "Production resources: not modified"
+ main
