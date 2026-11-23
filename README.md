@@ -2,16 +2,16 @@ TBBD HR Portal
 
 «The Talent Bridge BD Human Resources platform — a modern web application for recruitment, candidate and employer access, and internal HR operations, built with React, FastAPI, and Microsoft Azure services.»
 
-"Frontend" (https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=white)
-"Backend" (https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)
-"Python" (https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
-"Node" (https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
-"Identity" (https://img.shields.io/badge/Identity-Microsoft%20Entra%20ID-5C2D91?logo=microsoftentra&logoColor=white)
-"Cloud" (https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4?logo=microsoftazure&logoColor=white)
-"CI" (https://img.shields.io/badge/CI-Azure%20DevOps%20%7C%20GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
-"License" (https://img.shields.io/badge/License-MIT-green)
-
----
+<p align="center">
+  <img src="https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=white" alt="React 19">
+  <img src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11">
+  <img src="https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white" alt="Node.js 20">
+  <img src="https://img.shields.io/badge/Identity-Microsoft%20Entra%20ID-5C2D91?logo=microsoftentra&logoColor=white" alt="Microsoft Entra ID">
+  <img src="https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4?logo=microsoftazure&logoColor=white" alt="Microsoft Azure">
+  <img src="https://img.shields.io/badge/CI-Azure%20DevOps%20%7C%20GitHub%20Actions-2088FF?logo=githubactions&logoColor=white" alt="Continuous Integration">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
+</p>---
 
 Welcome
 
@@ -34,6 +34,10 @@ Table of Contents
 - "Vision" (#vision)
 - "Objectives" (#objectives)
 - "Key Capabilities" (#key-capabilities)
+  - "Candidate Portal" (#candidate-portal)
+  - "Employer Portal" (#employer-portal)
+  - "Internal HR Operations" (#internal-hr-operations)
+  - "Recruitment and Processing" (#recruitment-and-processing)
 - "Technology Stack" (#technology-stack)
 - "Application Architecture" (#application-architecture)
 - "AI-Assisted Policy Capabilities" (#ai-assisted-policy-capabilities)
@@ -124,7 +128,7 @@ The TBBD HR Portal aims to:
 
 Key Capabilities
 
-1. Candidate Portal
+Candidate Portal
 
 Designed to support candidate-facing operations, including:
 
@@ -139,7 +143,7 @@ Designed to support candidate-facing operations, including:
 
 Candidate access and recruitment functionality are subject to applicable profile completion, approval, and authorization requirements.
 
-2. Employer Portal
+Employer Portal
 
 Designed to support employer-facing operations, including:
 
@@ -154,7 +158,7 @@ Designed to support employer-facing operations, including:
 
 Employer-facing functionality is under active development and validation. Individual modules and dashboard operations may have different implementation and operational statuses.
 
-3. Internal HR Operations
+Internal HR Operations
 
 Supports internal HR personnel and administrators through authenticated access to the TBBD HR Portal.
 
@@ -172,7 +176,7 @@ Internal capabilities include:
 
 These capabilities are provided within the TBBD HR Portal and do not represent a separate Employee Portal application.
 
-4. Recruitment and Processing
+Recruitment and Processing
 
 The backend contains API modules supporting recruitment and workforce processing areas such as:
 
@@ -713,17 +717,20 @@ Copyright and licensing information are provided in the ""LICENSE"" (LICENSE) fi
 
 ---
 
-Talent Bridge BD (TBBD)
+<p align="center">
+  <strong>Talent Bridge BD (TBBD)</strong>
+  <br>
+  Connecting Bangladeshi Talent with Global Employment Opportunities.
+  <br><br>
+  <strong>Secure • Intelligent • Connected • Modern</strong>
+  <br><br>
+  Microsoft Azure • Microsoft Entra ID • React • FastAPI • Azure SQL
+</p>---
 
-Connecting Bangladeshi Talent with Global Employment Opportunities.
-
-Secure • Intelligent • Connected • Modern
-
-Microsoft Azure • Microsoft Entra ID • React • FastAPI • Azure SQL
-
----
-
-Repository: "TBBD-HR-Portal"
-Project: Talent Bridge BD HR Portal
-Status: Active Development
-Maintained by: Talent Bridge BD Technology Team
+<p align="center">
+  <strong>Repository:</strong> TBBD-HR-Portal
+  <br>
+  <strong>Project Status:</strong> Active Development
+  <br>
+  <strong>Maintained by:</strong> Talent Bridge BD Technology Team
+</p>
