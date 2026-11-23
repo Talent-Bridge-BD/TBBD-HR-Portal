@@ -130,7 +130,6 @@ steps:
         fi
 
         "$(TBBD_PYTHON)" -m pip install --upgrade pip
-
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
         if [ -f requirements-dev.txt ]; then
