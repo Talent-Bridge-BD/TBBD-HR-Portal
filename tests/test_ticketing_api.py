@@ -12,8 +12,6 @@ from models.ticketing import Ticketing
 
 
 ORGANIZATION_ID = "005F50D3-26AB-F111-9B32-000D3AC9134A"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
-
 
 def make_principal(
     principal_id,
@@ -47,7 +45,7 @@ def auth_headers():
         "X-MS-CLIENT-PRINCIPAL": make_principal(
             "user-001",
             "Test Administrator",
-            groups=[ADMINISTRATOR_GROUP_ID],
+            roles=["Administrator"],
         ),
     }
 
