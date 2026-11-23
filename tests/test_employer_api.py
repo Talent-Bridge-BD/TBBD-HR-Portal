@@ -344,3 +344,35 @@ def test_employer_external_identity_rejects_revoked_mapping(monkeypatch):
         },
     )
     assert response.status_code == 403
+
+
+def test_get_principal_normalizes_employer_manager_role_alias(monkeypatch):
+    from starlette.requests import Request
+
+    principal = {
+        "id": "employer-user-001",
+        "name": "Test Employer",
+        "roles": ["Employer.Manager"],
+        "groups": [],
+        "claims": [],
+    }
+
+    monkeypatch.setattr(
+        employer_api,
+        "get_request_principal",
+        lambda request: principal,
+    )
+
+    request = Request({
+        "type": "http",
+        "headers": [],
+    })
+
+    principal_id, employer_name, roles, returned_principal = (
+        employer_api._get_principal(request)
+    )
+
+    assert principal_id == "employer-user-001"
+    assert employer_name == "Test Employer"
+    assert roles == {"Employer Manager"}
+    assert returned_principal is principal

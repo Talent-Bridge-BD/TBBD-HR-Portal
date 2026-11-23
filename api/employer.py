@@ -50,19 +50,34 @@ def _get_principal(request: Request) -> tuple[str, str, set[str], dict]:
             detail="Authenticated user identity is required",
         )
 
+    # Use the normalized claims provided by local_auth.
     claims = principal.get("claims", [])
 
-    def claim_values(claim_type):
+    def raw_claim_values(claim_type):
         return {
             str(claim.get("val"))
             for claim in claims
-            if claim.get("typ") == claim_type and claim.get("val")
+            if isinstance(claim, dict)
+            and claim.get("typ") == claim_type
+            and claim.get("val")
         }
 
-    group_ids = claim_values("groups")
-    token_roles = claim_values("roles")
+    group_ids = set(principal.get("groups") or [])
+    token_roles = set(principal.get("roles") or [])
 
-    roles = set(token_roles)
+    if not group_ids:
+        group_ids = raw_claim_values("groups")
+    if not token_roles:
+        token_roles = raw_claim_values("roles")
+
+    role_aliases = {
+        "Employer.Manager": "Employer Manager",
+    }
+
+    roles = {
+        role_aliases.get(role, role)
+        for role in token_roles
+    }
 
     for role, group_id in AUTHORIZATION_GROUPS.items():
         if group_id in group_ids:
@@ -71,10 +86,13 @@ def _get_principal(request: Request) -> tuple[str, str, set[str], dict]:
     if not roles:
         roles.add("Employee")
 
-    employer_name = principal.get("name") or principal.get("email") or "Employer"
+    employer_name = (
+        principal.get("name")
+        or principal.get("email")
+        or "Employer"
+    )
 
     return principal_id, employer_name, roles, principal
-
 
 @router.get("/dashboard")
 async def get_employer_dashboard(request: Request):
