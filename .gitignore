@@ -135,9 +135,12 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Python
+# Python cache and test artifacts
 __pycache__/
 *.py[cod]
+*$py.class
+.pytest_cache/
+.env
 *.pyo
 *.pyd
 .venv/
