@@ -9,12 +9,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+ dependabot/npm_and_yarn/frontend/react-19.3.0
     "@azure/msal-browser": "^5.22.0",
-    "react": "^19.1.1",
+    "react": "^19.3.0",
     "react-dom": "^19.1.1"
+
+    "@azure/msal-browser": "^5.23.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.3.0"
+main
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",
+ dependabot/npm_and_yarn/frontend/vite-8.3.1
     "vite": "^8.3.1"
+
+    "vite": "^7.3.7"
+main
   }
 }
