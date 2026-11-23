@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import os
 import struct
 
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential, DefaultAzureCredential
 
 from models.candidate_experience import CandidateExperience
 
@@ -146,7 +146,10 @@ class SqlCandidateExperienceRepository(CandidateExperienceRepository):
             "SQL_DATABASE",
             "tbbd-hr-db",
         )
-        self.credential = DefaultAzureCredential()
+        if os.environ.get("WEBSITE_SITE_NAME"):
+            self.credential = DefaultAzureCredential()
+        else:
+            self.credential = AzureCliCredential()
 
     def _connection(self):
         import pyodbc

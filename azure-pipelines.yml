@@ -1,79 +1,453 @@
+ TBBD-Admin-patch-1
+
+
+ main
 # TBBD HR Portal
-# Azure DevOps CI Pipeline
+# Talent Bridge BD - Azure DevOps CI Pipeline
+# Native macOS ARM64 self-hosted agent
+# CI validation only - no deployment
 
 trigger:
-- main
+  - main
 
 pr:
-- main
+  - main
 
 pool:
   name: 'TBBD-Agent-Pool'
+  demands:
+    - Agent.Name -equals TBBD-Mac-Agent-01-ARM-native
 
 variables:
-  pythonVersion: '3.14'
+  pythonExecutable: '/opt/homebrew/bin/python3.11'
   nodeVersion: '20.x'
 
 steps:
-- checkout: self
-  displayName: 'Checkout TBBD HR Portal repository'
+  # Checkout source
+  - checkout: self
+TBBD-Admin-patch-1
+    clean: true
+    fetchDepth: 1
+    displayName: 'Checkout TBBD HR Portal repository'
 
-- script: |
-    echo "TBBD HR Portal - Azure DevOps CI"
-    echo "Repository: $(Build.Repository.Name)"
-    echo "Branch: $(Build.SourceBranch)"
-    echo "Commit: $(Build.SourceVersion)"
-    echo "Build ID: $(Build.BuildId)"
-  displayName: 'Display build information'
+  # Display build information
+  - task: Bash@3
+    displayName: 'Display build information'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-- task: UsePythonVersion@0
-  displayName: 'Set Python version'
-  inputs:
-    versionSpec: '$(pythonVersion)'
+        echo "=========================================="
+        echo "TBBD HR Portal - Azure DevOps CI"
+        echo "=========================================="
+        echo "Repository: $(Build.Repository.Name)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Agent: $(Agent.Name)"
+        echo "Agent OS: $(Agent.OS)"
+        echo "Agent Architecture: $(Agent.OSArchitecture)"
 
-- script: |
-    python --version
-    python -m pip --version
-  displayName: 'Verify Python environment'
 
-- script: |
-    if [ -f requirements.txt ]; then
-      python -m pip install --upgrade pip
-      python -m pip install -r requirements.txt
-    else
-      echo "requirements.txt not found."
-      echo "Skipping Python dependency installation."
-    fi
-  displayName: 'Install backend dependencies'
+    displayName: 'Checkout TBBD HR Portal repository'
+    fetchDepth: 1
 
-- script: |
-    python -m compileall -q .
-  displayName: 'Validate Python source'
+  # Display build and source information
+  - task: Bash@3
+    displayName: 'Display build information'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-- task: NodeTool@0
-  displayName: 'Set Node.js version'
-  inputs:
-    versionSpec: '$(nodeVersion)'
+        echo "=========================================="
+        echo "TBBD HR Portal - Azure DevOps CI"
+        echo "=========================================="
+        echo "Repository: $(Build.Repository.Name)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Reason: $(Build.Reason)"
+        echo "Agent: $(Agent.Name)"
+        echo "Agent OS: $(Agent.OS)"
+        echo "Agent Architecture: $(Agent.OSArchitecture)"
 
-- script: |
-    node --version
-    npm --version
-  displayName: 'Verify Node.js environment'
+ main
+  # Verify native macOS ARM64 agent
+  - task: Bash@3
+    displayName: 'Verify Mac agent environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
 
-- script: |
-    cd frontend
-    if [ -f package-lock.json ]; then
-      npm ci
-    else
-      npm install
-    fi
-  displayName: 'Install frontend dependencies'
+        echo "Agent: ${AGENT_NAME:-unknown}"
+        echo "Machine: ${AGENT_MACHINENAME:-unknown}"
 
-- script: |
-    cd frontend
-    npm run build
-  displayName: 'Build React frontend'
+ TBBD-Admin-patch-1
+        uname -a
 
-- script: |
-    echo "TBBD HR Portal CI validation completed."
-  displayName: 'CI build summary'
+        echo "Architecture: $(uname -m)"
+        echo "Bash: ${BASH_VERSION:-unknown}"
+
+        echo
+        echo "Operating system:"
+        uname -a
+ main
+
+        echo
+        echo "Machine architecture:"
+        uname -m
+
+        if [ "$(uname -m)" != "arm64" ]; then
+ TBBD-Admin-patch-1
+          echo "ERROR: A native ARM64 agent is required."
+          exit 1
+        fi
+
+          echo "ERROR: Native ARM64 macOS agent is required."
+          exit 1
+        fi
+
+        echo
+        echo "Disk availability:"
+        df -h .
+main
+
+  # Create isolated Python 3.11 ARM64 environment
+  - task: Bash@3
+    displayName: 'Create native Python 3.11 ARM64 environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        export PATH="/opt/homebrew/bin:$PATH"
+
+        PYTHON_BIN="$(pythonExecutable)"
+
+        if [ ! -x "$PYTHON_BIN" ]; then
+          echo "ERROR: Python executable not found: $PYTHON_BIN"
+          exit 1
+        fi
+
+ TBBD-Admin-patch-1
+        "$PYTHON_BIN" -c "
+        import sys
+        import platform
+
+        print('Executable:', sys.executable)
+        print('Version:', sys.version)
+        print('Architecture:', platform.machine())
+
+        assert sys.version_info[:2] == (3, 11), 'Python 3.11 is required'
+        assert platform.machine() == 'arm64', 'ARM64 Python is required'
+        "
+
+        "$PYTHON_BIN" - <<'PY'
+        import platform
+        import sys
+
+        print("Python executable:", sys.executable)
+        print("Python version:", sys.version)
+        print("Architecture:", platform.machine())
+
+        assert sys.version_info[:2] == (3, 11), "Python 3.11 is required"
+        assert platform.machine() == "arm64", "Native ARM64 Python is required"
+        PY
+ main
+
+        VENV_DIR="$(Agent.TempDirectory)/tbbd-ci-venv-$(Build.BuildId)"
+
+        "$PYTHON_BIN" -m venv "$VENV_DIR"
+
+        CI_PYTHON="$VENV_DIR/bin/python"
+
+        "$CI_PYTHON" --version
+        "$CI_PYTHON" -m pip --version
+
+        echo "##vso[task.setvariable variable=TBBD_PYTHON]$CI_PYTHON"
+
+        echo "Native Python environment created successfully."
+
+ TBBD-Admin-patch-1
+  # Install backend and development dependencies
+
+  # Install backend and test dependencies
+main
+  - task: Bash@3
+    displayName: 'Install backend and test dependencies'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)"
+
+        if [ ! -f requirements.txt ]; then
+          echo "ERROR: requirements.txt is missing."
+          exit 1
+        fi
+
+        "$(TBBD_PYTHON)" -m pip install --upgrade pip
+ TBBD-Admin-patch-1
+
+        "$(TBBD_PYTHON)" -m pip install --upgrade pip
+
+
+ main
+        "$(TBBD_PYTHON)" -m pip install -r requirements.txt
+
+        if [ -f requirements-dev.txt ]; then
+          echo "Installing development and test dependencies..."
+          "$(TBBD_PYTHON)" -m pip install -r requirements-dev.txt
+        else
+          echo "requirements-dev.txt not found; installing pytest."
+          "$(TBBD_PYTHON)" -m pip install pytest
+        fi
+
+        "$(TBBD_PYTHON)" -m pip check
+        "$(TBBD_PYTHON)" -m pytest --version
+
+        echo "Backend and test dependencies installed successfully."
+
+  # Configure Node.js 20
+  - task: UseNode@1
+    displayName: 'Use Node.js 20'
+    inputs:
+      version: '$(nodeVersion)'
+      checkLatest: false
+
+ TBBD-Admin-patch-1
+  # Verify Node.js environment
+
+  # Verify Node.js version
+ main
+  - task: Bash@3
+    displayName: 'Verify Node.js environment'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        node --version
+        npm --version
+
+        node -e "
+        const major = Number(process.versions.node.split('.')[0]);
+
+        if (major !== 20) {
+ TBBD-Admin-patch-1
+          console.error('Node.js 20 is required.');
+
+          console.error('ERROR: Node.js 20 is required.');
+ main
+          process.exit(1);
+        }
+        "
+
+        echo "Node.js 20 verified successfully."
+
+  # Install frontend dependencies
+  - task: Bash@3
+    displayName: 'Install frontend dependencies'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)/frontend"
+
+        if [ ! -f package.json ]; then
+          echo "ERROR: frontend/package.json is missing."
+          exit 1
+        fi
+
+        if [ ! -f package-lock.json ]; then
+          echo "ERROR: frontend/package-lock.json is missing."
+          exit 1
+        fi
+
+        npm ci
+
+        echo "Frontend dependencies installed successfully."
+
+ TBBD-Admin-patch-1
+  # Build React/Vite frontend
+
+  # Build React frontend
+ main
+  - task: Bash@3
+    displayName: 'Build frontend'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)/frontend"
+
+        npm run build
+
+        if [ ! -f dist/index.html ]; then
+          echo "ERROR: Frontend build did not produce dist/index.html."
+          exit 1
+        fi
+
+ TBBD-Admin-patch-1
+        if [ ! -f dist/redirect.html ]; then
+          echo "ERROR: frontend build did not produce dist/redirect.html."
+          exit 1
+        fi
+
+        if [ ! -d dist/assets ]; then
+          echo "ERROR: frontend build did not produce dist/assets."
+          exit 1
+        fi
+
+        echo "Frontend production build completed successfully."
+
+  # Prepare frontend assets expected by the backend
+
+        echo "Frontend production build completed successfully."
+
+  # Prepare frontend assets for backend validation
+ main
+  - task: Bash@3
+    displayName: 'Prepare frontend assets'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)"
+
+        for required_file in \
+          frontend/dist/index.html \
+          frontend/dist/redirect.html
+        do
+          if [ ! -f "$required_file" ]; then
+            echo "ERROR: Required frontend file missing: $required_file"
+            exit 1
+          fi
+        done
+
+        if [ ! -d frontend/dist/assets ]; then
+          echo "ERROR: frontend/dist/assets directory is missing."
+          exit 1
+        fi
+
+        mkdir -p dist
+
+        cp -R frontend/dist/. dist/
+
+        test -f dist/index.html
+        test -f dist/redirect.html
+        test -d dist/assets
+
+        echo "Frontend assets prepared and verified."
+
+TBBD-Admin-patch-1
+  # Compile maintained Python backend
+  - task: Bash@3
+    displayName: 'Compile Python backend'
+
+  # Compile Python source
+  - task: Bash@3
+    displayName: 'Validate Python source'
+ main
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)"
+
+        echo "Compiling Python backend and test source..."
+
+        "$(TBBD_PYTHON)" -m compileall -q \
+          main.py \
+          api \
+          services \
+          models \
+          repositories \
+          tests
+
+        echo "Python source compilation completed successfully."
+
+ TBBD-Admin-patch-1
+  # Run backend tests
+
+  # Run backend test suite
+ main
+  - task: Bash@3
+    displayName: 'Run backend tests'
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        cd "$(Build.SourcesDirectory)"
+
+        TEST_EXCLUSION=""
+
+        if [ -f test_email_send.py ]; then
+          TEST_EXCLUSION="test_email_send.py"
+        elif [ -f tests/test_email_send.py ]; then
+          TEST_EXCLUSION="tests/test_email_send.py"
+        fi
+
+        if [ -n "$TEST_EXCLUSION" ]; then
+          echo "Excluding: $TEST_EXCLUSION"
+          "$(TBBD_PYTHON)" -m pytest -q --ignore="$TEST_EXCLUSION"
+        else
+          echo "No test_email_send.py exclusion file found."
+          "$(TBBD_PYTHON)" -m pytest -q
+        fi
+
+  # Final CI summary
+  - task: Bash@3
+    displayName: 'Final CI summary'
+    condition: succeeded()
+    inputs:
+      targetType: 'inline'
+      script: |
+        set -eu
+
+        echo "=========================================="
+ TBBD-Admin-patch-1
+        echo "TBBD HR Portal CI completed successfully."
+        echo "=========================================="
+        echo "Agent: ${AGENT_NAME:-unknown}"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Native Python 3.11 ARM64: verified"
+
+        echo "TBBD HR PORTAL CI PASSED"
+        echo "=========================================="
+
+        echo "Repository: $(Build.Repository.Name)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Build ID: $(Build.BuildId)"
+        echo "Agent: $(Agent.Name)"
+
+        echo "Native macOS ARM64: verified"
+        echo "Python 3.11 ARM64: verified"
+ main
+        echo "Node.js 20: verified"
+        echo "Backend dependencies: installed"
+        echo "Frontend production build: completed"
+        echo "Frontend assets: verified"
+ TBBD-Admin-patch-1
+        echo "Python compilation: completed"
+        echo "Backend tests: passed"
+        echo "No Azure deployment was performed."
+
+        echo "Python compilation: passed"
+        echo "Backend tests: passed"
+
+        echo "Deployment: not performed"
+        echo "Production resources: not modified"
+ main

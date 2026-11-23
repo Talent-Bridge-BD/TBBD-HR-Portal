@@ -12,7 +12,9 @@ function isAdministrator(auth) {
 function isOrganizationScopedRole(auth) {
   return (
     auth?.roles?.includes('HR Manager') ||
-    auth?.roles?.includes('Employer Manager')
+    auth?.roles?.some((role) =>
+      ['Employer Manager', 'Employer.Manager'].includes(role),
+    )
   )
 }
 

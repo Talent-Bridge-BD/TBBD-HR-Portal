@@ -151,3 +151,144 @@ def test_employee_cannot_access_employer_dashboard(monkeypatch):
     )
 
     assert response.status_code == 403
+
+def _configure_administrator_dashboard(monkeypatch):
+    dashboard = EmployerDashboard(
+        employer_name="Test Administrator",
+        organization_name=None,
+        stats=EmployerDashboardStats(3, 5, 12, 2),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
+    )
+
+    monkeypatch.setattr(
+        employer_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {"get_active_memberships": lambda self, user_id: []},
+        )(),
+    )
+    monkeypatch.setattr(
+        employer_api,
+        "_service",
+        EmployerDashboardService(
+            InMemoryEmployerDashboardRepository(dashboard)
+        ),
+    )
+
+
+def test_administrator_normalized_role_can_access_employer_dashboard(monkeypatch):
+    _configure_administrator_dashboard(monkeypatch)
+
+    monkeypatch.setattr(
+        employer_api,
+        "get_request_principal",
+        lambda request: {
+            "id": "admin-001",
+            "name": "Test Administrator",
+            "roles": ["Administrator"],
+            "groups": [],
+            "claims": [],
+        },
+    )
+
+    response = TestClient(app).get("/api/employer/dashboard")
+
+    assert response.status_code == 200
+    assert response.json()["stats"]["active_jobs"] == 3
+
+
+def test_administrator_normalized_group_can_access_employer_dashboard(monkeypatch):
+    _configure_administrator_dashboard(monkeypatch)
+
+    monkeypatch.setattr(
+        employer_api,
+        "get_request_principal",
+        lambda request: {
+            "id": "admin-002",
+            "name": "Test Administrator",
+            "roles": [],
+            "groups": ["2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"],
+            "claims": [],
+        },
+    )
+
+    response = TestClient(app).get("/api/employer/dashboard")
+
+    assert response.status_code == 200
+    assert response.json()["stats"]["active_jobs"] == 3
+
+
+def test_tenant_2_employer_manager_role_can_access_dashboard(monkeypatch):
+    dashboard = EmployerDashboard(
+        employer_name="Tenant 2 Employer",
+        organization_name="Tenant 2 Organization",
+        stats=EmployerDashboardStats(3, 5, 12, 2),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
+    )
+
+    repository = InMemoryEmployerDashboardRepository(dashboard)
+
+    monkeypatch.setattr(
+        employer_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {"get_active_memberships": lambda self, user_id: []},
+        )(),
+    )
+
+    monkeypatch.setattr(
+        employer_api,
+        "_service",
+        EmployerDashboardService(repository),
+    )
+
+    encoded_principal = make_principal(
+        "tenant2-manager-001",
+        "Tenant 2 Employer Manager",
+        roles=["Employer.Manager"],
+    )
+
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "tenant2-manager-001",
+            "X-MS-CLIENT-PRINCIPAL-NAME": "tenant2-manager",
+            "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["employer_name"] == "Tenant 2 Employer Manager"
+
+
+def test_get_principal_normalizes_employer_manager_role_alias(monkeypatch):
+    from starlette.requests import Request
+
+    principal = {
+        "id": "employer-user-001",
+        "name": "Test Employer",
+        "roles": ["Employer.Manager"],
+        "groups": [],
+        "claims": [],
+    }
+
+    monkeypatch.setattr(
+        employer_api,
+        "get_request_principal",
+        lambda request: principal,
+    )
+
+    request = Request({
+        "type": "http",
+        "headers": [],
+    })
+
+    principal_id, employer_name, roles = employer_api._get_principal(request)
+
+    assert principal_id == "employer-user-001"
+    assert employer_name == "Test Employer"
+    assert roles == {"Employer Manager"}
