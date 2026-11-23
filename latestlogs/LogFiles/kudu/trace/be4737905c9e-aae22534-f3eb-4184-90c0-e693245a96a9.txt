@@ -1,0 +1,3 @@
+2026-09-05T13:16:28  Startup Request, url: /api/sitecontainers/main/logs, method: GET, type: request, pid: 831,1,16, ScmType: None
+2026-09-05T13:16:29    Error occurred, type: error, text: Failed to get container logs for main
+2026-09-05T13:16:29    Outgoing response, type: response, statusCode: 500, statusText: InternalServerError
