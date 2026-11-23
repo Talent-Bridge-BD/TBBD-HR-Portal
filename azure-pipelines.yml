@@ -191,9 +191,12 @@ main
         fi
 
         "$(TBBD_PYTHON)" -m pip install --upgrade pip
+ TBBD-Admin-patch-1
 
         "$(TBBD_PYTHON)" -m pip install --upgrade pip
 
+
+ main
         "$(TBBD_PYTHON)" -m pip install -r requirements.txt
 
         if [ -f requirements-dev.txt ]; then
