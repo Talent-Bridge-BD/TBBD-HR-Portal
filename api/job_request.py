@@ -35,7 +35,7 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
+EMPLOYER_MANAGER_GROUP_ID = "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"
 HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
 ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 

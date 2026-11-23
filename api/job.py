@@ -1,6 +1,6 @@
 import base64
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
@@ -9,8 +9,8 @@ from models.job import Job
 from repositories.job import SqlJobRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import (
-    AUTHORIZATION_GROUPS,
-    build_authorization_context,
+    build_authorization_context_from_principal,
+    has_any_role,
     is_global_administrator,
 )
 from services.job import JobService
@@ -23,9 +23,6 @@ _job_repository = SqlJobRepository()
 _job_service = JobService(_job_repository)
 _organization_repository = SqlOrganizationRepository()
 
-EMPLOYER_MANAGER_GROUP_ID = "7088ce1f-8e01-4c7c-88fd-a257721a35df"
-HR_MANAGER_GROUP_ID = "9a977cf0-7c9f-4024-9415-357a8a4292bc"
-ADMINISTRATOR_GROUP_ID = "2a75a7c1-e9b8-4c7c-88fd-aeba636a8a66"
 
 
 class JobRequest(BaseModel):
@@ -57,58 +54,44 @@ class JobRequest(BaseModel):
     project_name: str = ""
 
 
-def _claim_values(claims: list[dict], claim_type: str) -> set[str]:
-    return {
-        str(claim.get("val"))
-        for claim in claims
-        if claim.get("typ") == claim_type and claim.get("val")
-    }
+class ApplicationDeadlineUpdate(BaseModel):
+    organization_id: str
+    closing_at: datetime
 
 
 def get_job_authorization_context(request: Request):
-
     principal = get_request_principal(request)
-    if not principal:
+
+    if not principal or not principal.get("id"):
         raise HTTPException(
             status_code=401,
             detail="Authenticated user identity is required",
         )
 
-    principal_id = principal.get("id")
-    if not principal_id:
-        raise HTTPException(
-            status_code=401,
-            detail="Authenticated user identity is required",
-        )
-    claims = principal.get("claims", [])
-    group_ids = _claim_values(claims, "groups")
-    token_roles = _claim_values(claims, "roles")
+    role_context = build_authorization_context_from_principal(
+        principal,
+        [],
+    )
 
-    roles = set(token_roles)
-
-    for role, group_id in AUTHORIZATION_GROUPS.items():
-        if group_id in group_ids:
-            roles.add(role)
     allowed_roles = {
         "Employer Manager",
         "HR Manager",
         "Administrator",
     }
 
-    if not roles.intersection(allowed_roles):
+    if not has_any_role(role_context, allowed_roles):
         raise HTTPException(
             status_code=403,
             detail="Recruitment management role is required",
         )
 
     memberships = _organization_repository.get_active_memberships(
-        principal_id
+        principal["id"],
     )
 
-    return build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    return build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
 
 
@@ -179,6 +162,84 @@ async def get_job(
 
     return {
         "job": job.__dict__
+    }
+
+
+@router.patch("/{job_id}/application-deadline")
+async def extend_application_deadline(
+    job_id: str,
+    payload: ApplicationDeadlineUpdate,
+    request: Request,
+):
+    _require_organization_access(
+        request,
+        payload.organization_id,
+    )
+
+    existing = _job_service.get_job(
+        payload.organization_id,
+        job_id,
+    )
+
+    if existing is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Job not found",
+        )
+
+    if existing.status != "open":
+        raise HTTPException(
+            status_code=400,
+            detail="Application date can only be extended for an open job",
+        )
+
+    if existing.closing_at is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Job does not have an existing application deadline",
+        )
+
+    new_closing_at = payload.closing_at
+
+    if new_closing_at.tzinfo is not None:
+        new_closing_at = new_closing_at.astimezone(timezone.utc).replace(
+            tzinfo=None
+        )
+
+    existing_closing_at = existing.closing_at
+
+    if existing_closing_at.tzinfo is not None:
+        existing_closing_at = existing_closing_at.astimezone(
+            timezone.utc
+        ).replace(tzinfo=None)
+
+    if new_closing_at <= existing_closing_at:
+        raise HTTPException(
+            status_code=400,
+            detail="New application date must be later than the current application date",
+        )
+
+    if new_closing_at <= datetime.now(timezone.utc).replace(tzinfo=None):
+        raise HTTPException(
+            status_code=400,
+            detail="New application date must be in the future",
+        )
+
+    updated = _job_service.extend_application_deadline(
+        payload.organization_id,
+        job_id,
+        new_closing_at,
+    )
+
+    if updated is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Application deadline could not be extended",
+        )
+
+    return {
+        "job": updated.__dict__,
+        "message": "Application date extended",
     }
 
 
