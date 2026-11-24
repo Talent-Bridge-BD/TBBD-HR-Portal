@@ -114,6 +114,15 @@ export default function Sidebar({ activePage, onNavigate, auth }) {
                 return ['Dashboard', 'My Profile'].includes(label)
               }
 
+              const isEmployerManagerOnly =
+                auth?.roles?.includes('Employer Manager') &&
+                !isHRManager &&
+                !isAdministrator
+
+              if (isEmployerManagerOnly) {
+                return label === 'My Profile'
+              }
+
               return ['Dashboard', 'My Profile'].includes(label)
             })
             .map(([label, icon]) =>
