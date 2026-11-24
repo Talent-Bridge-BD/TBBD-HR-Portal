@@ -1,7 +1,8 @@
-
 # TBBD HR Portal
 
-> The Talent Bridge BD Human Resources platform — a unified digital workplace for recruitment, candidate services, employer access, and internal HR operations.
+> The Talent Bridge BD Human Resources platform — a unified digital
+> workplace for recruitment, candidate services, employer access, and
+> internal HR operations.
 
 ![React](https://img.shields.io/badge/Frontend-React%2019-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)
@@ -43,15 +44,21 @@
 
 ## Overview
 
-The **TBBD HR Portal** is the centralized human resources and workforce management platform developed for **Talent Bridge BD (TBBD)**.
+The **TBBD HR Portal** is the centralized human resources and workforce
+management platform developed for **Talent Bridge BD (TBBD)**.
 
-The platform is designed to connect Bangladeshi talent with global employment opportunities while supporting employers and internal HR teams through a unified digital environment.
+The platform is designed to connect Bangladeshi talent with global
+employment opportunities while supporting employers and internal HR
+teams through a unified digital environment.
 
-It brings together candidate-facing services, employer-facing recruitment workflows, and internal HR operations within a single application.
+It brings together candidate-facing services, employer-facing
+recruitment workflows, and internal HR operations within a single
+application.
 
-The platform follows a modern web application architecture using React, FastAPI, Microsoft Azure services, and Microsoft identity technologies.
+The platform follows a modern web application architecture using React,
+FastAPI, Microsoft Azure services, and Microsoft identity technologies.
 
-### Main objectives
+### Main Objectives
 
 - Provide a centralized digital platform for candidates and employers.
 - Support recruitment and workforce management workflows.
@@ -62,19 +69,25 @@ The platform follows a modern web application architecture using React, FastAPI,
 - Provide secure authentication and API access.
 - Integrate with selected Microsoft Azure services.
 
-The application is actively under development, with ongoing improvements to functionality, authorization, integrations, and operational reliability.
+The application is actively under development, with ongoing improvements
+to functionality, authorization, integrations, and operational
+reliability.
 
 ---
 
 ## About Talent Bridge BD
 
-**Talent Bridge BD (TBBD)** is a recruitment and workforce solutions initiative of **Loyal Trade Management Ltd**.
+**Talent Bridge BD (TBBD)** is a recruitment and workforce solutions
+initiative of **Loyal Trade Management Ltd**.
 
-The initiative focuses on connecting skilled Bangladeshi professionals and workers with employment opportunities in international markets.
+The initiative focuses on connecting skilled Bangladeshi professionals
+and workers with employment opportunities in international markets.
 
-The TBBD HR Portal provides the digital foundation for supporting this mission through recruitment services, employer engagement, candidate management, and internal HR operations.
+The TBBD HR Portal provides the digital foundation for supporting this
+mission through recruitment services, employer engagement, candidate
+management, and internal HR operations.
 
-### Platform relationship
+### Platform Relationship
 
 - **Loyal Trade Management Ltd:** Parent organization.
 - **Talent Bridge BD:** Recruitment and workforce solutions initiative.
@@ -87,42 +100,44 @@ The TBBD HR Portal provides the digital foundation for supporting this mission t
 
 The TBBD HR Portal follows a centralized application model.
 
-Instead of maintaining separate applications for each user group, the platform provides different access areas within one application.
+Instead of maintaining separate applications for each user group, the
+platform provides different access areas within one application.
 
 ```text
-                  Talent Bridge BD
-                          |
-                          |
-                  TBBD Workplace Hub
-                          |
-                          |
-                   TBBD HR Portal
-                          |
-          +---------------+---------------+
-          |               |               |
-          |               |               |
-     Candidate        Employer       Staff / Admin
-       Portal          Portal           Portal
-          |               |               |
-          |               |               |
-     Candidate         Employer       HR Operations
-     Services          Services       Administration
-          |               |               |
-          +---------------+---------------+
-                          |
-                          |
+                    Talent Bridge BD
+                           |
+                           |
+                   TBBD Workplace Hub
+                           |
+                           |
+                    TBBD HR Portal
+                           |
+          +----------------+----------------+
+          |                |                |
+          |                |                |
+      Candidate         Employer       Staff / Admin
+        Portal           Portal            Portal
+          |                |                |
+          |                |                |
+      Candidate         Employer        HR Operations
+       Services         Services       Administration
+          |                |                |
+          +----------------+----------------+
+                           |
+                           |
                     FastAPI Backend
-                          |
-          +---------------+---------------+
-          |               |               |
-      Database        Azure Services   Identity
-          |               |               |
-      Azure SQL      AI / Storage      Entra ID
-                                      External
-                                      Identity
+                           |
+          +----------------+----------------+
+          |                |                |
+       Database       Azure Services     Identity
+          |                |                |
+       Azure SQL      AI / Storage       Entra ID
+                                         External
+                                         Identity
 ```
 
-The architecture separates the frontend, backend APIs, data access, identity management, and supporting cloud services.
+The architecture separates the frontend, backend APIs, data access,
+identity management, and supporting cloud services.
 
 ---
 
@@ -132,7 +147,8 @@ The platform provides three primary user access areas.
 
 ### 1. Candidate Portal
 
-The Candidate Portal supports individuals seeking employment opportunities through Talent Bridge BD.
+The Candidate Portal supports individuals seeking employment
+opportunities through Talent Bridge BD.
 
 Key functionality includes:
 
@@ -145,11 +161,13 @@ Key functionality includes:
 - Candidate profile completion and review.
 - Access to relevant recruitment services.
 
-Candidate access and recruitment-related permissions are subject to the platform's configured identity and authorization rules.
+Candidate access and recruitment-related permissions are subject to the
+platform's configured identity and authorization rules.
 
 ### 2. Employer Portal
 
-The Employer Portal is designed for organizations seeking recruitment and workforce solutions through Talent Bridge BD.
+The Employer Portal is designed for organizations seeking recruitment
+and workforce solutions through Talent Bridge BD.
 
 Key functionality includes:
 
@@ -161,13 +179,16 @@ Key functionality includes:
 - Employer-related information and workflows.
 - Access to relevant recruitment services.
 
-Employer access is based on an approval and invitation process rather than unrestricted public registration.
+Employer access is based on an approval and invitation process rather
+than unrestricted public registration.
 
-Employer functionality is under active development and requires continued workflow and dashboard validation.
+Employer functionality is under active development and requires
+continued workflow and dashboard validation.
 
 ### 3. Staff and Administrator Portal
 
-The Staff and Administrator Portal supports internal operations and administrative responsibilities.
+The Staff and Administrator Portal supports internal operations and
+administrative responsibilities.
 
 It provides the internal working environment for authorized personnel.
 
@@ -183,9 +204,11 @@ Key areas include:
 - Administrative functions.
 - Internal platform management.
 
-Access to these functions is controlled by authentication and backend authorization.
+Access to these functions is controlled by authentication and backend
+authorization.
 
-**Note:** HR Operations is part of the Staff and Administrator Portal. The platform does not maintain a separate Employee Portal.
+**Note:** HR Operations is part of the Staff and Administrator Portal.
+The platform does not maintain a separate Employee Portal.
 
 ---
 
@@ -210,7 +233,8 @@ Access to these functions is controlled by authentication and backend authorizat
 
 ### Recruitment Management
 
-The platform is designed to support recruitment activities and related workforce workflows.
+The platform is designed to support recruitment activities and related
+workforce workflows.
 
 The intended recruitment lifecycle includes:
 
@@ -224,7 +248,8 @@ The intended recruitment lifecycle includes:
 8. Visa and deployment-related activities.
 9. Onboarding and deployment tracking.
 
-The availability of individual workflow stages depends on the current implementation and configuration.
+The availability of individual workflow stages depends on the current
+implementation and configuration.
 
 ### Internal HR Operations
 
@@ -283,7 +308,8 @@ The project uses the following technologies and development tools.
 | Azure Communication Services Email SDK | Email communication capabilities |
 | Azure Front Door Premium | Application entry point and edge delivery |
 
-The availability and use of individual cloud integrations depend on their configuration and implementation within the application.
+The availability and use of individual cloud integrations depend on
+their configuration and implementation within the application.
 
 ### Development and Infrastructure
 
@@ -301,9 +327,11 @@ The availability and use of individual cloud integrations depend on their config
 
 ## Microsoft Azure Infrastructure
 
-The application uses Microsoft Azure as its cloud hosting and infrastructure platform.
+The application uses Microsoft Azure as its cloud hosting and
+infrastructure platform.
 
-The configured environment includes the following services and components.
+The configured environment includes the following services and
+components.
 
 | Azure Service / Component | Purpose |
 |---|---|
@@ -324,11 +352,13 @@ The configured environment includes the following services and components.
 
 The main application is hosted through Azure App Service.
 
-The platform uses a unified application deployment model rather than separate App Services for each portal.
+The platform uses a unified application deployment model rather than
+separate App Services for each portal.
 
 ### Network Architecture
 
-The Azure environment includes network components designed to support secure connectivity between application and supporting services.
+The Azure environment includes network components designed to support
+secure connectivity between application and supporting services.
 
 These include:
 
@@ -340,9 +370,11 @@ These include:
 
 ### Application Entry Point
 
-Azure Front Door Premium is configured as part of the platform's external application delivery architecture.
+Azure Front Door Premium is configured as part of the platform's
+external application delivery architecture.
 
-Its configuration, routing, origin connectivity, and security policies should be monitored as part of ongoing operational validation.
+Its configuration, routing, origin connectivity, and security policies
+should be monitored as part of ongoing operational validation.
 
 ---
 
@@ -350,11 +382,13 @@ Its configuration, routing, origin connectivity, and security policies should be
 
 Security is an important part of the TBBD HR Portal architecture.
 
-The platform uses Microsoft identity technologies and backend authorization controls to manage access.
+The platform uses Microsoft identity technologies and backend
+authorization controls to manage access.
 
 ### Authentication
 
-The application supports different authentication paths according to user type.
+The application supports different authentication paths according to
+user type.
 
 | User Type | Authentication |
 |---|---|
@@ -365,9 +399,11 @@ The application supports different authentication paths according to user type.
 
 ### Authorization
 
-The backend applies role-based access control (RBAC) to protect application functionality and resources.
+The backend applies role-based access control (RBAC) to protect
+application functionality and resources.
 
-Authorization is enforced through backend permissions rather than relying exclusively on frontend navigation or visibility.
+Authorization is enforced through backend permissions rather than
+relying exclusively on frontend navigation or visibility.
 
 The application is designed to ensure that:
 
@@ -379,9 +415,13 @@ The application is designed to ensure that:
 
 ### Identity and Access Management
 
-The identity architecture uses Microsoft Entra technologies for internal users and the configured external identity provider for candidate authentication.
+The identity architecture uses Microsoft Entra technologies for internal
+users and the configured external identity provider for candidate
+authentication.
 
-Identity configuration, role assignments, group memberships, and cross-tenant access must be verified against the actual deployment environment.
+Identity configuration, role assignments, group memberships, and
+cross-tenant access must be verified against the actual deployment
+environment.
 
 ---
 
@@ -421,23 +461,29 @@ Its responsibilities include:
 
 Azure SQL is used for relational application data.
 
-The backend accesses SQL Server-compatible database services through `pyodbc`.
+The backend accesses SQL Server-compatible database services through
+`pyodbc`.
 
-Database operations should be managed through the application's established data access and repository patterns.
+Database operations should be managed through the application's
+established data access and repository patterns.
 
 ### API Integration
 
 The frontend communicates with backend services through HTTP APIs.
 
-The backend is responsible for validating requests, enforcing permissions, processing business logic, and returning appropriate responses.
+The backend is responsible for validating requests, enforcing
+permissions, processing business logic, and returning appropriate
+responses.
 
 ---
 
 ## Repository Structure
 
-The repository contains the frontend, backend, application services, tests, configuration, and development automation.
+The repository contains the frontend, backend, application services,
+tests, configuration, and development automation.
 
-A representative structure is shown below. Actual directories and filenames should follow the current repository.
+A representative structure is shown below. Actual directories and
+filenames should follow the current repository.
 
 ```text
 TBBD-HR-Portal/
@@ -480,13 +526,15 @@ TBBD-HR-Portal/
 └── README.md
 ```
 
-The exact repository structure may evolve as application modules and services are developed.
+The exact repository structure may evolve as application modules and
+services are developed.
 
 ---
 
 ## Local Development Setup
 
-The following instructions describe the general local development environment.
+The following instructions describe the general local development
+environment.
 
 ### Prerequisites
 
@@ -543,13 +591,15 @@ Install the backend dependencies:
 pip install -r requirements.txt
 ```
 
-If a separate development requirements file is maintained, install it according to the project's development instructions.
+If a separate development requirements file is maintained, install it
+according to the project's development instructions.
 
 ---
 
 ## Configuration
 
-The application requires environment-specific configuration for local development and deployment.
+The application requires environment-specific configuration for local
+development and deployment.
 
 Configuration may include:
 
@@ -564,7 +614,8 @@ Configuration may include:
 - Email service configuration.
 - Application environment settings.
 
-Use the project's existing environment configuration template and deployment documentation to identify the exact variable names.
+Use the project's existing environment configuration template and
+deployment documentation to identify the exact variable names.
 
 ### Security Requirements
 
@@ -575,7 +626,8 @@ Use the project's existing environment configuration template and deployment doc
 - Use secure configuration mechanisms for deployed environments.
 - Keep local environment files out of source control.
 
-For Azure-hosted environments, use the configured application settings and appropriate identity-based access wherever supported.
+For Azure-hosted environments, use the configured application settings
+and appropriate identity-based access wherever supported.
 
 ---
 
@@ -595,7 +647,8 @@ The backend development server will normally be available at:
 http://127.0.0.1:8000
 ```
 
-Use the application's actual configured startup module and command if they differ.
+Use the application's actual configured startup module and command if
+they differ.
 
 ### Start the Frontend
 
@@ -613,9 +666,11 @@ Open that address in your browser.
 
 ### Important Local Development Note
 
-Some authentication and Azure-dependent functionality may require access to configured cloud resources and identity providers.
+Some authentication and Azure-dependent functionality may require access
+to configured cloud resources and identity providers.
 
-Local Docker or development environments may not provide the same authentication and network access as the deployed Azure environment.
+Local Docker or development environments may not provide the same
+authentication and network access as the deployed Azure environment.
 
 ---
 
@@ -623,7 +678,8 @@ Local Docker or development environments may not provide the same authentication
 
 FastAPI provides interactive API documentation.
 
-When the backend is running and the documentation endpoints are enabled, access:
+When the backend is running and the documentation endpoints are enabled,
+access:
 
 ### Swagger UI
 
@@ -637,17 +693,21 @@ http://127.0.0.1:8000/docs
 http://127.0.0.1:8000/redoc
 ```
 
-These interfaces can be used to inspect available API endpoints, request schemas, and response models.
+These interfaces can be used to inspect available API endpoints, request
+schemas, and response models.
 
-API access remains subject to the application's authentication and authorization requirements.
+API access remains subject to the application's authentication and
+authorization requirements.
 
 ---
 
 ## Testing and Quality Assurance
 
-Testing and validation are important parts of the TBBD HR Portal development process.
+Testing and validation are important parts of the TBBD HR Portal
+development process.
 
-The project uses automated validation and testing to help identify application defects and prevent regressions.
+The project uses automated validation and testing to help identify
+application defects and prevent regressions.
 
 Areas requiring validation include:
 
@@ -679,15 +739,18 @@ Backend tests:
 pytest
 ```
 
-The actual test commands and available test suites should follow the repository's current configuration.
+The actual test commands and available test suites should follow the
+repository's current configuration.
 
-A successful build or automated test run does not, by itself, establish that every live application workflow is operational.
+A successful build or automated test run does not, by itself, establish
+that every live application workflow is operational.
 
 ---
 
 ## CI and Development Workflows
 
-The repository uses GitHub and Azure DevOps to support source code management and automated development validation.
+The repository uses GitHub and Azure DevOps to support source code
+management and automated development validation.
 
 ### Azure DevOps Pipelines
 
@@ -697,11 +760,14 @@ The repository includes:
 azure-pipelines.yml
 ```
 
-Azure DevOps Pipelines are used for automated build and validation activities.
+Azure DevOps Pipelines are used for automated build and validation
+activities.
 
-The configured pipeline environment includes the TBBD self-hosted agent infrastructure.
+The configured pipeline environment includes the TBBD self-hosted agent
+infrastructure.
 
-Pipeline execution and successful validation should be monitored through the Azure DevOps project.
+Pipeline execution and successful validation should be monitored through
+the Azure DevOps project.
 
 ### GitHub Actions
 
@@ -713,7 +779,8 @@ Configured workflow areas include:
 - CodeQL security analysis.
 - Infrastructure-related validation.
 
-The exact checks performed depend on the enabled workflow definitions in:
+The exact checks performed depend on the enabled workflow definitions
+in:
 
 ```text
 .github/workflows/
@@ -732,13 +799,15 @@ The general development process is:
 7. Review automated pipeline results.
 8. Merge only after the required reviews and checks are complete.
 
-CI validation should not be confused with automatic production deployment.
+CI validation should not be confused with automatic production
+deployment.
 
 ---
 
 ## Security
 
-The project is designed with security controls appropriate for a cloud-hosted HR and recruitment application.
+The project is designed with security controls appropriate for a
+cloud-hosted HR and recruitment application.
 
 Security considerations include:
 
@@ -776,7 +845,8 @@ SECURITY.md
 
 The TBBD HR Portal is designed to operate within Microsoft Azure.
 
-The configured hosting architecture includes Azure App Service and supporting Azure infrastructure.
+The configured hosting architecture includes Azure App Service and
+supporting Azure infrastructure.
 
 Operational responsibilities include:
 
@@ -791,17 +861,21 @@ Operational responsibilities include:
 - Backup and recovery planning.
 - Security and dependency reviews.
 
-Production readiness should be assessed through end-to-end application testing, security verification, infrastructure validation, and operational acceptance.
+Production readiness should be assessed through end-to-end application
+testing, security verification, infrastructure validation, and
+operational acceptance.
 
-A successful deployment or pipeline execution alone does not establish production readiness.
+A successful deployment or pipeline execution alone does not establish
+production readiness.
 
 ---
 
 ## Project Status
 
-<sub>Project status: Active Development</sub>
+Project Status: Active Development
 
-The TBBD HR Portal is under active development and continuous improvement.
+The TBBD HR Portal is under active development and continuous
+improvement.
 
 | Area | Current Status |
 |---|---|
@@ -823,7 +897,8 @@ The TBBD HR Portal is under active development and continuous improvement.
 | GitHub Actions | Configured |
 | Production acceptance | Not yet established |
 
-The status of individual components may change as development, testing, and deployment activities progress.
+The status of individual components may change as development, testing,
+and deployment activities progress.
 
 ---
 
@@ -843,13 +918,15 @@ Planned development and improvement areas include:
 - Improving Azure monitoring and operational resilience.
 - Validating and expanding integrations where required.
 
-Future integrations will be documented as implemented only after their actual configuration and application usage have been verified.
+Future integrations will be documented as implemented only after their
+actual configuration and application usage have been verified.
 
 ---
 
 ## Contributing
 
-Contributions should follow the repository's development and review procedures.
+Contributions should follow the repository's development and review
+procedures.
 
 Before submitting changes:
 
@@ -861,7 +938,9 @@ Before submitting changes:
 6. Review changes for security and configuration issues.
 7. Submit a pull request with a clear description of the changes.
 
-Changes affecting authentication, authorization, database access, or security-sensitive functionality should receive particular attention during review.
+Changes affecting authentication, authorization, database access, or
+security-sensitive functionality should receive particular attention
+during review.
 
 ---
 
@@ -874,7 +953,8 @@ Refer to the repository's `LICENSE` file for applicable licensing terms.
 ## Maintained By
 
 **Talent Bridge BD (TBBD)**  
-A recruitment and workforce solutions initiative of Loyal Trade Management Ltd.
+A recruitment and workforce solutions initiative of Loyal Trade
+Management Ltd.
 
 **Platform:** TBBD HR Portal  
 **Architecture:** React, FastAPI, and Microsoft Azure  
