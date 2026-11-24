@@ -174,7 +174,7 @@ steps:
 
         echo "Node.js 20 verified successfully."
 
-  # Install frontend dependencies
+  # Install frontend dependencies - with Azure diagnostics
   - task: Bash@3
     displayName: 'Install frontend dependencies'
     inputs:
@@ -182,7 +182,37 @@ steps:
       script: |
         set -eu
 
+        echo "=========================================="
+        echo "AZURE FRONTEND INSTALL DIAGNOSTICS"
+        echo "=========================================="
+
+        echo "Repository: $(Build.Repository.Name)"
+        echo "Branch: $(Build.SourceBranch)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo "Build directory: $(Agent.BuildDirectory)"
+        echo "Pipeline workspace: $(Pipeline.Workspace)"
+        echo "Sources directory: $(Build.SourcesDirectory)"
+
+        echo
+        echo "===== NODE AND NPM ====="
+        node --version
+        npm --version
+        which node
+        which npm
+
+        echo
+        echo "===== SOURCE DIRECTORY ====="
+        ls -ld "$(Build.SourcesDirectory)"
+
+        echo
+        echo "===== FRONTEND DIRECTORY ====="
         cd "$(Build.SourcesDirectory)/frontend"
+
+        pwd
+        ls -la
+
+        echo
+        echo "===== REQUIRED FILES ====="
 
         if [ ! -f package.json ]; then
           echo "ERROR: frontend/package.json is missing."
@@ -194,8 +224,30 @@ steps:
           exit 1
         fi
 
+        ls -l package.json package-lock.json
+
+        echo
+        echo "===== GIT TRACKING ====="
+
+        git -C "$(Build.SourcesDirectory)" rev-parse --show-toplevel
+
+        git -C "$(Build.SourcesDirectory)" ls-files \
+          frontend/package.json \
+          frontend/package-lock.json
+
+        echo
+        echo "===== NPM CONFIGURATION ====="
+
+        npm config get package-lock
+        npm config get userconfig
+        npm config get globalconfig
+
+        echo
+        echo "===== FRONTEND DEPENDENCY INSTALLATION ====="
+
         npm ci
 
+        echo
         echo "Frontend dependencies installed successfully."
 
   # Build React frontend
