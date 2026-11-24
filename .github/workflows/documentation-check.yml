@@ -12,7 +12,6 @@ permissions:
   contents: read
 
 jobs:
-
   markdown-check:
     name: Validate Markdown Documentation
     runs-on: ubuntu-latest
@@ -21,8 +20,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Markdown lint check
-        uses: DavidAnson/markdownlint-cli2-action@v17
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v20
         with:
           globs: |
             **/*.md
