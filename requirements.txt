@@ -8,9 +8,9 @@ azure-storage-blob
 
 python-multipart
 
-openai>=2.54.0,<3.0
+openai>=3.57.0,<4.0
 
 PyJWT[crypto]
 azure-communication-email==1.1.0
 
-reportlab>=4.0,<5.0
+reportlab>=5.1.0,<6.0

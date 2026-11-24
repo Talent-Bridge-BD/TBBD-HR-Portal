@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request
 from repositories.employer_dashboard import SqlEmployerDashboardRepository
 from repositories.organization import SqlOrganizationRepository
 from services.authorization import build_authorization_context
+from services.authorization import build_authorization_context_from_principal
 from services.local_auth import get_request_principal
 from services.employer_dashboard import EmployerDashboardService
 
@@ -80,18 +81,31 @@ def _get_principal(request: Request) -> tuple[str, str, set[str]]:
 
     return principal_id, employer_name, roles
 
+
 @router.get("/dashboard")
 async def get_employer_dashboard(request: Request):
-    principal_id, employer_name, roles = _get_principal(request)
+    principal = get_request_principal(request)
+
+    if not principal or not principal.get("id"):
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user identity is required",
+        )
+
+    principal_id = principal["id"]
+    employer_name = (
+        principal.get("name")
+        or principal.get("email")
+        or "Employer"
+    )
 
     memberships = _organization_repository.get_active_memberships(
         principal_id
     )
 
-    context = build_authorization_context(
-        user_id=principal_id,
-        roles=roles,
-        memberships=memberships,
+    context = build_authorization_context_from_principal(
+        principal,
+        memberships,
     )
 
     try:
