@@ -10,7 +10,7 @@ on:
       - main
 
   schedule:
-    - cron: "0 2 * * 1"
+    - cron: '0 2 * * 1'
 
 permissions:
   contents: read
@@ -29,6 +29,9 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript, python
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
