@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   markdown-check:
-    name: Validate Changed Markdown Documentation
+    name: Validate Markdown Documentation
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
+ dependabot/github_actions/DavidAnson/markdownlint-cli2-action-24
  dependabot/github_actions/DavidAnson/markdownlint-cli2-action-24
         uses: actions/checkout@v4
 
@@ -26,48 +26,11 @@ jobs:
 
         uses: actions/checkout@v7
  main
+
+        uses: actions/checkout@v4
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v20
+main
         with:
-          fetch-depth: 0
-
-      - name: Lint changed Markdown files
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PUSH_BEFORE_SHA: ${{ github.event.before }}
-          HEAD_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            BASE_SHA="$PR_BASE_SHA"
-            TARGET_SHA="$PR_HEAD_SHA"
-          else
-            BASE_SHA="$PUSH_BEFORE_SHA"
-            TARGET_SHA="$HEAD_SHA"
-          fi
-
-          if [[ "$BASE_SHA" =~ ^0+$ ]]; then
-            echo "No previous commit available for comparison."
-            echo "Skipping initial-push Markdown comparison."
-            exit 0
-          fi
-
-          mapfile -t MARKDOWN_FILES < <(
-            if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-              git diff --name-only --diff-filter=ACMRT \
-                "$BASE_SHA...$TARGET_SHA" -- '*.md'
-            else
-              git diff --name-only --diff-filter=ACMRT \
-                "$BASE_SHA" "$TARGET_SHA" -- '*.md'
-            fi
-          )
-
-          if [[ ${#MARKDOWN_FILES[@]} -eq 0 ]]; then
-            echo "No Markdown files changed. Documentation lint is not required."
-            exit 0
-          fi
-
-          echo "Markdown files to validate:"
-          printf ' - %s\n' "${MARKDOWN_FILES[@]}"
-
-          npx --yes markdownlint-cli2@0.24.1 "${MARKDOWN_FILES[@]}"
+          globs: |
+            **/*.md
