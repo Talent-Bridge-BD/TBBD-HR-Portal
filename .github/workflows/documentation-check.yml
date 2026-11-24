@@ -18,7 +18,39 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Lint Markdown files
+        with:
+          fetch-depth: 0
+
+      - name: Identify changed Markdown files
+        if: github.event_name == 'pull_request'
+        id: changed-markdown
+        shell: bash
+        run: |
+          files="$(git diff --name-only --diff-filter=ACMR \
+            "origin/${GITHUB_BASE_REF}...${GITHUB_SHA}" |
+            grep -E '\.md$' || true)"
+
+          if [ -n "$files" ]; then
+            {
+              echo "files<<EOF"
+              echo "$files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+            echo "Changed Markdown files:"
+            echo "$files"
+          else
+            echo "No changed Markdown files found."
+          fi
+
+      - name: Lint changed Markdown files
+        if: github.event_name == 'pull_request' && steps.changed-markdown.outputs.files != ''
+        uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20
+        with:
+          globs: |
+            ${{ steps.changed-markdown.outputs.files }}
+
+      - name: Lint all Markdown files on main
+        if: github.event_name == 'push'
         uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20
         with:
           globs: |

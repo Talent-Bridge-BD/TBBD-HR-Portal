@@ -872,7 +872,7 @@ production readiness.
 
 ## Project Status
 
-**Project Status: Active Development**
+Project Status: Active Development
 
 The TBBD HR Portal is under active development and continuous
 improvement.
