@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -12,17 +13,16 @@ permissions:
   contents: read
 
 jobs:
-
   validate-infrastructure:
     name: Validate Azure Infrastructure
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
 
       - name: Terraform Format Check
         working-directory: infrastructure/terraform
@@ -30,7 +30,7 @@ jobs:
         continue-on-error: true
 
       - name: Validate Bicep Templates
-        uses: azure/cli@v3
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3
         with:
           inlineScript: |
             az bicep install
