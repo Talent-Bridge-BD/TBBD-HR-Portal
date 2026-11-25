@@ -1,3 +1,4 @@
+
 name: Documentation Check
 
 on:
@@ -17,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
+ dependabot/github_actions/actions/checkout-7
 dependabot/github_actions/actions/checkout-7
 dependabot/github_actions/actions/checkout-7
         uses: actions/checkout@v7
@@ -31,6 +33,13 @@ dependabot/github_actions/actions/checkout-7
       - name: Lint Markdown files
         uses: DavidAnson/markdownlint-cli2-action@v20
  main
+
+ fix/documentation-check-action-sha-pinning
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20.0.0
+main
 
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -67,7 +76,11 @@ dependabot/github_actions/actions/checkout-7
       - name: Lint all Markdown files on main
         if: github.event_name == 'push'
         uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20
+ dependabot/github_actions/actions/checkout-7
  main
+
+main
+main
         with:
           globs: |
             **/*.md
