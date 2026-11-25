@@ -376,3 +376,102 @@ def test_get_principal_normalizes_employer_manager_role_alias(monkeypatch):
     assert employer_name == "Test Employer"
     assert roles == {"Employer Manager"}
     assert returned_principal is principal
+
+
+def test_external_employer_dashboard_scopes_only_active_employer_manager_organizations(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+
+    dashboard = EmployerDashboard(
+        employer_name="Existing Employer",
+        organization_name="Manager Organization",
+        stats=EmployerDashboardStats(3, 5, 12, 2),
+        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
+    )
+
+    captured = {}
+
+    class CapturingService:
+        def get_dashboard(self, *, context, employer_name):
+            captured["organization_ids"] = context.organization_ids
+            return dashboard
+
+    monkeypatch.setattr(employer_api, "_service", CapturingService())
+
+    monkeypatch.setattr(
+        employer_api,
+        "_identity_mapping_repository",
+        type(
+            "FakeMappingRepository",
+            (),
+            {
+                "get_mapping": lambda self, **kwargs: {
+                    "application_user_id": "canonical-existing-user",
+                    "status": "Active",
+                }
+            },
+        )(),
+    )
+
+    def get_memberships(self, user_id):
+        assert user_id == "canonical-existing-user"
+        return [
+            SimpleNamespace(
+                user_id=user_id,
+                organization_id="manager-org",
+                role="Employer Manager",
+                status="active",
+            ),
+            SimpleNamespace(
+                user_id=user_id,
+                organization_id="hr-org",
+                role="HR Manager",
+                status="active",
+            ),
+            SimpleNamespace(
+                user_id=user_id,
+                organization_id="inactive-org",
+                role="Employer Manager",
+                status="inactive",
+            ),
+            SimpleNamespace(
+                user_id=user_id,
+                organization_id="manager-alias-org",
+                role="Employer.Manager",
+                status="active",
+            ),
+        ]
+
+    monkeypatch.setattr(
+        employer_api,
+        "_organization_repository",
+        type(
+            "FakeOrganizationRepository",
+            (),
+            {"get_active_memberships": get_memberships},
+        )(),
+    )
+
+    external_object_id = "external-role-scope-object-id"
+    encoded = make_principal(
+        external_object_id,
+        "Existing Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        object_id=external_object_id,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
+    )
+
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": external_object_id,
+            "X-MS-CLIENT-PRINCIPAL": encoded,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert captured["organization_ids"] == frozenset(
+        {"manager-org", "manager-alias-org"}
+    )
