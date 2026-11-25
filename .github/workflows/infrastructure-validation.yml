@@ -1,3 +1,4 @@
+
 name: Infrastructure Validation
 
 on:
@@ -19,20 +20,54 @@ jobs:
 
     steps:
       - name: Checkout repository
+fix/infrastructure-validation-action-pinning
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
+ main
 
       - name: Terraform Format Check
         working-directory: infrastructure/terraform
         run: terraform fmt -check -recursive
-        continue-on-error: true
 
       - name: Validate Bicep Templates
+ fix/infrastructure-validation-action-pinning
+        uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3.0.0
+
         uses: azure/cli@9eb25b8360668fb0ecbafa808d40e2197b2f5f52 # v3
+main
         with:
           inlineScript: |
+            set -euo pipefail
+
+            BICEP_DIR="infrastructure/bicep"
+
+            if [ ! -d "$BICEP_DIR" ]; then
+              echo "ERROR: Bicep directory not found: $BICEP_DIR"
+              exit 1
+            fi
+
             az bicep install
             az bicep version
-            find infrastructure/bicep -name "*.bicep" -print
+
+            mapfile -d '' BICEP_FILES < <(
+              find "$BICEP_DIR" -type f -name "*.bicep" -print0
+            )
+
+            if [ "${#BICEP_FILES[@]}" -eq 0 ]; then
+              echo "ERROR: No Bicep templates found in $BICEP_DIR"
+              exit 1
+            fi
+
+            for file in "${BICEP_FILES[@]}"; do
+              echo "Validating: $file"
+              az bicep build --file "$file" --stdout > /dev/null
+            done
+
+            echo "All Bicep templates compiled successfully."

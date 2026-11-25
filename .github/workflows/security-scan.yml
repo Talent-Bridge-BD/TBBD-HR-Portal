@@ -1,3 +1,4 @@
+
 name: Security Scan
 
 on:
@@ -23,10 +24,17 @@ jobs:
 
     steps:
       - name: Checkout repository
+fix/documentation-check-action-sha-pinning
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@74c1aea9df7c0f02e9b7bfe4a8935abf2e5e3aa6 # v3
+ main
         with:
           languages: javascript-typescript, python
 
@@ -34,4 +42,8 @@ jobs:
         uses: github/codeql-action/autobuild@74c1aea9df7c0f02e9b7bfe4a8935abf2e5e3aa6 # v3
 
       - name: Perform CodeQL Analysis
+ fix/documentation-check-action-sha-pinning
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+
         uses: github/codeql-action/analyze@74c1aea9df7c0f02e9b7bfe4a8935abf2e5e3aa6 # v3
+ main
