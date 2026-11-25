@@ -262,3 +262,30 @@ def test_job_compensation_rejects_missing_shared_principal(monkeypatch):
         )
 
     assert exc.value.status_code == 401
+
+
+def test_external_employer_manager_group_validator():
+    expected_group = (
+        local_auth.TBBD_EXTERNAL_EMPLOYER_MANAGERS_GROUP_ID
+    )
+
+    assert local_auth.has_external_employer_manager_group({
+        "groups": [expected_group],
+    }) is True
+
+    assert local_auth.has_external_employer_manager_group({
+        "claims": [
+            {"typ": "groups", "val": expected_group},
+        ],
+    }) is True
+
+    assert local_auth.has_external_employer_manager_group({
+        "groups": [],
+        "claims": [],
+    }) is False
+
+    assert local_auth.has_external_employer_manager_group({
+        "groups": ["a077456c-488f-4c99-a782-8f96ae1f0360"],
+    }) is False
+
+    assert local_auth.has_external_employer_manager_group(None) is False

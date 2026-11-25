@@ -207,6 +207,7 @@ def test_employer_external_identity_uses_mapped_application_user_and_membership(
         "Existing Employer",
         tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
     )
     response = TestClient(app).get(
         "/api/employer/dashboard",
@@ -243,6 +244,7 @@ def test_employer_external_identity_requires_active_employer_manager_membership(
         "Employer",
         tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
     )
     monkeypatch.setattr(
         employer_api, "_identity_mapping_repository",
@@ -275,6 +277,7 @@ def test_unmapped_employer_external_identity_cannot_use_external_id_membership(
         "Unmapped Employer",
         tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
     )
 
     monkeypatch.setattr(
@@ -326,6 +329,7 @@ def test_employer_external_identity_rejects_revoked_mapping(monkeypatch):
         "Employer",
         tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
     )
     monkeypatch.setattr(
         employer_api, "_identity_mapping_repository",

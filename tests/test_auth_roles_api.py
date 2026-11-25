@@ -295,7 +295,12 @@ def test_employer_external_identity_uses_mapping_across_main_routes(monkeypatch)
         "tenant_id": local_auth.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         "email": "employer.manager@loyaltrademanagement.com",
         "name": "Employer Manager",
-        "claims": [],
+        "claims": [
+            {
+                "typ": "groups",
+                "val": "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1",
+            },
+        ],
     }
 
     class FakeMappingRepository:
@@ -387,7 +392,12 @@ def test_unmapped_employer_external_identity_is_rejected_across_main_routes(
         "tenant_id": local_auth.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         "email": "unmapped-employer@example.com",
         "name": "Unmapped Employer",
-        "claims": [],
+        "claims": [
+            {
+                "typ": "groups",
+                "val": "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1",
+            },
+        ],
     }
 
     class MissingMappingRepository:
@@ -426,7 +436,12 @@ def test_employer_external_identity_rejects_revoked_mapping_in_api_me(
         "object_id": external_object_id,
         "tenant_id": local_auth.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
         "email": "employer.manager@loyaltrademanagement.com",
-        "claims": [],
+        "claims": [
+            {
+                "typ": "groups",
+                "val": "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1",
+            },
+        ],
     }
 
     class RevokedMappingRepository:

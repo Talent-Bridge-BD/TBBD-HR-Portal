@@ -14,6 +14,40 @@ TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID = "c8573333-aad0-4a28-8e40-c20e17989f61"
 TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID = "d5079e97-35ed-47cb-8f20-3f86875751a4"
 TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER = "TBBDEmployerExternalID"
 
+
+# External ID tenant group required for Employer Manager authorization.
+TBBD_EXTERNAL_EMPLOYER_MANAGERS_GROUP_ID = (
+    "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"
+)
+
+
+def has_external_employer_manager_group(principal: Optional[dict]) -> bool:
+    """Check the validated principal for External ID Employer Managers membership."""
+    if not isinstance(principal, dict):
+        return False
+
+    group_ids = principal.get("groups") or []
+    if not isinstance(group_ids, (list, tuple, set)):
+        group_ids = []
+
+    if not group_ids:
+        claims = principal.get("claims", [])
+        if isinstance(claims, list):
+            group_ids = [
+                claim.get("val")
+                for claim in claims
+                if isinstance(claim, dict)
+                and str(claim.get("typ", "")).lower().split("/")[-1] == "groups"
+            ]
+
+    normalized = {
+        str(group_id).strip().lower()
+        for group_id in group_ids
+        if group_id
+    }
+
+    return TBBD_EXTERNAL_EMPLOYER_MANAGERS_GROUP_ID.lower() in normalized
+
 # Microsoft Entra ID authority endpoints.
 # Build the URLs from separate strings to avoid Markdown-link corruption.
 ENTRA_ISSUER = (

@@ -12,6 +12,7 @@ from services.local_auth import (
     TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
     get_request_principal,
     is_employer_external_principal,
+    has_external_employer_manager_group,
 )
 from services.employer_dashboard import EmployerDashboardService
 
@@ -105,6 +106,12 @@ async def get_employer_dashboard(request: Request):
             raise HTTPException(
                 status_code=401,
                 detail="Employer External ID application audience is invalid",
+            )
+
+        if not has_external_employer_manager_group(principal):
+            raise HTTPException(
+                status_code=403,
+                detail="External Employer Manager group membership is required",
             )
 
         external_object_id = str(principal.get("object_id") or "").strip()

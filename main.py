@@ -30,6 +30,7 @@ from services.local_auth import (
     TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
     get_request_principal,
     is_employer_external_principal,
+    has_external_employer_manager_group,
 )
 from repositories.external_identity import SqlExternalIdentityMappingRepository
 from repositories.organization import SqlOrganizationRepository
@@ -122,6 +123,12 @@ def _resolve_application_user_id(principal):
 
     if not is_employer_external_principal(principal):
         return principal_id
+
+    if not has_external_employer_manager_group(principal):
+        raise HTTPException(
+            status_code=403,
+            detail="External Employer Manager group membership is required",
+        )
 
     external_object_id = str(
         principal.get("object_id") or principal_id
