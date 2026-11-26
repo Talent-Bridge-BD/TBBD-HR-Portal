@@ -138,7 +138,7 @@ def review_employer_access_request(
     payload: EmployerAccessRequestReview,
 ):
     """Only global Administrators may approve or reject a request."""
-    context = require_admin(request)
+    require_admin(request)
 
     principal = None
     try:
@@ -188,7 +188,6 @@ def review_employer_access_request(
 
     # The review decision is saved. Logging or email failures must not undo it.
     notification_status = "FAILED"
-    failure_reason = "Email provider did not confirm success."
     delivery_log_id = None
 
     company_name = str(record.get("company_name") or "your organization")
@@ -279,6 +278,7 @@ def review_employer_access_request(
                     failure_reason,
                 )
             except Exception:
+                # Delivery-log updates are best-effort; they must not change the saved review or email result.
                 pass
 
     if notification_status == "SENT":
@@ -309,7 +309,7 @@ def activate_approved_employer_request(
     payload: EmployerAccessRequestActivation,
 ):
     """Activate an approved request for an administrator-verified Entra identity."""
-    principal = require_admin(request)
+    require_admin(request)
 
     if payload.identity_verified is not True:
         raise HTTPException(
@@ -578,7 +578,7 @@ def activate_approved_employer_request(
                 membership_action = "create"
 
             try:
-                mapping = _identity_mapping_repository.create_active_mapping(
+                _identity_mapping_repository.create_active_mapping(
                     provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
                     tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
                     external_object_id=entra_object_id,
@@ -612,14 +612,9 @@ def activate_approved_employer_request(
                     ).strip().lower()
 
                     if (
-                        mapping_user_id == str(profile.user_id)
-                        and mapping_status == "active"
+                        mapping_user_id != str(profile.user_id)
+                        or mapping_status != "active"
                     ):
-                        # The insert may have committed before the repository
-                        # raised an exception. Accept only the intended user's
-                        # confirmed active mapping.
-                        mapping = mapping_after_error
-                    else:
                         try:
                             organization_api._organization_repository.update_membership_status(
                                 organization_id=organization_id,
