@@ -410,19 +410,46 @@ def activate_approved_employer_request(
                     verification_method="administrator_attestation",
                 )
             except Exception:
-                # A concurrent request may have claimed the unique external
-                # identity. Report a conflict if the mapping now exists; let
-                # genuine database failures reach the service-unavailable path.
-                if _identity_mapping_repository.get_mapping(
-                    provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
-                    tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
-                    external_object_id=entra_object_id,
-                ) is not None:
+                try:
+                    mapping_after_error = _identity_mapping_repository.get_mapping(
+                        provider=TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
+                        tenant_id=TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+                        external_object_id=entra_object_id,
+                    )
+                except Exception:
                     raise HTTPException(
-                        status_code=409,
-                        detail="This external identity already has a mapping. Review it before making changes.",
+                        status_code=503,
+                        detail=(
+                            "External identity mapping creation failed and its "
+                            "commit status could not be verified. Review the "
+                            "existing account link before retrying."
+                        ),
                     ) from None
-                raise
+
+                if mapping_after_error is not None:
+                    mapping_user_id = str(
+                        mapping_after_error.get("application_user_id") or ""
+                    )
+                    mapping_status = str(
+                        mapping_after_error.get("status") or ""
+                    ).strip().lower()
+
+                    if (
+                        mapping_user_id == application_user_id
+                        and mapping_status == "active"
+                    ):
+                        mapping = mapping_after_error
+                    else:
+                        raise HTTPException(
+                            status_code=409,
+                            detail=(
+                                "This external identity already has a mapping "
+                                "to another application account or is not active. "
+                                "Review it before making changes."
+                            ),
+                        ) from None
+                else:
+                    raise
             membership_action = "link"
             audit_entity_type = "external_identity_mapping"
             audit_entity_id = str(mapping["id"])

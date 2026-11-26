@@ -574,6 +574,81 @@ def test_admin_activation_links_existing_employer_account_without_creating_membe
     assert captured["memberships_added"] == []
 
 
+
+def test_admin_activation_accepts_existing_account_mapping_committed_before_error(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+    import api.employer_access_requests as api
+
+    _prepare_admin_activation_test(monkeypatch)
+
+    member = SimpleNamespace(
+        id="existing-membership-id",
+        user_id="canonical-existing-user",
+        organization_id="org-activation-test",
+        role="Employer Manager",
+        status="active",
+    )
+
+    monkeypatch.setattr(
+        api.organization_api,
+        "_organization_repository",
+        type(
+            "ExistingMembershipRepository",
+            (),
+            {
+                "list_active_organizations": lambda self: [
+                    SimpleNamespace(
+                        id="org-activation-test",
+                        name="Example Organization",
+                        status="active",
+                    )
+                ],
+                "list_members": lambda self, organization_id: [member],
+                "add_membership": lambda self, **kwargs: None,
+            },
+        )(),
+    )
+
+    class FakeMappingRepository:
+        def __init__(self):
+            self.lookup_count = 0
+
+        def get_mapping(self, **kwargs):
+            self.lookup_count += 1
+            if self.lookup_count == 1:
+                return None
+
+            return {
+                "id": "mapping-committed-before-error",
+                "application_user_id": "canonical-existing-user",
+                "external_object_id": "new-employer-external-object-id",
+                "status": "Active",
+            }
+
+        def create_active_mapping(self, **kwargs):
+            raise RuntimeError("simulated commit followed by connection error")
+
+    monkeypatch.setattr(
+        api,
+        "_identity_mapping_repository",
+        FakeMappingRepository(),
+    )
+
+    response = TestClient(app).post(
+        f"{BASE}/request-activation-test/activate",
+        json={
+            "organization_id": "org-activation-test",
+            "entra_object_id": "new-employer-external-object-id",
+            "application_user_id": "canonical-existing-user",
+            "identity_verified": True,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["membership_status"] == "ACTIVE"
+
 def test_admin_activation_reports_audit_failure_without_rolling_back_identity_mapping(monkeypatch):
     from types import SimpleNamespace
     import api.employer_access_requests as api

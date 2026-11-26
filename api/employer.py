@@ -147,14 +147,17 @@ async def get_employer_dashboard(request: Request):
                 ),
             )
 
-        memberships = _organization_repository.get_active_memberships(
-            application_user_id
+        memberships = tuple(
+            membership
+            for membership in _organization_repository.get_active_memberships(
+                application_user_id
+            )
+            if str(getattr(membership, "role", "")).strip().casefold()
+            in {"employer manager", "employer.manager"}
+            and str(getattr(membership, "status", "")).strip().casefold()
+            == "active"
         )
-        if not any(
-            str(membership.role).strip().lower() == "employer manager"
-            and str(membership.status).strip().lower() == "active"
-            for membership in memberships
-        ):
+        if not memberships:
             raise HTTPException(
                 status_code=403,
                 detail="An active Employer Manager organization membership is required",

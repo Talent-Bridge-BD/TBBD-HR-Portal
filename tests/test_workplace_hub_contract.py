@@ -8,7 +8,7 @@ APP = ROOT / "frontend/src/App.jsx"
 COMPONENT = ROOT / "frontend/src/components/WorkplaceHub.jsx"
 CSS = ROOT / "frontend/src/styles/WorkplaceHub.css"
 MAIN = ROOT / "frontend/src/main.jsx"
-BANNER = ROOT / "frontend/src/assets/images/banner-hub.jpeg"
+BANNER = ROOT / "frontend/src/assets/images/hubbanner.jpeg"
 
 APP_SOURCE = APP.read_text(encoding="utf-8")
 MAIN_SOURCE = MAIN.read_text(encoding="utf-8")

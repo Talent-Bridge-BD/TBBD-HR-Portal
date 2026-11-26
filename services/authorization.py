@@ -76,23 +76,46 @@ def build_authorization_context(
     memberships: Iterable[object],
 ) -> AuthorizationContext:
 
+    membership_records = tuple(memberships)
+    requested_user_id = str(user_id).strip().casefold()
+
+    active_memberships = tuple(
+        membership
+        for membership in membership_records
+        if (
+            str(getattr(membership, "user_id", "")).strip().casefold()
+            == requested_user_id
+            and str(getattr(membership, "status", "")).strip().casefold()
+            == "active"
+        )
+    )
+
     organization_ids = {
         membership.organization_id
-        for membership in memberships
-        if (
-            membership.user_id == user_id
-            and membership.status == "active"
-        )
+        for membership in active_memberships
+        if getattr(membership, "organization_id", None)
     }
 
+    def normalize_role(value: object) -> str:
+        role = str(value).strip()
+        if role.casefold() in {"employer.manager", "employer manager"}:
+            return "Employer Manager"
+        return role
 
-    role_aliases = {
-        "Employer.Manager": "Employer Manager",
-    }
-    normalized_roles = frozenset(
-        role_aliases.get(role, role)
+    normalized_roles = {
+        normalize_role(role)
         for role in roles
-    )
+        if role is not None and str(role).strip()
+    }
+
+    for membership in active_memberships:
+        membership_role = normalize_role(
+            getattr(membership, "role", "")
+        )
+        if membership_role == "Employer Manager":
+            normalized_roles.add(membership_role)
+
+    normalized_roles = frozenset(normalized_roles)
 
     return AuthorizationContext(
         user_id=user_id,

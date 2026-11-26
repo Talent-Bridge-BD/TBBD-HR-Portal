@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
+import workplaceHubBanner from './assets/images/hubbanner.jpeg'
 
 import Dashboard from './pages/Dashboard'
 import MyProfile from './pages/MyProfile'
@@ -52,6 +53,67 @@ import CandidateHelpSupport from './pages/CandidateHelpSupport'
 import { getCurrentUser, signIn } from './utils/auth'
 import { OrganizationProvider } from './context/OrganizationContext'
 import OrganizationSelector from './components/OrganizationSelector'
+
+const STAFF_LOGIN_URL =
+  '/.auth/login/aad?post_login_redirect_uri=%2F%3Fportal%3D1'
+
+const CANDIDATE_LOGIN_URL =
+  '/.auth/login/TBBDCandidateExternalID?post_login_redirect_uri=%2F%3FauthMode%3Dcandidate'
+
+const CANDIDATE_REGISTRATION_URL =
+  '/.auth/login/TBBDCandidateExternalID?prompt=create&post_login_redirect_uri=%2F%3FauthMode%3Dcandidate%26registration%3D1'
+
+
+const EMPLOYER_LOGIN_URL =
+  'https://employer.talentbridgebd.com/.auth/login/TBBDEmployerExternalID'
+
+const hubCards = [
+  {
+    id: 'candidate-access',
+    title: 'Candidate Sign In',
+    label: 'For Job Seekers',
+    description: 'Sign in to access your candidate profile and recruitment journey.',
+    cta: 'Candidate Sign In',
+    href: CANDIDATE_LOGIN_URL,
+    icon: 'candidate',
+    theme: 'blue',
+  },
+  {
+    id: 'registration-access',
+    title: 'New Candidate Registration',
+    label: 'New Candidates',
+    description: 'Create your profile and begin your recruitment journey.',
+    cta: 'Register Candidate',
+    href: CANDIDATE_REGISTRATION_URL,
+    icon: 'register',
+    theme: 'green',
+  },
+  {
+    id: 'employer-access',
+    title: 'Employer Access & Sign In',
+    label: 'For Employers',
+    description: 'Manage job postings, candidate reviews, and workforce access.',
+    cta: 'Request Access',
+    href: '/employer-access-request',
+    icon: 'employer',
+    theme: 'purple',
+  },
+  {
+    id: 'staff-access',
+    title: (
+      <>
+        <span className="staff-card-title-line">Staff & Administrator</span>
+        <span className="staff-card-title-line">Sign In</span>
+      </>
+    ),
+    label: 'Authorized Personnel',
+    description: 'Microsoft work account sign in.',
+    cta: 'Sign in with Microsoft',
+    href: STAFF_LOGIN_URL,
+    icon: 'staff',
+    theme: 'orange',
+  },
+]
 
 const placeholderPages = {}
 
@@ -105,6 +167,169 @@ export default function App() {
         <main className="main-content">
           <p>Loading Workplace Hub...</p>
         </main>
+      </div>
+    )
+  }
+
+  if (!auth?.authenticated && !isCandidateMode) {
+    const isLocalDocker =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+
+    const blockLocalAzureSignIn = (event, card) => {
+      if (
+        isLocalDocker &&
+        ['candidate-access', 'registration-access', 'staff-access'].includes(card.id)
+      ) {
+        event.preventDefault()
+        window.alert(
+          'Azure sign-in is available on the deployed TBBD HR Portal. Local Docker does not provide Azure sign-in. No sign-in has occurred.'
+        )
+      }
+    }
+
+    const renderCardIcon = (icon) => {
+      if (icon === 'staff') {
+        return (
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#F25022" d="M4 4h18v18H4z" />
+            <path fill="#7FBA00" d="M26 4h18v18H26z" />
+            <path fill="#00A4EF" d="M4 26h18v18H4z" />
+            <path fill="#FFB900" d="M26 26h18v18H26z" />
+          </svg>
+        )
+      }
+
+      if (icon === 'employer') {
+        return (
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M7 17h34v25H7zM18 17v-6h12v6M7 25h34M20 25v5h8v-5" />
+          </svg>
+        )
+      }
+
+      if (icon === 'register') {
+        return (
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 8v32M8 24h32" />
+          </svg>
+        )
+      }
+
+      return (
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="15" r="8" />
+          <path d="M8 42c1-10 7-15 16-15s15 5 16 15" />
+        </svg>
+      )
+    }
+
+    return (
+      <div className="workplace-hub-shell">
+        <header className="workplace-hub-header">
+          <a className="workplace-hub-brand" href="/" aria-label="Talent Bridge BD home">
+            <img src="/assets/talent-bridge-bd-logo.png" alt="Talent Bridge BD" />
+            <span className="workplace-hub-brand-copy">
+              <strong>TALENT BRIDGE BD</strong>
+              <small>Connecting Talent • Building Tomorrow</small>
+            </span>
+          </a>
+          <nav className="workplace-hub-nav" aria-label="Main navigation">
+            <a href="#candidate-access">Candidates</a>
+            <a href="#employer-access">Employers</a>
+            <a href="#about-tbbd">About TBBD</a>
+          </nav>
+        </header>
+
+        <main className="workplace-hub-main">
+          <section className="workplace-hub-hero" aria-labelledby="workplace-hub-title">
+            <img className="workplace-hub-hero-image" src={workplaceHubBanner} alt="" />
+            <div className="workplace-hub-hero-overlay">
+              <h1 id="workplace-hub-title">Welcome to the TBBD Workplace Hub</h1>
+              <h2>
+                Talent, Employers and HR Operations
+                <br />
+                All in One Place
+              </h2>
+              <span className="workplace-hub-hero-accent" />
+            </div>
+          </section>
+
+          <section className="workplace-hub-access" aria-label="Workplace access">
+            <div className="workplace-hub-grid">
+              {hubCards.map((card) => {
+                const cardContent = (
+                  <>
+                    <div className={`workplace-hub-card-icon workplace-hub-icon-${card.icon}`}>
+                      {renderCardIcon(card.icon)}
+                    </div>
+                    <span className="workplace-hub-card-divider" aria-hidden="true" />
+                    <div className="workplace-hub-card-main">
+                      <div className="workplace-hub-card-content">
+                        <span className="workplace-hub-label">{card.label}</span>
+                        <h3 className="workplace-hub-card-title">{card.title}</h3>
+                        <p className="workplace-hub-card-description">
+                          {card.description}
+                        </p>
+                      </div>
+                      <div className="workplace-hub-card-actions">
+                        {card.id === 'employer-access' ? (
+                          <>
+                            <a
+                              className="workplace-hub-action"
+                              href={EMPLOYER_LOGIN_URL}
+                            >
+                              Employer Sign In <span aria-hidden="true">→</span>
+                            </a>
+                            <a className="workplace-hub-action" href={card.href}>
+                              Request Access <span aria-hidden="true">→</span>
+                            </a>
+                          </>
+                        ) : (
+                          <span className="workplace-hub-action">
+                            {card.cta} <span aria-hidden="true">→</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )
+
+                if (card.id === 'employer-access') {
+                  return (
+                    <article
+                      className={`workplace-hub-card workplace-hub-card--${card.theme}`}
+                      id={card.id}
+                      key={card.id}
+                    >
+                      {cardContent}
+                    </article>
+                  )
+                }
+
+                return (
+                  <a
+                    className={`workplace-hub-card workplace-hub-card--${card.theme}`}
+                    id={card.id}
+                    key={card.id}
+                    href={card.href}
+                    onClick={(event) => blockLocalAzureSignIn(event, card)}
+                  >
+                    {cardContent}
+                  </a>
+                )
+              })}
+            </div>
+          </section>
+
+          <p className="workplace-hub-notice" id="about-tbbd">
+            Access is subject to assigned permissions.
+          </p>
+        </main>
+
+        <footer className="workplace-hub-footer">
+          © Talent Bridge BD. All Rights Reserved.
+        </footer>
       </div>
     )
   }

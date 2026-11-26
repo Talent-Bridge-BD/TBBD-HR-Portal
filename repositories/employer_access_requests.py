@@ -201,6 +201,44 @@ class EmployerAccessRequestRepository:
                 for row in cursor.fetchall()
             ]
 
+    def get_request(self, request_id: str) -> dict | None:
+        try:
+            parsed_id = str(UUID(request_id))
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError("Invalid request ID") from None
+
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    company_name,
+                    representative_name,
+                    email,
+                    phone,
+                    country,
+                    industry,
+                    requested_roles,
+                    requirements,
+                    status,
+                    reviewed_by,
+                    reviewed_at,
+                    review_notes,
+                    created_at,
+                    updated_at
+                FROM dbo.employer_access_requests
+                WHERE id = ?
+                """,
+                parsed_id,
+            )
+            row = cursor.fetchone()
+
+            if row is None:
+                return None
+
+            return self._serialize(row)
+
     def review_request(
         self,
         request_id: str,
