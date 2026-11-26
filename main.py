@@ -100,7 +100,11 @@ app.include_router(administrator_candidate_approvals_router)
 app.include_router(administrator_candidate_roles_router)
 app.include_router(administrator_notifications_router)
 app.include_router(employer_access_requests_router)
+from api.employer_access_requests import (
+    legacy_router as legacy_employer_access_requests_router,
+)
 app.include_router(public_employer_access_requests_router)
+app.include_router(legacy_employer_access_requests_router)
 
 _organization_repository = SqlOrganizationRepository()
 

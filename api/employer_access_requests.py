@@ -10,7 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from api.administrator_organizations import require_admin
 from api import organization as organization_api
 from repositories.employer_access_requests import (
-    EmployerAccessRequestRepository,
+    EmployerOrganizationConflictError,
+    SqlEmployerAccessRequestRepository,
 )
 
 from services.email_service import EmailService
@@ -34,7 +35,7 @@ public_router = APIRouter(
 )
 
 
-_repository = EmployerAccessRequestRepository()
+_repository = SqlEmployerAccessRequestRepository()
 _delivery_log_repository = AdministratorNotificationRepository()
 _identity_mapping_repository = SqlExternalIdentityMappingRepository(
     organization_api._organization_repository._connection
@@ -109,6 +110,80 @@ def submit_employer_access_request(
     }
 
 
+legacy_router = APIRouter(
+    tags=["Employer Access Requests"],
+)
+
+
+@legacy_router.post(
+    "/api/administrator/employer-access-requests/{request_id}/review"
+)
+def legacy_review_employer_access_request(
+    request: Request,
+    request_id: str,
+    payload: dict,
+):
+    """Backward-compatible Administrator review endpoint."""
+    require_admin(request)
+
+    status = str(payload.get("status") or "").strip().lower()
+    if status not in {"approved", "rejected"}:
+        raise HTTPException(
+            status_code=422,
+            detail="Review status must be approved or rejected",
+        )
+
+    review_notes = payload.get("review_notes")
+    if review_notes is not None and not isinstance(review_notes, str):
+        raise HTTPException(
+            status_code=422,
+            detail="Review notes must be a string",
+        )
+
+    principal = None
+    try:
+        from services.local_auth import get_request_principal
+        principal = get_request_principal(request)
+    except Exception:
+        principal = None
+
+    reviewer_id = (
+        str(principal.get("id"))
+        if principal and principal.get("id")
+        else None
+    )
+    if not reviewer_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated Administrator identity required",
+        )
+
+    try:
+        item = _repository.review_request(
+            request_id,
+            status=status,
+            reviewed_by=reviewer_id,
+            review_notes=review_notes,
+        )
+    except EmployerOrganizationConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from None
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from None
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="The request could not be reviewed right now.",
+        ) from None
+
+    if item is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Pending request not found; it may already have been reviewed.",
+        )
+
+    return {"item": item}
+
+
 @router.get("")
 def list_employer_access_requests(
     request: Request,
@@ -172,6 +247,8 @@ def review_employer_access_request(
             reviewed_by=reviewer_email or reviewer_id,
             review_notes=payload.review_notes,
         )
+    except EmployerOrganizationConflictError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from None
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from None
     except Exception:
