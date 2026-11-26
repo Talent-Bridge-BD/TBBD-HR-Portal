@@ -10,7 +10,6 @@ from repositories.external_identity import SqlExternalIdentityMappingRepository
 
 from services.authorization import build_authorization_context
 from services.local_auth import (
-    TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
     TBBD_EMPLOYER_EXTERNAL_ID_PROVIDER,
     TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
     get_request_principal,
