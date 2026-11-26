@@ -462,6 +462,43 @@ def is_employer_external_principal(principal: Optional[dict]) -> bool:
     )
 
 
+TBBD_EXTERNAL_EMPLOYER_MANAGERS_GROUP_ID = (
+    "2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"
+)
+
+
+def has_external_employer_manager_group(
+    principal: Optional[dict],
+) -> bool:
+    """Require Employer Manager group membership for Employer External ID."""
+    if not is_employer_external_principal(principal):
+        return False
+
+    groups = principal.get("groups") or []
+    if isinstance(groups, str):
+        groups = [groups]
+
+    if not isinstance(groups, (list, tuple, set)):
+        groups = []
+
+    group_ids = {str(value).strip().lower() for value in groups}
+
+    claims = principal.get("claims") or []
+    if isinstance(claims, list):
+        group_ids.update(
+            str(claim.get("val")).strip().lower()
+            for claim in claims
+            if isinstance(claim, dict)
+            and str(claim.get("typ", "")).lower() == "groups"
+            and claim.get("val")
+        )
+
+    return (
+        TBBD_EXTERNAL_EMPLOYER_MANAGERS_GROUP_ID.lower()
+        in group_ids
+    )
+
+
 def get_request_principal(request: Request) -> Optional[dict]:
     """
     Resolve the authenticated Microsoft Entra principal.

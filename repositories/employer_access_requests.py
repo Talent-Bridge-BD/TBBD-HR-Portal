@@ -21,6 +21,10 @@ class EmployerAccessRequestRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    @abstractmethod
+    def get_request(self, request_id: str) -> dict | None:
+        raise NotImplementedError
+
     def list_requests(
         self,
         *,
@@ -112,6 +116,13 @@ class InMemoryEmployerAccessRequestRepository(
         }
         self._requests.append(item)
         return dict(item)
+
+    def get_request(self, request_id: str) -> dict | None:
+        item = next(
+            (row for row in self._requests if row["id"] == request_id),
+            None,
+        )
+        return dict(item) if item is not None else None
 
     def list_requests(
         self,
@@ -329,6 +340,27 @@ class SqlEmployerAccessRequestRepository(
             raise ValueError(
                 "A duplicate request could not be accepted"
             ) from exc
+
+    def get_request(self, request_id: str) -> dict | None:
+        try:
+            normalized_id = str(uuid.UUID(str(request_id)))
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+        query = """
+            SELECT
+                id, company_name, representative_name, email,
+                phone, country, industry, requested_roles, requirements,
+                status, reviewed_by, reviewed_at, review_notes,
+                created_at, updated_at, organization_id
+            FROM dbo.employer_access_requests
+            WHERE id = ?
+        """
+        with self._connection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(query, normalized_id)
+            row = cursor.fetchone()
+            return self._serialize(row) if row else None
 
     def list_requests(
         self,
