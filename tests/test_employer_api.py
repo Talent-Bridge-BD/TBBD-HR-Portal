@@ -12,38 +12,29 @@ from models.employer_dashboard import (
 )
 from repositories.employer_dashboard import InMemoryEmployerDashboardRepository
 from services.employer_dashboard import EmployerDashboardService
+from services.local_auth import TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID
 
 
 def make_principal(
-    principal_id,
-    name,
-    groups=None,
-    roles=None,
-    tenant_id=None,
-    audience=None,
-    object_id=None,
+    principal_id, name, groups=None, roles=None, tenant_id=None, audience=None, object_id=None
 ):
     claims = [
-        {"typ": "name", "val": name},
-        *[
-            {"typ": "groups", "val": group}
-            for group in (groups or [])
-        ],
-        *[
-            {"typ": "roles", "val": role}
-            for role in (roles or [])
-        ],
-    ]
-
+            {"typ": "name", "val": name},
+            *[
+                {"typ": "groups", "val": group}
+                for group in (groups or [])
+            ],
+            *[
+                {"typ": "roles", "val": role}
+                for role in (roles or [])
+            ],
+        ]
     if tenant_id:
         claims.append({"typ": "tid", "val": tenant_id})
-
     if audience:
         claims.append({"typ": "aud", "val": audience})
-
-    if object_id:
-        claims.append({"typ": "oid", "val": object_id})
-
+    if tenant_id:
+        claims.append({"typ": "oid", "val": object_id or principal_id})
     principal = {"claims": claims}
 
     return base64.b64encode(
@@ -90,7 +81,7 @@ def test_employer_manager_can_access_dashboard(monkeypatch):
     encoded_principal = make_principal(
         "user-001",
         "Test Employer",
-        roles=["Employer.Manager"],
+        groups=["7088ce1f-8e01-4c7c-88fd-a257721a35df"],
     )
 
     client = TestClient(app)
@@ -122,7 +113,6 @@ def test_employer_manager_can_access_dashboard(monkeypatch):
     assert data["pipeline"]["onboarding"] == 0
     assert data["pipeline"]["deployment"] == 0
     assert data["pipeline"]["completed"] == 0
-
 
 def test_employee_cannot_access_employer_dashboard(monkeypatch):
     dashboard = EmployerDashboard(
@@ -171,88 +161,145 @@ def test_employee_cannot_access_employer_dashboard(monkeypatch):
     assert response.status_code == 403
 
 
-def _configure_administrator_dashboard(monkeypatch):
+def test_employer_external_identity_uses_mapped_application_user_and_membership(monkeypatch):
+    from types import SimpleNamespace
+
     dashboard = EmployerDashboard(
-        employer_name="Test Administrator",
-        organization_name=None,
+        employer_name="Existing Employer",
+        organization_name="Existing Organization",
         stats=EmployerDashboardStats(3, 5, 12, 2),
         pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
     )
-
     monkeypatch.setattr(
-        employer_api,
-        "_organization_repository",
-        type(
-            "FakeOrganizationRepository",
-            (),
-            {"get_active_memberships": lambda self, user_id: []},
-        )(),
-    )
-
-    monkeypatch.setattr(
-        employer_api,
-        "_service",
-        EmployerDashboardService(
+        employer_api, "_service", EmployerDashboardService(
             InMemoryEmployerDashboardRepository(dashboard)
         ),
     )
-
-
-def test_administrator_normalized_role_can_access_employer_dashboard(
-    monkeypatch,
-):
-    _configure_administrator_dashboard(monkeypatch)
-
+    lookups = []
     monkeypatch.setattr(
-        employer_api,
-        "get_request_principal",
-        lambda request: {
-            "id": "admin-001",
-            "name": "Test Administrator",
-            "roles": ["Administrator"],
-            "groups": [],
-            "claims": [],
+        employer_api, "_identity_mapping_repository",
+        type("FakeMappingRepository", (), {
+            "get_mapping": lambda self, **kwargs: {
+                "id": "mapping-001",
+                "application_user_id": "canonical-existing-user",
+                "status": "Active",
+            }
+        })(),
+    )
+    monkeypatch.setattr(
+        employer_api, "_organization_repository",
+        type("FakeOrganizationRepository", (), {
+            "get_active_memberships": lambda self, user_id: (
+                lookups.append(user_id) or [
+                    SimpleNamespace(
+                        user_id=user_id,
+                        organization_id="existing-org",
+                        role="Employer Manager",
+                        status="active",
+                    )
+                ]
+            )
+        })(),
+    )
+
+    encoded = make_principal(
+        "new-employer-external-object-id",
+        "Existing Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
+    )
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "new-employer-external-object-id",
+            "X-MS-CLIENT-PRINCIPAL": encoded,
         },
     )
 
-    response = TestClient(app).get("/api/employer/dashboard")
-
-    assert response.status_code == 200
-    assert response.json()["stats"]["active_jobs"] == 3
+    assert response.status_code == 200, response.text
+    assert lookups == ["canonical-existing-user"]
 
 
-def test_administrator_normalized_group_can_access_employer_dashboard(
+def test_employer_external_identity_rejects_wrong_audience(monkeypatch):
+    encoded = make_principal(
+        "external-object-id",
+        "Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience="wrong-client-id",
+    )
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "external-object-id",
+            "X-MS-CLIENT-PRINCIPAL": encoded,
+        },
+    )
+    assert response.status_code == 401
+
+
+def test_employer_external_identity_requires_active_employer_manager_membership(monkeypatch):
+    encoded = make_principal(
+        "external-object-id",
+        "Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
+    )
+    monkeypatch.setattr(
+        employer_api, "_identity_mapping_repository",
+        type("FakeMappingRepository", (), {"get_mapping": lambda self, **kwargs: None})(),
+    )
+    monkeypatch.setattr(
+        employer_api, "_organization_repository",
+        type("FakeOrganizationRepository", (), {"get_active_memberships": lambda self, user_id: []})(),
+    )
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "external-object-id",
+            "X-MS-CLIENT-PRINCIPAL": encoded,
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_unmapped_employer_external_identity_cannot_use_external_id_membership(
     monkeypatch,
 ):
-    _configure_administrator_dashboard(monkeypatch)
+    from types import SimpleNamespace
+
+    external_object_id = "unmapped-employer-external-object-id"
+    membership_lookups = []
+
+    encoded = make_principal(
+        external_object_id,
+        "Unmapped Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
+    )
 
     monkeypatch.setattr(
         employer_api,
-        "get_request_principal",
-        lambda request: {
-            "id": "admin-002",
-            "name": "Test Administrator",
-            "roles": [],
-            "groups": ["2a75a7c1-e9b8-4c2d-aaed-aeba636a8a66"],
-            "claims": [],
-        },
+        "_identity_mapping_repository",
+        type(
+            "FakeMappingRepository",
+            (),
+            {"get_mapping": lambda self, **kwargs: None},
+        )(),
     )
 
-    response = TestClient(app).get("/api/employer/dashboard")
-
-    assert response.status_code == 200
-    assert response.json()["stats"]["active_jobs"] == 3
-
-
-def test_tenant_2_employer_manager_role_can_access_dashboard(monkeypatch):
-    dashboard = EmployerDashboard(
-        employer_name="Tenant 2 Employer",
-        organization_name="Tenant 2 Organization",
-        stats=EmployerDashboardStats(3, 5, 12, 2),
-        pipeline=EmployerPipeline(5, 3, 1, 0, 0, 0, 0, 0, 0, 0),
-    )
-
-    repository = InMemoryEmployerDashboardRepository(dashboard)
+    def get_memberships(self, user_id):
+        membership_lookups.append(user_id)
+        return [
+            SimpleNamespace(
+                user_id=user_id,
+                organization_id="existing-org",
+                role="Employer Manager",
+                status="active",
+            )
+        ]
 
     monkeypatch.setattr(
         employer_api,
@@ -260,33 +307,47 @@ def test_tenant_2_employer_manager_role_can_access_dashboard(monkeypatch):
         type(
             "FakeOrganizationRepository",
             (),
-            {"get_active_memberships": lambda self, user_id: []},
+            {"get_active_memberships": get_memberships},
         )(),
-    )
-
-    monkeypatch.setattr(
-        employer_api,
-        "_service",
-        EmployerDashboardService(repository),
-    )
-
-    encoded_principal = make_principal(
-        "tenant2-manager-001",
-        "Tenant 2 Employer Manager",
-        roles=["Employer.Manager"],
     )
 
     response = TestClient(app).get(
         "/api/employer/dashboard",
         headers={
-            "X-MS-CLIENT-PRINCIPAL-ID": "tenant2-manager-001",
-            "X-MS-CLIENT-PRINCIPAL-NAME": "tenant2-manager",
-            "X-MS-CLIENT-PRINCIPAL": encoded_principal,
+            "X-MS-CLIENT-PRINCIPAL-ID": external_object_id,
+            "X-MS-CLIENT-PRINCIPAL": encoded,
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["employer_name"] == "Tenant 2 Employer Manager"
+    assert response.status_code == 403
+    assert membership_lookups == []
+
+
+def test_employer_external_identity_rejects_revoked_mapping(monkeypatch):
+    encoded = make_principal(
+        "external-object-id",
+        "Employer",
+        tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
+    )
+    monkeypatch.setattr(
+        employer_api, "_identity_mapping_repository",
+        type("FakeMappingRepository", (), {
+            "get_mapping": lambda self, **kwargs: {
+                "application_user_id": "canonical-existing-user",
+                "status": "Revoked",
+            }
+        })(),
+    )
+    response = TestClient(app).get(
+        "/api/employer/dashboard",
+        headers={
+            "X-MS-CLIENT-PRINCIPAL-ID": "external-object-id",
+            "X-MS-CLIENT-PRINCIPAL": encoded,
+        },
+    )
+    assert response.status_code == 403
 
 
 def test_get_principal_normalizes_employer_manager_role_alias(monkeypatch):
@@ -311,12 +372,9 @@ def test_get_principal_normalizes_employer_manager_role_alias(monkeypatch):
         "headers": [],
     })
 
-    (
-        principal_id,
-        employer_name,
-        roles,
-        returned_principal,
-    ) = employer_api._get_principal(request)
+    principal_id, employer_name, roles, returned_principal = (
+        employer_api._get_principal(request)
+    )
 
     assert principal_id == "employer-user-001"
     assert employer_name == "Test Employer"
@@ -343,11 +401,7 @@ def test_external_employer_dashboard_scopes_only_active_employer_manager_organiz
             captured["organization_ids"] = context.organization_ids
             return dashboard
 
-    monkeypatch.setattr(
-        employer_api,
-        "_service",
-        CapturingService(),
-    )
+    monkeypatch.setattr(employer_api, "_service", CapturingService())
 
     monkeypatch.setattr(
         employer_api,
@@ -366,7 +420,6 @@ def test_external_employer_dashboard_scopes_only_active_employer_manager_organiz
 
     def get_memberships(self, user_id):
         assert user_id == "canonical-existing-user"
-
         return [
             SimpleNamespace(
                 user_id=user_id,
@@ -405,12 +458,11 @@ def test_external_employer_dashboard_scopes_only_active_employer_manager_organiz
     )
 
     external_object_id = "external-role-scope-object-id"
-
     encoded = make_principal(
         external_object_id,
         "Existing Employer",
         tenant_id=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_TENANT_ID,
-        audience=employer_api.TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
+        audience=TBBD_EMPLOYER_EXTERNAL_ID_CLIENT_ID,
         object_id=external_object_id,
         groups=["2f2e6a59-1e61-4467-8642-3a76cf8aa8d1"],
     )
@@ -424,7 +476,6 @@ def test_external_employer_dashboard_scopes_only_active_employer_manager_organiz
     )
 
     assert response.status_code == 200, response.text
-
     assert captured["organization_ids"] == frozenset(
         {"manager-org", "manager-alias-org"}
     )

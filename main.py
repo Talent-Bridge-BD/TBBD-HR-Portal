@@ -47,7 +47,10 @@ from api.administrator_candidate_roles import router as administrator_candidate_
 from api.administrator_notifications import (
     router as administrator_notifications_router
 )
-from api.employer_access_requests import router as employer_access_requests_router
+from api.employer_access_requests import (
+    router as employer_access_requests_router,
+    public_router as public_employer_access_requests_router,
+)
 
 app = FastAPI()
 
@@ -97,6 +100,7 @@ app.include_router(administrator_candidate_approvals_router)
 app.include_router(administrator_candidate_roles_router)
 app.include_router(administrator_notifications_router)
 app.include_router(employer_access_requests_router)
+app.include_router(public_employer_access_requests_router)
 
 _organization_repository = SqlOrganizationRepository()
 

@@ -2,22 +2,27 @@ import { useCallback, useEffect, useState } from 'react'
 import { authenticatedFetch } from '../utils/auth'
 import './EmployerAccessRequests.css'
 
-const API = '/api/administrator/employer-access-requests'
+const API = '/api/employer-access-requests'
 
 function formatDate(value) {
-  if (!value) return 'ΓÇö'
+  if (!value) return '—'
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
 }
 
 export default function EmployerAccessRequests() {
   const [requests, setRequests] = useState([])
-  const [status, setStatus] = useState('pending')
+  const [status, setStatus] = useState('Pending')
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [notes, setNotes] = useState({})
+  const [organizations, setOrganizations] = useState([])
+  const [organizationsLoading, setOrganizationsLoading] = useState(false)
+  const [organizationsError, setOrganizationsError] = useState('')
+  const [activationForms, setActivationForms] = useState({})
+  const [activatedIds, setActivatedIds] = useState([])
 
   const loadRequests = useCallback(async () => {
     setLoading(true)
@@ -30,7 +35,7 @@ export default function EmployerAccessRequests() {
         throw new Error(`Could not load requests (${response.status}).`)
       }
       const data = await response.json()
-      setRequests(Array.isArray(data) ? data : data.items || data.requests || [])
+      setRequests(Array.isArray(data) ? data : data.requests || data.items || [])
     } catch (err) {
       setError(err.message || 'Could not load employer access requests.')
     } finally {
@@ -38,12 +43,41 @@ export default function EmployerAccessRequests() {
     }
   }, [status])
 
+  const loadOrganizations = useCallback(async () => {
+    setOrganizationsLoading(true)
+    setOrganizationsError('')
+    try {
+      const response = await authenticatedFetch('/api/organizations')
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(
+          data.detail || `Could not load active organizations (${response.status}).`
+        )
+      }
+      setOrganizations(
+        Array.isArray(data.organizations) ? data.organizations : []
+      )
+    } catch (err) {
+      setOrganizationsError(
+        err.message || 'Could not load active organizations.'
+      )
+    } finally {
+      setOrganizationsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     loadRequests()
   }, [loadRequests])
 
+  useEffect(() => {
+    if (status === 'Approved') {
+      loadOrganizations()
+    }
+  }, [status, loadOrganizations])
+
   async function reviewRequest(requestId, decision) {
-    const promptText = decision === 'approved'
+    const promptText = decision === 'Approved'
       ? 'Approve this request for review completion? This will not grant login access or organization membership.'
       : 'Reject this employer access request?'
 
@@ -57,7 +91,7 @@ export default function EmployerAccessRequests() {
       const response = await authenticatedFetch(
         `${API}/${encodeURIComponent(requestId)}/review`,
         {
-          method: 'POST',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             status: decision,
@@ -75,6 +109,94 @@ export default function EmployerAccessRequests() {
       await loadRequests()
     } catch (err) {
       setError(err.message || 'Could not review this request.')
+    } finally {
+      setBusyId('')
+    }
+  }
+
+  function updateActivationForm(requestId, field, value) {
+    setActivationForms((current) => ({
+      ...current,
+      [requestId]: {
+        ...(current[requestId] || {}),
+        [field]: value,
+      },
+    }))
+  }
+
+  async function activateRequest(requestId) {
+    const form = activationForms[requestId] || {}
+    const organizationId = String(form.organization_id || '').trim()
+    const entraObjectId = String(form.entra_object_id || '').trim()
+    const applicationUserId = String(form.application_user_id || '').trim()
+
+    if (!organizationId || !entraObjectId) {
+      setError('Select an organization and enter the verified Entra Object ID.')
+      return
+    }
+
+    if (form.identity_verified !== true) {
+      setError('Confirm that the Entra identity was independently verified.')
+      return
+    }
+
+    const confirmation = applicationUserId
+      ? 'Link this verified Entra identity to the existing application account and selected organization?'
+      : 'Activate this verified Entra identity and create its Employer Manager membership in the selected organization?'
+
+    if (!window.confirm(
+      `${confirmation} Check the organization and identity details before continuing.`
+    )) {
+      return
+    }
+
+    setBusyId(requestId)
+    setError('')
+    setMessage('')
+
+    try {
+      const payload = {
+        organization_id: organizationId,
+        entra_object_id: entraObjectId,
+        identity_verified: true,
+      }
+
+      if (applicationUserId) {
+        payload.application_user_id = applicationUserId
+      }
+
+      const response = await authenticatedFetch(
+        `${API}/${encodeURIComponent(requestId)}/activate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      )
+
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(
+          body.detail || `Activation failed (${response.status}).`
+        )
+      }
+
+      setActivatedIds((current) =>
+        current.includes(requestId) ? current : [...current, requestId]
+      )
+
+      const resultMessages = [
+        body.message,
+        body.audit_warning,
+        body.delivery_log_warning,
+      ].filter(Boolean)
+
+      setMessage(
+        resultMessages.join(' ') || 'Employer activation completed.'
+      )
+      await loadRequests()
+    } catch (err) {
+      setError(err.message || 'Could not activate this employer request.')
     } finally {
       setBusyId('')
     }
@@ -99,9 +221,9 @@ export default function EmployerAccessRequests() {
           value={status}
           onChange={(event) => setStatus(event.target.value)}
         >
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
         </select>
         <span>{requests.length} request{requests.length === 1 ? '' : 's'}</span>
       </div>
@@ -110,7 +232,7 @@ export default function EmployerAccessRequests() {
       {message && <p className="employer-access-admin__alert employer-access-admin__alert--success" role="status">{message}</p>}
 
       {loading ? (
-        <p>Loading employer access requestsΓÇª</p>
+        <p>Loading employer access requests…</p>
       ) : requests.length === 0 ? (
         <section className="employer-access-admin__empty">
           <h2>No {status.toLowerCase()} requests</h2>
@@ -125,7 +247,7 @@ export default function EmployerAccessRequests() {
                 <div className="employer-access-admin__card-heading">
                   <div>
                     <h2>{item.company_name}</h2>
-                    <p>{item.representative_name} ┬╖ {item.email}</p>
+                    <p>{item.representative_name} · {item.email}</p>
                   </div>
                   <span className={`employer-access-admin__status employer-access-admin__status--${String(item.status || status).toLowerCase()}`}>
                     {item.status || status}
@@ -133,10 +255,10 @@ export default function EmployerAccessRequests() {
                 </div>
 
                 <dl className="employer-access-admin__details">
-                  <div><dt>Phone</dt><dd>{item.phone || 'ΓÇö'}</dd></div>
-                  <div><dt>Country</dt><dd>{item.country || 'ΓÇö'}</dd></div>
-                  <div><dt>Industry</dt><dd>{item.industry || 'ΓÇö'}</dd></div>
-                  <div><dt>Requested roles</dt><dd>{item.requested_roles || 'ΓÇö'}</dd></div>
+                  <div><dt>Phone</dt><dd>{item.phone || '—'}</dd></div>
+                  <div><dt>Country</dt><dd>{item.country || '—'}</dd></div>
+                  <div><dt>Industry</dt><dd>{item.industry || '—'}</dd></div>
+                  <div><dt>Requested roles</dt><dd>{item.requested_roles || '—'}</dd></div>
                   <div><dt>Submitted</dt><dd>{formatDate(item.created_at)}</dd></div>
                   {item.reviewed_by && <div><dt>Reviewed by</dt><dd>{item.reviewed_by}</dd></div>}
                 </dl>
@@ -155,7 +277,122 @@ export default function EmployerAccessRequests() {
                   </div>
                 )}
 
-                {item.status === 'pending' && (
+                {item.status === 'Approved' && (
+                  <div className="employer-access-admin__review">
+                    <h3>Activate employer access</h3>
+
+                    {organizationsError && (
+                      <p
+                        className="employer-access-admin__alert employer-access-admin__alert--error"
+                        role="alert"
+                      >
+                        {organizationsError}
+                      </p>
+                    )}
+
+                    <label htmlFor={`organization-${id}`}>
+                      Active organization
+                    </label>
+                    <select
+                      id={`organization-${id}`}
+                      value={activationForms[id]?.organization_id || ''}
+                      disabled={organizationsLoading || activatedIds.includes(id)}
+                      onChange={(event) => updateActivationForm(
+                        id, 'organization_id', event.target.value
+                      )}
+                    >
+                      <option value="">
+                        {organizationsLoading
+                          ? 'Loading organizations…'
+                          : 'Select an organization'}
+                      </option>
+                      {organizations.map((organization) => (
+                        <option key={organization.id} value={organization.id}>
+                          {organization.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label htmlFor={`entra-object-${id}`}>
+                      Microsoft Entra Object ID
+                    </label>
+                    <input
+                      id={`entra-object-${id}`}
+                      type="text"
+                      maxLength={200}
+                      autoComplete="off"
+                      value={activationForms[id]?.entra_object_id || ''}
+                      disabled={activatedIds.includes(id)}
+                      onChange={(event) => updateActivationForm(
+                        id, 'entra_object_id', event.target.value
+                      )}
+                      placeholder="Verified Entra user Object ID"
+                    />
+
+                    <label htmlFor={`application-user-${id}`}>
+                      Existing application user ID (optional)
+                    </label>
+                    <input
+                      id={`application-user-${id}`}
+                      type="text"
+                      maxLength={100}
+                      autoComplete="off"
+                      value={activationForms[id]?.application_user_id || ''}
+                      disabled={activatedIds.includes(id)}
+                      onChange={(event) => updateActivationForm(
+                        id, 'application_user_id', event.target.value
+                      )}
+                      placeholder="Leave blank for new-employer activation"
+                    />
+
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={activationForms[id]?.identity_verified === true}
+                        disabled={activatedIds.includes(id)}
+                        onChange={(event) => updateActivationForm(
+                          id, 'identity_verified', event.target.checked
+                        )}
+                      />
+                      I independently verified this Entra identity.
+                    </label>
+
+                    <p className="employer-access-admin__notice">
+                      Verify the Object ID against the correct Microsoft Entra
+                      tenant before activating. Supplying an existing
+                      application user ID links an existing account and
+                      requires its active Employer Manager membership.
+                    </p>
+
+                    {organizations.length === 0 && !organizationsLoading && (
+                      <p className="employer-access-admin__notice">
+                        No active organizations are available. Activation
+                        cannot proceed until an active organization is available.
+                      </p>
+                    )}
+
+                    <div className="employer-access-admin__actions">
+                      <button
+                        type="button"
+                        disabled={
+                          busyId === id ||
+                          activatedIds.includes(id) ||
+                          organizationsLoading ||
+                          organizations.length === 0
+                        }
+                        onClick={() => activateRequest(id)}
+                      >
+                        {activatedIds.includes(id)
+                          ? 'Activated'
+                          : busyId === id
+                            ? 'Activating…'
+                            : 'Activate employer access'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {item.status === 'Pending' && (
                   <div className="employer-access-admin__review">
                     <label htmlFor={`notes-${id}`}>Review notes (optional)</label>
                     <textarea
@@ -172,15 +409,15 @@ export default function EmployerAccessRequests() {
                       <button
                         type="button"
                         disabled={busyId === id}
-                        onClick={() => reviewRequest(id, 'approved')}
+                        onClick={() => reviewRequest(id, 'Approved')}
                       >
-                        {busyId === id ? 'SavingΓÇª' : 'Approve request'}
+                        {busyId === id ? 'Saving…' : 'Approve request'}
                       </button>
                       <button
                         type="button"
                         className="employer-access-admin__reject"
                         disabled={busyId === id}
-                        onClick={() => reviewRequest(id, 'rejected')}
+                        onClick={() => reviewRequest(id, 'Rejected')}
                       >
                         Reject request
                       </button>

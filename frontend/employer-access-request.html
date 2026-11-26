@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0067B8">
+  <title>Request Employer Access | Talent Bridge BD</title>
+</head>
+<body>
+  <main class="public-request">
+    <header class="public-request__header">
+      <a class="public-request__brand" href="/" aria-label="TBBD Workplace Hub home">
+        <span class="public-request__mark">TBBD</span>
+        <span>Talent Bridge BD</span>
+      </a>
+    </header>
+
+    <section class="public-request__card">
+      <p class="public-request__eyebrow">EMPLOYER SERVICES</p>
+      <h1>Request Employer Access</h1>
+      <p class="public-request__intro">
+        Tell us about your organization. Our team will review your request
+        before any portal access is granted.
+      </p>
+
+      <form id="employer-access-form">
+        <div class="public-request__grid">
+          <label>
+            Company name <span aria-hidden="true">*</span>
+            <input name="company_name" required minlength="2" maxlength="200"
+                   autocomplete="organization">
+          </label>
+          <label>
+            Representative name <span aria-hidden="true">*</span>
+            <input name="representative_name" required minlength="2" maxlength="200"
+                   autocomplete="name">
+          </label>
+          <label>
+            Business email <span aria-hidden="true">*</span>
+            <input name="email" type="email" required maxlength="320"
+                   autocomplete="email">
+          </label>
+          <label>
+            Phone
+            <input name="phone" type="tel" maxlength="50" autocomplete="tel">
+          </label>
+          <label>
+            Country
+            <input name="country" maxlength="100" autocomplete="country-name">
+          </label>
+          <label>
+            Industry
+            <input name="industry" maxlength="150">
+          </label>
+        </div>
+
+        <label>
+          Requested roles or hiring needs
+          <textarea name="requested_roles" rows="3" maxlength="1000"
+                    placeholder="For example: Steel Fixers, Electricians, Welders"></textarea>
+        </label>
+
+        <label>
+          Additional requirements
+          <textarea name="requirements" rows="4" maxlength="10000"
+                    placeholder="Tell us about your organization and recruitment needs"></textarea>
+        </label>
+
+        <button id="submit-button" type="submit">Submit access request</button>
+        <p id="form-status" role="status" aria-live="polite"></p>
+        <p class="public-request__note">
+          Submitting this form requests access only. It does not create an account
+          or grant portal permissions.
+        </p>
+      </form>
+    </section>
+
+    <footer class="public-request__footer">
+      Talent Bridge BD · Employer Access
+    </footer>
+  </main>
+  <script type="module" src="/src/employer-access-request.js"></script>
+</body>
+</html>
